@@ -16,7 +16,8 @@ export class Particle {
         this.initValues(values);
     }
 
-    initValues({ x, y, velocityX, velocityY, radius, mass, color, alpha, rotation, lifetime, drawFn, updateFn }) {
+    initValues({index, x, y, velocityX, velocityY, radius, mass, color, alpha, rotation, lifetime, drawFn, updateFn }) {
+        this.index = index || 0;
         this._x = x || 0;
         this._y = y || 0;
         this.xHistory = [x];

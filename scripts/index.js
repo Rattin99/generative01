@@ -9,6 +9,7 @@ import { variation1 } from './variation1';
 import { variation2 } from './variation2';
 import { variation3 } from './variation3';
 import {variation4} from "./variation4";
+import {variation5} from "./variation5";
 import {
     attractPoint,
     avoidPoint,
@@ -67,6 +68,10 @@ const variations = {
     4: {
         note: 'Particles are repelled from the pointer. Press to attract.',
         sketch: variation4,
+    },
+    5: {
+        note: 'Sit back and watch.',
+        sketch: variation5,
     },
 };
 

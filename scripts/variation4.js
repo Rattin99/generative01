@@ -25,6 +25,7 @@ export const variation4 = () => {
             props.y = y;
             props.radius=1;
             props.color = {r:0,g:0,b:0}
+            props.index = circles.length-1;
             particlesArray.push(new Particle(props));
         }
         config.numParticles = particlesArray.length;
@@ -37,6 +38,13 @@ export const variation4 = () => {
         for (let i = 0; i < config.numParticles; i++) {
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
             drawPoint(context)(particlesArray[i]);
+            // let index = particlesArray[i].index + 1;
+            // if(index === circles.length) {
+            //     index = 0;
+            // }
+            // particlesArray[i].x = circles[index][0];
+            // particlesArray[i].y = circles[index][1];
+            // particlesArray.index = index;
         }
         connectParticles(context)(particlesArray, 200);
         return 1; // -1 to exit animation loop

@@ -83,7 +83,7 @@ export const connectParticles = (context) => (pArray, proximity) => {
                 opacity = normalizeInverse(0, proximity, distance);
                 const lColor = `rgba(${pColor.r}, ${pColor.g}, ${pColor.b}, ${opacity})`;
                 context.strokeStyle = lColor;
-                drawLine(context)(1, pA.x, pA.y, pB.x, pB.y);
+                drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
             }
         }
     }
