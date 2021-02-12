@@ -72,7 +72,7 @@ export const sketch = () => {
         const startSketch = () => {
             window.removeEventListener('load', startSketch);
             variation.setup(canvas, context);
-            fillCanvas(canvas, context)();
+            // fillCanvas(canvas, context)();
             const render = () => {
                 const result = variation.draw(canvas, context, mouse);
                 if (result !== -1) {

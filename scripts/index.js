@@ -8,6 +8,16 @@ import { sketch } from './lib/sketch';
 import { variation1 } from './variation1';
 import { variation2 } from './variation2';
 import { variation3 } from './variation3';
+import {variation4} from "./variation4";
+import {
+    attractPoint,
+    avoidPoint,
+    createRandomParticleValues,
+    edgeBounce,
+    Particle, pointPush,
+    updatePosWithVelocity
+} from "./lib/particle";
+import {connectParticles, drawPoint, drawPointTrail, fillCanvas} from "./lib/canvas";
 
 const s = sketch();
 
@@ -54,6 +64,10 @@ const variations = {
         note: 'Particles are repelled from the pointer. Press to attract.',
         sketch: variation3,
     },
+    4: {
+        note: 'Particles are repelled from the pointer. Press to attract.',
+        sketch: variation4,
+    },
 };
 
 if (variations.hasOwnProperty(variationKey)) {
@@ -63,3 +77,4 @@ if (variations.hasOwnProperty(variationKey)) {
 } else {
     setNote('Not a valid variation!');
 }
+
