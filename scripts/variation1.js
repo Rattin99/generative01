@@ -6,7 +6,7 @@ import {
     updatePosWithVelocity,
     createRandomParticleValues,
 } from './lib/particle';
-import { clearCanvas, connectParticles, drawCircle, drawPoint, drawPointTrail } from './lib/canvas';
+import {clearCanvas, connectParticles, drawCircle, drawPoint, drawPointTrail, fillCanvas} from './lib/canvas';
 
 const psCanvasCenter = (canvas) => ({
     x: canvas.width / 2,
@@ -15,33 +15,32 @@ const psCanvasCenter = (canvas) => ({
 
 // Based on https://www.youtube.com/watch?v=d620nV6bp0A
 export const variation1 = () => {
-    const config = {
-        friction: 0.8,
-        gravity: 1,
-        decay: 0.05,
-        tweenDamp: 0.1,
-        margin: 50,
-        intensity: 0,
-        numParticles: 100,
-    };
-
+    const numParticles= 100;
     const particlesArray = [];
 
+    let canvasCenterX;
+    let canvasCenterY;
+    let centerRadius;
+
     const setup = (canvas, context) => {
-        for (let i = 0; i < config.numParticles; i++) {
+        canvasCenterX = canvas.width/2;
+        canvasCenterY = canvas.height/2;
+        centerRadius = canvas.height/4;
+
+        for (let i = 0; i < numParticles; i++) {
             const props = createRandomParticleValues(canvas);
-            // props.radius = 10;
+            props.radius = 5;
             particlesArray.push(new Particle(props));
         }
     };
 
     const draw = (canvas, context, mouse) => {
-        clearCanvas(canvas, context)();
+        fillCanvas(canvas, context)();
 
-        for (let i = 0; i < config.numParticles; i++) {
+        for (let i = 0; i < numParticles; i++) {
             updatePosWithVelocity(particlesArray[i]);
             edgeBounce(canvas, particlesArray[i]);
-            avoidPoint({ radius: 200, ...psCanvasCenter(canvas) }, particlesArray[i], 4);
+            avoidPoint({ radius: centerRadius, x:canvasCenterX, y:canvasCenterY }, particlesArray[i], 4);
             attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
             drawPoint(context)(particlesArray[i]);
             drawPointTrail(context)(particlesArray[i]);
@@ -51,7 +50,6 @@ export const variation1 = () => {
     };
 
     return {
-        config,
         setup,
         draw,
     };

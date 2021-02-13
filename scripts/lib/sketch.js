@@ -33,7 +33,7 @@ export const sketch = () => {
         radius: 100,
     };
 
-    const canvasSizeFraction = 0.75;
+    const canvasSizeFraction = 0.85;
     const canvas = document.getElementById('canvas1');
     const context = canvas.getContext('2d');
     canvas.width = window.innerWidth * canvasSizeFraction;

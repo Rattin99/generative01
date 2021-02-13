@@ -16,7 +16,7 @@ export class Particle {
         this.initValues(values);
     }
 
-    initValues({index, x, y, velocityX, velocityY, radius, mass, color, alpha, rotation, lifetime, drawFn, updateFn }) {
+    initValues({index, x, y, velocityX, velocityY, radius, mass, color, alpha, rotation, lifetime, drawFn, updateFn, colorFn }) {
         this.index = index || 0;
         this._x = x || 0;
         this._y = y || 0;
@@ -36,6 +36,7 @@ export class Particle {
         this.lifetime = lifetime || 1;
         this.drawFn = drawFn;
         this.updateFn = updateFn;
+        this.colorFn = colorFn;
     }
 
     get colorRgba() {
@@ -49,6 +50,9 @@ export class Particle {
     }
 
     get color() {
+        if(this.colorFn) {
+            return this.colorFn(this);
+        }
         return this.colorRgba.toRgbString();
     }
 
@@ -203,5 +207,21 @@ export const pointPush = (point, particle, f = 1) => {
         if (particle.y !== particle.oY) {
             particle.y -= (particle.y - particle.oY) * 0.1;
         }
+    }
+};
+
+export const gravityPoint = (point, particle, f = 1) => {
+    const distance = pointDistance(point, particle);
+    const radius = 2000;
+    if (distance < radius) {
+        const dx = point.x - particle.x;
+        const dy = point.y - particle.y;
+        const forceDirectionX = dx / distance;
+        const forceDirectionY = dy / distance;
+        const force = normalizeInverse(0, radius, distance) * f * .2;
+        const tempX = forceDirectionX * force * particle.radius * 2;
+        const tempY = forceDirectionY * force * particle.radius * 2;
+        particle.x += tempX;
+        particle.y += tempY;
     }
 };

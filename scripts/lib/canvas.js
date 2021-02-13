@@ -1,3 +1,5 @@
+import tinycolor from 'tinycolor2';
+
 import { radiansToDegrees, pointAngleFromVelocity, pointDistance, normalizeInverse } from './math';
 
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
@@ -77,12 +79,10 @@ export const connectParticles = (context) => (pArray, proximity) => {
             const pA = pArray[a];
             const pB = pArray[b];
             const distance = pointDistance(pA, pB);
-            const pColor = pA.colorRgba.toRgb();
-
             if (distance < proximity) {
-                opacity = normalizeInverse(0, proximity, distance);
-                const lColor = `rgba(${pColor.r}, ${pColor.g}, ${pColor.b}, ${opacity})`;
-                context.strokeStyle = lColor;
+                const pColor = tinycolor(pA.color);
+                pColor.setAlpha(normalizeInverse(0, proximity, distance));
+                context.strokeStyle = pColor.toHslString();
                 drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
             }
         }

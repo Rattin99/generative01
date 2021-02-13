@@ -10,15 +10,7 @@ import { variation2 } from './variation2';
 import { variation3 } from './variation3';
 import {variation4} from "./variation4";
 import {variation5} from "./variation5";
-import {
-    attractPoint,
-    avoidPoint,
-    createRandomParticleValues,
-    edgeBounce,
-    Particle, pointPush,
-    updatePosWithVelocity
-} from "./lib/particle";
-import {connectParticles, drawPoint, drawPointTrail, fillCanvas} from "./lib/canvas";
+import {variation6} from './variation6'
 
 const s = sketch();
 
@@ -72,6 +64,10 @@ const variations = {
     5: {
         note: 'Sit back and watch.',
         sketch: variation5,
+    },
+    6: {
+        note: 'Move the mouse',
+        sketch: variation6,
     },
 };
 
