@@ -35,7 +35,8 @@ export const variation6 = () => {
             updatePosWithVelocity(particlesArray[i]);
             edgeBounce(canvas, particlesArray[i]);
 
-            gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
+            gravityPoint()(canvas.width/2, canvas.height, 2000, particlesArray[i]);
+            // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
             drawPoint(context)(particlesArray[i]);
         }
         // connectParticles(context)(particlesArray, 100);
