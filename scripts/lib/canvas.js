@@ -2,6 +2,11 @@ import tinycolor from 'tinycolor2';
 
 import { radiansToDegrees, pointAngleFromVelocity, pointDistance, normalizeInverse } from './math';
 
+export const resizeCanvas = (canvas, width, height) => {
+    canvas.width = width;
+    canvas.height = height;
+}
+
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
 export const fillCanvas = (canvas, context) => (opacity = 1, color = '0,0,0') => {
@@ -26,12 +31,12 @@ export const drawRotatedParticle = (ctx, drawFn, particle) => {
 export const drawPoint = (context) => ({ x, y, radius, color }) => {
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color;
+    context.fillStyle = color.toRgbString();
     context.fill();
 };
 
 export const drawSquare = (context) => ({ x, y, radius, color }) => {
-    context.fillStyle = color;
+    context.fillStyle = color.toRgbString();
     context.fillRect(x, y, radius, radius);
     // const half = radius / 2;
     // context.beginPath();
@@ -53,7 +58,7 @@ export const drawTriangle = (context) => ({ x, y, radius, color }) => {
     context.moveTo(x, y + (-height + apothem));
     context.lineTo(x + half, y + apothem);
     context.lineTo(x - half, y + apothem);
-    context.fillStyle = color;
+    context.fillStyle = color.toRgbString();
     context.fill();
 
     // context.beginPath();
@@ -80,7 +85,7 @@ export const connectParticles = (context) => (pArray, proximity) => {
             const pB = pArray[b];
             const distance = pointDistance(pA, pB);
             if (distance < proximity) {
-                const pColor = tinycolor(pA.color);
+                const pColor = pA.color;
                 pColor.setAlpha(normalizeInverse(0, proximity, distance));
                 context.strokeStyle = pColor.toHslString();
                 drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
@@ -92,22 +97,24 @@ export const connectParticles = (context) => (pArray, proximity) => {
 export const drawPointTrail = (context) => (particle) => {
     const trailLen = particle.xHistory.length;
     context.lineWidth = particle.radius;
-    const pColor = particle.colorRgba.toRgb();
+    const pColor = particle.color;
     const aFade = (100 / trailLen) * 0.01;
-    const alpha = 1;
+    let alpha = 1;
     const sFade = (particle.radius * 2) / trailLen;
     let stroke = particle.radius * 2;
     for (let i = 0; i < trailLen; i++) {
         const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
         const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
         drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
-        context.strokeStyle = `rgba(${pColor.r}, ${pColor.g}, ${pColor.b}, ${alpha})`;
-        // alpha -= aFade;
+        pColor.setAlpha(alpha)
+        context.strokeStyle = pColor.toRgbString();
+        alpha -= aFade;
         stroke -= sFade;
     }
     //
 };
 
+// TODO rename to drawMouse and move inside var when needed
 export const drawCircle = (context) => ({ x, y, radius }) => {
     if (x === undefined || y === undefined) return;
     context.strokeStyle = 'rgba(255,255,255,.25)';

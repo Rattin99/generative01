@@ -23,7 +23,7 @@ const variation = () => {
 };
 */
 
-import { fillCanvas } from './canvas';
+import { fillCanvas, resizeCanvas } from './canvas';
 
 export const sketch = () => {
     const mouse = {
@@ -63,10 +63,7 @@ export const sketch = () => {
         mouse.isDown = false;
     };
 
-    const windowResize = (evt) => {
-        canvas.width = window.innerWidth * canvasSizeFraction;
-        canvas.height = window.innerHeight * canvasSizeFraction;
-    };
+    const windowResize = (evt) => resizeCanvas(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
 
     const run = (variation) => {
         const startSketch = () => {
@@ -97,7 +94,7 @@ export const sketch = () => {
     window.addEventListener('mouseout', mouseOut);
     window.addEventListener('touchcancel', mouseOut);
 
-    window.addEventListener('resize', windowResize);
+    // window.addEventListener('resize', windowResize);
 
     return {
         canvas: getCanvas,

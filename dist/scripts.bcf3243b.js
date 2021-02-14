@@ -1523,13 +1523,20 @@ exports.scalePointToCanvas = scalePointToCanvas;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.drawCircle = exports.drawPointTrail = exports.connectParticles = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawPoint = exports.drawRotatedParticle = exports.fillCanvas = exports.clearCanvas = void 0;
+exports.drawCircle = exports.drawPointTrail = exports.connectParticles = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawPoint = exports.drawRotatedParticle = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _math = require("./math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var resizeCanvas = function resizeCanvas(canvas, width, height) {
+  canvas.width = width;
+  canvas.height = height;
+};
+
+exports.resizeCanvas = resizeCanvas;
 
 var clearCanvas = function clearCanvas(canvas, context) {
   return function (_) {
@@ -1574,7 +1581,7 @@ var drawPoint = function drawPoint(context) {
         color = _ref.color;
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color;
+    context.fillStyle = color.toRgbString();
     context.fill();
   };
 };
@@ -1587,7 +1594,7 @@ var drawSquare = function drawSquare(context) {
         y = _ref2.y,
         radius = _ref2.radius,
         color = _ref2.color;
-    context.fillStyle = color;
+    context.fillStyle = color.toRgbString();
     context.fillRect(x, y, radius, radius); // const half = radius / 2;
     // context.beginPath();
     // context.moveTo(x - half, y - half);
@@ -1616,7 +1623,7 @@ var drawTriangle = function drawTriangle(context) {
     context.moveTo(x, y + (-height + apothem));
     context.lineTo(x + half, y + apothem);
     context.lineTo(x - half, y + apothem);
-    context.fillStyle = color;
+    context.fillStyle = color.toRgbString();
     context.fill(); // context.beginPath();
     // context.arc(x, y - 3, 3, 0, Math.PI * 2, false);
     // context.fillStyle = 'rgb(255,0,0)';
@@ -1651,7 +1658,7 @@ var connectParticles = function connectParticles(context) {
         var distance = (0, _math.pointDistance)(pA, pB);
 
         if (distance < proximity) {
-          var pColor = (0, _tinycolor.default)(pA.color);
+          var pColor = pA.color;
           pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
           context.strokeStyle = pColor.toHslString();
           drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
@@ -1667,7 +1674,7 @@ var drawPointTrail = function drawPointTrail(context) {
   return function (particle) {
     var trailLen = particle.xHistory.length;
     context.lineWidth = particle.radius;
-    var pColor = particle.colorRgba.toRgb();
+    var pColor = particle.color;
     var aFade = 100 / trailLen * 0.01;
     var alpha = 1;
     var sFade = particle.radius * 2 / trailLen;
@@ -1677,13 +1684,15 @@ var drawPointTrail = function drawPointTrail(context) {
       var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
       var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
       drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
-      context.strokeStyle = "rgba(".concat(pColor.r, ", ").concat(pColor.g, ", ").concat(pColor.b, ", ").concat(alpha, ")"); // alpha -= aFade;
-
+      pColor.setAlpha(alpha);
+      context.strokeStyle = pColor.toRgbString();
+      alpha -= aFade;
       stroke -= sFade;
     } //
 
   };
-};
+}; // TODO rename to drawMouse and move inside var when needed
+
 
 exports.drawPointTrail = drawPointTrail;
 
@@ -1784,8 +1793,7 @@ var sketch = function sketch() {
   };
 
   var windowResize = function windowResize(evt) {
-    canvas.width = window.innerWidth * canvasSizeFraction;
-    canvas.height = window.innerHeight * canvasSizeFraction;
+    return (0, _canvas.resizeCanvas)(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
   };
 
   var run = function run(variation) {
@@ -1814,8 +1822,8 @@ var sketch = function sketch() {
   window.addEventListener('mouseup', mouseUp);
   window.addEventListener('touchend', mouseUp);
   window.addEventListener('mouseout', mouseOut);
-  window.addEventListener('touchcancel', mouseOut);
-  window.addEventListener('resize', windowResize);
+  window.addEventListener('touchcancel', mouseOut); // window.addEventListener('resize', windowResize);
+
   return {
     canvas: getCanvas,
     context: getContext,
@@ -1894,16 +1902,16 @@ var Particle = /*#__PURE__*/function () {
       this.oVelocityY = velocityY || 0;
       this.mass = mass || 1;
       this.radius = radius || 1;
-      this.color = color || (0, _tinycolor.default)({
+      this._color = color ? (0, _tinycolor.default)(color) : (0, _tinycolor.default)({
         r: 255,
         g: 255,
         b: 255
       });
-      this.alpha = alpha || 1;
       this.rotation = rotation || 0;
       this.lifetime = lifetime || 1;
       this.drawFn = drawFn;
-      this.updateFn = updateFn;
+      this.updateFn = updateFn; // always return a string
+
       this.colorFn = colorFn;
     }
   }, {
@@ -1919,30 +1927,25 @@ var Particle = /*#__PURE__*/function () {
       this.draw(this);
     }
   }, {
-    key: "colorRgba",
+    key: "color",
     get: function get() {
-      var pcolor = this._color;
-
-      if (this.alpha >= 0 && this.alpha <= 1) {
-        pcolor.setAlpha(this.alpha);
-      } else {
-        pcolor.setAlpha(1);
+      if (this.colorFn) {
+        return (0, _tinycolor.default)(this.colorFn(this));
       }
 
-      return pcolor;
+      return this._color;
+    },
+    set: function set(value) {
+      this._color = (0, _tinycolor.default)(value);
     }
   }, {
-    key: "color",
+    key: "colorStr",
     get: function get() {
       if (this.colorFn) {
         return this.colorFn(this);
       }
 
-      return this.colorRgba.toRgbString();
-    } // Value should be {r:val, g:val, b:val[, a:val]}
-    ,
-    set: function set(value) {
-      return this._color = (0, _tinycolor.default)(value);
+      return this._color.toRgbString();
     }
   }, {
     key: "x",
@@ -2014,9 +2017,7 @@ var createRandomParticleValues = function createRandomParticleValues(canvas) {
       r: (0, _math.lerp)(0, 255, coords.x / canvas.width),
       g: (0, _math.randomNumberBetween)(100, 255),
       b: (0, _math.lerp)(0, 255, coords.y / canvas.height)
-    },
-    alpha: 1,
-    lifetime: 1
+    }
   };
 };
 
@@ -2547,27 +2548,21 @@ var variation6 = function variation6() {
   };
 
   var draw = function draw(canvas, context, mouse) {
-    (0, _canvas.fillCanvas)(canvas, context)(.1);
-    hue++;
+    (0, _canvas.fillCanvas)(canvas, context)(.08);
+    if (hue++ > 361) hue = 0;
 
     for (var i = 0; i < numParticles; i++) {
       particlesArray[i].radius -= 0.05;
 
       if (particlesArray[i].radius <= 0) {
-        (function () {
-          var initValues = (0, _particle.createRandomParticleValues)(canvas);
-          initValues.x = mouse.x ? mouse.x : canvas.width / 2;
-          initValues.y = mouse.y ? mouse.y : canvas.height / 2;
-          var h = (0, _math.lerpRange)(0, canvas.width, 100, 200, initValues.x);
-          var s = (0, _math.lerpRange)(0, 10, 0, 100, initValues.radius);
-          var l = (0, _math.lerpRange)(0, 10, 25, 75, initValues.radius);
+        var initValues = (0, _particle.createRandomParticleValues)(canvas);
+        initValues.x = mouse.x ? mouse.x : canvas.width / 2;
+        initValues.y = mouse.y ? mouse.y : canvas.height / 2; // let h = lerpRange(0,canvas.width,100,200,initValues.x);
 
-          initValues.colorFn = function () {
-            return "hsl(".concat(hue, ",").concat(s, "%,").concat(l, "%)");
-          };
-
-          particlesArray[i].initValues(initValues);
-        })();
+        var s = (0, _math.lerpRange)(0, 10, 0, 100, initValues.radius);
+        var l = (0, _math.lerpRange)(0, 10, 25, 75, initValues.radius);
+        initValues.color = "hsl(".concat(hue, ",").concat(s, "%,").concat(l, "%)");
+        particlesArray[i].initValues(initValues);
       }
 
       (0, _particle.updatePosWithVelocity)(particlesArray[i]);
@@ -2710,7 +2705,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64332" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51514" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

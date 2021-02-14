@@ -45,35 +45,31 @@ export class Particle {
         this.oVelocityY = velocityY || 0;
         this.mass = mass || 1;
         this.radius = radius || 1;
-        this.color = color || tinycolor({r: 255, g: 255, b: 255});
-        this.alpha = alpha || 1;
+        this._color = color ? tinycolor(color) : tinycolor({r: 255, g: 255, b: 255});
         this.rotation = rotation || 0;
         this.lifetime = lifetime || 1;
         this.drawFn = drawFn;
         this.updateFn = updateFn;
+        // always return a string
         this.colorFn = colorFn;
-    }
-
-    get colorRgba() {
-        const pcolor = this._color;
-        if (this.alpha >= 0 && this.alpha <= 1) {
-            pcolor.setAlpha(this.alpha);
-        } else {
-            pcolor.setAlpha(1);
-        }
-        return pcolor;
     }
 
     get color() {
         if (this.colorFn) {
-            return this.colorFn(this);
+            return tinycolor(this.colorFn(this));
         }
-        return this.colorRgba.toRgbString();
+        return this._color;
     }
 
-    // Value should be {r:val, g:val, b:val[, a:val]}
     set color(value) {
-        return (this._color = tinycolor(value));
+        this._color = tinycolor(value);
+    }
+
+    get colorStr() {
+        if (this.colorFn) {
+            return this.colorFn(this);
+        }
+        return this._color.toRgbString();
     }
 
     get x() {
@@ -136,8 +132,6 @@ export const createRandomParticleValues = (canvas) => {
             g: randomNumberBetween(100, 255),
             b: lerp(0, 255, coords.y / canvas.height),
         },
-        alpha: 1,
-        lifetime: 1,
     };
 };
 

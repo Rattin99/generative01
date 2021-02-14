@@ -1,6 +1,6 @@
 import {avoidPoint, Particle, createRandomParticleValues, updatePosWithVelocity, edgeBounce, gravityPoint} from './lib/particle';
 import { fillCanvas, connectParticles, drawCircle, drawPoint } from './lib/canvas';
-import { lerpRange } from './lib/math';
+import {lerpRange, randomNumberBetween} from './lib/math';
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 export const variation6 = () => {
@@ -18,18 +18,18 @@ export const variation6 = () => {
     };
 
     const draw = (canvas, context, mouse) => {
-        fillCanvas(canvas, context)(.1);
-        hue++;
+        fillCanvas(canvas, context)(.08);
+        if(hue++ > 361) hue = 0;
         for (let i = 0; i < numParticles; i++) {
             particlesArray[i].radius -= 0.05;
             if (particlesArray[i].radius <= 0) {
                 const initValues = createRandomParticleValues(canvas);
                 initValues.x = mouse.x ? mouse.x : canvas.width/2;
                 initValues.y = mouse.y ? mouse.y : canvas.height/2;
-                let h = lerpRange(0,canvas.width,100,200,initValues.x);
+                // let h = lerpRange(0,canvas.width,100,200,initValues.x);
                 let s = lerpRange(0,10,0,100,initValues.radius);
                 let l = lerpRange(0,10,25,75,initValues.radius);
-                initValues.colorFn = () => `hsl(${hue},${s}%,${l}%)`;
+                initValues.color = `hsl(${hue},${s}%,${l}%)`
                 particlesArray[i].initValues(initValues);
             }
             updatePosWithVelocity(particlesArray[i]);
