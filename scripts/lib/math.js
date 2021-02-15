@@ -13,6 +13,9 @@
   https://github.com/terkelg/math
 */
 
+import {createRandomParticleValues, Particle} from "./particle";
+import {fillCanvas} from "./canvas";
+
 export const randomSign = () => (Math.round(Math.random()) == 1 ? 1 : -1);
 
 // returns value between 0-1, 250,500,0 => .5
@@ -43,7 +46,7 @@ export const pointRotateCoord = (point, angle) => ({
 });
 
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
-export const pointAngleFromVelocity = ({ velocityX, velocityY }) => Math.atan2(velocityY, velocityX);
+export const pointAngleFromVelocity = ({velocityX, velocityY}) => Math.atan2(velocityY, velocityX);
 
 export const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
 
@@ -59,3 +62,15 @@ export const scalePointToCanvas = (cwidth, cheight, width, height, zoomFactor, x
         y: y * zoomFactor + particleYOffset,
     };
 };
+
+// [[x,y], ...]
+export const createCirclePoints = (centerX, centerY, diameter, steps, sx = 1, sy = 1) => {
+    const points = [];
+    for (let theta = 0; theta < 360; theta += steps) {
+        const radius = theta * (Math.PI / 180);
+        const x = (Math.cos(radius) * diameter + sx) + centerX;
+        const y = (Math.sin(radius) * diameter + sy) + centerY;
+        points.push([x, y]);
+    }
+    return points;
+}

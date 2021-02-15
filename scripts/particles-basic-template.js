@@ -4,13 +4,18 @@ import {
     edgeBounce,
     Particle,
     updatePosWithVelocity,
-    createRandomParticleValues,
+    createRandomParticleValues, edgeWrap,
 } from './lib/particle';
 import {clearCanvas, connectParticles, drawMouse, drawPoint, drawPointTrail, fillCanvas} from './lib/canvas';
 
-// Based on https://www.youtube.com/watch?v=d620nV6bp0A
-export const variation1 = () => {
-    const numParticles= 100;
+export const particleBasicTemplate = () => {
+    const config = {
+        width: 200,
+        height: 200,
+        fps: 24
+    }
+
+    const numParticles= 500;
     const particlesArray = [];
 
     let canvasCenterX;
@@ -24,27 +29,31 @@ export const variation1 = () => {
 
         for (let i = 0; i < numParticles; i++) {
             const props = createRandomParticleValues(canvas);
-            props.radius = 5;
+            props.radius = 1;
             particlesArray.push(new Particle(props));
         }
     };
 
-    const draw = (canvas, context, mouse) => {
-        fillCanvas(canvas, context)();
+    /*
+        edgeBounce(canvas, particlesArray[i]);
+        avoidPoint({ radius: centerRadius, x:canvasCenterX, y:canvasCenterY }, particlesArray[i], 4);
+        attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
+        drawPointTrail(context)(particlesArray[i]);
+        connectParticles(context)(particlesArray, 200);
+        drawCircle(context)(mouse);
+     */
 
+    const draw = (canvas, context, mouse) => {
+        fillCanvas(canvas, context)(1,'0,0,0');
         for (let i = 0; i < numParticles; i++) {
             updatePosWithVelocity(particlesArray[i]);
-            edgeBounce(canvas, particlesArray[i]);
-            avoidPoint({ radius: centerRadius, x:canvasCenterX, y:canvasCenterY }, particlesArray[i], 4);
-            attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
+            edgeWrap(canvas, particlesArray[i]);
             drawPoint(context)(particlesArray[i]);
-            drawPointTrail(context)(particlesArray[i]);
         }
-        connectParticles(context)(particlesArray, 200);
-        drawMouse(context)(mouse);
     };
 
     return {
+        config,
         setup,
         draw,
     };

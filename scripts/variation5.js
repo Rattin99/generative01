@@ -6,7 +6,7 @@ import {
     updatePosWithVelocity,
     createRandomParticleValues,
 } from './lib/particle';
-import {clearCanvas, connectParticles, drawCircle, drawPoint, drawPointTrail, fillCanvas} from './lib/canvas';
+import {clearCanvas, connectParticles, drawMouse, drawPoint, drawPointTrail, fillCanvas} from './lib/canvas';
 import {randomNumberBetween} from "./lib/math";
 
 

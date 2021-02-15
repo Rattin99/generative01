@@ -75,6 +75,16 @@ export const drawLine = (context) => (strokeWidth, x1, y1, x2, y2) => {
     context.stroke();
 };
 
+export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
+    // context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = strokeWidth;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    // context.fillStyle = 'rgba(255,255,255,.1)';
+    // context.fill();
+    context.stroke();
+};
+
 export const connectParticles = (context) => (pArray, proximity) => {
     let opacity = 1;
     const len = pArray.length;
@@ -114,8 +124,7 @@ export const drawPointTrail = (context) => (particle) => {
     //
 };
 
-// TODO rename to drawMouse and move inside var when needed
-export const drawCircle = (context) => ({ x, y, radius }) => {
+export const drawMouse = (context) => ({ x, y, radius }) => {
     if (x === undefined || y === undefined) return;
     context.strokeStyle = 'rgba(255,255,255,.25)';
     context.lineWidth = 1;

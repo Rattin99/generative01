@@ -1,5 +1,5 @@
 import {avoidPoint, Particle, createRandomParticleValues, updatePosWithVelocity, edgeBounce, gravityPoint} from './lib/particle';
-import { fillCanvas, connectParticles, drawCircle, drawPoint } from './lib/canvas';
+import { fillCanvas, connectParticles, drawMouse, drawPoint } from './lib/canvas';
 import {lerpRange, randomNumberBetween} from './lib/math';
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM

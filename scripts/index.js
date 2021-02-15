@@ -5,6 +5,7 @@ Explorations with generative code
 import normliaze from 'normalize.css';
 
 import { sketch } from './lib/sketch';
+import {particleBasic} from "./particles-basic";
 import { variation1 } from './variation1';
 import { variation2 } from './variation2';
 import { variation3 } from './variation3';
@@ -13,6 +14,8 @@ import {variation5} from "./variation5";
 import {variation6} from './variation6'
 
 const s = sketch();
+
+const DEBUG = false;
 
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
@@ -71,7 +74,7 @@ const variations = {
     },
 };
 
-if (variations.hasOwnProperty(variationKey)) {
+if (variations.hasOwnProperty(variationKey) & !DEBUG) {
     const vToRun = variations[variationKey];
     setNote(vToRun.note);
     s.run(vToRun.sketch());
@@ -79,3 +82,6 @@ if (variations.hasOwnProperty(variationKey)) {
     setNote('Not a valid variation!');
 }
 
+if(DEBUG) {
+    s.run(particleBasic())
+}

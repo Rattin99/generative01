@@ -1,5 +1,5 @@
 import domokun from '../domokun.png';
-import { clearCanvas, drawCircle, drawSquare, fillCanvas } from './lib/canvas';
+import { clearCanvas, drawMouse, drawSquare, fillCanvas } from './lib/canvas';
 import { randomNumberBetween, scalePointToCanvas } from './lib/math';
 import { Particle, pointPush } from './lib/particle';
 
@@ -62,7 +62,7 @@ export const variation3 = (_) => {
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
             drawSquare(context)(particlesArray[i]);
         }
-        drawCircle(context)(mouse);
+        drawMouse(context)(mouse);
 
         return 1;
     };

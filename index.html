@@ -9,27 +9,27 @@
   </head>
   <body>
     <main id="wrapper">
-      <canvas id="canvas1"></canvas>
+      <canvas id="canvas"></canvas>
     </main>
     <p id="note"></p>
     <a id="download" download="canvas.png" href="">Save Capture or press 's'</a>
-    <svg>
-      <defs>
-        <filter id="goo">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-          <feColorMatrix
-            in="blur"
-            mode="matrix"
-            values="1 0 0 0 0
-                            0 1 0 0 0
-                            0 0 1 0 0
-                            0 0 0 19 -9"
-            result="goo"
-          />
-          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-        </filter>
-      </defs>
-    </svg>
+<!--    <svg>-->
+<!--      <defs>-->
+<!--        <filter id="goo">-->
+<!--          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />-->
+<!--          <feColorMatrix-->
+<!--            in="blur"-->
+<!--            mode="matrix"-->
+<!--            values="1 0 0 0 0-->
+<!--                            0 1 0 0 0-->
+<!--                            0 0 1 0 0-->
+<!--                            0 0 0 19 -9"-->
+<!--            result="goo"-->
+<!--          />-->
+<!--          <feComposite in="SourceGraphic" in2="goo" operator="atop" />-->
+<!--        </filter>-->
+<!--      </defs>-->
+<!--    </svg>-->
 
     <script src="scripts/index.js"></script>
   </body>

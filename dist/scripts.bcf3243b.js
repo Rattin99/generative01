@@ -1388,452 +1388,7 @@ else {
 
 })(Math);
 
-},{}],"scripts/lib/math.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.scalePointToCanvas = exports.randomNumberBetweenMid = exports.randomNumberBetween = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.randomSign = void 0;
-
-/*
-  // Math aliases
-  var π = Math.PI
-  var random = Math.random
-  var round = Math.round
-  var floor = Math.floor
-  var abs = Math.abs
-  var sin = Math.sin
-  var cos = Math.cos
-  var tan = Math.tan
-
-  Math Snippets
-  https://github.com/terkelg/math
-*/
-var randomSign = function randomSign() {
-  return Math.round(Math.random()) == 1 ? 1 : -1;
-}; // returns value between 0-1, 250,500,0 => .5
-
-
-exports.randomSign = randomSign;
-
-var normalize = function normalize(min, max, val) {
-  return (val - min) / (max - min);
-};
-
-exports.normalize = normalize;
-
-var normalizeInverse = function normalizeInverse(min, max, val) {
-  return 1 - normalize(min, max, val);
-}; // https://twitter.com/mattdesl/status/1031305279227478016
-// https://www.trysmudford.com/blog/linear-interpolation-functions/
-// lerp(20, 80, 0.5) // 40
-
-
-exports.normalizeInverse = normalizeInverse;
-
-var lerp = function lerp(x, y, a) {
-  return x * (1 - a) + y * a;
-};
-
-exports.lerp = lerp;
-
-var clamp = function clamp(a) {
-  var min = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var max = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-  return Math.min(max, Math.max(min, a));
-}; // invlerp(50, 100, 75)  // 0.5
-
-
-exports.clamp = clamp;
-
-var invlerp = function invlerp(x, y, a) {
-  return clamp((a - x) / (y - x));
-}; // a is point in 1 and converts to point in 2
-// range(10, 100, 2000, 20000, 50) // 10000
-
-
-exports.invlerp = invlerp;
-
-var lerpRange = function lerpRange(x1, y1, x2, y2, a) {
-  return lerp(x2, y2, invlerp(x1, y1, a));
-};
-
-exports.lerpRange = lerpRange;
-
-var pointDistance = function pointDistance(pointA, pointB) {
-  var dx = pointA.x - pointB.x;
-  var dy = pointA.y - pointB.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}; // https://stackoverflow.com/questions/13043945/how-do-i-calculate-the-position-of-a-point-in-html5-canvas-after-rotation
-
-
-exports.pointDistance = pointDistance;
-
-var pointRotateCoord = function pointRotateCoord(point, angle) {
-  return {
-    x: point.x * cos(angle) - point.y * sin(angle),
-    y: point.y * cos(angle) + point.x * sin(angle)
-  };
-}; // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
-
-
-exports.pointRotateCoord = pointRotateCoord;
-
-var pointAngleFromVelocity = function pointAngleFromVelocity(_ref) {
-  var velocityX = _ref.velocityX,
-      velocityY = _ref.velocityY;
-  return Math.atan2(velocityY, velocityX);
-};
-
-exports.pointAngleFromVelocity = pointAngleFromVelocity;
-
-var radiansToDegrees = function radiansToDegrees(rad) {
-  return rad * 180 / Math.PI;
-};
-
-exports.radiansToDegrees = radiansToDegrees;
-
-var randomNumberBetween = function randomNumberBetween(min, max) {
-  return Math.random() * (max - min) + min;
-};
-
-exports.randomNumberBetween = randomNumberBetween;
-
-var randomNumberBetweenMid = function randomNumberBetweenMid(min, max) {
-  return randomNumberBetween(min, max) - max / 2;
-}; // Scale up point grid and center in the canvas
-
-
-exports.randomNumberBetweenMid = randomNumberBetweenMid;
-
-var scalePointToCanvas = function scalePointToCanvas(cwidth, cheight, width, height, zoomFactor, x, y) {
-  var particleXOffset = cwidth / 2 - width * zoomFactor / 2;
-  var particleYOffset = cheight / 2 - height * zoomFactor / 2;
-  return {
-    x: x * zoomFactor + particleXOffset,
-    y: y * zoomFactor + particleYOffset
-  };
-};
-
-exports.scalePointToCanvas = scalePointToCanvas;
-},{}],"scripts/lib/canvas.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.drawCircle = exports.drawPointTrail = exports.connectParticles = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawPoint = exports.drawRotatedParticle = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
-
-var _tinycolor = _interopRequireDefault(require("tinycolor2"));
-
-var _math = require("./math");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var resizeCanvas = function resizeCanvas(canvas, width, height) {
-  canvas.width = width;
-  canvas.height = height;
-};
-
-exports.resizeCanvas = resizeCanvas;
-
-var clearCanvas = function clearCanvas(canvas, context) {
-  return function (_) {
-    return context.clearRect(0, 0, canvas.width, canvas.height);
-  };
-};
-
-exports.clearCanvas = clearCanvas;
-
-var fillCanvas = function fillCanvas(canvas, context) {
-  return function () {
-    var opacity = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '0,0,0';
-    context.fillStyle = "rgba(".concat(color, ",").concat(opacity, ")");
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  };
-};
-
-exports.fillCanvas = fillCanvas;
-
-var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
-  var pSaveX = particle.x;
-  var pSaveY = particle.y;
-  particle.x = 0;
-  particle.y = 0;
-  ctx.save();
-  ctx.translate(pSaveX, pSaveY);
-  ctx.rotate((0, _math.radiansToDegrees)((0, _math.pointAngleFromVelocity)(particle)));
-  drawFn(ctx)(particle);
-  ctx.restore();
-  particle.x = pSaveX;
-  particle.y = pSaveY;
-};
-
-exports.drawRotatedParticle = drawRotatedParticle;
-
-var drawPoint = function drawPoint(context) {
-  return function (_ref) {
-    var x = _ref.x,
-        y = _ref.y,
-        radius = _ref.radius,
-        color = _ref.color;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color.toRgbString();
-    context.fill();
-  };
-};
-
-exports.drawPoint = drawPoint;
-
-var drawSquare = function drawSquare(context) {
-  return function (_ref2) {
-    var x = _ref2.x,
-        y = _ref2.y,
-        radius = _ref2.radius,
-        color = _ref2.color;
-    context.fillStyle = color.toRgbString();
-    context.fillRect(x, y, radius, radius); // const half = radius / 2;
-    // context.beginPath();
-    // context.moveTo(x - half, y - half);
-    // context.lineTo(x + half, y - half);
-    // context.lineTo(x + half, y + half);
-    // context.lineTo(x - half, y + half);
-    // context.fillStyle = color;
-    // context.fill();
-  };
-}; // https://codepen.io/jlmakes/pen/grEENL?editors=0010
-
-
-exports.drawSquare = drawSquare;
-
-var drawTriangle = function drawTriangle(context) {
-  return function (_ref3) {
-    var x = _ref3.x,
-        y = _ref3.y,
-        radius = _ref3.radius,
-        color = _ref3.color;
-    var half = radius / 2;
-    var apothem = radius / (2 * Math.tan(Math.PI / 3));
-    var height = Math.round(Math.sqrt(3) * half); // draw triangle (clockwise)
-
-    context.beginPath();
-    context.moveTo(x, y + (-height + apothem));
-    context.lineTo(x + half, y + apothem);
-    context.lineTo(x - half, y + apothem);
-    context.fillStyle = color.toRgbString();
-    context.fill(); // context.beginPath();
-    // context.arc(x, y - 3, 3, 0, Math.PI * 2, false);
-    // context.fillStyle = 'rgb(255,0,0)';
-    // context.fill();
-  };
-};
-
-exports.drawTriangle = drawTriangle;
-
-var drawLine = function drawLine(context) {
-  return function (strokeWidth, x1, y1, x2, y2) {
-    context.lineWidth = strokeWidth;
-    context.beginPath();
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
-  };
-};
-
-exports.drawLine = drawLine;
-
-var connectParticles = function connectParticles(context) {
-  return function (pArray, proximity) {
-    var opacity = 1;
-    var len = pArray.length;
-
-    for (var a = 0; a < len; a++) {
-      // all consecutive particles
-      for (var b = a; b < len; b++) {
-        var pA = pArray[a];
-        var pB = pArray[b];
-        var distance = (0, _math.pointDistance)(pA, pB);
-
-        if (distance < proximity) {
-          var pColor = pA.color;
-          pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
-          context.strokeStyle = pColor.toHslString();
-          drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
-        }
-      }
-    }
-  };
-};
-
-exports.connectParticles = connectParticles;
-
-var drawPointTrail = function drawPointTrail(context) {
-  return function (particle) {
-    var trailLen = particle.xHistory.length;
-    context.lineWidth = particle.radius;
-    var pColor = particle.color;
-    var aFade = 100 / trailLen * 0.01;
-    var alpha = 1;
-    var sFade = particle.radius * 2 / trailLen;
-    var stroke = particle.radius * 2;
-
-    for (var i = 0; i < trailLen; i++) {
-      var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
-      var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-      drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
-      pColor.setAlpha(alpha);
-      context.strokeStyle = pColor.toRgbString();
-      alpha -= aFade;
-      stroke -= sFade;
-    } //
-
-  };
-}; // TODO rename to drawMouse and move inside var when needed
-
-
-exports.drawPointTrail = drawPointTrail;
-
-var drawCircle = function drawCircle(context) {
-  return function (_ref4) {
-    var x = _ref4.x,
-        y = _ref4.y,
-        radius = _ref4.radius;
-    if (x === undefined || y === undefined) return;
-    context.strokeStyle = 'rgba(255,255,255,.25)';
-    context.lineWidth = 1;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(255,255,255,.1)';
-    context.fill();
-    context.stroke();
-  };
-};
-
-exports.drawCircle = drawCircle;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/sketch.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sketch = void 0;
-
-var _canvas = require("./canvas");
-
-/*
-Convenience canvas sketch runner. Based on p5js
-
-
-const variation = () => {
-    const config = {};
-
-    const setup = (canvas, context) => {
-        // create initial state
-    };
-
-    // will run every frame
-    const draw = (canvas, context, mouse) => {
-        // draw on every frame
-        return 1; // -1 to exit animation loop
-    };
-
-    return {
-        config,
-        setup,
-        draw,
-    };
-};
-*/
-var sketch = function sketch() {
-  var mouse = {
-    x: undefined,
-    y: undefined,
-    isDown: false,
-    radius: 100
-  };
-  var canvasSizeFraction = 0.85;
-  var canvas = document.getElementById('canvas1');
-  var context = canvas.getContext('2d');
-  canvas.width = window.innerWidth * canvasSizeFraction;
-  canvas.height = window.innerHeight * canvasSizeFraction;
-
-  var getCanvas = function getCanvas(_) {
-    return canvas;
-  };
-
-  var getContext = function getContext(_) {
-    return context;
-  };
-
-  var getMouse = function getMouse(_) {
-    return mouse;
-  };
-
-  var mouseDown = function mouseDown(evt) {
-    mouse.isDown = true;
-  };
-
-  var mouseMove = function mouseMove(evt) {
-    var canvasFrame = canvas.getBoundingClientRect();
-    mouse.x = evt.x - canvasFrame.x;
-    mouse.y = evt.y - canvasFrame.y;
-  };
-
-  var mouseUp = function mouseUp(evt) {
-    mouse.isDown = false;
-  };
-
-  var mouseOut = function mouseOut(evt) {
-    mouse.x = undefined;
-    mouse.y = undefined;
-    mouse.isDown = false;
-  };
-
-  var windowResize = function windowResize(evt) {
-    return (0, _canvas.resizeCanvas)(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
-  };
-
-  var run = function run(variation) {
-    var startSketch = function startSketch() {
-      window.removeEventListener('load', startSketch);
-      variation.setup(canvas, context); // fillCanvas(canvas, context)();
-
-      var render = function render() {
-        var result = variation.draw(canvas, context, mouse);
-
-        if (result !== -1) {
-          requestAnimationFrame(render);
-        }
-      };
-
-      requestAnimationFrame(render);
-    };
-
-    window.addEventListener('load', startSketch);
-  };
-
-  window.addEventListener('mousedown', mouseDown);
-  window.addEventListener('touchstart', mouseDown);
-  window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('touchmove', mouseMove);
-  window.addEventListener('mouseup', mouseUp);
-  window.addEventListener('touchend', mouseUp);
-  window.addEventListener('mouseout', mouseOut);
-  window.addEventListener('touchcancel', mouseOut); // window.addEventListener('resize', windowResize);
-
-  return {
-    canvas: getCanvas,
-    context: getContext,
-    mouse: getMouse,
-    run: run
-  };
-};
-
-exports.sketch = sketch;
-},{"./canvas":"scripts/lib/canvas.js"}],"scripts/lib/particle.js":[function(require,module,exports) {
+},{}],"scripts/lib/particle.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2133,7 +1688,596 @@ var pointPush = function pointPush(point, particle) {
 };
 
 exports.pointPush = pointPush;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/variation1.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/math.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createCirclePoints = exports.scalePointToCanvas = exports.randomNumberBetweenMid = exports.randomNumberBetween = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.randomSign = void 0;
+
+var _particle = require("./particle");
+
+var _canvas = require("./canvas");
+
+/*
+  // Math aliases
+  var π = Math.PI
+  var random = Math.random
+  var round = Math.round
+  var floor = Math.floor
+  var abs = Math.abs
+  var sin = Math.sin
+  var cos = Math.cos
+  var tan = Math.tan
+
+  Math Snippets
+  https://github.com/terkelg/math
+*/
+var randomSign = function randomSign() {
+  return Math.round(Math.random()) == 1 ? 1 : -1;
+}; // returns value between 0-1, 250,500,0 => .5
+
+
+exports.randomSign = randomSign;
+
+var normalize = function normalize(min, max, val) {
+  return (val - min) / (max - min);
+};
+
+exports.normalize = normalize;
+
+var normalizeInverse = function normalizeInverse(min, max, val) {
+  return 1 - normalize(min, max, val);
+}; // https://twitter.com/mattdesl/status/1031305279227478016
+// https://www.trysmudford.com/blog/linear-interpolation-functions/
+// lerp(20, 80, 0.5) // 40
+
+
+exports.normalizeInverse = normalizeInverse;
+
+var lerp = function lerp(x, y, a) {
+  return x * (1 - a) + y * a;
+};
+
+exports.lerp = lerp;
+
+var clamp = function clamp(a) {
+  var min = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var max = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+  return Math.min(max, Math.max(min, a));
+}; // invlerp(50, 100, 75)  // 0.5
+
+
+exports.clamp = clamp;
+
+var invlerp = function invlerp(x, y, a) {
+  return clamp((a - x) / (y - x));
+}; // a is point in 1 and converts to point in 2
+// range(10, 100, 2000, 20000, 50) // 10000
+
+
+exports.invlerp = invlerp;
+
+var lerpRange = function lerpRange(x1, y1, x2, y2, a) {
+  return lerp(x2, y2, invlerp(x1, y1, a));
+};
+
+exports.lerpRange = lerpRange;
+
+var pointDistance = function pointDistance(pointA, pointB) {
+  var dx = pointA.x - pointB.x;
+  var dy = pointA.y - pointB.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}; // https://stackoverflow.com/questions/13043945/how-do-i-calculate-the-position-of-a-point-in-html5-canvas-after-rotation
+
+
+exports.pointDistance = pointDistance;
+
+var pointRotateCoord = function pointRotateCoord(point, angle) {
+  return {
+    x: point.x * cos(angle) - point.y * sin(angle),
+    y: point.y * cos(angle) + point.x * sin(angle)
+  };
+}; // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
+
+
+exports.pointRotateCoord = pointRotateCoord;
+
+var pointAngleFromVelocity = function pointAngleFromVelocity(_ref) {
+  var velocityX = _ref.velocityX,
+      velocityY = _ref.velocityY;
+  return Math.atan2(velocityY, velocityX);
+};
+
+exports.pointAngleFromVelocity = pointAngleFromVelocity;
+
+var radiansToDegrees = function radiansToDegrees(rad) {
+  return rad * 180 / Math.PI;
+};
+
+exports.radiansToDegrees = radiansToDegrees;
+
+var randomNumberBetween = function randomNumberBetween(min, max) {
+  return Math.random() * (max - min) + min;
+};
+
+exports.randomNumberBetween = randomNumberBetween;
+
+var randomNumberBetweenMid = function randomNumberBetweenMid(min, max) {
+  return randomNumberBetween(min, max) - max / 2;
+}; // Scale up point grid and center in the canvas
+
+
+exports.randomNumberBetweenMid = randomNumberBetweenMid;
+
+var scalePointToCanvas = function scalePointToCanvas(cwidth, cheight, width, height, zoomFactor, x, y) {
+  var particleXOffset = cwidth / 2 - width * zoomFactor / 2;
+  var particleYOffset = cheight / 2 - height * zoomFactor / 2;
+  return {
+    x: x * zoomFactor + particleXOffset,
+    y: y * zoomFactor + particleYOffset
+  };
+}; // [[x,y], ...]
+
+
+exports.scalePointToCanvas = scalePointToCanvas;
+
+var createCirclePoints = function createCirclePoints(centerX, centerY, diameter, steps) {
+  var sx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+  var sy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
+  var points = [];
+
+  for (var theta = 0; theta < 360; theta += steps) {
+    var radius = theta * (Math.PI / 180);
+    var x = Math.cos(radius) * diameter + sx + centerX;
+    var y = Math.sin(radius) * diameter + sy + centerY;
+    points.push([x, y]);
+  }
+
+  return points;
+};
+
+exports.createCirclePoints = createCirclePoints;
+},{"./particle":"scripts/lib/particle.js","./canvas":"scripts/lib/canvas.js"}],"scripts/lib/canvas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.drawMouse = exports.drawPointTrail = exports.connectParticles = exports.drawCircle = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawPoint = exports.drawRotatedParticle = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("./math");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var resizeCanvas = function resizeCanvas(canvas, width, height) {
+  canvas.width = width;
+  canvas.height = height;
+};
+
+exports.resizeCanvas = resizeCanvas;
+
+var clearCanvas = function clearCanvas(canvas, context) {
+  return function (_) {
+    return context.clearRect(0, 0, canvas.width, canvas.height);
+  };
+};
+
+exports.clearCanvas = clearCanvas;
+
+var fillCanvas = function fillCanvas(canvas, context) {
+  return function () {
+    var opacity = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '0,0,0';
+    context.fillStyle = "rgba(".concat(color, ",").concat(opacity, ")");
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  };
+};
+
+exports.fillCanvas = fillCanvas;
+
+var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
+  var pSaveX = particle.x;
+  var pSaveY = particle.y;
+  particle.x = 0;
+  particle.y = 0;
+  ctx.save();
+  ctx.translate(pSaveX, pSaveY);
+  ctx.rotate((0, _math.radiansToDegrees)((0, _math.pointAngleFromVelocity)(particle)));
+  drawFn(ctx)(particle);
+  ctx.restore();
+  particle.x = pSaveX;
+  particle.y = pSaveY;
+};
+
+exports.drawRotatedParticle = drawRotatedParticle;
+
+var drawPoint = function drawPoint(context) {
+  return function (_ref) {
+    var x = _ref.x,
+        y = _ref.y,
+        radius = _ref.radius,
+        color = _ref.color;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = color.toRgbString();
+    context.fill();
+  };
+};
+
+exports.drawPoint = drawPoint;
+
+var drawSquare = function drawSquare(context) {
+  return function (_ref2) {
+    var x = _ref2.x,
+        y = _ref2.y,
+        radius = _ref2.radius,
+        color = _ref2.color;
+    context.fillStyle = color.toRgbString();
+    context.fillRect(x, y, radius, radius); // const half = radius / 2;
+    // context.beginPath();
+    // context.moveTo(x - half, y - half);
+    // context.lineTo(x + half, y - half);
+    // context.lineTo(x + half, y + half);
+    // context.lineTo(x - half, y + half);
+    // context.fillStyle = color;
+    // context.fill();
+  };
+}; // https://codepen.io/jlmakes/pen/grEENL?editors=0010
+
+
+exports.drawSquare = drawSquare;
+
+var drawTriangle = function drawTriangle(context) {
+  return function (_ref3) {
+    var x = _ref3.x,
+        y = _ref3.y,
+        radius = _ref3.radius,
+        color = _ref3.color;
+    var half = radius / 2;
+    var apothem = radius / (2 * Math.tan(Math.PI / 3));
+    var height = Math.round(Math.sqrt(3) * half); // draw triangle (clockwise)
+
+    context.beginPath();
+    context.moveTo(x, y + (-height + apothem));
+    context.lineTo(x + half, y + apothem);
+    context.lineTo(x - half, y + apothem);
+    context.fillStyle = color.toRgbString();
+    context.fill(); // context.beginPath();
+    // context.arc(x, y - 3, 3, 0, Math.PI * 2, false);
+    // context.fillStyle = 'rgb(255,0,0)';
+    // context.fill();
+  };
+};
+
+exports.drawTriangle = drawTriangle;
+
+var drawLine = function drawLine(context) {
+  return function (strokeWidth, x1, y1, x2, y2) {
+    context.lineWidth = strokeWidth;
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+  };
+};
+
+exports.drawLine = drawLine;
+
+var drawCircle = function drawCircle(context) {
+  return function (strokeWidth, x, y, radius) {
+    // context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = strokeWidth;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
+    // context.fill();
+
+    context.stroke();
+  };
+};
+
+exports.drawCircle = drawCircle;
+
+var connectParticles = function connectParticles(context) {
+  return function (pArray, proximity) {
+    var opacity = 1;
+    var len = pArray.length;
+
+    for (var a = 0; a < len; a++) {
+      // all consecutive particles
+      for (var b = a; b < len; b++) {
+        var pA = pArray[a];
+        var pB = pArray[b];
+        var distance = (0, _math.pointDistance)(pA, pB);
+
+        if (distance < proximity) {
+          var pColor = pA.color;
+          pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
+          context.strokeStyle = pColor.toHslString();
+          drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
+        }
+      }
+    }
+  };
+};
+
+exports.connectParticles = connectParticles;
+
+var drawPointTrail = function drawPointTrail(context) {
+  return function (particle) {
+    var trailLen = particle.xHistory.length;
+    context.lineWidth = particle.radius;
+    var pColor = particle.color;
+    var aFade = 100 / trailLen * 0.01;
+    var alpha = 1;
+    var sFade = particle.radius * 2 / trailLen;
+    var stroke = particle.radius * 2;
+
+    for (var i = 0; i < trailLen; i++) {
+      var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
+      var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
+      drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
+      pColor.setAlpha(alpha);
+      context.strokeStyle = pColor.toRgbString();
+      alpha -= aFade;
+      stroke -= sFade;
+    } //
+
+  };
+};
+
+exports.drawPointTrail = drawPointTrail;
+
+var drawMouse = function drawMouse(context) {
+  return function (_ref4) {
+    var x = _ref4.x,
+        y = _ref4.y,
+        radius = _ref4.radius;
+    if (x === undefined || y === undefined) return;
+    context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+  };
+};
+
+exports.drawMouse = drawMouse;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/sketch.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sketch = void 0;
+
+var _canvas = require("./canvas");
+
+/*
+Convenience canvas sketch runner. Based on p5js
+
+
+const variation = () => {
+    const config = {};
+
+    const setup = (canvas, context) => {
+        // create initial state
+    };
+
+    // will run every frame
+    const draw = (canvas, context, mouse) => {
+        // draw on every frame
+        return 1; // -1 to exit animation loop
+    };
+
+    return {
+        config,
+        setup,
+        draw,
+    };
+};
+*/
+var sketch = function sketch() {
+  var mouse = {
+    x: undefined,
+    y: undefined,
+    isDown: false,
+    radius: 100
+  };
+  var fps = 0;
+  var canvasSizeFraction = 0.85;
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  canvas.width = window.innerWidth * canvasSizeFraction;
+  canvas.height = window.innerHeight * canvasSizeFraction;
+
+  var getCanvas = function getCanvas(_) {
+    return canvas;
+  };
+
+  var getContext = function getContext(_) {
+    return context;
+  };
+
+  var getMouse = function getMouse(_) {
+    return mouse;
+  };
+
+  var mouseDown = function mouseDown(evt) {
+    mouse.isDown = true;
+  };
+
+  var mouseMove = function mouseMove(evt) {
+    var canvasFrame = canvas.getBoundingClientRect();
+    mouse.x = evt.x - canvasFrame.x;
+    mouse.y = evt.y - canvasFrame.y;
+  };
+
+  var mouseUp = function mouseUp(evt) {
+    mouse.isDown = false;
+  };
+
+  var mouseOut = function mouseOut(evt) {
+    mouse.x = undefined;
+    mouse.y = undefined;
+    mouse.isDown = false;
+  };
+
+  var windowResize = function windowResize(evt) {
+    return (0, _canvas.resizeCanvas)(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+  };
+
+  window.addEventListener('mousedown', mouseDown);
+  window.addEventListener('touchstart', mouseDown);
+  window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('touchmove', mouseMove);
+  window.addEventListener('mouseup', mouseUp);
+  window.addEventListener('touchend', mouseUp);
+  window.addEventListener('mouseout', mouseOut);
+  window.addEventListener('touchcancel', mouseOut);
+  window.addEventListener('resize', windowResize);
+
+  var run = function run(variation) {
+    var backgroundColor = '0,0,0';
+
+    if (variation.hasOwnProperty('config')) {
+      var config = variation.config;
+      console.log('Sketch config:', variation.config);
+
+      if (config.width && config.height) {
+        window.removeEventListener('resize', windowResize);
+        (0, _canvas.resizeCanvas)(canvas, config.width, config.height);
+      }
+
+      if (config.background) {
+        backgroundColor = config.background;
+      }
+
+      if (config.fps) {
+        fps = config.fps;
+      }
+    }
+
+    var rendering = true;
+    var targetFpsInterval = 1000 / fps;
+    var lastAnimationFrameTime;
+
+    var startSketch = function startSketch() {
+      window.removeEventListener('load', startSketch);
+      variation.setup(canvas, context); // fillCanvas(canvas, context)(1,backgroundColor);
+
+      var render = function render() {
+        var result = variation.draw(canvas, context, mouse);
+
+        if (result !== -1) {
+          requestAnimationFrame(render);
+        }
+      }; // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
+
+
+      var renderAtFps = function renderAtFps() {
+        if (rendering) {
+          requestAnimationFrame(renderAtFps);
+        }
+
+        var now = Date.now();
+        var elapsed = now - lastAnimationFrameTime;
+
+        if (elapsed > targetFpsInterval) {
+          lastAnimationFrameTime = now - elapsed % targetFpsInterval;
+          var result = variation.draw(canvas, context, mouse);
+
+          if (result === -1) {
+            rendering = false;
+          }
+        }
+      };
+
+      if (!fps) {
+        requestAnimationFrame(render);
+      } else {
+        lastAnimationFrameTime = Date.now();
+        requestAnimationFrame(renderAtFps);
+      }
+    };
+
+    window.addEventListener('load', startSketch);
+  };
+
+  return {
+    canvas: getCanvas,
+    context: getContext,
+    mouse: getMouse,
+    run: run
+  };
+};
+
+exports.sketch = sketch;
+},{"./canvas":"scripts/lib/canvas.js"}],"scripts/particles-basic.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.particleBasic = void 0;
+
+var _particle = require("./lib/particle");
+
+var _canvas = require("./lib/canvas");
+
+var particleBasic = function particleBasic() {
+  var config = {
+    width: 200,
+    height: 200,
+    fps: 24
+  };
+  var numParticles = 500;
+  var particlesArray = [];
+  var canvasCenterX;
+  var canvasCenterY;
+  var centerRadius;
+
+  var setup = function setup(canvas, context) {
+    canvasCenterX = canvas.width / 2;
+    canvasCenterY = canvas.height / 2;
+    centerRadius = canvas.height / 4;
+
+    for (var i = 0; i < numParticles; i++) {
+      var props = (0, _particle.createRandomParticleValues)(canvas);
+      props.radius = 1;
+      particlesArray.push(new _particle.Particle(props));
+    }
+  };
+
+  var draw = function draw(canvas, context, mouse) {
+    (0, _canvas.fillCanvas)(canvas, context)(1, '0,0,0');
+
+    for (var i = 0; i < numParticles; i++) {
+      (0, _particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
+
+      (0, _particle.edgeWrap)(canvas, particlesArray[i]); // avoidPoint({ radius: centerRadius, x:canvasCenterX, y:canvasCenterY }, particlesArray[i], 4);
+      // attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
+
+      (0, _canvas.drawPoint)(context)(particlesArray[i]); // drawPointTrail(context)(particlesArray[i]);
+    } // connectParticles(context)(particlesArray, 200);
+    // drawCircle(context)(mouse);
+
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
+};
+
+exports.particleBasic = particleBasic;
+},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation1.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2145,14 +2289,7 @@ var _particle = require("./lib/particle");
 
 var _canvas = require("./lib/canvas");
 
-var psCanvasCenter = function psCanvasCenter(canvas) {
-  return {
-    x: canvas.width / 2,
-    y: canvas.height / 2
-  };
-}; // Based on https://www.youtube.com/watch?v=d620nV6bp0A
-
-
+// Based on https://www.youtube.com/watch?v=d620nV6bp0A
 var variation1 = function variation1() {
   var numParticles = 100;
   var particlesArray = [];
@@ -2189,7 +2326,7 @@ var variation1 = function variation1() {
     }
 
     (0, _canvas.connectParticles)(context)(particlesArray, 200);
-    (0, _canvas.drawCircle)(context)(mouse);
+    (0, _canvas.drawMouse)(context)(mouse);
   };
 
   return {
@@ -2259,7 +2396,7 @@ var variation2 = function variation2() {
     }
 
     (0, _canvas.connectParticles)(context)(particlesArray, 100);
-    (0, _canvas.drawCircle)(context)(mouse);
+    (0, _canvas.drawMouse)(context)(mouse);
     return 1;
   };
 
@@ -2351,7 +2488,7 @@ var variation3 = function variation3(_) {
       (0, _canvas.drawSquare)(context)(particlesArray[i]);
     }
 
-    (0, _canvas.drawCircle)(context)(mouse);
+    (0, _canvas.drawMouse)(context)(mouse);
     return 1;
   };
 
@@ -2590,6 +2727,8 @@ var _normalize = _interopRequireDefault(require("normalize.css"));
 
 var _sketch = require("./lib/sketch");
 
+var _particlesBasic = require("./particles-basic");
+
 var _variation = require("./variation1");
 
 var _variation2 = require("./variation2");
@@ -2608,6 +2747,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Explorations with generative code
 */
 var s = (0, _sketch.sketch)();
+var DEBUG = false;
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
   console.log('Saving capture');
@@ -2670,14 +2810,18 @@ var variations = {
   }
 };
 
-if (variations.hasOwnProperty(variationKey)) {
+if (variations.hasOwnProperty(variationKey) & !DEBUG) {
   var vToRun = variations[variationKey];
   setNote(vToRun.note);
   s.run(vToRun.sketch());
 } else {
   setNote('Not a valid variation!');
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variation1":"scripts/variation1.js","./variation2":"scripts/variation2.js","./variation3":"scripts/variation3.js","./variation4":"scripts/variation4.js","./variation5":"scripts/variation5.js","./variation6":"scripts/variation6.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+if (DEBUG) {
+  s.run((0, _particlesBasic.particleBasic)());
+}
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./particles-basic":"scripts/particles-basic.js","./variation1":"scripts/variation1.js","./variation2":"scripts/variation2.js","./variation3":"scripts/variation3.js","./variation4":"scripts/variation4.js","./variation5":"scripts/variation5.js","./variation6":"scripts/variation6.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -2705,7 +2849,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51514" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62942" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

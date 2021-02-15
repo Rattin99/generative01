@@ -23,7 +23,7 @@ const variation = () => {
 };
 */
 
-import { fillCanvas, resizeCanvas } from './canvas';
+import {fillCanvas, resizeCanvas} from './canvas';
 
 export const sketch = () => {
     const mouse = {
@@ -33,8 +33,10 @@ export const sketch = () => {
         radius: 100,
     };
 
+    let fps = 0;
+
     const canvasSizeFraction = 0.85;
-    const canvas = document.getElementById('canvas1');
+    const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
     canvas.width = window.innerWidth * canvasSizeFraction;
     canvas.height = window.innerHeight * canvasSizeFraction;
@@ -65,23 +67,6 @@ export const sketch = () => {
 
     const windowResize = (evt) => resizeCanvas(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
 
-    const run = (variation) => {
-        const startSketch = () => {
-            window.removeEventListener('load', startSketch);
-            variation.setup(canvas, context);
-            // fillCanvas(canvas, context)();
-            const render = () => {
-                const result = variation.draw(canvas, context, mouse);
-                if (result !== -1) {
-                    requestAnimationFrame(render);
-                }
-            };
-            requestAnimationFrame(render);
-        };
-
-        window.addEventListener('load', startSketch);
-    };
-
     window.addEventListener('mousedown', mouseDown);
     window.addEventListener('touchstart', mouseDown);
 
@@ -94,7 +79,76 @@ export const sketch = () => {
     window.addEventListener('mouseout', mouseOut);
     window.addEventListener('touchcancel', mouseOut);
 
-    // window.addEventListener('resize', windowResize);
+    window.addEventListener('resize', windowResize);
+
+    const run = (variation) => {
+
+        let backgroundColor = '0,0,0'
+
+        if (variation.hasOwnProperty(('config'))) {
+            const config = variation.config;
+            console.log('Sketch config:', variation.config);
+            if (config.width && config.height) {
+                window.removeEventListener('resize', windowResize);
+                resizeCanvas(canvas, config.width, config.height);
+            }
+            if(config.background) {
+                backgroundColor = config.background;
+            }
+            if (config.fps) {
+                fps = config.fps;
+            }
+        }
+
+        let rendering = true;
+        let targetFpsInterval = 1000 / fps;
+        let lastAnimationFrameTime;
+
+        const startSketch = () => {
+            window.removeEventListener('load', startSketch);
+            variation.setup(canvas, context);
+
+            // fillCanvas(canvas, context)(1,backgroundColor);
+
+            const render = () => {
+                const result = variation.draw(canvas, context, mouse);
+                if (result !== -1) {
+                    requestAnimationFrame(render);
+                }
+            };
+
+            // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
+            const renderAtFps = () => {
+                if (rendering) {
+                    requestAnimationFrame(renderAtFps);
+                }
+
+                let now = Date.now();
+                let elapsed = now - lastAnimationFrameTime;
+
+                if (elapsed > targetFpsInterval) {
+                    lastAnimationFrameTime = now - (elapsed % targetFpsInterval);
+                    const result = variation.draw(canvas, context, mouse);
+                    if (result === -1) {
+                        rendering = false;
+                    }
+                }
+
+            };
+
+            if (!fps) {
+                requestAnimationFrame(render);
+            } else {
+                lastAnimationFrameTime = Date.now();
+                requestAnimationFrame(renderAtFps);
+            }
+
+        };
+
+        window.addEventListener('load', startSketch);
+    };
+
+
 
     return {
         canvas: getCanvas,
