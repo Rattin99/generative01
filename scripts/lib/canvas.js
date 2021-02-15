@@ -5,12 +5,17 @@ import { radiansToDegrees, pointAngleFromVelocity, pointDistance, normalizeInver
 export const resizeCanvas = (canvas, width, height) => {
     canvas.width = width;
     canvas.height = height;
-}
+};
 
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
 export const fillCanvas = (canvas, context) => (opacity = 1, color = '0,0,0') => {
     context.fillStyle = `rgba(${color},${opacity})`;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+};
+
+export const background = (canvas, context) => (color = 'black') => {
+    context.fillStyle = tinycolor(color).toRgbString();
     context.fillRect(0, 0, canvas.width, canvas.height);
 };
 
@@ -21,7 +26,7 @@ export const drawRotatedParticle = (ctx, drawFn, particle) => {
     particle.y = 0;
     ctx.save();
     ctx.translate(pSaveX, pSaveY);
-    ctx.rotate(radiansToDegrees(pointAngleFromVelocity(particle)));
+    ctx.rotate(particle.heading);
     drawFn(ctx)(particle);
     ctx.restore();
     particle.x = pSaveX;
@@ -38,31 +43,19 @@ export const drawPoint = (context) => ({ x, y, radius, color }) => {
 export const drawSquare = (context) => ({ x, y, radius, color }) => {
     context.fillStyle = color.toRgbString();
     context.fillRect(x, y, radius, radius);
-    // const half = radius / 2;
-    // context.beginPath();
-    // context.moveTo(x - half, y - half);
-    // context.lineTo(x + half, y - half);
-    // context.lineTo(x + half, y + half);
-    // context.lineTo(x - half, y + half);
-    // context.fillStyle = color;
-    // context.fill();
 };
 
-// https://codepen.io/jlmakes/pen/grEENL?editors=0010
 export const drawTriangle = (context) => ({ x, y, radius, color }) => {
     const half = radius / 2;
-    const apothem = radius / (2 * Math.tan(Math.PI / 3));
-    const height = Math.round(Math.sqrt(3) * half);
-    // draw triangle (clockwise)
     context.beginPath();
-    context.moveTo(x, y + (-height + apothem));
-    context.lineTo(x + half, y + apothem);
-    context.lineTo(x - half, y + apothem);
+    context.moveTo(x - half, y - half);
+    context.lineTo(x + half, y);
+    context.lineTo(x - half, y + half);
     context.fillStyle = color.toRgbString();
     context.fill();
 
     // context.beginPath();
-    // context.arc(x, y - 3, 3, 0, Math.PI * 2, false);
+    // context.arc(x+half, y, 3, 0, Math.PI * 2, false);
     // context.fillStyle = 'rgb(255,0,0)';
     // context.fill();
 };
@@ -86,7 +79,7 @@ export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
 };
 
 export const connectParticles = (context) => (pArray, proximity) => {
-    let opacity = 1;
+    const opacity = 1;
     const len = pArray.length;
     for (let a = 0; a < len; a++) {
         // all consecutive particles
@@ -98,7 +91,7 @@ export const connectParticles = (context) => (pArray, proximity) => {
                 const pColor = pA.color;
                 pColor.setAlpha(normalizeInverse(0, proximity, distance));
                 context.strokeStyle = pColor.toHslString();
-                drawLine(context)(.5, pA.x, pA.y, pB.x, pB.y);
+                drawLine(context)(0.5, pA.x, pA.y, pB.x, pB.y);
             }
         }
     }
@@ -116,7 +109,7 @@ export const drawPointTrail = (context) => (particle) => {
         const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
         const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
         drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
-        pColor.setAlpha(alpha)
+        pColor.setAlpha(alpha);
         context.strokeStyle = pColor.toRgbString();
         alpha -= aFade;
         stroke -= sFade;

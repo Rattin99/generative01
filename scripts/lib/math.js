@@ -13,8 +13,8 @@
   https://github.com/terkelg/math
 */
 
-import {createRandomParticleValues, Particle} from "./particle";
-import {fillCanvas} from "./canvas";
+import { createRandomParticleValues, Particle } from './particle';
+import { fillCanvas } from './canvas';
 
 export const randomSign = () => (Math.round(Math.random()) == 1 ? 1 : -1);
 
@@ -26,9 +26,9 @@ export const normalizeInverse = (min, max, val) => 1 - normalize(min, max, val);
 // https://www.trysmudford.com/blog/linear-interpolation-functions/
 // lerp(20, 80, 0.5) // 40
 export const lerp = (x, y, a) => x * (1 - a) + y * a;
-export const clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
+export const clamp = (min = 0, max = 1, a) => Math.min(max, Math.max(min, a));
 // invlerp(50, 100, 75)  // 0.5
-export const invlerp = (x, y, a) => clamp((a - x) / (y - x));
+export const invlerp = (x, y, a) => clamp(0, 1, (a - x) / (y - x));
 // a is point in 1 and converts to point in 2
 // range(10, 100, 2000, 20000, 50) // 10000
 export const lerpRange = (x1, y1, x2, y2, a) => lerp(x2, y2, invlerp(x1, y1, a));
@@ -46,7 +46,7 @@ export const pointRotateCoord = (point, angle) => ({
 });
 
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
-export const pointAngleFromVelocity = ({velocityX, velocityY}) => Math.atan2(velocityY, velocityX);
+export const pointAngleFromVelocity = ({ velocityX, velocityY }) => Math.atan2(velocityY, velocityX);
 
 export const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
 
@@ -68,9 +68,9 @@ export const createCirclePoints = (centerX, centerY, diameter, steps, sx = 1, sy
     const points = [];
     for (let theta = 0; theta < 360; theta += steps) {
         const radius = theta * (Math.PI / 180);
-        const x = (Math.cos(radius) * diameter + sx) + centerX;
-        const y = (Math.sin(radius) * diameter + sy) + centerY;
+        const x = Math.cos(radius) * diameter + sx + centerX;
+        const y = Math.sin(radius) * diameter + sy + centerY;
         points.push([x, y]);
     }
     return points;
-}
+};

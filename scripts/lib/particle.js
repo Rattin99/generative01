@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import {pointDistance, normalizeInverse, randomNumberBetween, lerp} from './math';
+import { pointDistance, normalizeInverse, randomNumberBetween, lerp, pointAngleFromVelocity } from './math';
 
 const MAX_COORD_HISTORY = 30;
 
@@ -17,21 +17,23 @@ export class Particle {
     }
 
     initValues({
-                   index,
-                   x,
-                   y,
-                   velocityX,
-                   velocityY,
-                   radius,
-                   mass,
-                   color,
-                   alpha,
-                   rotation,
-                   lifetime,
-                   drawFn,
-                   updateFn,
-                   colorFn
-               }) {
+        index,
+        x,
+        y,
+        velocityX,
+        velocityY,
+        accelerationX,
+        accelerationY,
+        radius,
+        mass,
+        color,
+        alpha,
+        rotation,
+        lifetime,
+        drawFn,
+        updateFn,
+        colorFn,
+    }) {
         this.index = index || 0;
         this._x = x || 0;
         this._y = y || 0;
@@ -41,11 +43,13 @@ export class Particle {
         this.oY = y || this.oY;
         this.velocityX = velocityX || 0;
         this.velocityY = velocityY || 0;
-        this.oVelocityX = velocityX || 0;
-        this.oVelocityY = velocityY || 0;
+        this.accelerationX = accelerationX || 0;
+        this.accelerationY = accelerationY || 0;
+        // this.oVelocityX = velocityX || 0;
+        // this.oVelocityY = velocityY || 0;
         this.mass = mass || 1;
         this.radius = radius || 1;
-        this._color = color ? tinycolor(color) : tinycolor({r: 255, g: 255, b: 255});
+        this._color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
         this.rotation = rotation || 0;
         this.lifetime = lifetime || 1;
         this.drawFn = drawFn;
@@ -96,6 +100,11 @@ export class Particle {
         }
     }
 
+    // Rotation angle to point in direction of velocity
+    get heading() {
+        return pointAngleFromVelocity(this);
+    }
+
     draw() {
         // drawPoint(this);
         this.drawFn(this);
@@ -107,7 +116,7 @@ export class Particle {
     }
 }
 
-export const pixel = (x, y, color, radius) => new Particle({x, y, color, radius});
+export const pixel = (x, y, color, radius) => new Particle({ x, y, color, radius });
 
 export const psCanvasRandom = (canvas) => ({
     x: randomNumberBetween(0, canvas.width),
@@ -125,6 +134,8 @@ export const createRandomParticleValues = (canvas) => {
         mass: randomNumberBetween(1, 10),
         velocityX: randomNumberBetween(-vel, vel),
         velocityY: randomNumberBetween(-vel, vel),
+        accelerationX: 0,
+        accelerationY: 0,
         rotation: randomNumberBetween(-180, 180),
         // color: { r: randomNumberBetween(100, 255), g: randomNumberBetween(100, 255), b: randomNumberBetween(100, 255) },
         color: {
@@ -140,7 +151,7 @@ export const updatePosWithVelocity = (particle) => {
     particle.y += particle.velocityY;
 };
 
-export const edgeBounce = ({width, height}, particle) => {
+export const edgeBounce = ({ width, height }, particle) => {
     if (particle.x + particle.radius > width || particle.x - particle.radius < 0) {
         particle.velocityX *= -1;
     }
@@ -149,7 +160,7 @@ export const edgeBounce = ({width, height}, particle) => {
     }
 };
 
-export const edgeWrap = ({width, height}, particle) => {
+export const edgeWrap = ({ width, height }, particle) => {
     if (particle.x + particle.radius > width) {
         particle.x = 0 + particle.radius;
     } else if (particle.x - particle.radius < 0) {
@@ -162,8 +173,8 @@ export const edgeWrap = ({width, height}, particle) => {
     }
 };
 
-export const gravityPoint = (mult = .2, f = 1) => (x, y, radius, particle) => {
-    const distance = pointDistance({x, y}, particle);
+export const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
+    const distance = pointDistance({ x, y }, particle);
     if (distance < radius) {
         const dx = x - particle.x;
         const dy = y - particle.y;
@@ -179,12 +190,12 @@ export const gravityPoint = (mult = .2, f = 1) => (x, y, radius, particle) => {
 
 // for moving points, push away/around from point
 export const avoidPoint = (point, particle, f = 1) => {
-    gravityPoint(1, f *= -1)(point.x, point.y, point.radius, particle);
+    gravityPoint(1, (f *= -1))(point.x, point.y, point.radius, particle);
 };
 
 // for moving points, pull towards point
 export const attractPoint = (point, particle, f = 1) => {
-    gravityPoint(1, f )(point.x, point.y, point.radius, particle);
+    gravityPoint(1, f)(point.x, point.y, point.radius, particle);
 };
 
 // for moving static, push away/outward from point
@@ -211,4 +222,3 @@ export const pointPush = (point, particle, f = 1) => {
         }
     }
 };
-
