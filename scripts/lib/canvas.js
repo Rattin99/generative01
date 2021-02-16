@@ -19,7 +19,7 @@ export const background = (canvas, context) => (color = 'black') => {
     context.fillRect(0, 0, canvas.width, canvas.height);
 };
 
-export const drawRotatedParticle = (ctx, drawFn, particle) => {
+export const drawRotatedParticle = (ctx, drawFn, particle, ...args) => {
     const pSaveX = particle.x;
     const pSaveY = particle.y;
     particle.x = 0;
@@ -27,7 +27,7 @@ export const drawRotatedParticle = (ctx, drawFn, particle) => {
     ctx.save();
     ctx.translate(pSaveX, pSaveY);
     ctx.rotate(particle.heading);
-    drawFn(ctx)(particle);
+    drawFn(ctx)(particle, args);
     ctx.restore();
     particle.x = pSaveX;
     particle.y = pSaveY;
@@ -38,6 +38,26 @@ export const drawPoint = (context) => ({ x, y, radius, color }) => {
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = color.toRgbString();
     context.fill();
+};
+
+export const drawTestPoint = (context) => ({ x, y, radius, color }) => {
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+    drawLine(context)(1, x, y, x + radius, y);
+};
+
+// TODO center it
+export const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
+    const points = 5;
+    spacing |= radius * 3;
+    for (let i = 0; i < points; i++) {
+        drawPoint(context)({ x: x + spacing * i, y, radius, color });
+    }
 };
 
 export const drawSquare = (context) => ({ x, y, radius, color }) => {

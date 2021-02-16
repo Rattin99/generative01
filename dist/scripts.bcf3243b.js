@@ -1388,6 +1388,229 @@ else {
 
 })(Math);
 
+},{}],"scripts/lib/vector.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Vector = Vector;
+
+// Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
+// Edited and expanded as required
+// ref - p5 vector https://p5js.org/reference/#/p5.Vector
+// https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
+
+/*
+
+    const getVMagnitude = ({ x, y }) => Math.sqrt(x * x + y * y);
+
+    const getVNormalize = (vector) => {
+        let mag = getVMagnitude(vector);
+        mag = mag || 1;
+        return {
+            x: vector.x / mag,
+            y: vector.y / mag,
+        };
+    };
+
+    const vMagnitude = (m, vector) => {
+        const c = getVMagnitude(vector);
+        const r = m / c;
+        return {
+            x: vector.x * r,
+            y: vector.y * r,
+        };
+    };
+ */
+function Vector(x, y, z) {
+  this.x = x || 0;
+  this.y = y || 0;
+  this.z = z || 0;
+}
+
+Vector.prototype = {
+  negative: function negative() {
+    return new Vector(-this.x, -this.y, -this.z);
+  },
+  add: function add(v) {
+    if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
+    return new Vector(this.x + v, this.y + v, this.z + v);
+  },
+  sub: function sub(v) {
+    if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
+    return new Vector(this.x - v, this.y - v, this.z - v);
+  },
+  mult: function mult(v) {
+    if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
+    return new Vector(this.x * v, this.y * v, this.z * v);
+  },
+  div: function div(v) {
+    if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
+    return new Vector(this.x / v, this.y / v, this.z / v);
+  },
+  equals: function equals(v) {
+    return this.x === v.x && this.y === v.y && this.z === v.z;
+  },
+  dot: function dot(v) {
+    return this.x * v.x + this.y * v.y + this.z * v.z;
+  },
+  cross: function cross(v) {
+    return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
+  },
+  length: function length() {
+    return Math.sqrt(this.dot(this));
+  },
+  getMag: function getMag() {
+    return this.length();
+  },
+  normalize: function normalize() {
+    var mag = this.getMag();
+    mag = mag || 1;
+    return this.div(mag);
+  },
+  mag: function mag(m) {
+    var c = this.getMag();
+    var r = m / c;
+    return this.mult(r);
+  },
+  unit: function unit() {
+    return this.divide(this.length());
+  },
+  min: function min() {
+    return Math.min(Math.min(this.x, this.y), this.z);
+  },
+  max: function max() {
+    return Math.max(Math.max(this.x, this.y), this.z);
+  },
+  toAngles: function toAngles() {
+    return {
+      theta: Math.atan2(this.z, this.x),
+      phi: Math.asin(this.y / this.length())
+    };
+  },
+  angleTo: function angleTo(a) {
+    return Math.acos(this.dot(a) / (this.length() * a.length()));
+  },
+  toArray: function toArray(n) {
+    return [this.x, this.y, this.z].slice(0, n || 3);
+  },
+  clone: function clone() {
+    return new Vector(this.x, this.y, this.z);
+  },
+  init: function init(x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    return this;
+  }
+};
+
+Vector.negative = function (a, b) {
+  b.x = -a.x;
+  b.y = -a.y;
+  b.z = -a.z;
+  return b;
+};
+
+Vector.add = function (a, b, c) {
+  if (b instanceof Vector) {
+    c.x = a.x + b.x;
+    c.y = a.y + b.y;
+    c.z = a.z + b.z;
+  } else {
+    c.x = a.x + b;
+    c.y = a.y + b;
+    c.z = a.z + b;
+  }
+
+  return c;
+};
+
+Vector.subtract = function (a, b, c) {
+  if (b instanceof Vector) {
+    c.x = a.x - b.x;
+    c.y = a.y - b.y;
+    c.z = a.z - b.z;
+  } else {
+    c.x = a.x - b;
+    c.y = a.y - b;
+    c.z = a.z - b;
+  }
+
+  return c;
+};
+
+Vector.multiply = function (a, b, c) {
+  if (b instanceof Vector) {
+    c.x = a.x * b.x;
+    c.y = a.y * b.y;
+    c.z = a.z * b.z;
+  } else {
+    c.x = a.x * b;
+    c.y = a.y * b;
+    c.z = a.z * b;
+  }
+
+  return c;
+};
+
+Vector.divide = function (a, b, c) {
+  if (b instanceof Vector) {
+    c.x = a.x / b.x;
+    c.y = a.y / b.y;
+    c.z = a.z / b.z;
+  } else {
+    c.x = a.x / b;
+    c.y = a.y / b;
+    c.z = a.z / b;
+  }
+
+  return c;
+};
+
+Vector.cross = function (a, b, c) {
+  c.x = a.y * b.z - a.z * b.y;
+  c.y = a.z * b.x - a.x * b.z;
+  c.z = a.x * b.y - a.y * b.x;
+  return c;
+};
+
+Vector.unit = function (a, b) {
+  var length = a.length();
+  b.x = a.x / length;
+  b.y = a.y / length;
+  b.z = a.z / length;
+  return b;
+};
+
+Vector.fromAngles = function (theta, phi) {
+  return new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi));
+};
+
+Vector.randomDirection = function () {
+  return Vector.fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
+};
+
+Vector.min = function (a, b) {
+  return new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
+};
+
+Vector.max = function (a, b) {
+  return new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
+};
+
+Vector.lerp = function (a, b, fraction) {
+  return b.subtract(a).multiply(fraction).add(a);
+};
+
+Vector.fromArray = function (a) {
+  return new Vector(a[0], a[1], a[2]);
+};
+
+Vector.angleBetween = function (a, b) {
+  return a.angleTo(b);
+};
 },{}],"scripts/lib/particle.js":[function(require,module,exports) {
 "use strict";
 
@@ -1399,6 +1622,8 @@ exports.pointPush = exports.attractPoint = exports.avoidPoint = exports.gravityP
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _math = require("./math");
+
+var _vector = require("./vector");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1476,7 +1701,6 @@ var Particle = /*#__PURE__*/function () {
   }, {
     key: "draw",
     value: function draw() {
-      // drawPoint(this);
       this.drawFn(this);
     }
   }, {
@@ -1531,6 +1755,28 @@ var Particle = /*#__PURE__*/function () {
       if (this.yHistory.length > MAX_COORD_HISTORY) {
         this.yHistory = this.yHistory.slice(0, MAX_COORD_HISTORY);
       }
+    }
+  }, {
+    key: "vVector",
+    get: function get() {
+      return new _vector.Vector(this.velocityX, this.velocityY, 0);
+    },
+    set: function set(_ref2) {
+      var x = _ref2.x,
+          y = _ref2.y;
+      this.velocityX = x;
+      this.velocityY = y;
+    }
+  }, {
+    key: "aVector",
+    get: function get() {
+      return new _vector.Vector(this.accelerationX, this.accelerationY, 0);
+    },
+    set: function set(_ref3) {
+      var x = _ref3.x,
+          y = _ref3.y;
+      this.accelerationX = x;
+      this.accelerationY = y;
     } // Rotation angle to point in direction of velocity
 
   }, {
@@ -1591,30 +1837,48 @@ var createRandomParticleValues = function createRandomParticleValues(canvas) {
 exports.createRandomParticleValues = createRandomParticleValues;
 
 var updatePosWithVelocity = function updatePosWithVelocity(particle) {
-  particle.x += particle.velocityX;
-  particle.y += particle.velocityY;
+  particle.x += particle.vVector.x;
+  particle.y += particle.vVector.y;
 };
 
 exports.updatePosWithVelocity = updatePosWithVelocity;
 
-var edgeBounce = function edgeBounce(_ref2, particle) {
-  var width = _ref2.width,
-      height = _ref2.height;
+var edgeBounce = function edgeBounce(_ref4, particle) {
+  var width = _ref4.width,
+      height = _ref4.height;
 
-  if (particle.x + particle.radius > width || particle.x - particle.radius < 0) {
+  // if (particle.x + particle.radius > width || particle.x - particle.radius < 0) {
+  //     particle.velocityX *= -1;
+  // }
+  // if (particle.y + particle.radius > height || particle.y - particle.radius < 0) {
+  //     particle.velocityY *= -1;
+  // }
+  if (particle.x + particle.radius > width) {
     particle.velocityX *= -1;
+    particle.x = width - particle.radius;
   }
 
-  if (particle.y + particle.radius > height || particle.y - particle.radius < 0) {
+  if (particle.x - particle.radius < 0) {
+    particle.velocityX *= -1;
+    particle.x = particle.radius;
+  }
+
+  if (particle.y + particle.radius > height) {
     particle.velocityY *= -1;
+    particle.y = height - particle.radius;
+  }
+
+  if (particle.y - particle.radius < 0) {
+    particle.velocityY *= -1;
+    particle.y = particle.radius;
   }
 };
 
 exports.edgeBounce = edgeBounce;
 
-var edgeWrap = function edgeWrap(_ref3, particle) {
-  var width = _ref3.width,
-      height = _ref3.height;
+var edgeWrap = function edgeWrap(_ref5, particle) {
+  var width = _ref5.width,
+      height = _ref5.height;
 
   if (particle.x + particle.radius > width) {
     particle.x = 0 + particle.radius;
@@ -1700,7 +1964,7 @@ var pointPush = function pointPush(point, particle) {
 };
 
 exports.pointPush = pointPush;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/math.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./vector":"scripts/lib/vector.js"}],"scripts/lib/math.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1858,7 +2122,7 @@ exports.createCirclePoints = createCirclePoints;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.drawMouse = exports.drawPointTrail = exports.connectParticles = exports.drawCircle = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawPoint = exports.drawRotatedParticle = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
+exports.drawMouse = exports.drawPointTrail = exports.connectParticles = exports.drawCircle = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawRake = exports.drawTestPoint = exports.drawPoint = exports.drawRotatedParticle = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -1910,7 +2174,12 @@ var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
   ctx.save();
   ctx.translate(pSaveX, pSaveY);
   ctx.rotate(particle.heading);
-  drawFn(ctx)(particle);
+
+  for (var _len = arguments.length, args = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+    args[_key - 3] = arguments[_key];
+  }
+
+  drawFn(ctx)(particle, args);
   ctx.restore();
   particle.x = pSaveX;
   particle.y = pSaveY;
@@ -1933,12 +2202,54 @@ var drawPoint = function drawPoint(context) {
 
 exports.drawPoint = drawPoint;
 
-var drawSquare = function drawSquare(context) {
+var drawTestPoint = function drawTestPoint(context) {
   return function (_ref2) {
     var x = _ref2.x,
         y = _ref2.y,
         radius = _ref2.radius,
         color = _ref2.color;
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+    drawLine(context)(1, x, y, x + radius, y);
+  };
+}; // TODO center it
+
+
+exports.drawTestPoint = drawTestPoint;
+
+var drawRake = function drawRake(context) {
+  return function (_ref3, spacing) {
+    var x = _ref3.x,
+        y = _ref3.y,
+        radius = _ref3.radius,
+        color = _ref3.color;
+    var points = 5;
+    spacing |= radius * 3;
+
+    for (var i = 0; i < points; i++) {
+      drawPoint(context)({
+        x: x + spacing * i,
+        y: y,
+        radius: radius,
+        color: color
+      });
+    }
+  };
+};
+
+exports.drawRake = drawRake;
+
+var drawSquare = function drawSquare(context) {
+  return function (_ref4) {
+    var x = _ref4.x,
+        y = _ref4.y,
+        radius = _ref4.radius,
+        color = _ref4.color;
     context.fillStyle = color.toRgbString();
     context.fillRect(x, y, radius, radius);
   };
@@ -1947,11 +2258,11 @@ var drawSquare = function drawSquare(context) {
 exports.drawSquare = drawSquare;
 
 var drawTriangle = function drawTriangle(context) {
-  return function (_ref3) {
-    var x = _ref3.x,
-        y = _ref3.y,
-        radius = _ref3.radius,
-        color = _ref3.color;
+  return function (_ref5) {
+    var x = _ref5.x,
+        y = _ref5.y,
+        radius = _ref5.radius,
+        color = _ref5.color;
     var half = radius / 2;
     context.beginPath();
     context.moveTo(x - half, y - half);
@@ -2044,10 +2355,10 @@ var drawPointTrail = function drawPointTrail(context) {
 exports.drawPointTrail = drawPointTrail;
 
 var drawMouse = function drawMouse(context) {
-  return function (_ref4) {
-    var x = _ref4.x,
-        y = _ref4.y,
-        radius = _ref4.radius;
+  return function (_ref6) {
+    var x = _ref6.x,
+        y = _ref6.y,
+        radius = _ref6.radius;
     if (x === undefined || y === undefined) return;
     context.strokeStyle = 'rgba(255,255,255,.25)';
     context.lineWidth = 1;
@@ -2244,8 +2555,13 @@ var _canvas = require("./lib/canvas");
 
 var _math = require("./lib/math");
 
+var _vector = require("./lib/vector");
+
 var debugDev = function debugDev() {
-  var config = {// fps: 30,
+  var config = {
+    width: 700,
+    height: 700 // fps: 30,
+
   };
   var numParticles = 10;
   var particlesArray = [];
@@ -2259,34 +2575,48 @@ var debugDev = function debugDev() {
     centerRadius = canvas.height / 4;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
-      props.radius = 10;
-      props.color = 'white'; // props.mass = 1;
+      var props = (0, _particle.createRandomParticleValues)(canvas); // props.color = 'white';
+      // props.mass = 1;
+
+      props.radius = Math.sqrt(props.mass) * 10; // props.y = canvasCenterY;
 
       props.velocityX = 0;
       props.velocityY = 0;
       particlesArray.push(new _particle.Particle(props));
     }
-  };
+  }; // const targetX = mouse.x ? mouse.x : canvas.width / 2;
+  // const targetY = mouse.y ? mouse.y : canvas.height / 2;
+  // accelerateToPoint(targetX, targetY, particlesArray[i]);
+
 
   var accelerateToPoint = function accelerateToPoint(targetX, targetY, particle) {
     var magnitude = 0.001;
     var vLimit = 5;
-    var accX = (targetX - particle.x) * magnitude;
-    var accY = (targetY - particle.y) * magnitude;
+    var accX = (targetX - particle.x) * magnitude / particle.mass;
+    var accY = (targetY - particle.y) * magnitude / particle.mass;
     particle.velocityX += accX;
     particle.velocityY += accY;
     particle.velocityX = (0, _math.clamp)(-vLimit, vLimit, particle.velocityX);
     particle.velocityY = (0, _math.clamp)(-vLimit, vLimit, particle.velocityY);
   };
 
-  var applyForce = function applyForce(forceX, forceY, particle) {
-    var vLimit = 15;
-    particle.accelerationX += forceX / particle.mass;
-    particle.accelerationY += forceY / particle.mass;
-    particle.velocityX += particle.accelerationX;
-    particle.velocityY += particle.accelerationY; // particle.velocityX = clamp(-vLimit, vLimit, particle.velocityX);
-    // particle.velocityY = clamp(-vLimit, vLimit, particle.velocityY);
+  var applyForce = function applyForce(fVect, particle) {
+    var fV = fVect.div(particle.mass);
+    var aV = particle.aVector.add(fV);
+    var pV = particle.vVector.add(aV);
+    particle.vVector = pV;
+  };
+
+  var friction = function friction(_ref, particle) {
+    var width = _ref.width,
+        height = _ref.height;
+
+    if (particle.y + particle.radius >= height) {
+      var mu = 0.1;
+      var normal = particle.mass;
+      var vfriction = particle.vVector.normalize().mult(-1).mag(mu * normal);
+      applyForce(vfriction, particle);
+    }
   };
 
   var draw = function draw(canvas, context, mouse) {
@@ -2294,25 +2624,27 @@ var debugDev = function debugDev() {
       r: 0,
       g: 0,
       b: 50,
-      a: 0.1
+      a: 0.5
     });
 
     for (var i = 0; i < numParticles; i++) {
-      var targetX = mouse.x ? mouse.x : canvas.width / 2;
-      var targetY = mouse.y ? mouse.y : canvas.height / 2; // accelerateToPoint(targetX, targetY, particlesArray[i]);
+      var gravity = new _vector.Vector(0, 0.5);
+      var wind = new _vector.Vector(1, 0);
+      var weight = gravity.mult(particlesArray[i].mass);
 
       if (mouse.isDown) {
-        applyForce(0.01, 0, particlesArray[i]);
+        applyForce(wind, particlesArray[i]);
       }
 
-      applyForce(0, 0.01, particlesArray[i]);
-      particlesArray[i].x += particlesArray[i].velocityX;
-      particlesArray[i].y += particlesArray[i].velocityY;
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]); // edgeWrap(canvas, particle);
-      // drawPoint(context)(particle);
-      // drawTriangle(context)(particle);
-
-      (0, _canvas.drawRotatedParticle)(context, _canvas.drawTriangle, particlesArray[i]);
+      applyForce(weight, particlesArray[i]);
+      friction(canvas, particlesArray[i]);
+      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _canvas.drawRotatedParticle)(context, _canvas.drawTestPoint, particlesArray[i]);
+      particlesArray[i].aVector = {
+        x: 0,
+        y: 0
+      };
     }
   };
 
@@ -2324,7 +2656,7 @@ var debugDev = function debugDev() {
 };
 
 exports.debugDev = debugDev;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation1.js":[function(require,module,exports) {
+},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/vector":"scripts/lib/vector.js"}],"scripts/variation1.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2896,7 +3228,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55432" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61141" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

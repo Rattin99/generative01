@@ -1,5 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { pointDistance, normalizeInverse, randomNumberBetween, lerp, pointAngleFromVelocity } from './math';
+import { Vector } from './vector';
 
 const MAX_COORD_HISTORY = 30;
 
@@ -100,13 +101,30 @@ export class Particle {
         }
     }
 
+    get vVector() {
+        return new Vector(this.velocityX, this.velocityY, 0);
+    }
+
+    set vVector({ x, y }) {
+        this.velocityX = x;
+        this.velocityY = y;
+    }
+
+    get aVector() {
+        return new Vector(this.accelerationX, this.accelerationY, 0);
+    }
+
+    set aVector({ x, y }) {
+        this.accelerationX = x;
+        this.accelerationY = y;
+    }
+
     // Rotation angle to point in direction of velocity
     get heading() {
         return pointAngleFromVelocity(this);
     }
 
     draw() {
-        // drawPoint(this);
         this.drawFn(this);
     }
 
@@ -147,16 +165,32 @@ export const createRandomParticleValues = (canvas) => {
 };
 
 export const updatePosWithVelocity = (particle) => {
-    particle.x += particle.velocityX;
-    particle.y += particle.velocityY;
+    particle.x += particle.vVector.x;
+    particle.y += particle.vVector.y;
 };
 
 export const edgeBounce = ({ width, height }, particle) => {
-    if (particle.x + particle.radius > width || particle.x - particle.radius < 0) {
+    // if (particle.x + particle.radius > width || particle.x - particle.radius < 0) {
+    //     particle.velocityX *= -1;
+    // }
+    // if (particle.y + particle.radius > height || particle.y - particle.radius < 0) {
+    //     particle.velocityY *= -1;
+    // }
+    if (particle.x + particle.radius > width) {
         particle.velocityX *= -1;
+        particle.x = width - particle.radius;
     }
-    if (particle.y + particle.radius > height || particle.y - particle.radius < 0) {
+    if (particle.x - particle.radius < 0) {
+        particle.velocityX *= -1;
+        particle.x = particle.radius;
+    }
+    if (particle.y + particle.radius > height) {
         particle.velocityY *= -1;
+        particle.y = height - particle.radius;
+    }
+    if (particle.y - particle.radius < 0) {
+        particle.velocityY *= -1;
+        particle.y = particle.radius;
     }
 };
 

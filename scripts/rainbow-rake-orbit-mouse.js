@@ -14,13 +14,11 @@ import {
     drawPoint,
     drawPointTrail,
     drawRotatedParticle,
-    drawTestPoint,
     drawTriangle,
     background,
     drawRake,
 } from './lib/canvas';
 import { clamp } from './lib/math';
-import { Vector } from './lib/vector';
 
 export const debugDev = () => {
     const config = {
@@ -29,7 +27,7 @@ export const debugDev = () => {
         // fps: 30,
     };
 
-    const numParticles = 10;
+    const numParticles = 100;
     const particlesArray = [];
 
     let canvasCenterX;
@@ -43,20 +41,15 @@ export const debugDev = () => {
 
         for (let i = 0; i < numParticles; i++) {
             const props = createRandomParticleValues(canvas);
-
+            props.radius = 1;
             // props.color = 'white';
             // props.mass = 1;
-            props.radius = Math.sqrt(props.mass) * 10;
-            // props.y = canvasCenterY;
             props.velocityX = 0;
             props.velocityY = 0;
             particlesArray.push(new Particle(props));
         }
     };
 
-    // const targetX = mouse.x ? mouse.x : canvas.width / 2;
-    // const targetY = mouse.y ? mouse.y : canvas.height / 2;
-    // accelerateToPoint(targetX, targetY, particlesArray[i]);
     const accelerateToPoint = (targetX, targetY, particle) => {
         const magnitude = 0.001;
         const vLimit = 5;
@@ -68,43 +61,38 @@ export const debugDev = () => {
         particle.velocityY = clamp(-vLimit, vLimit, particle.velocityY);
     };
 
-    const applyForce = (fVect, particle) => {
-        const fV = fVect.div(particle.mass);
-        const aV = particle.aVector.add(fV);
-        const pV = particle.vVector.add(aV);
-        particle.vVector = pV;
-    };
-
-    const friction = ({ width, height }, particle) => {
-        if (particle.y + particle.radius >= height) {
-            const mu = 0.1;
-            const normal = particle.mass;
-            const vfriction = particle.vVector
-                .normalize()
-                .mult(-1)
-                .mag(mu * normal);
-            applyForce(vfriction, particle);
-        }
+    const applyForce = (forceX, forceY, particle) => {
+        const vLimit = 15;
+        particle.accelerationX += forceX / particle.mass;
+        particle.accelerationY += forceY / particle.mass;
+        particle.velocityX += particle.accelerationX;
+        particle.velocityY += particle.accelerationY;
+        // particle.velocityX = clamp(-vLimit, vLimit, particle.velocityX);
+        // particle.velocityY = clamp(-vLimit, vLimit, particle.velocityY);
     };
 
     const draw = (canvas, context, mouse) => {
-        background(canvas, context)({ r: 0, g: 0, b: 50, a: 0.5 });
+        background(canvas, context)({ r: 0, g: 0, b: 50, a: 0.1 });
         for (let i = 0; i < numParticles; i++) {
-            const gravity = new Vector(0, 0.5);
-            const wind = new Vector(1, 0);
+            const targetX = mouse.x ? mouse.x : canvas.width / 2;
+            const targetY = mouse.y ? mouse.y : canvas.height / 2;
+            accelerateToPoint(targetX, targetY, particlesArray[i]);
 
-            const weight = gravity.mult(particlesArray[i].mass);
-
-            if (mouse.isDown) {
-                applyForce(wind, particlesArray[i]);
-            }
-
-            applyForce(weight, particlesArray[i]);
-            friction(canvas, particlesArray[i]);
-            updatePosWithVelocity(particlesArray[i]);
-            edgeBounce(canvas, particlesArray[i]);
-            drawRotatedParticle(context, drawTestPoint, particlesArray[i]);
-            particlesArray[i].aVector = { x: 0, y: 0 };
+            // if (mouse.isDown) {
+            //     applyForce(0.01, 0, particlesArray[i]);
+            // }
+            //
+            // applyForce(0, 0.01, particlesArray[i]);
+            //
+            particlesArray[i].x += particlesArray[i].velocityX;
+            particlesArray[i].y += particlesArray[i].velocityY;
+            // edgeBounce(canvas, particlesArray[i]);
+            // edgeWrap(canvas, particle);
+            // drawPoint(context)(particle);
+            // drawTriangle(context)(particle);
+            // drawRake(context)(particlesArray[i]);
+            drawRotatedParticle(context, drawRake, particlesArray[i], 20);
+            // drawRotatedParticle(context, drawTriangle, particlesArray[i]);
         }
     };
 
