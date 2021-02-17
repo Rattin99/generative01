@@ -60,9 +60,13 @@ export const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
     }
 };
 
+export const drawRect = (context) => (x, y, w, h, color = 'white') => {
+    context.fillStyle = tinycolor(color).toRgbString();
+    context.fillRect(x, y, x + w, y + h);
+};
+
 export const drawSquare = (context) => ({ x, y, radius, color }) => {
-    context.fillStyle = color.toRgbString();
-    context.fillRect(x, y, radius, radius);
+    drawRect(context)(x, y, radius, radius, color);
 };
 
 export const drawTriangle = (context) => ({ x, y, radius, color }) => {
@@ -96,6 +100,21 @@ export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
     // context.fillStyle = 'rgba(255,255,255,.1)';
     // context.fill();
     context.stroke();
+};
+
+export const drawParticleVectors = (context) => (particle) => {
+    const vmult = 5;
+    const amult = 100;
+    const vel = 'green';
+    const acc = 'yellow';
+    const { vVector } = particle;
+    const { aVector } = particle;
+
+    context.strokeStyle = tinycolor(vel).toRgbString();
+    drawLine(context)(1, particle.x, particle.y, particle.x + vVector.x * vmult, particle.y + vVector.y * vmult);
+
+    context.strokeStyle = tinycolor(acc).toRgbString();
+    drawLine(context)(1, particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult);
 };
 
 export const connectParticles = (context) => (pArray, proximity) => {

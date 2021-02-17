@@ -1,7 +1,32 @@
-import { edgeBounce, Particle, updatePosWithVelocity, createRandomParticleValues, attract } from './lib/particle';
-import { drawRotatedParticle, background, drawRake } from './lib/canvas';
+import {
+    attractPoint,
+    avoidPoint,
+    edgeBounce,
+    Particle,
+    updatePosWithVelocity,
+    createRandomParticleValues,
+    edgeWrap,
+    applyForce,
+    friction,
+    drag,
+    attract,
+} from './lib/particle';
+import {
+    clearCanvas,
+    connectParticles,
+    drawMouse,
+    drawPoint,
+    drawPointTrail,
+    drawRotatedParticle,
+    drawTestPoint,
+    drawTriangle,
+    background,
+    drawRake,
+    drawParticleVectors,
+    drawRect,
+} from './lib/canvas';
 
-export const rainbowRakeOrbit = () => {
+export const forcesDevGravity = () => {
     const config = {
         // width: 700,
         // height: 700,
@@ -24,7 +49,7 @@ export const rainbowRakeOrbit = () => {
 
         for (let i = 0; i < numParticles; i++) {
             const props = createRandomParticleValues(canvas);
-            props.radius = 1; // Math.sqrt(props.mass);
+            props.radius = Math.sqrt(props.mass);
             particlesArray.push(new Particle(props));
         }
     };

@@ -1,31 +1,7 @@
 // Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
-// Edited and expanded as required
-
+// Edited and expanded to match p5's vectors
 // ref - p5 vector https://p5js.org/reference/#/p5.Vector
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
-
-/*
-
-    const getVMagnitude = ({ x, y }) => Math.sqrt(x * x + y * y);
-
-    const getVNormalize = (vector) => {
-        let mag = getVMagnitude(vector);
-        mag = mag || 1;
-        return {
-            x: vector.x / mag,
-            y: vector.y / mag,
-        };
-    };
-
-    const vMagnitude = (m, vector) => {
-        const c = getVMagnitude(vector);
-        const r = m / c;
-        return {
-            x: vector.x * r,
-            y: vector.y * r,
-        };
-    };
- */
 
 export function Vector(x, y, z) {
     this.x = x || 0;
@@ -64,18 +40,22 @@ Vector.prototype = {
     length() {
         return Math.sqrt(this.dot(this));
     },
-    getMag() {
+    mag() {
         return this.length();
     },
-    normalize() {
-        let mag = this.getMag();
-        mag = mag || 1;
-        return this.div(mag);
+    magSq() {
+        const m = this.length();
+        return m * m;
     },
-    mag(m) {
-        const c = this.getMag();
+    setMag(m) {
+        const c = this.mag();
         const r = m / c;
         return this.mult(r);
+    },
+    normalize() {
+        let mag = this.mag();
+        mag = mag || 1;
+        return this.div(mag);
     },
     unit() {
         return this.divide(this.length());
@@ -86,6 +66,16 @@ Vector.prototype = {
     max() {
         return Math.max(Math.max(this.x, this.y), this.z);
     },
+    limit(v) {
+        const cm = this.mag();
+        if (cm > v) {
+            return this.setMag(v);
+        }
+        return this;
+    },
+    // clamp(min, max) {
+    //     // export const clamp = (min = 0, max = 1, a) => Math.min(max, Math.max(min, a));
+    // },
     toAngles() {
         return {
             theta: Math.atan2(this.z, this.x),

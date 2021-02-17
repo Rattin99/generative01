@@ -5,17 +5,19 @@ Explorations with generative code
 import normliaze from 'normalize.css';
 
 import { sketch } from './lib/sketch';
-import {debugDev} from "./debug-dev";
+import { forcesDev } from './forcesDev';
+import { forcesDevGravity } from './forcesDevGravity';
 import { variation1 } from './variation1';
 import { variation2 } from './variation2';
 import { variation3 } from './variation3';
-import {variation4} from "./variation4";
-import {variation5} from "./variation5";
-import {variation6} from './variation6'
+import { variation4 } from './variation4';
+import { variation5 } from './variation5';
+import { variation6 } from './variation6';
+import { rainbowRakeOrbit } from './rainbow-rake-orbit-mouse';
 
 const s = sketch();
 
-const DEBUG = true;
+const DEBUG = false;
 
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
@@ -72,6 +74,10 @@ const variations = {
         note: 'Move the mouse',
         sketch: variation6,
     },
+    7: {
+        note: 'Rakes orbit center and the mouse. Click to repel.',
+        sketch: rainbowRakeOrbit,
+    },
 };
 
 if (variations.hasOwnProperty(variationKey) & !DEBUG) {
@@ -82,6 +88,7 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
     setNote('Not a valid variation!');
 }
 
-if(DEBUG) {
-    s.run(debugDev())
+if (DEBUG) {
+    // s.run(forcesDev());
+    s.run(forcesDevGravity());
 }

@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { pointDistance, normalizeInverse, randomNumberBetween, lerp, pointAngleFromVelocity } from './math';
+import { pointDistance, normalizeInverse, randomNumberBetween, lerp, pointAngleFromVelocity, clamp } from './math';
 import { Vector } from './vector';
 
 const MAX_COORD_HISTORY = 30;
@@ -167,6 +167,47 @@ export const createRandomParticleValues = (canvas) => {
 export const updatePosWithVelocity = (particle) => {
     particle.x += particle.vVector.x;
     particle.y += particle.vVector.y;
+};
+
+// https://www.youtube.com/watch?v=L7CECWLdTmo
+export const applyForce = (fVect, particle) => {
+    const fV = fVect.div(particle.mass);
+    const aV = particle.aVector.add(fV);
+    const pV = particle.vVector.add(aV);
+    particle.aVector = aV;
+    particle.vVector = pV;
+};
+
+// https://www.youtube.com/watch?v=WBdhAuWS6X8
+export const friction = (particle, mu = 0.1) => {
+    const normal = particle.mass;
+    const vfriction = particle.vVector
+        .normalize()
+        .mult(-1)
+        .setMag(mu * normal);
+    applyForce(vfriction, particle);
+};
+
+// https://www.youtube.com/watch?v=DxFDgOYEoy8
+export const drag = (particle, coefficent = 0.1) => {
+    const area = 1; // particle.radius;
+    const velUnit = particle.vVector.normalize().mult(-1);
+    const speed = particle.vVector.magSq() * area * coefficent;
+    const vdrag = velUnit.setMag(speed);
+    applyForce(vdrag, particle);
+};
+
+// https://www.youtube.com/watch?v=EpgB3cNhKPM
+// mode 1 is attract, -1 is repel
+export const attract = ({ x, y, mass, g }, particle, mode = 1, affectDist = 1000) => {
+    if (pointDistance({ x, y }, { x: particle.x, y: particle.y }) < affectDist) {
+        g = g || 1;
+        const dir = new Vector(x, y).sub(new Vector(particle.x, particle.y));
+        const distanceSq = clamp(50, 5000, dir.magSq());
+        const strength = (mode * (g * (mass * particle.mass))) / distanceSq;
+        const force = dir.setMag(strength);
+        applyForce(force, particle);
+    }
 };
 
 export const edgeBounce = ({ width, height }, particle) => {
