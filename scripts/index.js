@@ -7,6 +7,7 @@ import normliaze from 'normalize.css';
 import { sketch } from './lib/sketch';
 import { forcesDev } from './forcesDev';
 import { forcesDevGravity } from './forcesDevGravity';
+import { testGrid } from './test-grid';
 import { variation1 } from './variation1';
 import { variation2 } from './variation2';
 import { variation3 } from './variation3';
@@ -17,7 +18,7 @@ import { rainbowRakeOrbit } from './rainbow-rake-orbit-mouse';
 
 const s = sketch();
 
-const DEBUG = false;
+const DEBUG = true;
 
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
@@ -90,5 +91,5 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 
 if (DEBUG) {
     // s.run(forcesDev());
-    s.run(forcesDevGravity());
+    s.run(testGrid());
 }
