@@ -16,7 +16,20 @@
 import { createRandomParticleValues, Particle } from './particle';
 import { fillCanvas } from './canvas';
 
+export const randomNumberBetween = (min, max) => Math.random() * (max - min) + min;
+export const randomNumberBetweenMid = (min, max) => randomNumberBetween(min, max) - max / 2;
+
 export const randomSign = () => (Math.round(Math.random()) == 1 ? 1 : -1);
+
+export const createRandomNumberArray = (len, min, max) => {
+    const arr = [];
+    for (let i = 0; i < len; i++) {
+        arr.push(randomNumberBetween(min, max));
+    }
+    return arr;
+};
+
+export const pointOnCircle = (x, y, r, d) => ({ x: r * Math.sin(d) + x, y: r * Math.cos(d) + y });
 
 // returns value between 0-1, 250,500,0 => .5
 export const normalize = (min, max, val) => (val - min) / (max - min);
@@ -49,9 +62,6 @@ export const pointRotateCoord = (point, angle) => ({
 export const pointAngleFromVelocity = ({ velocityX, velocityY }) => Math.atan2(velocityY, velocityX);
 
 export const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
-
-export const randomNumberBetween = (min, max) => Math.random() * (max - min) + min;
-export const randomNumberBetweenMid = (min, max) => randomNumberBetween(min, max) - max / 2;
 
 // Scale up point grid and center in the canvas
 export const scalePointToCanvas = (cwidth, cheight, width, height, zoomFactor, x, y) => {

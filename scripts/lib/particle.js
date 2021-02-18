@@ -34,7 +34,9 @@ export class Particle {
         drawFn,
         updateFn,
         colorFn,
+        ...rest
     }) {
+        this.props = rest;
         this.index = index || 0;
         this._x = x || 0;
         this._y = y || 0;

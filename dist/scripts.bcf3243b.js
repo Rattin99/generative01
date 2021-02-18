@@ -1620,6 +1620,10 @@ var _vector = require("./vector");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -1663,7 +1667,10 @@ var Particle = /*#__PURE__*/function () {
           lifetime = _ref.lifetime,
           drawFn = _ref.drawFn,
           updateFn = _ref.updateFn,
-          colorFn = _ref.colorFn;
+          colorFn = _ref.colorFn,
+          rest = _objectWithoutProperties(_ref, ["index", "x", "y", "velocityX", "velocityY", "accelerationX", "accelerationY", "radius", "mass", "color", "alpha", "rotation", "lifetime", "drawFn", "updateFn", "colorFn"]);
+
+      this.props = rest;
       this.index = index || 0;
       this._x = x || 0;
       this._y = y || 0;
@@ -2025,7 +2032,7 @@ exports.pointPush = pointPush;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createCirclePoints = exports.scalePointToCanvas = exports.randomNumberBetweenMid = exports.randomNumberBetween = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.randomSign = void 0;
+exports.createCirclePoints = exports.scalePointToCanvas = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.createRandomNumberArray = exports.randomSign = exports.randomNumberBetweenMid = exports.randomNumberBetween = void 0;
 
 var _particle = require("./particle");
 
@@ -2045,12 +2052,45 @@ var _canvas = require("./canvas");
   Math Snippets
   https://github.com/terkelg/math
 */
+var randomNumberBetween = function randomNumberBetween(min, max) {
+  return Math.random() * (max - min) + min;
+};
+
+exports.randomNumberBetween = randomNumberBetween;
+
+var randomNumberBetweenMid = function randomNumberBetweenMid(min, max) {
+  return randomNumberBetween(min, max) - max / 2;
+};
+
+exports.randomNumberBetweenMid = randomNumberBetweenMid;
+
 var randomSign = function randomSign() {
   return Math.round(Math.random()) == 1 ? 1 : -1;
+};
+
+exports.randomSign = randomSign;
+
+var createRandomNumberArray = function createRandomNumberArray(len, min, max) {
+  var arr = [];
+
+  for (var i = 0; i < len; i++) {
+    arr.push(randomNumberBetween(min, max));
+  }
+
+  return arr;
+};
+
+exports.createRandomNumberArray = createRandomNumberArray;
+
+var pointOnCircle = function pointOnCircle(x, y, r, d) {
+  return {
+    x: r * Math.sin(d) + x,
+    y: r * Math.cos(d) + y
+  };
 }; // returns value between 0-1, 250,500,0 => .5
 
 
-exports.randomSign = randomSign;
+exports.pointOnCircle = pointOnCircle;
 
 var normalize = function normalize(min, max, val) {
   return (val - min) / (max - min);
@@ -2126,22 +2166,10 @@ exports.pointAngleFromVelocity = pointAngleFromVelocity;
 
 var radiansToDegrees = function radiansToDegrees(rad) {
   return rad * 180 / Math.PI;
-};
-
-exports.radiansToDegrees = radiansToDegrees;
-
-var randomNumberBetween = function randomNumberBetween(min, max) {
-  return Math.random() * (max - min) + min;
-};
-
-exports.randomNumberBetween = randomNumberBetween;
-
-var randomNumberBetweenMid = function randomNumberBetweenMid(min, max) {
-  return randomNumberBetween(min, max) - max / 2;
 }; // Scale up point grid and center in the canvas
 
 
-exports.randomNumberBetweenMid = randomNumberBetweenMid;
+exports.radiansToDegrees = radiansToDegrees;
 
 var scalePointToCanvas = function scalePointToCanvas(cwidth, cheight, width, height, zoomFactor, x, y) {
   var particleXOffset = cwidth / 2 - width * zoomFactor / 2;
@@ -2815,6 +2843,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.testGrid = void 0;
 
+var _math = require("./lib/math");
+
 var _particle = require("./lib/particle");
 
 var _canvas = require("./lib/canvas");
@@ -2830,8 +2860,8 @@ var testGrid = function testGrid() {
   var attractor = {
     x: canvas.width / 2,
     y: canvas.height / 2,
-    mass: 1,
-    g: 2
+    mass: 50,
+    g: 1
   };
   var canvasCenterX;
   var canvasCenterY;
@@ -2841,20 +2871,18 @@ var testGrid = function testGrid() {
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
-    var xMargin = 50;
-    var yMargin = 50;
-    var columns = 20;
-    var rows = 15;
-    var colStep = (canvas.width - xMargin * 2) / columns;
-    var rowStep = (canvas.height - yMargin * 2) / rows;
-    var x = xMargin;
-    var y = yMargin;
+    var xMargin = 100;
+    var yMargin = 100;
+    var columns = 4;
+    var rows = 4;
+    var colStep = (canvas.width - xMargin * 2) / (columns - 1);
+    var rowStep = (canvas.height - yMargin * 2) / (rows - 1);
 
-    for (var col = 0; col <= columns; col++) {
-      x = xMargin + col * colStep;
+    for (var col = 0; col < columns; col++) {
+      var x = xMargin + col * colStep;
 
-      for (var row = 0; row <= rows; row++) {
-        y = yMargin + row * rowStep;
+      for (var row = 0; row < rows; row++) {
+        var y = yMargin + row * rowStep;
         gridPoints.push([x, y]);
       }
     }
@@ -2863,48 +2891,52 @@ var testGrid = function testGrid() {
 
     for (var i = 0; i < numParticles; i++) {
       var props = (0, _particle.createRandomParticleValues)(canvas);
-      console.log(gridPoints[i][0], gridPoints[i][1]);
       props.x = gridPoints[i][0];
       props.y = gridPoints[i][1];
       props.velocityX = 0;
       props.velocityY = 0;
-      props.radius = 5;
+      props.radius = (0, _math.randomNumberBetween)(10, 30);
+      props.spikes = (0, _math.createRandomNumberArray)(20, 0, 360);
       particlesArray.push(new _particle.Particle(props));
     }
   };
-  /*
-      edgeBounce(canvas, particlesArray[i]);
-      avoidPoint({ radius: centerRadius, x:canvasCenterX, y:canvasCenterY }, particlesArray[i], 4);
-      attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-      drawPointTrail(context)(particlesArray[i]);
-      connectParticles(context)(particlesArray, 200);
-      drawCircle(context)(mouse);
-   */
-
 
   var draw = function draw(canvas, context, mouse) {
     (0, _canvas.background)(canvas, context)({
       r: 0,
       g: 0,
       b: 50,
-      a: 0.01
+      a: 0.5
     });
     var mode = 1;
     attractor.x = mouse.x ? mouse.x : canvasCenterX;
     attractor.y = mouse.y ? mouse.y : canvasCenterY;
 
     for (var i = 0; i < numParticles; i++) {
-      if (mouse.isDown) {
-        mode = -1;
-      } else {
-        mode = 1;
-      }
-
-      (0, _particle.attract)(attractor, particlesArray[i], mode, 500);
+      // if (mouse.isDown) {
+      //     mode = -1;
+      // } else {
+      //     mode = 1;
+      // }
+      (0, _particle.attract)(attractor, particlesArray[i], mode, 2000);
       particlesArray[i].vVector = particlesArray[i].vVector.limit(5);
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]); // edgeWrap(canvas, particlesArray[i]);
+      (0, _particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
+      // edgeWrap(canvas, particlesArray[i]);
+      // drawPoint(context)(particlesArray[i]);
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]);
+      context.strokeStyle = particlesArray[i].color.toRgbString();
+      context.lineWidth = 1;
+      context.beginPath();
+      context.arc(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
+      // context.fill();
+
+      context.stroke();
+
+      for (var s = 0; s < particlesArray[i].props.spikes.length; s++) {
+        var pointA = (0, _math.pointOnCircle)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, particlesArray[i].props.spikes[s]);
+        var pointB = (0, _math.pointOnCircle)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius + 10, particlesArray[i].props.spikes[s]);
+        (0, _canvas.drawLine)(context)(1, pointA.x, pointA.y, pointB.x, pointB.y); // particlesArray[i].props.spikes[s] += 0.02;
+      }
     } // connectParticles(context)(particlesArray, 100);
 
   };
@@ -2917,7 +2949,7 @@ var testGrid = function testGrid() {
 };
 
 exports.testGrid = testGrid;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation1.js":[function(require,module,exports) {
+},{"./lib/math":"scripts/lib/math.js","./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation1.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3594,7 +3626,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62164" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57231" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
