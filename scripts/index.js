@@ -20,7 +20,7 @@ import { threeAttractors } from './threeAttractors';
 
 const s = sketch();
 
-const DEBUG = true;
+const DEBUG = false;
 
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
@@ -84,6 +84,10 @@ const variations = {
     8: {
         note: 'One attractor in the center, two on the sides.',
         sketch: threeAttractors,
+    },
+    9: {
+        note: 'Say Hi',
+        sketch: hiImage01,
     },
 };
 
