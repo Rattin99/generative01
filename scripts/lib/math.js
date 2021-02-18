@@ -84,3 +84,20 @@ export const createCirclePoints = (centerX, centerY, diameter, steps, sx = 1, sy
     }
     return points;
 };
+
+export const createGridPoints = (width, height, xMargin, yMargin, columns, rows) => {
+    const gridPoints = [];
+
+    const colStep = (width - xMargin * 2) / (columns - 1);
+    const rowStep = (height - yMargin * 2) / (rows - 1);
+
+    for (let col = 0; col < columns; col++) {
+        const x = xMargin + col * colStep;
+        for (let row = 0; row < rows; row++) {
+            const y = yMargin + row * rowStep;
+            gridPoints.push([x, y]);
+        }
+    }
+
+    return gridPoints;
+};

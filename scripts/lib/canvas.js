@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 
-import { radiansToDegrees, pointAngleFromVelocity, pointDistance, normalizeInverse } from './math';
+import { radiansToDegrees, pointAngleFromVelocity, pointDistance, normalizeInverse, pointOnCircle } from './math';
 
 export const resizeCanvas = (canvas, width, height) => {
     canvas.width = width;
@@ -17,6 +17,15 @@ export const fillCanvas = (canvas, context) => (opacity = 1, color = '0,0,0') =>
 export const background = (canvas, context) => (color = 'black') => {
     context.fillStyle = tinycolor(color).toRgbString();
     context.fillRect(0, 0, canvas.width, canvas.height);
+};
+
+// context.save() and context.restore() may be slow, just reset what i'm using
+export const resetStyles = (context) => {
+    context.strokeStyle = '#000';
+    context.fillStyle = '#fff';
+    context.lineWidth = 1;
+    context.setLineDash([]);
+    context.lineCap = 'butt';
 };
 
 export const drawRotatedParticle = (ctx, drawFn, particle, ...args) => {
@@ -92,6 +101,15 @@ export const drawLine = (context) => (strokeWidth, x1, y1, x2, y2) => {
     context.stroke();
 };
 
+export const drawThickLine = (context) => (strokeWidth, x1, y1, x2, y2) => {
+    context.lineWidth = strokeWidth;
+    context.lineCap = 'round';
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+};
+
 export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
     // context.strokeStyle = 'rgba(255,255,255,.25)';
     context.lineWidth = strokeWidth;
@@ -117,8 +135,26 @@ export const drawParticleVectors = (context) => (particle) => {
     drawLine(context)(1, particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult);
 };
 
-export const connectParticles = (context) => (pArray, proximity) => {
-    const opacity = 1;
+// Spikes is an array of angles
+export const drawSpikeCircle = (context) => ({ x, y, radius, color }, spikes, spikeLength = 5) => {
+    const circleStroke = 1;
+    const spikeStroke = 2;
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = circleStroke;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    // context.fillStyle = 'rgba(255,255,255,.1)';
+    // context.fill();
+    context.stroke();
+    for (let s = 0; s < spikes.length; s++) {
+        const pointA = pointOnCircle(x, y, radius, spikes[s]);
+        const pointB = pointOnCircle(x, y, radius + spikeLength, spikes[s]);
+        context.strokeStyle = color.toRgbString();
+        drawLine(context)(spikeStroke, pointA.x, pointA.y, pointB.x, pointB.y);
+    }
+};
+
+export const connectParticles = (context) => (pArray, proximity, useAlpha = true) => {
     const len = pArray.length;
     for (let a = 0; a < len; a++) {
         // all consecutive particles
@@ -128,12 +164,15 @@ export const connectParticles = (context) => (pArray, proximity) => {
             const distance = pointDistance(pA, pB);
             if (distance < proximity) {
                 const pColor = pA.color;
-                pColor.setAlpha(normalizeInverse(0, proximity, distance));
+                if (useAlpha) {
+                    pColor.setAlpha(normalizeInverse(0, proximity, distance));
+                }
                 context.strokeStyle = pColor.toHslString();
                 drawLine(context)(0.5, pA.x, pA.y, pB.x, pB.y);
             }
         }
     }
+    resetStyles(context);
 };
 
 export const drawPointTrail = (context) => (particle) => {

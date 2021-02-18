@@ -1,4 +1,4 @@
-import { createRandomNumberArray, pointOnCircle, randomNumberBetween } from './lib/math';
+import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPoints, lerpRange } from './lib/math';
 import {
     attractPoint,
     avoidPoint,
@@ -18,6 +18,7 @@ import {
     drawPoint,
     drawPointTrail,
     fillCanvas,
+    drawSpikeCircle,
 } from './lib/canvas';
 
 export const testGrid = () => {
@@ -29,7 +30,8 @@ export const testGrid = () => {
 
     let numParticles;
     const particlesArray = [];
-    const gridPoints = [];
+    let gridPoints = [];
+    const hue = 0;
 
     const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
 
@@ -42,23 +44,7 @@ export const testGrid = () => {
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
 
-        const xMargin = 100;
-        const yMargin = 100;
-
-        const columns = 4;
-        const rows = 4;
-
-        const colStep = (canvas.width - xMargin * 2) / (columns - 1);
-        const rowStep = (canvas.height - yMargin * 2) / (rows - 1);
-
-        for (let col = 0; col < columns; col++) {
-            const x = xMargin + col * colStep;
-            for (let row = 0; row < rows; row++) {
-                const y = yMargin + row * rowStep;
-                gridPoints.push([x, y]);
-            }
-        }
-
+        gridPoints = createGridPoints(canvas.width, canvas.height, 100, 100, 10, 7);
         numParticles = gridPoints.length;
 
         for (let i = 0; i < numParticles; i++) {
@@ -69,59 +55,41 @@ export const testGrid = () => {
             props.velocityY = 0;
             props.radius = randomNumberBetween(10, 30);
             props.spikes = createRandomNumberArray(20, 0, 360);
+
+            const h = lerpRange(0, canvas.width, 180, 360, props.x);
+            const s = 100; // lerpRange(0,10,0,100,prop.radius);
+            const l = 50; // lerpRange(0,10,25,75,prop.radius);
+            props.color = `hsl(${h},${s}%,${l}%)`;
+
             particlesArray.push(new Particle(props));
         }
     };
 
     const draw = (canvas, context, mouse) => {
-        background(canvas, context)({ r: 0, g: 0, b: 50, a: 0.5 });
+        background(canvas, context)({ r: 100, g: 100, b: 100, a: 1 });
 
-        const mode = 1;
+        let mode = 1;
 
         attractor.x = mouse.x ? mouse.x : canvasCenterX;
         attractor.y = mouse.y ? mouse.y : canvasCenterY;
 
         for (let i = 0; i < numParticles; i++) {
-            // if (mouse.isDown) {
-            //     mode = -1;
-            // } else {
-            //     mode = 1;
-            // }
+            if (mouse.isDown) {
+                mode = -1;
+            } else {
+                mode = 1;
+            }
             attract(attractor, particlesArray[i], mode, 2000);
             particlesArray[i].vVector = particlesArray[i].vVector.limit(5);
 
             updatePosWithVelocity(particlesArray[i]);
-            // edgeBounce(canvas, particlesArray[i]);
+            edgeBounce(canvas, particlesArray[i]);
             // edgeWrap(canvas, particlesArray[i]);
-            // drawPoint(context)(particlesArray[i]);
+            drawPoint(context)(particlesArray[i]);
 
-            context.strokeStyle = particlesArray[i].color.toRgbString();
-            context.lineWidth = 1;
-            context.beginPath();
-            context.arc(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, 0, Math.PI * 2, false);
-            // context.fillStyle = 'rgba(255,255,255,.1)';
-            // context.fill();
-            context.stroke();
-            for (let s = 0; s < particlesArray[i].props.spikes.length; s++) {
-                const pointA = pointOnCircle(
-                    particlesArray[i].x,
-                    particlesArray[i].y,
-                    particlesArray[i].radius,
-                    particlesArray[i].props.spikes[s]
-                );
-
-                const pointB = pointOnCircle(
-                    particlesArray[i].x,
-                    particlesArray[i].y,
-                    particlesArray[i].radius + 10,
-                    particlesArray[i].props.spikes[s]
-                );
-                drawLine(context)(1, pointA.x, pointA.y, pointB.x, pointB.y);
-
-                // particlesArray[i].props.spikes[s] += 0.02;
-            }
+            // drawSpikeCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
         }
-        // connectParticles(context)(particlesArray, 100);
+        connectParticles(context)(particlesArray, 200, false);
     };
 
     return {

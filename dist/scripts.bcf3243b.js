@@ -1875,6 +1875,7 @@ var drag = function drag(particle) {
   applyForce(vdrag, particle);
 }; // https://www.youtube.com/watch?v=EpgB3cNhKPM
 // mode 1 is attract, -1 is repel
+// const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
 
 
 exports.drag = drag;
@@ -2032,7 +2033,7 @@ exports.pointPush = pointPush;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createCirclePoints = exports.scalePointToCanvas = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.createRandomNumberArray = exports.randomSign = exports.randomNumberBetweenMid = exports.randomNumberBetween = void 0;
+exports.createGridPoints = exports.createCirclePoints = exports.scalePointToCanvas = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.createRandomNumberArray = exports.randomSign = exports.randomNumberBetweenMid = exports.randomNumberBetween = void 0;
 
 var _particle = require("./particle");
 
@@ -2199,13 +2200,32 @@ var createCirclePoints = function createCirclePoints(centerX, centerY, diameter,
 };
 
 exports.createCirclePoints = createCirclePoints;
+
+var createGridPoints = function createGridPoints(width, height, xMargin, yMargin, columns, rows) {
+  var gridPoints = [];
+  var colStep = (width - xMargin * 2) / (columns - 1);
+  var rowStep = (height - yMargin * 2) / (rows - 1);
+
+  for (var col = 0; col < columns; col++) {
+    var x = xMargin + col * colStep;
+
+    for (var row = 0; row < rows; row++) {
+      var y = yMargin + row * rowStep;
+      gridPoints.push([x, y]);
+    }
+  }
+
+  return gridPoints;
+};
+
+exports.createGridPoints = createGridPoints;
 },{"./particle":"scripts/lib/particle.js","./canvas":"scripts/lib/canvas.js"}],"scripts/lib/canvas.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.drawMouse = exports.drawPointTrail = exports.connectParticles = exports.drawParticleVectors = exports.drawCircle = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawRect = exports.drawRake = exports.drawTestPoint = exports.drawPoint = exports.drawRotatedParticle = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
+exports.drawMouse = exports.drawPointTrail = exports.connectParticles = exports.drawSpikeCircle = exports.drawParticleVectors = exports.drawCircle = exports.drawThickLine = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawRect = exports.drawRake = exports.drawTestPoint = exports.drawPoint = exports.drawRotatedParticle = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -2245,9 +2265,20 @@ var background = function background(canvas, context) {
     context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
     context.fillRect(0, 0, canvas.width, canvas.height);
   };
-};
+}; // context.save() and context.restore() may be slow, just reset what i'm using
+
 
 exports.background = background;
+
+var resetStyles = function resetStyles(context) {
+  context.strokeStyle = '#000';
+  context.fillStyle = '#fff';
+  context.lineWidth = 1;
+  context.setLineDash([]);
+  context.lineCap = 'butt';
+};
+
+exports.resetStyles = resetStyles;
 
 var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
   var pSaveX = particle.x;
@@ -2382,6 +2413,19 @@ var drawLine = function drawLine(context) {
 
 exports.drawLine = drawLine;
 
+var drawThickLine = function drawThickLine(context) {
+  return function (strokeWidth, x1, y1, x2, y2) {
+    context.lineWidth = strokeWidth;
+    context.lineCap = 'round';
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+  };
+};
+
+exports.drawThickLine = drawThickLine;
+
 var drawCircle = function drawCircle(context) {
   return function (strokeWidth, x, y, radius) {
     // context.strokeStyle = 'rgba(255,255,255,.25)';
@@ -2409,13 +2453,42 @@ var drawParticleVectors = function drawParticleVectors(context) {
     context.strokeStyle = (0, _tinycolor.default)(acc).toRgbString();
     drawLine(context)(1, particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult);
   };
-};
+}; // Spikes is an array of angles
+
 
 exports.drawParticleVectors = drawParticleVectors;
 
+var drawSpikeCircle = function drawSpikeCircle(context) {
+  return function (_ref6, spikes) {
+    var x = _ref6.x,
+        y = _ref6.y,
+        radius = _ref6.radius,
+        color = _ref6.color;
+    var spikeLength = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+    var circleStroke = 1;
+    var spikeStroke = 2;
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = circleStroke;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
+    // context.fill();
+
+    context.stroke();
+
+    for (var s = 0; s < spikes.length; s++) {
+      var pointA = (0, _math.pointOnCircle)(x, y, radius, spikes[s]);
+      var pointB = (0, _math.pointOnCircle)(x, y, radius + spikeLength, spikes[s]);
+      context.strokeStyle = color.toRgbString();
+      drawLine(context)(spikeStroke, pointA.x, pointA.y, pointB.x, pointB.y);
+    }
+  };
+};
+
+exports.drawSpikeCircle = drawSpikeCircle;
+
 var connectParticles = function connectParticles(context) {
   return function (pArray, proximity) {
-    var opacity = 1;
+    var useAlpha = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
     var len = pArray.length;
 
     for (var a = 0; a < len; a++) {
@@ -2427,12 +2500,18 @@ var connectParticles = function connectParticles(context) {
 
         if (distance < proximity) {
           var pColor = pA.color;
-          pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
+
+          if (useAlpha) {
+            pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
+          }
+
           context.strokeStyle = pColor.toHslString();
           drawLine(context)(0.5, pA.x, pA.y, pB.x, pB.y);
         }
       }
     }
+
+    resetStyles(context);
   };
 };
 
@@ -2464,10 +2543,10 @@ var drawPointTrail = function drawPointTrail(context) {
 exports.drawPointTrail = drawPointTrail;
 
 var drawMouse = function drawMouse(context) {
-  return function (_ref6) {
-    var x = _ref6.x,
-        y = _ref6.y,
-        radius = _ref6.radius;
+  return function (_ref7) {
+    var x = _ref7.x,
+        y = _ref7.y,
+        radius = _ref7.radius;
     if (x === undefined || y === undefined) return;
     context.strokeStyle = 'rgba(255,255,255,.25)';
     context.lineWidth = 1;
@@ -2857,6 +2936,7 @@ var testGrid = function testGrid() {
   var numParticles;
   var particlesArray = [];
   var gridPoints = [];
+  var hue = 0;
   var attractor = {
     x: canvas.width / 2,
     y: canvas.height / 2,
@@ -2871,22 +2951,7 @@ var testGrid = function testGrid() {
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
-    var xMargin = 100;
-    var yMargin = 100;
-    var columns = 4;
-    var rows = 4;
-    var colStep = (canvas.width - xMargin * 2) / (columns - 1);
-    var rowStep = (canvas.height - yMargin * 2) / (rows - 1);
-
-    for (var col = 0; col < columns; col++) {
-      var x = xMargin + col * colStep;
-
-      for (var row = 0; row < rows; row++) {
-        var y = yMargin + row * rowStep;
-        gridPoints.push([x, y]);
-      }
-    }
-
+    gridPoints = (0, _math.createGridPoints)(canvas.width, canvas.height, 100, 100, 10, 7);
     numParticles = gridPoints.length;
 
     for (var i = 0; i < numParticles; i++) {
@@ -2897,48 +2962,43 @@ var testGrid = function testGrid() {
       props.velocityY = 0;
       props.radius = (0, _math.randomNumberBetween)(10, 30);
       props.spikes = (0, _math.createRandomNumberArray)(20, 0, 360);
+      var h = (0, _math.lerpRange)(0, canvas.width, 180, 360, props.x);
+      var s = 100; // lerpRange(0,10,0,100,prop.radius);
+
+      var l = 50; // lerpRange(0,10,25,75,prop.radius);
+
+      props.color = "hsl(".concat(h, ",").concat(s, "%,").concat(l, "%)");
       particlesArray.push(new _particle.Particle(props));
     }
   };
 
   var draw = function draw(canvas, context, mouse) {
     (0, _canvas.background)(canvas, context)({
-      r: 0,
-      g: 0,
-      b: 50,
-      a: 0.5
+      r: 100,
+      g: 100,
+      b: 100,
+      a: 1
     });
     var mode = 1;
     attractor.x = mouse.x ? mouse.x : canvasCenterX;
     attractor.y = mouse.y ? mouse.y : canvasCenterY;
 
     for (var i = 0; i < numParticles; i++) {
-      // if (mouse.isDown) {
-      //     mode = -1;
-      // } else {
-      //     mode = 1;
-      // }
+      if (mouse.isDown) {
+        mode = -1;
+      } else {
+        mode = 1;
+      }
+
       (0, _particle.attract)(attractor, particlesArray[i], mode, 2000);
       particlesArray[i].vVector = particlesArray[i].vVector.limit(5);
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
-      // edgeWrap(canvas, particlesArray[i]);
-      // drawPoint(context)(particlesArray[i]);
+      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _particle.edgeBounce)(canvas, particlesArray[i]); // edgeWrap(canvas, particlesArray[i]);
 
-      context.strokeStyle = particlesArray[i].color.toRgbString();
-      context.lineWidth = 1;
-      context.beginPath();
-      context.arc(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
-      // context.fill();
+      (0, _canvas.drawPoint)(context)(particlesArray[i]); // drawSpikeCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
+    }
 
-      context.stroke();
-
-      for (var s = 0; s < particlesArray[i].props.spikes.length; s++) {
-        var pointA = (0, _math.pointOnCircle)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, particlesArray[i].props.spikes[s]);
-        var pointB = (0, _math.pointOnCircle)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius + 10, particlesArray[i].props.spikes[s]);
-        (0, _canvas.drawLine)(context)(1, pointA.x, pointA.y, pointB.x, pointB.y); // particlesArray[i].props.spikes[s] += 0.02;
-      }
-    } // connectParticles(context)(particlesArray, 100);
-
+    (0, _canvas.connectParticles)(context)(particlesArray, 200, false);
   };
 
   return {
@@ -3626,7 +3686,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57231" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59183" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

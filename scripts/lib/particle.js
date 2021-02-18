@@ -201,6 +201,7 @@ export const drag = (particle, coefficent = 0.1) => {
 
 // https://www.youtube.com/watch?v=EpgB3cNhKPM
 // mode 1 is attract, -1 is repel
+// const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
 export const attract = ({ x, y, mass, g }, particle, mode = 1, affectDist = 1000) => {
     if (pointDistance({ x, y }, { x: particle.x, y: particle.y }) < affectDist) {
         g = g || 1;
