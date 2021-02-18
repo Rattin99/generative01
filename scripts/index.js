@@ -15,10 +15,11 @@ import { variation4 } from './variation4';
 import { variation5 } from './variation5';
 import { variation6 } from './variation6';
 import { rainbowRakeOrbit } from './rainbow-rake-orbit-mouse';
+import { threeAttractors } from './threeAttractors';
 
 const s = sketch();
 
-const DEBUG = true;
+const DEBUG = false;
 
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
@@ -78,6 +79,10 @@ const variations = {
     7: {
         note: 'Rakes orbit center and the mouse. Click to repel.',
         sketch: rainbowRakeOrbit,
+    },
+    8: {
+        note: 'One attractor in the center, two on the sides.',
+        sketch: threeAttractors,
     },
 };
 

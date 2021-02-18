@@ -205,3 +205,15 @@ export const drawMouse = (context) => ({ x, y, radius }) => {
     context.fill();
     context.stroke();
 };
+
+export const drawAttractor = (context) => ({ x, y, mass, g }, mode, radius) => {
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(0,0,0,.1)';
+    context.fill();
+
+    context.beginPath();
+    context.arc(x, y, Math.sqrt(mass) * g, 0, Math.PI * 2, false);
+    context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
+    context.fill();
+};

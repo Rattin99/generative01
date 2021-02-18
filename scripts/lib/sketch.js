@@ -23,7 +23,7 @@ const variation = () => {
 };
 */
 
-import {fillCanvas, resizeCanvas} from './canvas';
+import { fillCanvas, resizeCanvas } from './canvas';
 
 export const sketch = () => {
     const mouse = {
@@ -34,6 +34,8 @@ export const sketch = () => {
     };
 
     let fps = 0;
+
+    let currentVariation;
 
     const canvasSizeFraction = 0.85;
     const canvas = document.getElementById('canvas');
@@ -65,7 +67,8 @@ export const sketch = () => {
         mouse.isDown = false;
     };
 
-    const windowResize = (evt) => resizeCanvas(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+    const windowResize = (evt) =>
+        resizeCanvas(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
 
     window.addEventListener('mousedown', mouseDown);
     window.addEventListener('touchstart', mouseDown);
@@ -82,17 +85,18 @@ export const sketch = () => {
     window.addEventListener('resize', windowResize);
 
     const run = (variation) => {
+        currentVariation = variation;
 
-        let backgroundColor = '0,0,0'
+        let backgroundColor = '0,0,0';
 
-        if (variation.hasOwnProperty(('config'))) {
-            const config = variation.config;
+        if (variation.hasOwnProperty('config')) {
+            const { config } = variation;
             console.log('Sketch config:', variation.config);
             if (config.width && config.height) {
                 window.removeEventListener('resize', windowResize);
                 resizeCanvas(canvas, config.width, config.height);
             }
-            if(config.background) {
+            if (config.background) {
                 backgroundColor = config.background;
             }
             if (config.fps) {
@@ -101,7 +105,7 @@ export const sketch = () => {
         }
 
         let rendering = true;
-        let targetFpsInterval = 1000 / fps;
+        const targetFpsInterval = 1000 / fps;
         let lastAnimationFrameTime;
 
         const startSketch = () => {
@@ -123,8 +127,8 @@ export const sketch = () => {
                     requestAnimationFrame(renderAtFps);
                 }
 
-                let now = Date.now();
-                let elapsed = now - lastAnimationFrameTime;
+                const now = Date.now();
+                const elapsed = now - lastAnimationFrameTime;
 
                 if (elapsed > targetFpsInterval) {
                     lastAnimationFrameTime = now - (elapsed % targetFpsInterval);
@@ -133,7 +137,6 @@ export const sketch = () => {
                         rendering = false;
                     }
                 }
-
             };
 
             if (!fps) {
@@ -142,13 +145,10 @@ export const sketch = () => {
                 lastAnimationFrameTime = Date.now();
                 requestAnimationFrame(renderAtFps);
             }
-
         };
 
         window.addEventListener('load', startSketch);
     };
-
-
 
     return {
         canvas: getCanvas,

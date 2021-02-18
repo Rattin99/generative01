@@ -41,6 +41,7 @@ export const particleBasicTemplate = () => {
 
             particlesArray.push(new Particle(props));
         }
+        // background(canvas, context)('white');
     };
 
     /*

@@ -22,7 +22,7 @@ import {
     drawAttractor,
 } from './lib/canvas';
 
-export const testGrid = () => {
+export const threeAttractors = () => {
     const config = {
         // width: 500,
         // height: 500,
@@ -83,18 +83,7 @@ export const testGrid = () => {
 
     const draw = (canvas, context, mouse) => {
         // background(canvas, context)({ r: 255, g: 255, b: 255, a: 0.001 });
-
-        // let mode = 1;
-
-        // attractor.x = mouse.x ? mouse.x : canvasCenterX;
-        // attractor.y = mouse.y ? mouse.y : canvasCenterY;
-
         for (let i = 0; i < numParticles; i++) {
-            // if (mouse.isDown) {
-            //     mode = -1;
-            // } else {
-            //     mode = 1;
-            // }
             attract(leftattractor, particlesArray[i], -1, attractorDist);
             attract(midattractor, particlesArray[i], 1, attractorDist);
             attract(rightattractor, particlesArray[i], -1, attractorDist);
@@ -103,15 +92,9 @@ export const testGrid = () => {
 
             updatePosWithVelocity(particlesArray[i]);
             // edgeBounce(canvas, particlesArray[i]);
-            // edgeWrap(canvas, particlesArray[i]);
             drawPoint(context)(particlesArray[i]);
-
-            // drawSpikeCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
         }
         connectParticles(context)(particlesArray, 50, false);
-        // drawAttractor(context)(leftattractor, -1, attractorDist);
-        // drawAttractor(context)(midattractor, 1, attractorDist);
-        // drawAttractor(context)(rightattractor, -1, attractorDist);
     };
 
     return {
