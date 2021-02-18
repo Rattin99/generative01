@@ -8,9 +8,10 @@ import { sketch } from './lib/sketch';
 import { forcesDev } from './forcesDev';
 import { forcesDevGravity } from './forcesDevGravity';
 import { testGrid } from './test-grid';
+import { hiImage01 } from './hiImage01';
 import { variation1 } from './variation1';
 import { variation2 } from './variation2';
-import { variation3 } from './variation3';
+import { domokun } from './domokun';
 import { variation4 } from './variation4';
 import { variation5 } from './variation5';
 import { variation6 } from './variation6';
@@ -19,7 +20,7 @@ import { threeAttractors } from './threeAttractors';
 
 const s = sketch();
 
-const DEBUG = false;
+const DEBUG = true;
 
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
@@ -62,7 +63,7 @@ const variations = {
     },
     3: {
         note: 'Particles are repelled from the pointer. Press to attract.',
-        sketch: variation3,
+        sketch: domokun,
     },
     4: {
         note: 'Particles are repelled from the pointer. Press to attract.',
@@ -96,5 +97,6 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 
 if (DEBUG) {
     // s.run(forcesDev());
-    s.run(testGrid());
+    // s.run(testGrid());
+    s.run(hiImage01());
 }

@@ -7,6 +7,19 @@ export const resizeCanvas = (canvas, width, height) => {
     canvas.height = height;
 };
 
+export const getImageDataFromImage = (context) => (image) => {
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.width);
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
+export const getImageColor = (imageData, x, y) => ({
+    r: imageData.data[y * 4 * imageData.width + x * 4],
+    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
+});
+
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
 export const fillCanvas = (canvas, context) => (opacity = 1, color = '0,0,0') => {
@@ -71,7 +84,7 @@ export const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
 
 export const drawRect = (context) => (x, y, w, h, color = 'white') => {
     context.fillStyle = tinycolor(color).toRgbString();
-    context.fillRect(x, y, x + w, y + h);
+    context.fillRect(x, y, w, h);
 };
 
 export const drawSquare = (context) => ({ x, y, radius, color }) => {
