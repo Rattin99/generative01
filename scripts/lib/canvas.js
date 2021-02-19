@@ -12,6 +12,16 @@ export const getImageDataFromImage = (context) => (image) => {
     return context.getImageData(0, 0, image.width, image.width);
 };
 
+/*
+Gray = 0.21R + 0.72G + 0.07B // Luminosity
+Gray = (R + G + B) ÷ 3 // Average Brightness
+Gray = 0.299R + 0.587G + 0.114B // rec601 standard
+Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
+Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
+ */
+// https://sighack.com/post/averaging-rgb-colors-the-right-way
+export const getColorAverageGrey = ({ r, g, b }) => Math.sqrt((r * r + g * g + b * b) / 3);
+
 // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
 export const getImageColor = (imageData, x, y) => ({
     r: imageData.data[y * 4 * imageData.width + x * 4],
@@ -131,6 +141,13 @@ export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
     // context.fillStyle = 'rgba(255,255,255,.1)';
     // context.fill();
     context.stroke();
+};
+
+export const drawCircleFilled = (context) => (color, x, y, radius) => {
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = color;
+    context.fill();
 };
 
 export const drawParticleVectors = (context) => (particle) => {

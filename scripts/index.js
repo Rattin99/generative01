@@ -5,9 +5,11 @@ Explorations with generative code
 import normliaze from 'normalize.css';
 
 import { sketch } from './lib/sketch';
+import { getRandomSeed } from './lib/math';
 import { forcesDev } from './forcesDev';
 import { forcesDevGravity } from './forcesDevGravity';
 import { testGrid } from './test-grid';
+import { timebasedTemplate } from './timebased-template';
 import { hiImage01 } from './hiImage01';
 import { variation1 } from './variation1';
 import { variation2 } from './variation2';
@@ -20,11 +22,13 @@ import { threeAttractors } from './threeAttractors';
 
 const s = sketch();
 
-const DEBUG = false;
+const DEBUG = true;
 
+// TODO append random seed value
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
     const imageURI = s.canvas().toDataURL('image/png');
+    document.getElementById('download').setAttribute('download', `canvas-${getRandomSeed()}.png`);
     document.getElementById('download').href = imageURI;
 };
 
@@ -102,5 +106,5 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 if (DEBUG) {
     // s.run(forcesDev());
     // s.run(testGrid());
-    s.run(hiImage01());
+    s.run(timebasedTemplate());
 }

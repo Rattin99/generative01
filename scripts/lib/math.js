@@ -13,13 +13,25 @@
   https://github.com/terkelg/math
 */
 
-import { createRandomParticleValues, Particle } from './particle';
-import { fillCanvas } from './canvas';
+import random from 'canvas-sketch-util/random';
 
-export const randomNumberBetween = (min, max) => Math.random() * (max - min) + min;
+random.setSeed(random.getRandomSeed());
+console.log(`Using seed ${random.getSeed()}`);
+
+export const TAU = Math.PI * 2;
+
+export const getRandomSeed = () => random.getSeed();
+export const setRandomSeed = (s) => random.setRandomSeed(s);
+
+export const randomNumberBetween = (min, max) => random.value() * (max - min) + min;
 export const randomNumberBetweenMid = (min, max) => randomNumberBetween(min, max) - max / 2;
 
-export const randomSign = () => (Math.round(Math.random()) == 1 ? 1 : -1);
+export const randomSign = () => (Math.round(random.value()) == 1 ? 1 : -1);
+
+export const oneOf = (arry) => {
+    const i = Math.round(randomNumberBetween(0, arry.length - 1));
+    return arry[i];
+};
 
 export const createRandomNumberArray = (len, min, max) => {
     const arr = [];
@@ -45,6 +57,14 @@ export const invlerp = (x, y, a) => clamp(0, 1, (a - x) / (y - x));
 // a is point in 1 and converts to point in 2
 // range(10, 100, 2000, 20000, 50) // 10000
 export const lerpRange = (x1, y1, x2, y2, a) => lerp(x2, y2, invlerp(x1, y1, a));
+
+// Accepts a value 0-1 and returns a value 0-1 in a sin wave
+export const toSinValue = (value) => Math.abs(Math.sin(value * TAU));
+
+export const marginify = ({ margin, u, v, width, height }) => ({
+    x: lerp(margin, width - margin, u),
+    y: lerp(margin, height - margin, v),
+});
 
 export const pointDistance = (pointA, pointB) => {
     const dx = pointA.x - pointB.x;
@@ -100,4 +120,24 @@ export const createGridPoints = (width, height, xMargin, yMargin, columns, rows)
     }
 
     return gridPoints;
+};
+
+export const createGridPoints2dNoise = (cols, rows) => {
+    rows = rows || cols;
+    const points = [];
+    for (let x = 0; x < cols; x++) {
+        for (let y = 0; y < rows; y++) {
+            const u = cols <= 1 ? 0.5 : x / (cols - 1);
+            const v = cols <= 1 ? 0.5 : y / (rows - 1);
+            // const radius = Math.abs(random.gaussian() * 0.02);
+            const radius = Math.abs(random.noise2D(u, v)) * 0.1;
+            const rotation = Math.abs(random.noise2D(u, v)) * 0.5;
+            points.push({
+                radius,
+                rotation,
+                position: [u, v],
+            });
+        }
+    }
+    return points;
 };
