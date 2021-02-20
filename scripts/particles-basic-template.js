@@ -8,7 +8,7 @@ import {
     edgeWrap,
 } from './lib/particle';
 import { background, connectParticles, drawMouse, drawPoint, drawPointTrail } from './lib/canvas';
-import { lerpRange } from './lib/math';
+import { mapRange } from './lib/math';
 
 export const particleBasicTemplate = () => {
     const config = {
@@ -34,7 +34,7 @@ export const particleBasicTemplate = () => {
             const props = createRandomParticleValues(canvas);
             props.radius = 1;
 
-            const h = lerpRange(0, canvas.width, 100, 200, props.x);
+            const h = mapRange(0, canvas.width, 100, 200, props.x);
             const s = 100; // lerpRange(0,10,0,100,prop.radius);
             const l = 50; // lerpRange(0,10,25,75,prop.radius);
             props.color = `hsl(${h},${s}%,${l}%)`;

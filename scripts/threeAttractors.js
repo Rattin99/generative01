@@ -1,4 +1,4 @@
-import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPoints, lerpRange } from './lib/math';
+import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPoints, mapRange } from './lib/math';
 import {
     attractPoint,
     avoidPoint,
@@ -68,7 +68,7 @@ export const threeAttractors = () => {
             props.radius = 1; // randomNumberBetween(10, 30);
             props.spikes = createRandomNumberArray(20, 0, 360);
 
-            const h = lerpRange(0, canvas.width, 0, 90, props.x);
+            const h = mapRange(0, canvas.width, 0, 90, props.x);
             const s = 100; // lerpRange(0,10,0,100,prop.radius);
             const l = 50; // lerpRange(0,10,25,75,prop.radius);
             props.color = `hsla(${h},${s}%,${l}%,0.1)`;

@@ -14,6 +14,7 @@
 */
 
 import random from 'canvas-sketch-util/random';
+import { Vector } from './vector';
 
 random.setSeed(random.getRandomSeed());
 console.log(`Using seed ${random.getSeed()}`);
@@ -33,15 +34,19 @@ export const oneOf = (arry) => {
     return arry[i];
 };
 
-export const createRandomNumberArray = (len, min, max) => {
-    const arr = [];
-    for (let i = 0; i < len; i++) {
-        arr.push(randomNumberBetween(min, max));
-    }
-    return arr;
-};
+export const createRandomNumberArray = (len, min, max) =>
+    Array.from(new Array(len)).map(() => randomNumberBetween(min, max));
 
-export const pointOnCircle = (x, y, r, d) => ({ x: r * Math.sin(d) + x, y: r * Math.cos(d) + y });
+export const uvFromAngle = (a) => new Vector(Math.cos(a), Math.sin(a));
+
+// -> -1 ... 1
+export const loopingValue = (t, m = 0.5) => Math.sin(t * m);
+
+// t is 0-1, -> -1 ... 1
+export const pingPontValue = (t) => Math.sin(t * Math.PI);
+
+// x,y offsets for the current circle position
+export const pointOnCircle = (x, y, r, a) => ({ x: r * Math.sin(a) + x, y: r * Math.cos(a) + y });
 
 // returns value between 0-1, 250,500,0 => .5
 export const normalize = (min, max, val) => (val - min) / (max - min);
@@ -51,12 +56,16 @@ export const normalizeInverse = (min, max, val) => 1 - normalize(min, max, val);
 // https://www.trysmudford.com/blog/linear-interpolation-functions/
 // lerp(20, 80, 0.5) // 40
 export const lerp = (x, y, a) => x * (1 - a) + y * a;
+
 export const clamp = (min = 0, max = 1, a) => Math.min(max, Math.max(min, a));
+
 // invlerp(50, 100, 75)  // 0.5
 export const invlerp = (x, y, a) => clamp(0, 1, (a - x) / (y - x));
+
+// p5js map fn is reverse map(a,x2,y2,x1,y1)
 // a is point in 1 and converts to point in 2
 // range(10, 100, 2000, 20000, 50) // 10000
-export const lerpRange = (x1, y1, x2, y2, a) => lerp(x2, y2, invlerp(x1, y1, a));
+export const mapRange = (x1, y1, x2, y2, a) => lerp(x2, y2, invlerp(x1, y1, a));
 
 // Accepts a value 0-1 and returns a value 0-1 in a sin wave
 export const toSinValue = (value) => Math.abs(Math.sin(value * TAU));

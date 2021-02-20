@@ -8,7 +8,7 @@ import {
     getImageColor,
     connectParticles,
 } from './lib/canvas';
-import { lerpRange, randomNumberBetween, scalePointToCanvas } from './lib/math';
+import { mapRange, randomNumberBetween, scalePointToCanvas } from './lib/math';
 import {
     createRandomParticleValues,
     edgeBounce,

@@ -9,7 +9,7 @@ import {
     drawPoint,
 } from './lib/canvas';
 import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from './lib/particle';
-import { createGridPoints, createRandomNumberArray, lerpRange, randomNumberBetween } from './lib/math';
+import { createGridPoints, createRandomNumberArray, mapRange, randomNumberBetween } from './lib/math';
 
 export const hiImage01 = (_) => {
     const config = {
