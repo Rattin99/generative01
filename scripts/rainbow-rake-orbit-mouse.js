@@ -1,4 +1,4 @@
-import { edgeBounce, Particle, updatePosWithVelocity, createRandomParticleValues, attract } from './lib/particle';
+import { edgeBounce, Particle, updatePosWithVelocity, createRandomParticleValues, attract } from './lib/Particle';
 import { drawRotatedParticle, background, drawRake } from './lib/canvas';
 
 export const rainbowRakeOrbit = () => {

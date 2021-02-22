@@ -1,4 +1,4 @@
-import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPoints, mapRange } from './lib/math';
+import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPointsXY, mapRange } from './lib/math';
 import {
     attractPoint,
     avoidPoint,
@@ -8,14 +8,14 @@ import {
     createRandomParticleValues,
     edgeWrap,
     attract,
-} from './lib/particle';
+} from './lib/Particle';
 import {
     background,
     clearCanvas,
     connectParticles,
     drawMouse,
     drawLine,
-    drawPoint,
+    drawParticlePoint,
     drawPointTrail,
     fillCanvas,
     drawSpikeCircle,
@@ -55,7 +55,7 @@ export const threeAttractors = () => {
         midattractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 10 };
         rightattractor = { x: canvas.width, y: canvas.height / 2, mass: 10, g: 3 };
 
-        gridPoints = createGridPoints(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
+        gridPoints = createGridPointsXY(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
         numParticles = gridPoints.length;
 
         for (let i = 0; i < numParticles; i++) {
@@ -92,7 +92,7 @@ export const threeAttractors = () => {
 
             updatePosWithVelocity(particlesArray[i]);
             // edgeBounce(canvas, particlesArray[i]);
-            drawPoint(context)(particlesArray[i]);
+            drawParticlePoint(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 50, false);
     };

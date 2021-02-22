@@ -7,29 +7,6 @@ export const resizeCanvas = (canvas, width, height) => {
     canvas.height = height;
 };
 
-export const getImageDataFromImage = (context) => (image) => {
-    context.drawImage(image, 0, 0);
-    return context.getImageData(0, 0, image.width, image.width);
-};
-
-/*
-Gray = 0.21R + 0.72G + 0.07B // Luminosity
-Gray = (R + G + B) ÷ 3 // Average Brightness
-Gray = 0.299R + 0.587G + 0.114B // rec601 standard
-Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
-Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
- */
-// https://sighack.com/post/averaging-rgb-colors-the-right-way
-export const getColorAverageGrey = ({ r, g, b }) => Math.sqrt((r * r + g * g + b * b) / 3);
-
-// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
-export const getImageColor = (imageData, x, y) => ({
-    r: imageData.data[y * 4 * imageData.width + x * 4],
-    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
-    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
-    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
-});
-
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
 export const fillCanvas = (canvas, context) => (opacity = 1, color = '0,0,0') => {
@@ -51,72 +28,19 @@ export const resetStyles = (context) => {
     context.lineCap = 'butt';
 };
 
-export const drawRotatedParticle = (ctx, drawFn, particle, ...args) => {
-    const pSaveX = particle.x;
-    const pSaveY = particle.y;
-    particle.x = 0;
-    particle.y = 0;
-    ctx.save();
-    ctx.translate(pSaveX, pSaveY);
-    ctx.rotate(particle.heading);
-    drawFn(ctx)(particle, args);
-    ctx.restore();
-    particle.x = pSaveX;
-    particle.y = pSaveY;
-};
+//----------------------------------------------------------------------------------------------------------------------
+// PRIMITIVES
+//----------------------------------------------------------------------------------------------------------------------
 
-export const drawPoint = (context) => ({ x, y, radius, color }) => {
+// TODO use circle?
+export const drawParticlePoint = (context) => ({ x, y, radius, color }) => {
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = color.toRgbString();
     context.fill();
 };
 
-export const drawTestPoint = (context) => ({ x, y, radius, color }) => {
-    context.strokeStyle = color.toRgbString();
-    context.lineWidth = 1;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(255,255,255,.1)';
-    context.fill();
-    context.stroke();
-    drawLine(context)(1, x, y, x + radius, y);
-};
-
-// TODO center it
-export const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
-    const points = 5;
-    spacing |= radius * 3;
-    for (let i = 0; i < points; i++) {
-        drawPoint(context)({ x: x + spacing * i, y, radius, color });
-    }
-};
-
-export const drawRect = (context) => (x, y, w, h, color = 'white') => {
-    context.fillStyle = tinycolor(color).toRgbString();
-    context.fillRect(x, y, w, h);
-};
-
-export const drawSquare = (context) => ({ x, y, radius, color }) => {
-    drawRect(context)(x, y, radius, radius, color);
-};
-
-export const drawTriangle = (context) => ({ x, y, radius, color }) => {
-    const half = radius / 2;
-    context.beginPath();
-    context.moveTo(x - half, y - half);
-    context.lineTo(x + half, y);
-    context.lineTo(x - half, y + half);
-    context.fillStyle = color.toRgbString();
-    context.fill();
-
-    // context.beginPath();
-    // context.arc(x+half, y, 3, 0, Math.PI * 2, false);
-    // context.fillStyle = 'rgb(255,0,0)';
-    // context.fill();
-};
-
-export const drawLine = (context) => (strokeWidth, x1, y1, x2, y2) => {
+export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth) => {
     context.lineWidth = strokeWidth;
     context.beginPath();
     context.moveTo(x1, y1);
@@ -124,7 +48,7 @@ export const drawLine = (context) => (strokeWidth, x1, y1, x2, y2) => {
     context.stroke();
 };
 
-export const drawThickLine = (context) => (strokeWidth, x1, y1, x2, y2) => {
+export const drawThickLine = (context) => (x1, y1, x2, y2, strokeWidth) => {
     context.lineWidth = strokeWidth;
     context.lineCap = 'round';
     context.beginPath();
@@ -143,26 +67,93 @@ export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
     context.stroke();
 };
 
-export const drawCircleFilled = (context) => (color, x, y, radius) => {
+export const drawCircleFilled = (context) => (x, y, radius, color) => {
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = color;
     context.fill();
 };
 
-export const drawParticleVectors = (context) => (particle) => {
-    const vmult = 5;
-    const amult = 100;
-    const vel = 'green';
-    const acc = 'yellow';
-    const { vVector } = particle;
-    const { aVector } = particle;
+export const drawRectFilled = (context) => (x, y, w, h, color = 'white') => {
+    context.fillStyle = tinycolor(color).toRgbString();
+    context.fillRect(x, y, w, h);
+};
 
-    context.strokeStyle = tinycolor(vel).toRgbString();
-    drawLine(context)(1, particle.x, particle.y, particle.x + vVector.x * vmult, particle.y + vVector.y * vmult);
+export const drawSquareFilled = (context) => (x, y, size, color) => {
+    drawRectFilled(context)(x, y, size, size, color);
+};
 
-    context.strokeStyle = tinycolor(acc).toRgbString();
-    drawLine(context)(1, particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult);
+export const drawTriangleFilled = (context) => (x, y, size, color) => {
+    const half = size / 2;
+    context.beginPath();
+    context.moveTo(x - half, y - half);
+    context.lineTo(x + half, y);
+    context.lineTo(x - half, y + half);
+    context.fillStyle = color.toRgbString();
+    context.fill();
+};
+
+// https://www.scriptol.com/html5/canvas/rounded-rectangle.php
+// TODO center on x,y
+export const drawQuadRectFilled = (context) => (x, y, w, h, color) => {
+    const mx = x + w / 2;
+    const my = y + h / 2;
+    context.beginPath();
+    // context.strokeStyle = 'green';
+    // context.lineWidth = '4';
+    context.fillStyle = tinycolor(color).toRgbString();
+    context.moveTo(x, my);
+    context.quadraticCurveTo(x, y, mx, y);
+    context.quadraticCurveTo(x + w, y, x + w, my);
+    context.quadraticCurveTo(x + w, y + h, mx, y + h);
+    context.quadraticCurveTo(x, y + h, x, my);
+    // context.stroke();
+    context.fill();
+};
+
+// https://www.scriptol.com/html5/canvas/rounded-rectangle.php
+// TODO center on x,y
+export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
+    if (w < corner || h < corner) {
+        corner = Math.min(w, h);
+    }
+
+    const r = x + w;
+    const b = y + h;
+    context.beginPath();
+    // context.strokeStyle = 'green';
+    // context.lineWidth = '4';
+    context.fillStyle = tinycolor(color).toRgbString();
+    context.moveTo(x + corner, y);
+    context.lineTo(r - corner, y);
+    context.quadraticCurveTo(r, y, r, y + corner);
+    context.lineTo(r, y + h - corner);
+    context.quadraticCurveTo(r, b, r - corner, b);
+    context.lineTo(x + corner, b);
+    context.quadraticCurveTo(x, b, x, b - corner);
+    context.lineTo(x, y + corner);
+    context.quadraticCurveTo(x, y, x + corner, y);
+    // context.stroke();
+    context.fill();
+};
+
+export const drawTextFilled = (context) => (text, x, y, color, style) => {
+    context.fillStyle = tinycolor(color).toRgbString();
+    context.font = style || '1rem "Helvetica Neue",Helvetica,Arial,sans-serif';
+    context.fillText(text, x, y);
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// COMPLEX SHAPES
+//----------------------------------------------------------------------------------------------------------------------
+
+// TODO center it
+export const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
+    const points = 5;
+    spacing |= radius * 3;
+    for (let i = 0; i < points; i++) {
+        drawParticlePoint(context)({ x: x + spacing * i, y, radius, color });
+    }
 };
 
 // Spikes is an array of angles
@@ -180,8 +171,26 @@ export const drawSpikeCircle = (context) => ({ x, y, radius, color }, spikes, sp
         const pointA = pointOnCircle(x, y, radius, spikes[s]);
         const pointB = pointOnCircle(x, y, radius + spikeLength, spikes[s]);
         context.strokeStyle = color.toRgbString();
-        drawLine(context)(spikeStroke, pointA.x, pointA.y, pointB.x, pointB.y);
+        drawLine(context)(pointA.x, pointA.y, pointB.x, pointB.y, spikeStroke);
     }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// PARTICLE INTERACTIVITY AND FANCY STUFF
+//----------------------------------------------------------------------------------------------------------------------
+
+export const drawRotatedParticle = (ctx, drawFn, particle, ...args) => {
+    const pSaveX = particle.x;
+    const pSaveY = particle.y;
+    particle.x = 0;
+    particle.y = 0;
+    ctx.save();
+    ctx.translate(pSaveX, pSaveY);
+    ctx.rotate(particle.heading);
+    drawFn(ctx)(particle, args);
+    ctx.restore();
+    particle.x = pSaveX;
+    particle.y = pSaveY;
 };
 
 export const connectParticles = (context) => (pArray, proximity, useAlpha = true) => {
@@ -198,7 +207,7 @@ export const connectParticles = (context) => (pArray, proximity, useAlpha = true
                     pColor.setAlpha(normalizeInverse(0, proximity, distance));
                 }
                 context.strokeStyle = pColor.toHslString();
-                drawLine(context)(0.5, pA.x, pA.y, pB.x, pB.y);
+                drawLine(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
             }
         }
     }
@@ -216,13 +225,42 @@ export const drawPointTrail = (context) => (particle) => {
     for (let i = 0; i < trailLen; i++) {
         const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
         const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-        drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
+        drawLine(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
         pColor.setAlpha(alpha);
         context.strokeStyle = pColor.toRgbString();
         alpha -= aFade;
         stroke -= sFade;
     }
-    //
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// DEBUG
+//----------------------------------------------------------------------------------------------------------------------
+
+export const drawTestPoint = (context) => ({ x, y, radius, color }) => {
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+    drawLine(context)(x, y, x + radius, y, 1);
+};
+
+export const drawParticleVectors = (context) => (particle) => {
+    const vmult = 5;
+    const amult = 100;
+    const vel = 'green';
+    const acc = 'yellow';
+    const { vVector } = particle;
+    const { aVector } = particle;
+
+    context.strokeStyle = tinycolor(vel).toRgbString();
+    drawLine(context)(particle.x, particle.y, particle.x + vVector.x * vmult, particle.y + vVector.y * vmult, 1);
+
+    context.strokeStyle = tinycolor(acc).toRgbString();
+    drawLine(context)(particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult, 1);
 };
 
 export const drawMouse = (context) => ({ x, y, radius }) => {
@@ -247,3 +285,30 @@ export const drawAttractor = (context) => ({ x, y, mass, g }, mode, radius) => {
     context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
     context.fill();
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+// IMAGE DATA / PIXELS
+//----------------------------------------------------------------------------------------------------------------------
+
+export const getImageDataFromImage = (context) => (image) => {
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.width);
+};
+
+/*
+Gray = 0.21R + 0.72G + 0.07B // Luminosity
+Gray = (R + G + B) ÷ 3 // Average Brightness
+Gray = 0.299R + 0.587G + 0.114B // rec601 standard
+Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
+Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
+ */
+// https://sighack.com/post/averaging-rgb-colors-the-right-way
+export const getColorAverageGrey = ({ r, g, b }) => Math.sqrt((r * r + g * g + b * b) / 3);
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
+export const getImageDataColor = (imageData, x, y) => ({
+    r: imageData.data[y * 4 * imageData.width + x * 4],
+    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
+});

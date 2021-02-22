@@ -14,7 +14,7 @@
 */
 
 import random from 'canvas-sketch-util/random';
-import { Vector } from './vector';
+import { Vector } from './Vector';
 
 random.setSeed(random.getRandomSeed());
 console.log(`Using seed ${random.getSeed()}`);
@@ -36,8 +36,6 @@ export const oneOf = (arry) => {
 
 export const createRandomNumberArray = (len, min, max) =>
     Array.from(new Array(len)).map(() => randomNumberBetween(min, max));
-
-export const uvFromAngle = (a) => new Vector(Math.cos(a), Math.sin(a));
 
 // -> -1 ... 1
 export const loopingValue = (t, m = 0.5) => Math.sin(t * m);
@@ -90,31 +88,41 @@ export const pointRotateCoord = (point, angle) => ({
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
 export const pointAngleFromVelocity = ({ velocityX, velocityY }) => Math.atan2(velocityY, velocityX);
 
+export const aFromVector = ({ x, y }) => Math.atan2(y, x);
+export const uvFromAngle = (a) => new Vector(Math.cos(a), Math.sin(a));
+
 export const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
 
 // Scale up point grid and center in the canvas
-export const scalePointToCanvas = (cwidth, cheight, width, height, zoomFactor, x, y) => {
-    const particleXOffset = cwidth / 2 - (width * zoomFactor) / 2;
-    const particleYOffset = cheight / 2 - (height * zoomFactor) / 2;
+export const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y) => {
+    const particleXOffset = canvasWidth / 2 - (width * zoomFactor) / 2;
+    const particleYOffset = canvasHeight / 2 - (height * zoomFactor) / 2;
     return {
         x: x * zoomFactor + particleXOffset,
         y: y * zoomFactor + particleYOffset,
     };
 };
 
+export const create2dNoise = (u, v, amplitude = 1, frequency = 0.5) =>
+    Math.abs(random.noise2D(u * frequency, v * frequency)) * amplitude;
+
+export const create3dNoise = (u, v, t, amplitude = 1, frequency = 0.5) =>
+    Math.abs(random.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;
+
 // [[x,y], ...]
-export const createCirclePoints = (centerX, centerY, diameter, steps, sx = 1, sy = 1) => {
+export const createCirclePoints = (offsetX, offsetY, diameter, steps, sx = 1, sy = 1) => {
     const points = [];
     for (let theta = 0; theta < 360; theta += steps) {
         const radius = theta * (Math.PI / 180);
-        const x = Math.cos(radius) * diameter + sx + centerX;
-        const y = Math.sin(radius) * diameter + sy + centerY;
+        const x = Math.cos(radius) * diameter + sx + offsetX;
+        const y = Math.sin(radius) * diameter + sy + offsetY;
         points.push([x, y]);
     }
     return points;
 };
 
-export const createGridPoints = (width, height, xMargin, yMargin, columns, rows) => {
+// -> [[x,y], ...]
+export const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows) => {
     const gridPoints = [];
 
     const colStep = (width - xMargin * 2) / (columns - 1);
@@ -131,16 +139,21 @@ export const createGridPoints = (width, height, xMargin, yMargin, columns, rows)
     return gridPoints;
 };
 
-export const createGridPoints2dNoise = (cols, rows) => {
-    rows = rows || cols;
+// -> [{radius, rotation, position:[u,v]}, ...]
+export const createGridPointsUV = (columns, rows) => {
+    rows = rows || columns;
     const points = [];
-    for (let x = 0; x < cols; x++) {
+
+    const amplitude = 0.1;
+    const frequency = 1;
+
+    for (let x = 0; x < columns; x++) {
         for (let y = 0; y < rows; y++) {
-            const u = cols <= 1 ? 0.5 : x / (cols - 1);
-            const v = cols <= 1 ? 0.5 : y / (rows - 1);
+            const u = columns <= 1 ? 0.5 : x / (columns - 1);
+            const v = columns <= 1 ? 0.5 : y / (rows - 1);
             // const radius = Math.abs(random.gaussian() * 0.02);
-            const radius = Math.abs(random.noise2D(u, v)) * 0.1;
-            const rotation = Math.abs(random.noise2D(u, v)) * 0.5;
+            const radius = create2dNoise(u, v);
+            const rotation = create2dNoise(u, v);
             points.push({
                 radius,
                 rotation,

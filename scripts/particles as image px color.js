@@ -2,10 +2,10 @@ import sourcePng from '../hi1.png';
 import {
     clearCanvas,
     drawMouse,
-    drawSquare,
+    drawSquareFilled,
     background,
     getImageDataFromImage,
-    getImageColor,
+    getImageDataColor,
     connectParticles,
 } from './lib/canvas';
 import { mapRange, randomNumberBetween, scalePointToCanvas } from './lib/math';
@@ -16,7 +16,7 @@ import {
     Particle,
     pointPush,
     updatePosWithVelocity,
-} from './lib/particle';
+} from './lib/Particle';
 
 export const hiImage01 = (_) => {
     const config = {
@@ -38,7 +38,7 @@ export const hiImage01 = (_) => {
         const data = [];
         for (let y = 0, { height } = imageData; y < height; y++) {
             for (let x = 0, { width } = imageData; x < width; x++) {
-                data.push({ x, y, ...getImageColor(imageData, x, y) });
+                data.push({ x, y, ...getImageDataColor(imageData, x, y) });
             }
         }
         return data;
@@ -55,7 +55,7 @@ export const hiImage01 = (_) => {
         for (let i = 0; i < numParticles; i++) {
             const props = createRandomParticleValues(canvas);
             props.radius = imageZoomFactor;
-            const pxColor = getImageColor(
+            const pxColor = getImageDataColor(
                 imageData,
                 Math.round(props.x / imageZoomFactor),
                 Math.round(props.y / imageZoomFactor)
@@ -72,7 +72,7 @@ export const hiImage01 = (_) => {
             updatePosWithVelocity(particlesArray[i]);
             edgeBounce(canvas, particlesArray[i]);
 
-            const pxColor = getImageColor(
+            const pxColor = getImageDataColor(
                 imageData,
                 Math.round(particlesArray[i].x / imageZoomFactor),
                 Math.round(particlesArray[i].y / imageZoomFactor)
@@ -81,7 +81,7 @@ export const hiImage01 = (_) => {
             // particlesArray[i].color = `rgb(${pxColor.r},${pxColor.g},${pxColor.b})`;
             particlesArray[i].color = `rgba(${pxColor.r},${pxColor.g},${pxColor.b}, ${pxColor.a})`;
 
-            drawSquare(context)(particlesArray[i]);
+            drawSquareFilled(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 100, true);
     };

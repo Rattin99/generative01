@@ -1,7 +1,14 @@
 import domokunPng from '../domokun.png';
-import { clearCanvas, drawMouse, drawSquare, background, getImageDataFromImage, getImageColor } from './lib/canvas';
+import {
+    clearCanvas,
+    drawMouse,
+    drawSquareFilled,
+    background,
+    getImageDataFromImage,
+    getImageDataColor,
+} from './lib/canvas';
 import { randomNumberBetween, scalePointToCanvas } from './lib/math';
-import { Particle, pointPush } from './lib/particle';
+import { Particle, pointPush } from './lib/Particle';
 
 // Based on https://www.youtube.com/watch?v=afdHgwn1XCY
 export const domokun = (_) => {
@@ -25,7 +32,7 @@ export const domokun = (_) => {
 
         for (let y = 0, { height } = imageData; y < height; y++) {
             for (let x = 0, { width } = imageData; x < width; x++) {
-                const pxColor = getImageColor(imageData, x, y);
+                const pxColor = getImageDataColor(imageData, x, y);
                 if (pxColor.a > cropColor) {
                     const points = scalePointToCanvas(
                         canvas.width,
@@ -54,7 +61,12 @@ export const domokun = (_) => {
 
         for (let i = 0; i < numParticles; i++) {
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-            drawSquare(context)(particlesArray[i]);
+            drawSquareFilled(context)(
+                particlesArray[i].x,
+                particlesArray[i].y,
+                particlesArray[i].radius,
+                particlesArray[i].color
+            );
         }
         // drawMouse(context)(mouse);
     };

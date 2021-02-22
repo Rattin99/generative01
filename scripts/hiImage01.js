@@ -1,15 +1,15 @@
 import sourcePng from '../hi1.png';
 import {
     clearCanvas,
-    drawSquare,
+    drawSquareFilled,
     background,
     getImageDataFromImage,
-    getImageColor,
+    getImageDataColor,
     connectParticles,
-    drawPoint,
+    drawParticlePoint,
 } from './lib/canvas';
-import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from './lib/particle';
-import { createGridPoints, createRandomNumberArray, mapRange, randomNumberBetween } from './lib/math';
+import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from './lib/Particle';
+import { createGridPointsXY, createRandomNumberArray, mapRange, randomNumberBetween } from './lib/math';
 
 export const hiImage01 = (_) => {
     const config = {
@@ -84,7 +84,7 @@ export const hiImage01 = (_) => {
             updatePosWithVelocity(particlesArray[i]);
             edgeWrap(canvas, particlesArray[i]);
 
-            const pxColor = getImageColor(
+            const pxColor = getImageDataColor(
                 imageData,
                 Math.round(particlesArray[i].x / imageZoomFactor),
                 Math.round(particlesArray[i].y / imageZoomFactor)
@@ -97,7 +97,7 @@ export const hiImage01 = (_) => {
                 particlesArray[i].color = particleColor;
             }
 
-            drawPoint(context)(particlesArray[i]);
+            drawParticlePoint(context)(particlesArray[i]);
         }
     };
 

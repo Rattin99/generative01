@@ -2377,850 +2377,7 @@ function createRandom (defaultSeed) {
 
 module.exports = createRandom();
 
-},{"seed-random":"node_modules/seed-random/index.js","simplex-noise":"node_modules/simplex-noise/simplex-noise.js","defined":"node_modules/defined/index.js"}],"scripts/lib/math.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createGridPoints2dNoise = exports.createGridPoints = exports.createCirclePoints = exports.scalePointToCanvas = exports.radiansToDegrees = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.lerpRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.createRandomNumberArray = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.TAU = void 0;
-
-var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*
-  // Math aliases
-  var π = Math.PI
-  var random = Math.random
-  var round = Math.round
-  var floor = Math.floor
-  var abs = Math.abs
-  var sin = Math.sin
-  var cos = Math.cos
-  var tan = Math.tan
-
-  Math Snippets
-  https://github.com/terkelg/math
-*/
-_random.default.setSeed(_random.default.getRandomSeed());
-
-console.log("Using seed ".concat(_random.default.getSeed()));
-var TAU = Math.PI * 2;
-exports.TAU = TAU;
-
-var getRandomSeed = function getRandomSeed() {
-  return _random.default.getSeed();
-};
-
-exports.getRandomSeed = getRandomSeed;
-
-var setRandomSeed = function setRandomSeed(s) {
-  return _random.default.setRandomSeed(s);
-};
-
-exports.setRandomSeed = setRandomSeed;
-
-var randomNumberBetween = function randomNumberBetween(min, max) {
-  return _random.default.value() * (max - min) + min;
-};
-
-exports.randomNumberBetween = randomNumberBetween;
-
-var randomNumberBetweenMid = function randomNumberBetweenMid(min, max) {
-  return randomNumberBetween(min, max) - max / 2;
-};
-
-exports.randomNumberBetweenMid = randomNumberBetweenMid;
-
-var randomSign = function randomSign() {
-  return Math.round(_random.default.value()) == 1 ? 1 : -1;
-};
-
-exports.randomSign = randomSign;
-
-var oneOf = function oneOf(arry) {
-  var i = Math.round(randomNumberBetween(0, arry.length - 1));
-  return arry[i];
-};
-
-exports.oneOf = oneOf;
-
-var createRandomNumberArray = function createRandomNumberArray(len, min, max) {
-  var arr = [];
-
-  for (var i = 0; i < len; i++) {
-    arr.push(randomNumberBetween(min, max));
-  }
-
-  return arr;
-};
-
-exports.createRandomNumberArray = createRandomNumberArray;
-
-var pointOnCircle = function pointOnCircle(x, y, r, d) {
-  return {
-    x: r * Math.sin(d) + x,
-    y: r * Math.cos(d) + y
-  };
-}; // returns value between 0-1, 250,500,0 => .5
-
-
-exports.pointOnCircle = pointOnCircle;
-
-var normalize = function normalize(min, max, val) {
-  return (val - min) / (max - min);
-};
-
-exports.normalize = normalize;
-
-var normalizeInverse = function normalizeInverse(min, max, val) {
-  return 1 - normalize(min, max, val);
-}; // https://twitter.com/mattdesl/status/1031305279227478016
-// https://www.trysmudford.com/blog/linear-interpolation-functions/
-// lerp(20, 80, 0.5) // 40
-
-
-exports.normalizeInverse = normalizeInverse;
-
-var lerp = function lerp(x, y, a) {
-  return x * (1 - a) + y * a;
-};
-
-exports.lerp = lerp;
-
-var clamp = function clamp() {
-  var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-  var a = arguments.length > 2 ? arguments[2] : undefined;
-  return Math.min(max, Math.max(min, a));
-}; // invlerp(50, 100, 75)  // 0.5
-
-
-exports.clamp = clamp;
-
-var invlerp = function invlerp(x, y, a) {
-  return clamp(0, 1, (a - x) / (y - x));
-}; // a is point in 1 and converts to point in 2
-// range(10, 100, 2000, 20000, 50) // 10000
-
-
-exports.invlerp = invlerp;
-
-var lerpRange = function lerpRange(x1, y1, x2, y2, a) {
-  return lerp(x2, y2, invlerp(x1, y1, a));
-}; // Accepts a value 0-1 and returns a value 0-1 in a sin wave
-
-
-exports.lerpRange = lerpRange;
-
-var toSinValue = function toSinValue(value) {
-  return Math.abs(Math.sin(value * TAU));
-};
-
-exports.toSinValue = toSinValue;
-
-var marginify = function marginify(_ref) {
-  var margin = _ref.margin,
-      u = _ref.u,
-      v = _ref.v,
-      width = _ref.width,
-      height = _ref.height;
-  return {
-    x: lerp(margin, width - margin, u),
-    y: lerp(margin, height - margin, v)
-  };
-};
-
-exports.marginify = marginify;
-
-var pointDistance = function pointDistance(pointA, pointB) {
-  var dx = pointA.x - pointB.x;
-  var dy = pointA.y - pointB.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}; // https://stackoverflow.com/questions/13043945/how-do-i-calculate-the-position-of-a-point-in-html5-canvas-after-rotation
-
-
-exports.pointDistance = pointDistance;
-
-var pointRotateCoord = function pointRotateCoord(point, angle) {
-  return {
-    x: point.x * cos(angle) - point.y * sin(angle),
-    y: point.y * cos(angle) + point.x * sin(angle)
-  };
-}; // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
-
-
-exports.pointRotateCoord = pointRotateCoord;
-
-var pointAngleFromVelocity = function pointAngleFromVelocity(_ref2) {
-  var velocityX = _ref2.velocityX,
-      velocityY = _ref2.velocityY;
-  return Math.atan2(velocityY, velocityX);
-};
-
-exports.pointAngleFromVelocity = pointAngleFromVelocity;
-
-var radiansToDegrees = function radiansToDegrees(rad) {
-  return rad * 180 / Math.PI;
-}; // Scale up point grid and center in the canvas
-
-
-exports.radiansToDegrees = radiansToDegrees;
-
-var scalePointToCanvas = function scalePointToCanvas(cwidth, cheight, width, height, zoomFactor, x, y) {
-  var particleXOffset = cwidth / 2 - width * zoomFactor / 2;
-  var particleYOffset = cheight / 2 - height * zoomFactor / 2;
-  return {
-    x: x * zoomFactor + particleXOffset,
-    y: y * zoomFactor + particleYOffset
-  };
-}; // [[x,y], ...]
-
-
-exports.scalePointToCanvas = scalePointToCanvas;
-
-var createCirclePoints = function createCirclePoints(centerX, centerY, diameter, steps) {
-  var sx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
-  var sy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
-  var points = [];
-
-  for (var theta = 0; theta < 360; theta += steps) {
-    var radius = theta * (Math.PI / 180);
-    var x = Math.cos(radius) * diameter + sx + centerX;
-    var y = Math.sin(radius) * diameter + sy + centerY;
-    points.push([x, y]);
-  }
-
-  return points;
-};
-
-exports.createCirclePoints = createCirclePoints;
-
-var createGridPoints = function createGridPoints(width, height, xMargin, yMargin, columns, rows) {
-  var gridPoints = [];
-  var colStep = (width - xMargin * 2) / (columns - 1);
-  var rowStep = (height - yMargin * 2) / (rows - 1);
-
-  for (var col = 0; col < columns; col++) {
-    var x = xMargin + col * colStep;
-
-    for (var row = 0; row < rows; row++) {
-      var y = yMargin + row * rowStep;
-      gridPoints.push([x, y]);
-    }
-  }
-
-  return gridPoints;
-};
-
-exports.createGridPoints = createGridPoints;
-
-var createGridPoints2dNoise = function createGridPoints2dNoise(cols, rows) {
-  rows = rows || cols;
-  var points = [];
-
-  for (var x = 0; x < cols; x++) {
-    for (var y = 0; y < rows; y++) {
-      var u = cols <= 1 ? 0.5 : x / (cols - 1);
-      var v = cols <= 1 ? 0.5 : y / (rows - 1); // const radius = Math.abs(random.gaussian() * 0.02);
-
-      var radius = Math.abs(_random.default.noise2D(u, v)) * 0.1;
-      var rotation = Math.abs(_random.default.noise2D(u, v)) * 0.5;
-      points.push({
-        radius: radius,
-        rotation: rotation,
-        position: [u, v]
-      });
-    }
-  }
-
-  return points;
-};
-
-exports.createGridPoints2dNoise = createGridPoints2dNoise;
-},{"canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js"}],"scripts/lib/canvas.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.drawAttractor = exports.drawMouse = exports.drawPointTrail = exports.connectParticles = exports.drawSpikeCircle = exports.drawParticleVectors = exports.drawCircleFilled = exports.drawCircle = exports.drawThickLine = exports.drawLine = exports.drawTriangle = exports.drawSquare = exports.drawRect = exports.drawRake = exports.drawTestPoint = exports.drawPoint = exports.drawRotatedParticle = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.getImageColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.resizeCanvas = void 0;
-
-var _tinycolor = _interopRequireDefault(require("tinycolor2"));
-
-var _math = require("./math");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var resizeCanvas = function resizeCanvas(canvas, width, height) {
-  canvas.width = width;
-  canvas.height = height;
-};
-
-exports.resizeCanvas = resizeCanvas;
-
-var getImageDataFromImage = function getImageDataFromImage(context) {
-  return function (image) {
-    context.drawImage(image, 0, 0);
-    return context.getImageData(0, 0, image.width, image.width);
-  };
-};
-/*
-Gray = 0.21R + 0.72G + 0.07B // Luminosity
-Gray = (R + G + B) ÷ 3 // Average Brightness
-Gray = 0.299R + 0.587G + 0.114B // rec601 standard
-Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
-Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
- */
-// https://sighack.com/post/averaging-rgb-colors-the-right-way
-
-
-exports.getImageDataFromImage = getImageDataFromImage;
-
-var getColorAverageGrey = function getColorAverageGrey(_ref) {
-  var r = _ref.r,
-      g = _ref.g,
-      b = _ref.b;
-  return Math.sqrt((r * r + g * g + b * b) / 3);
-}; // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
-
-
-exports.getColorAverageGrey = getColorAverageGrey;
-
-var getImageColor = function getImageColor(imageData, x, y) {
-  return {
-    r: imageData.data[y * 4 * imageData.width + x * 4],
-    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
-    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
-    a: imageData.data[y * 4 * imageData.width + x * 4 + 3]
-  };
-};
-
-exports.getImageColor = getImageColor;
-
-var clearCanvas = function clearCanvas(canvas, context) {
-  return function (_) {
-    return context.clearRect(0, 0, canvas.width, canvas.height);
-  };
-};
-
-exports.clearCanvas = clearCanvas;
-
-var fillCanvas = function fillCanvas(canvas, context) {
-  return function () {
-    var opacity = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '0,0,0';
-    context.fillStyle = "rgba(".concat(color, ",").concat(opacity, ")");
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  };
-};
-
-exports.fillCanvas = fillCanvas;
-
-var background = function background(canvas, context) {
-  return function () {
-    var color = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'black';
-    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  };
-}; // context.save() and context.restore() may be slow, just reset what i'm using
-
-
-exports.background = background;
-
-var resetStyles = function resetStyles(context) {
-  context.strokeStyle = '#000';
-  context.fillStyle = '#fff';
-  context.lineWidth = 1;
-  context.setLineDash([]);
-  context.lineCap = 'butt';
-};
-
-exports.resetStyles = resetStyles;
-
-var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
-  var pSaveX = particle.x;
-  var pSaveY = particle.y;
-  particle.x = 0;
-  particle.y = 0;
-  ctx.save();
-  ctx.translate(pSaveX, pSaveY);
-  ctx.rotate(particle.heading);
-
-  for (var _len = arguments.length, args = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
-    args[_key - 3] = arguments[_key];
-  }
-
-  drawFn(ctx)(particle, args);
-  ctx.restore();
-  particle.x = pSaveX;
-  particle.y = pSaveY;
-};
-
-exports.drawRotatedParticle = drawRotatedParticle;
-
-var drawPoint = function drawPoint(context) {
-  return function (_ref2) {
-    var x = _ref2.x,
-        y = _ref2.y,
-        radius = _ref2.radius,
-        color = _ref2.color;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color.toRgbString();
-    context.fill();
-  };
-};
-
-exports.drawPoint = drawPoint;
-
-var drawTestPoint = function drawTestPoint(context) {
-  return function (_ref3) {
-    var x = _ref3.x,
-        y = _ref3.y,
-        radius = _ref3.radius,
-        color = _ref3.color;
-    context.strokeStyle = color.toRgbString();
-    context.lineWidth = 1;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(255,255,255,.1)';
-    context.fill();
-    context.stroke();
-    drawLine(context)(1, x, y, x + radius, y);
-  };
-}; // TODO center it
-
-
-exports.drawTestPoint = drawTestPoint;
-
-var drawRake = function drawRake(context) {
-  return function (_ref4, spacing) {
-    var x = _ref4.x,
-        y = _ref4.y,
-        radius = _ref4.radius,
-        color = _ref4.color;
-    var points = 5;
-    spacing |= radius * 3;
-
-    for (var i = 0; i < points; i++) {
-      drawPoint(context)({
-        x: x + spacing * i,
-        y: y,
-        radius: radius,
-        color: color
-      });
-    }
-  };
-};
-
-exports.drawRake = drawRake;
-
-var drawRect = function drawRect(context) {
-  return function (x, y, w, h) {
-    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'white';
-    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-    context.fillRect(x, y, w, h);
-  };
-};
-
-exports.drawRect = drawRect;
-
-var drawSquare = function drawSquare(context) {
-  return function (_ref5) {
-    var x = _ref5.x,
-        y = _ref5.y,
-        radius = _ref5.radius,
-        color = _ref5.color;
-    drawRect(context)(x, y, radius, radius, color);
-  };
-};
-
-exports.drawSquare = drawSquare;
-
-var drawTriangle = function drawTriangle(context) {
-  return function (_ref6) {
-    var x = _ref6.x,
-        y = _ref6.y,
-        radius = _ref6.radius,
-        color = _ref6.color;
-    var half = radius / 2;
-    context.beginPath();
-    context.moveTo(x - half, y - half);
-    context.lineTo(x + half, y);
-    context.lineTo(x - half, y + half);
-    context.fillStyle = color.toRgbString();
-    context.fill(); // context.beginPath();
-    // context.arc(x+half, y, 3, 0, Math.PI * 2, false);
-    // context.fillStyle = 'rgb(255,0,0)';
-    // context.fill();
-  };
-};
-
-exports.drawTriangle = drawTriangle;
-
-var drawLine = function drawLine(context) {
-  return function (strokeWidth, x1, y1, x2, y2) {
-    context.lineWidth = strokeWidth;
-    context.beginPath();
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
-  };
-};
-
-exports.drawLine = drawLine;
-
-var drawThickLine = function drawThickLine(context) {
-  return function (strokeWidth, x1, y1, x2, y2) {
-    context.lineWidth = strokeWidth;
-    context.lineCap = 'round';
-    context.beginPath();
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
-  };
-};
-
-exports.drawThickLine = drawThickLine;
-
-var drawCircle = function drawCircle(context) {
-  return function (strokeWidth, x, y, radius) {
-    // context.strokeStyle = 'rgba(255,255,255,.25)';
-    context.lineWidth = strokeWidth;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
-    // context.fill();
-
-    context.stroke();
-  };
-};
-
-exports.drawCircle = drawCircle;
-
-var drawCircleFilled = function drawCircleFilled(context) {
-  return function (color, x, y, radius) {
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color;
-    context.fill();
-  };
-};
-
-exports.drawCircleFilled = drawCircleFilled;
-
-var drawParticleVectors = function drawParticleVectors(context) {
-  return function (particle) {
-    var vmult = 5;
-    var amult = 100;
-    var vel = 'green';
-    var acc = 'yellow';
-    var vVector = particle.vVector;
-    var aVector = particle.aVector;
-    context.strokeStyle = (0, _tinycolor.default)(vel).toRgbString();
-    drawLine(context)(1, particle.x, particle.y, particle.x + vVector.x * vmult, particle.y + vVector.y * vmult);
-    context.strokeStyle = (0, _tinycolor.default)(acc).toRgbString();
-    drawLine(context)(1, particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult);
-  };
-}; // Spikes is an array of angles
-
-
-exports.drawParticleVectors = drawParticleVectors;
-
-var drawSpikeCircle = function drawSpikeCircle(context) {
-  return function (_ref7, spikes) {
-    var x = _ref7.x,
-        y = _ref7.y,
-        radius = _ref7.radius,
-        color = _ref7.color;
-    var spikeLength = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
-    var circleStroke = 1;
-    var spikeStroke = 2;
-    context.strokeStyle = color.toRgbString();
-    context.lineWidth = circleStroke;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
-    // context.fill();
-
-    context.stroke();
-
-    for (var s = 0; s < spikes.length; s++) {
-      var pointA = (0, _math.pointOnCircle)(x, y, radius, spikes[s]);
-      var pointB = (0, _math.pointOnCircle)(x, y, radius + spikeLength, spikes[s]);
-      context.strokeStyle = color.toRgbString();
-      drawLine(context)(spikeStroke, pointA.x, pointA.y, pointB.x, pointB.y);
-    }
-  };
-};
-
-exports.drawSpikeCircle = drawSpikeCircle;
-
-var connectParticles = function connectParticles(context) {
-  return function (pArray, proximity) {
-    var useAlpha = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    var len = pArray.length;
-
-    for (var a = 0; a < len; a++) {
-      // all consecutive particles
-      for (var b = a; b < len; b++) {
-        var pA = pArray[a];
-        var pB = pArray[b];
-        var distance = (0, _math.pointDistance)(pA, pB);
-
-        if (distance < proximity) {
-          var pColor = pA.color;
-
-          if (useAlpha) {
-            pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
-          }
-
-          context.strokeStyle = pColor.toHslString();
-          drawLine(context)(0.5, pA.x, pA.y, pB.x, pB.y);
-        }
-      }
-    }
-
-    resetStyles(context);
-  };
-};
-
-exports.connectParticles = connectParticles;
-
-var drawPointTrail = function drawPointTrail(context) {
-  return function (particle) {
-    var trailLen = particle.xHistory.length;
-    context.lineWidth = particle.radius;
-    var pColor = particle.color;
-    var aFade = 100 / trailLen * 0.01;
-    var alpha = 1;
-    var sFade = particle.radius * 2 / trailLen;
-    var stroke = particle.radius * 2;
-
-    for (var i = 0; i < trailLen; i++) {
-      var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
-      var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-      drawLine(context)(stroke, startX, startY, particle.xHistory[i], particle.yHistory[i]);
-      pColor.setAlpha(alpha);
-      context.strokeStyle = pColor.toRgbString();
-      alpha -= aFade;
-      stroke -= sFade;
-    } //
-
-  };
-};
-
-exports.drawPointTrail = drawPointTrail;
-
-var drawMouse = function drawMouse(context) {
-  return function (_ref8) {
-    var x = _ref8.x,
-        y = _ref8.y,
-        radius = _ref8.radius;
-    if (x === undefined || y === undefined) return;
-    context.strokeStyle = 'rgba(255,255,255,.25)';
-    context.lineWidth = 1;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(255,255,255,.1)';
-    context.fill();
-    context.stroke();
-  };
-};
-
-exports.drawMouse = drawMouse;
-
-var drawAttractor = function drawAttractor(context) {
-  return function (_ref9, mode, radius) {
-    var x = _ref9.x,
-        y = _ref9.y,
-        mass = _ref9.mass,
-        g = _ref9.g;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(0,0,0,.1)';
-    context.fill();
-    context.beginPath();
-    context.arc(x, y, Math.sqrt(mass) * g, 0, Math.PI * 2, false);
-    context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
-    context.fill();
-  };
-};
-
-exports.drawAttractor = drawAttractor;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/sketch.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sketch = void 0;
-
-var _canvas = require("./canvas");
-
-/*
-Convenience canvas sketch runner. Based on p5js
-
-
-const variation = () => {
-    const config = {};
-
-    const setup = (canvas, context) => {
-        // create initial state
-    };
-
-    // will run every frame
-    const draw = (canvas, context, mouse) => {
-        // draw on every frame
-        return 1; // -1 to exit animation loop
-    };
-
-    return {
-        config,
-        setup,
-        draw,
-    };
-};
-*/
-var sketch = function sketch() {
-  var mouse = {
-    x: undefined,
-    y: undefined,
-    isDown: false,
-    radius: 100
-  };
-  var fps = 0;
-  var currentVariation;
-  var canvasSizeFraction = 0.85;
-  var canvas = document.getElementById('canvas');
-  var context = canvas.getContext('2d');
-  canvas.width = window.innerWidth * canvasSizeFraction;
-  canvas.height = window.innerHeight * canvasSizeFraction;
-
-  var getCanvas = function getCanvas(_) {
-    return canvas;
-  };
-
-  var getContext = function getContext(_) {
-    return context;
-  };
-
-  var getMouse = function getMouse(_) {
-    return mouse;
-  };
-
-  var mouseDown = function mouseDown(evt) {
-    mouse.isDown = true;
-  };
-
-  var mouseMove = function mouseMove(evt) {
-    var canvasFrame = canvas.getBoundingClientRect();
-    mouse.x = evt.x - canvasFrame.x;
-    mouse.y = evt.y - canvasFrame.y;
-  };
-
-  var mouseUp = function mouseUp(evt) {
-    mouse.isDown = false;
-  };
-
-  var mouseOut = function mouseOut(evt) {
-    mouse.x = undefined;
-    mouse.y = undefined;
-    mouse.isDown = false;
-  };
-
-  var windowResize = function windowResize(evt) {
-    return (0, _canvas.resizeCanvas)(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
-  };
-
-  window.addEventListener('mousedown', mouseDown);
-  window.addEventListener('touchstart', mouseDown);
-  window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('touchmove', mouseMove);
-  window.addEventListener('mouseup', mouseUp);
-  window.addEventListener('touchend', mouseUp);
-  window.addEventListener('mouseout', mouseOut);
-  window.addEventListener('touchcancel', mouseOut);
-  window.addEventListener('resize', windowResize);
-
-  var run = function run(variation) {
-    currentVariation = variation;
-    var backgroundColor = '0,0,0';
-
-    if (variation.hasOwnProperty('config')) {
-      var config = variation.config;
-      console.log('Sketch config:', variation.config);
-
-      if (config.width && config.height) {
-        window.removeEventListener('resize', windowResize);
-        (0, _canvas.resizeCanvas)(canvas, config.width, config.height);
-      }
-
-      if (config.background) {
-        backgroundColor = config.background;
-      }
-
-      if (config.fps) {
-        fps = config.fps;
-      }
-    }
-
-    var rendering = true;
-    var targetFpsInterval = 1000 / fps;
-    var lastAnimationFrameTime;
-
-    var startSketch = function startSketch() {
-      window.removeEventListener('load', startSketch);
-      variation.setup(canvas, context); // fillCanvas(canvas, context)(1,backgroundColor);
-
-      var render = function render() {
-        var result = variation.draw(canvas, context, mouse);
-
-        if (result !== -1) {
-          requestAnimationFrame(render);
-        }
-      }; // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
-
-
-      var renderAtFps = function renderAtFps() {
-        if (rendering) {
-          requestAnimationFrame(renderAtFps);
-        }
-
-        var now = Date.now();
-        var elapsed = now - lastAnimationFrameTime;
-
-        if (elapsed > targetFpsInterval) {
-          lastAnimationFrameTime = now - elapsed % targetFpsInterval;
-          var result = variation.draw(canvas, context, mouse);
-
-          if (result === -1) {
-            rendering = false;
-          }
-        }
-      };
-
-      if (!fps) {
-        requestAnimationFrame(render);
-      } else {
-        lastAnimationFrameTime = Date.now();
-        requestAnimationFrame(renderAtFps);
-      }
-    };
-
-    window.addEventListener('load', startSketch);
-  };
-
-  return {
-    canvas: getCanvas,
-    context: getContext,
-    mouse: getMouse,
-    run: run
-  };
-};
-
-exports.sketch = sketch;
-},{"./canvas":"scripts/lib/canvas.js"}],"scripts/lib/vector.js":[function(require,module,exports) {
+},{"seed-random":"node_modules/seed-random/index.js","simplex-noise":"node_modules/simplex-noise/simplex-noise.js","defined":"node_modules/defined/index.js"}],"scripts/lib/Vector.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3436,7 +2593,965 @@ Vector.fromArray = function (a) {
 Vector.angleBetween = function (a, b) {
   return a.angleTo(b);
 };
-},{}],"scripts/lib/particle.js":[function(require,module,exports) {
+},{}],"scripts/lib/math.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createGridPointsUV = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoise = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.TAU = void 0;
+
+var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
+
+var _Vector = require("./Vector");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+  // Math aliases
+  var π = Math.PI
+  var random = Math.random
+  var round = Math.round
+  var floor = Math.floor
+  var abs = Math.abs
+  var sin = Math.sin
+  var cos = Math.cos
+  var tan = Math.tan
+
+  Math Snippets
+  https://github.com/terkelg/math
+*/
+_random.default.setSeed(_random.default.getRandomSeed());
+
+console.log("Using seed ".concat(_random.default.getSeed()));
+var TAU = Math.PI * 2;
+exports.TAU = TAU;
+
+var getRandomSeed = function getRandomSeed() {
+  return _random.default.getSeed();
+};
+
+exports.getRandomSeed = getRandomSeed;
+
+var setRandomSeed = function setRandomSeed(s) {
+  return _random.default.setRandomSeed(s);
+};
+
+exports.setRandomSeed = setRandomSeed;
+
+var randomNumberBetween = function randomNumberBetween(min, max) {
+  return _random.default.value() * (max - min) + min;
+};
+
+exports.randomNumberBetween = randomNumberBetween;
+
+var randomNumberBetweenMid = function randomNumberBetweenMid(min, max) {
+  return randomNumberBetween(min, max) - max / 2;
+};
+
+exports.randomNumberBetweenMid = randomNumberBetweenMid;
+
+var randomSign = function randomSign() {
+  return Math.round(_random.default.value()) == 1 ? 1 : -1;
+};
+
+exports.randomSign = randomSign;
+
+var oneOf = function oneOf(arry) {
+  var i = Math.round(randomNumberBetween(0, arry.length - 1));
+  return arry[i];
+};
+
+exports.oneOf = oneOf;
+
+var createRandomNumberArray = function createRandomNumberArray(len, min, max) {
+  return Array.from(new Array(len)).map(function () {
+    return randomNumberBetween(min, max);
+  });
+}; // -> -1 ... 1
+
+
+exports.createRandomNumberArray = createRandomNumberArray;
+
+var loopingValue = function loopingValue(t) {
+  var m = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.5;
+  return Math.sin(t * m);
+}; // t is 0-1, -> -1 ... 1
+
+
+exports.loopingValue = loopingValue;
+
+var pingPontValue = function pingPontValue(t) {
+  return Math.sin(t * Math.PI);
+}; // x,y offsets for the current circle position
+
+
+exports.pingPontValue = pingPontValue;
+
+var pointOnCircle = function pointOnCircle(x, y, r, a) {
+  return {
+    x: r * Math.sin(a) + x,
+    y: r * Math.cos(a) + y
+  };
+}; // returns value between 0-1, 250,500,0 => .5
+
+
+exports.pointOnCircle = pointOnCircle;
+
+var normalize = function normalize(min, max, val) {
+  return (val - min) / (max - min);
+};
+
+exports.normalize = normalize;
+
+var normalizeInverse = function normalizeInverse(min, max, val) {
+  return 1 - normalize(min, max, val);
+}; // https://twitter.com/mattdesl/status/1031305279227478016
+// https://www.trysmudford.com/blog/linear-interpolation-functions/
+// lerp(20, 80, 0.5) // 40
+
+
+exports.normalizeInverse = normalizeInverse;
+
+var lerp = function lerp(x, y, a) {
+  return x * (1 - a) + y * a;
+};
+
+exports.lerp = lerp;
+
+var clamp = function clamp() {
+  var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+  var a = arguments.length > 2 ? arguments[2] : undefined;
+  return Math.min(max, Math.max(min, a));
+}; // invlerp(50, 100, 75)  // 0.5
+
+
+exports.clamp = clamp;
+
+var invlerp = function invlerp(x, y, a) {
+  return clamp(0, 1, (a - x) / (y - x));
+}; // p5js map fn is reverse map(a,x2,y2,x1,y1)
+// a is point in 1 and converts to point in 2
+// range(10, 100, 2000, 20000, 50) // 10000
+
+
+exports.invlerp = invlerp;
+
+var mapRange = function mapRange(x1, y1, x2, y2, a) {
+  return lerp(x2, y2, invlerp(x1, y1, a));
+}; // Accepts a value 0-1 and returns a value 0-1 in a sin wave
+
+
+exports.mapRange = mapRange;
+
+var toSinValue = function toSinValue(value) {
+  return Math.abs(Math.sin(value * TAU));
+};
+
+exports.toSinValue = toSinValue;
+
+var marginify = function marginify(_ref) {
+  var margin = _ref.margin,
+      u = _ref.u,
+      v = _ref.v,
+      width = _ref.width,
+      height = _ref.height;
+  return {
+    x: lerp(margin, width - margin, u),
+    y: lerp(margin, height - margin, v)
+  };
+};
+
+exports.marginify = marginify;
+
+var pointDistance = function pointDistance(pointA, pointB) {
+  var dx = pointA.x - pointB.x;
+  var dy = pointA.y - pointB.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}; // https://stackoverflow.com/questions/13043945/how-do-i-calculate-the-position-of-a-point-in-html5-canvas-after-rotation
+
+
+exports.pointDistance = pointDistance;
+
+var pointRotateCoord = function pointRotateCoord(point, angle) {
+  return {
+    x: point.x * cos(angle) - point.y * sin(angle),
+    y: point.y * cos(angle) + point.x * sin(angle)
+  };
+}; // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-angular-movement/a/pointing-towards-movement
+
+
+exports.pointRotateCoord = pointRotateCoord;
+
+var pointAngleFromVelocity = function pointAngleFromVelocity(_ref2) {
+  var velocityX = _ref2.velocityX,
+      velocityY = _ref2.velocityY;
+  return Math.atan2(velocityY, velocityX);
+};
+
+exports.pointAngleFromVelocity = pointAngleFromVelocity;
+
+var aFromVector = function aFromVector(_ref3) {
+  var x = _ref3.x,
+      y = _ref3.y;
+  return Math.atan2(y, x);
+};
+
+exports.aFromVector = aFromVector;
+
+var uvFromAngle = function uvFromAngle(a) {
+  return new _Vector.Vector(Math.cos(a), Math.sin(a));
+};
+
+exports.uvFromAngle = uvFromAngle;
+
+var radiansToDegrees = function radiansToDegrees(rad) {
+  return rad * 180 / Math.PI;
+}; // Scale up point grid and center in the canvas
+
+
+exports.radiansToDegrees = radiansToDegrees;
+
+var scalePointToCanvas = function scalePointToCanvas(canvasWidth, canvasHeight, width, height, zoomFactor, x, y) {
+  var particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
+  var particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
+  return {
+    x: x * zoomFactor + particleXOffset,
+    y: y * zoomFactor + particleYOffset
+  };
+};
+
+exports.scalePointToCanvas = scalePointToCanvas;
+
+var create2dNoise = function create2dNoise(u, v) {
+  var amplitude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+  var frequency = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0.5;
+  return Math.abs(_random.default.noise2D(u * frequency, v * frequency)) * amplitude;
+};
+
+exports.create2dNoise = create2dNoise;
+
+var create3dNoise = function create3dNoise(u, v, t) {
+  var amplitude = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+  var frequency = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0.5;
+  return Math.abs(_random.default.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;
+}; // [[x,y], ...]
+
+
+exports.create3dNoise = create3dNoise;
+
+var createCirclePoints = function createCirclePoints(offsetX, offsetY, diameter, steps) {
+  var sx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+  var sy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
+  var points = [];
+
+  for (var theta = 0; theta < 360; theta += steps) {
+    var radius = theta * (Math.PI / 180);
+    var x = Math.cos(radius) * diameter + sx + offsetX;
+    var y = Math.sin(radius) * diameter + sy + offsetY;
+    points.push([x, y]);
+  }
+
+  return points;
+}; // -> [[x,y], ...]
+
+
+exports.createCirclePoints = createCirclePoints;
+
+var createGridPointsXY = function createGridPointsXY(width, height, xMargin, yMargin, columns, rows) {
+  var gridPoints = [];
+  var colStep = (width - xMargin * 2) / (columns - 1);
+  var rowStep = (height - yMargin * 2) / (rows - 1);
+
+  for (var col = 0; col < columns; col++) {
+    var x = xMargin + col * colStep;
+
+    for (var row = 0; row < rows; row++) {
+      var y = yMargin + row * rowStep;
+      gridPoints.push([x, y]);
+    }
+  }
+
+  return gridPoints;
+}; // -> [{radius, rotation, position:[u,v]}, ...]
+
+
+exports.createGridPointsXY = createGridPointsXY;
+
+var createGridPointsUV = function createGridPointsUV(columns, rows) {
+  rows = rows || columns;
+  var points = [];
+  var amplitude = 0.1;
+  var frequency = 1;
+
+  for (var x = 0; x < columns; x++) {
+    for (var y = 0; y < rows; y++) {
+      var u = columns <= 1 ? 0.5 : x / (columns - 1);
+      var v = columns <= 1 ? 0.5 : y / (rows - 1); // const radius = Math.abs(random.gaussian() * 0.02);
+
+      var radius = create2dNoise(u, v);
+      var rotation = create2dNoise(u, v);
+      points.push({
+        radius: radius,
+        rotation: rotation,
+        position: [u, v]
+      });
+    }
+  }
+
+  return points;
+};
+
+exports.createGridPointsUV = createGridPointsUV;
+},{"canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","./Vector":"scripts/lib/Vector.js"}],"scripts/lib/canvas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.drawSpikeCircle = exports.drawRake = exports.drawTextFilled = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawCircleFilled = exports.drawCircle = exports.drawThickLine = exports.drawLine = exports.drawParticlePoint = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("./math");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var resizeCanvas = function resizeCanvas(canvas, width, height) {
+  canvas.width = width;
+  canvas.height = height;
+};
+
+exports.resizeCanvas = resizeCanvas;
+
+var clearCanvas = function clearCanvas(canvas, context) {
+  return function (_) {
+    return context.clearRect(0, 0, canvas.width, canvas.height);
+  };
+};
+
+exports.clearCanvas = clearCanvas;
+
+var fillCanvas = function fillCanvas(canvas, context) {
+  return function () {
+    var opacity = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '0,0,0';
+    context.fillStyle = "rgba(".concat(color, ",").concat(opacity, ")");
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  };
+};
+
+exports.fillCanvas = fillCanvas;
+
+var background = function background(canvas, context) {
+  return function () {
+    var color = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'black';
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  };
+}; // context.save() and context.restore() may be slow, just reset what i'm using
+
+
+exports.background = background;
+
+var resetStyles = function resetStyles(context) {
+  context.strokeStyle = '#000';
+  context.fillStyle = '#fff';
+  context.lineWidth = 1;
+  context.setLineDash([]);
+  context.lineCap = 'butt';
+}; //----------------------------------------------------------------------------------------------------------------------
+// PRIMITIVES
+//----------------------------------------------------------------------------------------------------------------------
+// TODO use circle?
+
+
+exports.resetStyles = resetStyles;
+
+var drawParticlePoint = function drawParticlePoint(context) {
+  return function (_ref) {
+    var x = _ref.x,
+        y = _ref.y,
+        radius = _ref.radius,
+        color = _ref.color;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = color.toRgbString();
+    context.fill();
+  };
+};
+
+exports.drawParticlePoint = drawParticlePoint;
+
+var drawLine = function drawLine(context) {
+  return function (x1, y1, x2, y2, strokeWidth) {
+    context.lineWidth = strokeWidth;
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+  };
+};
+
+exports.drawLine = drawLine;
+
+var drawThickLine = function drawThickLine(context) {
+  return function (x1, y1, x2, y2, strokeWidth) {
+    context.lineWidth = strokeWidth;
+    context.lineCap = 'round';
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+  };
+};
+
+exports.drawThickLine = drawThickLine;
+
+var drawCircle = function drawCircle(context) {
+  return function (strokeWidth, x, y, radius) {
+    // context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = strokeWidth;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
+    // context.fill();
+
+    context.stroke();
+  };
+};
+
+exports.drawCircle = drawCircle;
+
+var drawCircleFilled = function drawCircleFilled(context) {
+  return function (x, y, radius, color) {
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = color;
+    context.fill();
+  };
+};
+
+exports.drawCircleFilled = drawCircleFilled;
+
+var drawRectFilled = function drawRectFilled(context) {
+  return function (x, y, w, h) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'white';
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.fillRect(x, y, w, h);
+  };
+};
+
+exports.drawRectFilled = drawRectFilled;
+
+var drawSquareFilled = function drawSquareFilled(context) {
+  return function (x, y, size, color) {
+    drawRectFilled(context)(x, y, size, size, color);
+  };
+};
+
+exports.drawSquareFilled = drawSquareFilled;
+
+var drawTriangleFilled = function drawTriangleFilled(context) {
+  return function (x, y, size, color) {
+    var half = size / 2;
+    context.beginPath();
+    context.moveTo(x - half, y - half);
+    context.lineTo(x + half, y);
+    context.lineTo(x - half, y + half);
+    context.fillStyle = color.toRgbString();
+    context.fill();
+  };
+}; // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
+// TODO center on x,y
+
+
+exports.drawTriangleFilled = drawTriangleFilled;
+
+var drawQuadRectFilled = function drawQuadRectFilled(context) {
+  return function (x, y, w, h, color) {
+    var mx = x + w / 2;
+    var my = y + h / 2;
+    context.beginPath(); // context.strokeStyle = 'green';
+    // context.lineWidth = '4';
+
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.moveTo(x, my);
+    context.quadraticCurveTo(x, y, mx, y);
+    context.quadraticCurveTo(x + w, y, x + w, my);
+    context.quadraticCurveTo(x + w, y + h, mx, y + h);
+    context.quadraticCurveTo(x, y + h, x, my); // context.stroke();
+
+    context.fill();
+  };
+}; // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
+// TODO center on x,y
+
+
+exports.drawQuadRectFilled = drawQuadRectFilled;
+
+var drawRoundRectFilled = function drawRoundRectFilled(context) {
+  return function (x, y, w, h, corner, color) {
+    if (w < corner || h < corner) {
+      corner = Math.min(w, h);
+    }
+
+    var r = x + w;
+    var b = y + h;
+    context.beginPath(); // context.strokeStyle = 'green';
+    // context.lineWidth = '4';
+
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.moveTo(x + corner, y);
+    context.lineTo(r - corner, y);
+    context.quadraticCurveTo(r, y, r, y + corner);
+    context.lineTo(r, y + h - corner);
+    context.quadraticCurveTo(r, b, r - corner, b);
+    context.lineTo(x + corner, b);
+    context.quadraticCurveTo(x, b, x, b - corner);
+    context.lineTo(x, y + corner);
+    context.quadraticCurveTo(x, y, x + corner, y); // context.stroke();
+
+    context.fill();
+  };
+};
+
+exports.drawRoundRectFilled = drawRoundRectFilled;
+
+var drawTextFilled = function drawTextFilled(context) {
+  return function (text, x, y, color, style) {
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.font = style || '1rem "Helvetica Neue",Helvetica,Arial,sans-serif';
+    context.fillText(text, x, y);
+  };
+}; //----------------------------------------------------------------------------------------------------------------------
+// COMPLEX SHAPES
+//----------------------------------------------------------------------------------------------------------------------
+// TODO center it
+
+
+exports.drawTextFilled = drawTextFilled;
+
+var drawRake = function drawRake(context) {
+  return function (_ref2, spacing) {
+    var x = _ref2.x,
+        y = _ref2.y,
+        radius = _ref2.radius,
+        color = _ref2.color;
+    var points = 5;
+    spacing |= radius * 3;
+
+    for (var i = 0; i < points; i++) {
+      drawParticlePoint(context)({
+        x: x + spacing * i,
+        y: y,
+        radius: radius,
+        color: color
+      });
+    }
+  };
+}; // Spikes is an array of angles
+
+
+exports.drawRake = drawRake;
+
+var drawSpikeCircle = function drawSpikeCircle(context) {
+  return function (_ref3, spikes) {
+    var x = _ref3.x,
+        y = _ref3.y,
+        radius = _ref3.radius,
+        color = _ref3.color;
+    var spikeLength = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+    var circleStroke = 1;
+    var spikeStroke = 2;
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = circleStroke;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
+    // context.fill();
+
+    context.stroke();
+
+    for (var s = 0; s < spikes.length; s++) {
+      var pointA = (0, _math.pointOnCircle)(x, y, radius, spikes[s]);
+      var pointB = (0, _math.pointOnCircle)(x, y, radius + spikeLength, spikes[s]);
+      context.strokeStyle = color.toRgbString();
+      drawLine(context)(pointA.x, pointA.y, pointB.x, pointB.y, spikeStroke);
+    }
+  };
+}; //----------------------------------------------------------------------------------------------------------------------
+// PARTICLE INTERACTIVITY AND FANCY STUFF
+//----------------------------------------------------------------------------------------------------------------------
+
+
+exports.drawSpikeCircle = drawSpikeCircle;
+
+var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
+  var pSaveX = particle.x;
+  var pSaveY = particle.y;
+  particle.x = 0;
+  particle.y = 0;
+  ctx.save();
+  ctx.translate(pSaveX, pSaveY);
+  ctx.rotate(particle.heading);
+
+  for (var _len = arguments.length, args = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+    args[_key - 3] = arguments[_key];
+  }
+
+  drawFn(ctx)(particle, args);
+  ctx.restore();
+  particle.x = pSaveX;
+  particle.y = pSaveY;
+};
+
+exports.drawRotatedParticle = drawRotatedParticle;
+
+var connectParticles = function connectParticles(context) {
+  return function (pArray, proximity) {
+    var useAlpha = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    var len = pArray.length;
+
+    for (var a = 0; a < len; a++) {
+      // all consecutive particles
+      for (var b = a; b < len; b++) {
+        var pA = pArray[a];
+        var pB = pArray[b];
+        var distance = (0, _math.pointDistance)(pA, pB);
+
+        if (distance < proximity) {
+          var pColor = pA.color;
+
+          if (useAlpha) {
+            pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
+          }
+
+          context.strokeStyle = pColor.toHslString();
+          drawLine(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
+        }
+      }
+    }
+
+    resetStyles(context);
+  };
+};
+
+exports.connectParticles = connectParticles;
+
+var drawPointTrail = function drawPointTrail(context) {
+  return function (particle) {
+    var trailLen = particle.xHistory.length;
+    context.lineWidth = particle.radius;
+    var pColor = particle.color;
+    var aFade = 100 / trailLen * 0.01;
+    var alpha = 1;
+    var sFade = particle.radius * 2 / trailLen;
+    var stroke = particle.radius * 2;
+
+    for (var i = 0; i < trailLen; i++) {
+      var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
+      var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
+      drawLine(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
+      pColor.setAlpha(alpha);
+      context.strokeStyle = pColor.toRgbString();
+      alpha -= aFade;
+      stroke -= sFade;
+    }
+  };
+}; //----------------------------------------------------------------------------------------------------------------------
+// DEBUG
+//----------------------------------------------------------------------------------------------------------------------
+
+
+exports.drawPointTrail = drawPointTrail;
+
+var drawTestPoint = function drawTestPoint(context) {
+  return function (_ref4) {
+    var x = _ref4.x,
+        y = _ref4.y,
+        radius = _ref4.radius,
+        color = _ref4.color;
+    context.strokeStyle = color.toRgbString();
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+    drawLine(context)(x, y, x + radius, y, 1);
+  };
+};
+
+exports.drawTestPoint = drawTestPoint;
+
+var drawParticleVectors = function drawParticleVectors(context) {
+  return function (particle) {
+    var vmult = 5;
+    var amult = 100;
+    var vel = 'green';
+    var acc = 'yellow';
+    var vVector = particle.vVector;
+    var aVector = particle.aVector;
+    context.strokeStyle = (0, _tinycolor.default)(vel).toRgbString();
+    drawLine(context)(particle.x, particle.y, particle.x + vVector.x * vmult, particle.y + vVector.y * vmult, 1);
+    context.strokeStyle = (0, _tinycolor.default)(acc).toRgbString();
+    drawLine(context)(particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult, 1);
+  };
+};
+
+exports.drawParticleVectors = drawParticleVectors;
+
+var drawMouse = function drawMouse(context) {
+  return function (_ref5) {
+    var x = _ref5.x,
+        y = _ref5.y,
+        radius = _ref5.radius;
+    if (x === undefined || y === undefined) return;
+    context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+  };
+};
+
+exports.drawMouse = drawMouse;
+
+var drawAttractor = function drawAttractor(context) {
+  return function (_ref6, mode, radius) {
+    var x = _ref6.x,
+        y = _ref6.y,
+        mass = _ref6.mass,
+        g = _ref6.g;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(0,0,0,.1)';
+    context.fill();
+    context.beginPath();
+    context.arc(x, y, Math.sqrt(mass) * g, 0, Math.PI * 2, false);
+    context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
+    context.fill();
+  };
+}; //----------------------------------------------------------------------------------------------------------------------
+// IMAGE DATA / PIXELS
+//----------------------------------------------------------------------------------------------------------------------
+
+
+exports.drawAttractor = drawAttractor;
+
+var getImageDataFromImage = function getImageDataFromImage(context) {
+  return function (image) {
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.width);
+  };
+};
+/*
+Gray = 0.21R + 0.72G + 0.07B // Luminosity
+Gray = (R + G + B) ÷ 3 // Average Brightness
+Gray = 0.299R + 0.587G + 0.114B // rec601 standard
+Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
+Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
+ */
+// https://sighack.com/post/averaging-rgb-colors-the-right-way
+
+
+exports.getImageDataFromImage = getImageDataFromImage;
+
+var getColorAverageGrey = function getColorAverageGrey(_ref7) {
+  var r = _ref7.r,
+      g = _ref7.g,
+      b = _ref7.b;
+  return Math.sqrt((r * r + g * g + b * b) / 3);
+}; // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
+
+
+exports.getColorAverageGrey = getColorAverageGrey;
+
+var getImageDataColor = function getImageDataColor(imageData, x, y) {
+  return {
+    r: imageData.data[y * 4 * imageData.width + x * 4],
+    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+    a: imageData.data[y * 4 * imageData.width + x * 4 + 3]
+  };
+};
+
+exports.getImageDataColor = getImageDataColor;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/sketch.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sketch = void 0;
+
+var _canvas = require("./canvas");
+
+/*
+Convenience canvas sketch runner. Based on p5js
+
+
+const variation = () => {
+    const config = {};
+
+    const setup = (canvas, context) => {
+        // create initial state
+    };
+
+    // will run every frame
+    const draw = (canvas, context, mouse) => {
+        // draw on every frame
+        return 1; // -1 to exit animation loop
+    };
+
+    return {
+        config,
+        setup,
+        draw,
+    };
+};
+*/
+var sketch = function sketch() {
+  var mouse = {
+    x: undefined,
+    y: undefined,
+    isDown: false,
+    radius: 100
+  };
+  var fps = 0;
+  var currentVariation;
+  var canvasSizeFraction = 0.85;
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  canvas.width = window.innerWidth * canvasSizeFraction;
+  canvas.height = window.innerHeight * canvasSizeFraction;
+
+  var getCanvas = function getCanvas(_) {
+    return canvas;
+  };
+
+  var getContext = function getContext(_) {
+    return context;
+  };
+
+  var getMouse = function getMouse(_) {
+    return mouse;
+  };
+
+  var mouseDown = function mouseDown(evt) {
+    mouse.isDown = true;
+  };
+
+  var mouseMove = function mouseMove(evt) {
+    var canvasFrame = canvas.getBoundingClientRect();
+    mouse.x = evt.x - canvasFrame.x;
+    mouse.y = evt.y - canvasFrame.y;
+  };
+
+  var mouseUp = function mouseUp(evt) {
+    mouse.isDown = false;
+  };
+
+  var mouseOut = function mouseOut(evt) {
+    mouse.x = undefined;
+    mouse.y = undefined;
+    mouse.isDown = false;
+  };
+
+  var windowResize = function windowResize(evt) {
+    return (0, _canvas.resizeCanvas)(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+  };
+
+  window.addEventListener('mousedown', mouseDown);
+  window.addEventListener('touchstart', mouseDown);
+  window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('touchmove', mouseMove);
+  window.addEventListener('mouseup', mouseUp);
+  window.addEventListener('touchend', mouseUp);
+  window.addEventListener('mouseout', mouseOut);
+  window.addEventListener('touchcancel', mouseOut);
+  window.addEventListener('resize', windowResize);
+
+  var run = function run(variation) {
+    currentVariation = variation;
+    var backgroundColor = '0,0,0';
+
+    if (variation.hasOwnProperty('config')) {
+      var config = variation.config;
+      console.log('Sketch config:', variation.config);
+
+      if (config.width && config.height) {
+        window.removeEventListener('resize', windowResize);
+        (0, _canvas.resizeCanvas)(canvas, config.width, config.height);
+      }
+
+      if (config.background) {
+        backgroundColor = config.background;
+      }
+
+      if (config.fps) {
+        fps = config.fps;
+      }
+    }
+
+    var rendering = true;
+    var targetFpsInterval = 1000 / fps;
+    var lastAnimationFrameTime;
+
+    var startSketch = function startSketch() {
+      window.removeEventListener('load', startSketch);
+      variation.setup(canvas, context); // fillCanvas(canvas, context)(1,backgroundColor);
+
+      var render = function render() {
+        var result = variation.draw(canvas, context, mouse);
+
+        if (result !== -1) {
+          requestAnimationFrame(render);
+        }
+      }; // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
+
+
+      var renderAtFps = function renderAtFps() {
+        if (rendering) {
+          requestAnimationFrame(renderAtFps);
+        }
+
+        var now = Date.now();
+        var elapsed = now - lastAnimationFrameTime;
+
+        if (elapsed > targetFpsInterval) {
+          lastAnimationFrameTime = now - elapsed % targetFpsInterval;
+          var result = variation.draw(canvas, context, mouse);
+
+          if (result === -1) {
+            rendering = false;
+          }
+        }
+      };
+
+      if (!fps) {
+        requestAnimationFrame(render);
+      } else {
+        lastAnimationFrameTime = Date.now();
+        requestAnimationFrame(renderAtFps);
+      }
+    };
+
+    window.addEventListener('load', startSketch);
+  };
+
+  return {
+    canvas: getCanvas,
+    context: getContext,
+    mouse: getMouse,
+    run: run
+  };
+};
+
+exports.sketch = sketch;
+},{"./canvas":"scripts/lib/canvas.js"}],"scripts/lib/Particle.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3448,7 +3563,7 @@ var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _math = require("./math");
 
-var _vector = require("./vector");
+var _Vector = require("./Vector");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3591,7 +3706,7 @@ var Particle = /*#__PURE__*/function () {
   }, {
     key: "vVector",
     get: function get() {
-      return new _vector.Vector(this.velocityX, this.velocityY, 0);
+      return new _Vector.Vector(this.velocityX, this.velocityY, 0);
     },
     set: function set(_ref2) {
       var x = _ref2.x,
@@ -3602,7 +3717,7 @@ var Particle = /*#__PURE__*/function () {
   }, {
     key: "aVector",
     get: function get() {
-      return new _vector.Vector(this.accelerationX, this.accelerationY, 0);
+      return new _Vector.Vector(this.accelerationX, this.accelerationY, 0);
     },
     set: function set(_ref3) {
       var x = _ref3.x,
@@ -3728,7 +3843,7 @@ var attract = function attract(_ref4, particle) {
     y: particle.y
   }) < affectDist) {
     g = g || 1;
-    var dir = new _vector.Vector(x, y).sub(new _vector.Vector(particle.x, particle.y));
+    var dir = new _Vector.Vector(x, y).sub(new _Vector.Vector(particle.x, particle.y));
     var distanceSq = (0, _math.clamp)(50, 5000, dir.magSq());
     var strength = mode * (g * (mass * particle.mass)) / distanceSq;
     var force = dir.setMag(strength);
@@ -3859,7 +3974,7 @@ var pointPush = function pointPush(point, particle) {
 };
 
 exports.pointPush = pointPush;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./vector":"scripts/lib/vector.js"}],"scripts/forcesDev.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./Vector":"scripts/lib/Vector.js"}],"scripts/forcesDev.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3867,13 +3982,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.forcesDev = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
 var _math = require("./lib/math");
 
-var _vector = require("./lib/vector");
+var _Vector = require("./lib/Vector");
 
 var forcesDev = function forcesDev() {
   var config = {
@@ -3893,14 +4008,14 @@ var forcesDev = function forcesDev() {
     centerRadius = canvas.height / 4;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas); // props.color = 'white';
+      var props = (0, _Particle.createRandomParticleValues)(canvas); // props.color = 'white';
       // props.mass = 1;
 
       props.radius = Math.sqrt(props.mass) * 10;
       props.y = 0;
       props.velocityX = 0;
       props.velocityY = 0;
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
   };
 
@@ -3911,29 +4026,29 @@ var forcesDev = function forcesDev() {
       b: 50,
       a: 0.5
     });
-    (0, _canvas.drawRect)(context)(0, canvas.height / 2, canvas.width, canvas.height / 2, 'rgba(255,255,255,.1');
+    (0, _canvas.drawRectFilled)(context)(0, canvas.height / 2, canvas.width, canvas.height / 2, 'rgba(255,255,255,.1');
 
     for (var i = 0; i < numParticles; i++) {
-      var gravity = new _vector.Vector(0, 0.25);
-      var wind = new _vector.Vector(1, 0);
+      var gravity = new _Vector.Vector(0, 0.25);
+      var wind = new _Vector.Vector(1, 0);
       var weight = gravity.mult(particlesArray[i].mass);
 
       if (mouse.isDown) {
-        (0, _particle.applyForce)(wind, particlesArray[i]);
+        (0, _Particle.applyForce)(wind, particlesArray[i]);
       }
 
-      (0, _particle.applyForce)(weight, particlesArray[i]);
+      (0, _Particle.applyForce)(weight, particlesArray[i]);
 
       if (particlesArray[i].y + particlesArray[i].radius >= canvas.height) {
-        (0, _particle.friction)(particlesArray[i]);
+        (0, _Particle.friction)(particlesArray[i]);
       }
 
       if (particlesArray[i].y + particlesArray[i].radius >= canvas.height / 2) {
-        (0, _particle.drag)(particlesArray[i]);
+        (0, _Particle.drag)(particlesArray[i]);
       }
 
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
       (0, _canvas.drawRotatedParticle)(context, _canvas.drawTestPoint, particlesArray[i]);
       (0, _canvas.drawParticleVectors)(context)(particlesArray[i]);
       particlesArray[i].aVector = {
@@ -3951,7 +4066,7 @@ var forcesDev = function forcesDev() {
 };
 
 exports.forcesDev = forcesDev;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/vector":"scripts/lib/vector.js"}],"scripts/forcesDevGravity.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/Vector":"scripts/lib/Vector.js"}],"scripts/forcesDevGravity.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3959,7 +4074,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.forcesDevGravity = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -3986,9 +4101,9 @@ var forcesDevGravity = function forcesDevGravity() {
     centerRadius = canvas.height / 4;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.radius = Math.sqrt(props.mass);
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
   }; // const targetX = mouse.x ? mouse.x : canvas.width / 2;
   // const targetY = mouse.y ? mouse.y : canvas.height / 2;
@@ -4024,10 +4139,10 @@ var forcesDevGravity = function forcesDevGravity() {
         mode = 1;
       }
 
-      (0, _particle.attract)(attractor, particlesArray[i], mode, 2000);
+      (0, _Particle.attract)(attractor, particlesArray[i], mode, 2000);
       particlesArray[i].vVector = particlesArray[i].vVector.limit(20);
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
       (0, _canvas.drawRotatedParticle)(context, _canvas.drawRake, particlesArray[i]);
       particlesArray[i].aVector = {
         x: 0,
@@ -4044,7 +4159,7 @@ var forcesDevGravity = function forcesDevGravity() {
 };
 
 exports.forcesDevGravity = forcesDevGravity;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/test-grid.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/test-grid.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4054,7 +4169,7 @@ exports.testGrid = void 0;
 
 var _math = require("./lib/math");
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4098,11 +4213,11 @@ var testGrid = function testGrid() {
       mass: 10,
       g: 3
     };
-    gridPoints = (0, _math.createGridPoints)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
+    gridPoints = (0, _math.createGridPointsXY)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
     numParticles = gridPoints.length;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.x = gridPoints[i][0];
       props.y = gridPoints[i][1];
       props.velocityX = 0;
@@ -4111,14 +4226,14 @@ var testGrid = function testGrid() {
       props.radius = 1; // randomNumberBetween(10, 30);
 
       props.spikes = (0, _math.createRandomNumberArray)(20, 0, 360);
-      var h = (0, _math.lerpRange)(0, canvas.width, 0, 90, props.x);
+      var h = (0, _math.mapRange)(0, canvas.width, 0, 90, props.x);
       var s = 100; // lerpRange(0,10,0,100,prop.radius);
 
       var l = 50; // lerpRange(0,10,25,75,prop.radius);
 
       props.color = "hsla(".concat(h, ",").concat(s, "%,").concat(l, "%,0.1)"); // props.color = { r: 0, g: 0, b: 0, a: 0.1 };
 
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
 
     (0, _canvas.background)(canvas, context)('white');
@@ -4135,14 +4250,14 @@ var testGrid = function testGrid() {
       // } else {
       //     mode = 1;
       // }
-      (0, _particle.attract)(leftattractor, particlesArray[i], -1, attractorDist);
-      (0, _particle.attract)(midattractor, particlesArray[i], 1, attractorDist);
-      (0, _particle.attract)(rightattractor, particlesArray[i], -1, attractorDist);
+      (0, _Particle.attract)(leftattractor, particlesArray[i], -1, attractorDist);
+      (0, _Particle.attract)(midattractor, particlesArray[i], 1, attractorDist);
+      (0, _Particle.attract)(rightattractor, particlesArray[i], -1, attractorDist);
       particlesArray[i].vVector = particlesArray[i].vVector.limit(10);
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
       // edgeWrap(canvas, particlesArray[i]);
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]); // drawSpikeCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]); // drawSpikeCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
     }
 
     (0, _canvas.connectParticles)(context)(particlesArray, 50, false); // drawAttractor(context)(leftattractor, -1, attractorDist);
@@ -4158,7 +4273,7 @@ var testGrid = function testGrid() {
 };
 
 exports.testGrid = testGrid;
-},{"./lib/math":"scripts/lib/math.js","./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"node_modules/nice-color-palettes/100.json":[function(require,module,exports) {
+},{"./lib/math":"scripts/lib/math.js","./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"node_modules/nice-color-palettes/100.json":[function(require,module,exports) {
 module.exports = [["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#300030","#480048","#601848","#c04848","#f07241"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#73c8a9","#dee1b6","#e1b866","#bd5532","#373b44"],["#805841","#dcf7f3","#fffcdd","#ffd8d8","#f5a2a2"]];
 },{}],"scripts/lib/palettes.js":[function(require,module,exports) {
 "use strict";
@@ -4198,7 +4313,79 @@ var palette = function palette(_) {
 };
 
 exports.palette = palette;
-},{"nice-color-palettes":"node_modules/nice-color-palettes/100.json","./math":"scripts/lib/math.js"}],"scripts/timebased-template.js":[function(require,module,exports) {
+},{"nice-color-palettes":"node_modules/nice-color-palettes/100.json","./math":"scripts/lib/math.js"}],"scripts/lib/Timeline.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Timeline = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/*
+Canvas animation timeline based on Canvas Sketch time keeping methods
+https://github.com/mattdesl/canvas-sketch/blob/master/docs/animated-sketches.md
+ */
+var Timeline = /*#__PURE__*/function () {
+  function Timeline(fps, loop, duration) {
+    _classCallCheck(this, Timeline);
+
+    this.fps = fps || 30;
+    this.loop = loop || 0; // total loops
+
+    this.duration = duration || 1; // duration of each loop in seconds
+
+    this.totalLoopFrames = this.duration ? this.duration * this.fps : 1;
+    this.drawLoopIterations = 0; // number of times drawn
+
+    this.time = 0; // elapsed time in seconds
+
+    this.playhead = 0; // current progress of the loop between 0 and 1
+
+    this.frame = 1; // frame of the loop
+
+    this.elapsedLoops = 0;
+  }
+
+  _createClass(Timeline, [{
+    key: "onFrame",
+    value: function onFrame() {
+      this.drawLoopIterations++; // one frame
+
+      this.frame++;
+      this.playhead = this.frame / this.totalLoopFrames;
+
+      if (this.drawLoopIterations % this.fps === 0) {
+        // a second elapsed
+        this.time++;
+
+        if (this.frame >= this.totalLoopFrames) {
+          // one loop duration passed
+          this.elapsedLoops++;
+          this.playhead = 0;
+          this.frame = 0;
+
+          if (this.loop && this.elapsedLoops >= this.loop) {
+            console.log('End of loops');
+            return -1;
+          }
+        }
+      }
+
+      return 1;
+    }
+  }]);
+
+  return Timeline;
+}();
+
+exports.Timeline = Timeline;
+},{}],"scripts/timebased-template.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4213,6 +4400,8 @@ var _canvas = require("./lib/canvas");
 var _palettes = require("./lib/palettes");
 
 var _math = require("./lib/math");
+
+var _Timeline = require("./lib/Timeline");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4234,61 +4423,11 @@ var timebasedTemplate = function timebasedTemplate() {
     height: 600,
     fps: 60
   };
-  var canvasCenterX;
-  var canvasCenterY;
-  var centerRadius;
   var counter = 0;
-  var grid = (0, _math.createGridPoints2dNoise)(15, 15); // FPS must be defined
-
-  var loop = 0; // total loops
-
-  var duration = 5; // duration of each loop in seconds
-
-  var totalLoopFrames = duration ? duration * config.fps : 1;
-  var drawLoopIterations = 0; // number of times drawn
-
-  var time = 0; // elapsed time in seconds
-
-  var playhead = 0; // current progress of the loop between 0 and 1
-
-  var frame = 1; // frame of the loop
-
-  var elapsedLoops = 0;
-
-  var updateTimeProps = function updateTimeProps() {
-    drawLoopIterations++;
-
-    if (config.fps) {
-      // one frame
-      frame++;
-      playhead = frame / totalLoopFrames;
-
-      if (drawLoopIterations % config.fps === 0) {
-        // a second elapsed
-        time++;
-
-        if (frame >= totalLoopFrames) {
-          // one loop duration passed
-          // console.log('Looping');
-          elapsedLoops++;
-          playhead = 0;
-          frame = 0;
-
-          if (loop && elapsedLoops >= loop) {
-            console.log('End of loops');
-            return -1;
-          }
-        }
-      }
-    }
-
-    return 1;
-  };
+  var grid = (0, _math.createGridPointsUV)(15, 15);
+  var timeline = new _Timeline.Timeline(config.fps, 0, 5);
 
   var setup = function setup(canvas, context) {
-    canvasCenterX = canvas.width / 2;
-    canvasCenterY = canvas.height / 2;
-    centerRadius = canvas.height / 4;
     var colors = (0, _palettes.nicePalette)();
     grid = grid.map(function (g) {
       g.color = (0, _math.oneOf)(colors);
@@ -4298,7 +4437,8 @@ var timebasedTemplate = function timebasedTemplate() {
   };
 
   var draw = function draw(canvas, context, mouse) {
-    (0, _canvas.background)(canvas, context)('rgba(255,255,255,.1');
+    (0, _canvas.background)(canvas, context)('rgba(255,255,255,1'); // drawTextFilled(context)(timeline.playhead, 25, 25, 'red');
+
     grid.forEach(function (_ref) {
       var position = _ref.position,
           color = _ref.color;
@@ -4317,13 +4457,15 @@ var timebasedTemplate = function timebasedTemplate() {
           x = _marginify.x,
           y = _marginify.y;
 
-      var t = (0, _math.toSinValue)(playhead) * 0.1;
-      var radius = Math.abs(_random.default.noise3D(u, v, counter) * 3) * t;
-      (0, _canvas.drawCircleFilled)(context)(color, x, y, radius * 50);
+      var t = (0, _math.toSinValue)(timeline.playhead) * 0.1;
+      var radius = (0, _math.create3dNoise)(u, v, counter, 3 * t) * 100; // drawCircleFilled(context)(x, y, radius, color);
+
+      (0, _canvas.drawQuadRectFilled)(context)(x, y, radius, radius, color);
+      (0, _canvas.drawRoundRectFilled)(context)(x, y, radius, radius, 5, color);
     });
-    counter += 0.01;
-    var end = updateTimeProps();
-    return end;
+    counter += 0.01; // returns -1 if number of loops exceeded
+
+    return timeline.onFrame();
   };
 
   return {
@@ -4334,7 +4476,7 @@ var timebasedTemplate = function timebasedTemplate() {
 };
 
 exports.timebasedTemplate = timebasedTemplate;
-},{"canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","./lib/canvas":"scripts/lib/canvas.js","./lib/palettes":"scripts/lib/palettes.js","./lib/math":"scripts/lib/math.js"}],"hi1.png":[function(require,module,exports) {
+},{"canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","./lib/canvas":"scripts/lib/canvas.js","./lib/palettes":"scripts/lib/palettes.js","./lib/math":"scripts/lib/math.js","./lib/Timeline":"scripts/lib/Timeline.js"}],"hi1.png":[function(require,module,exports) {
 module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAIAAAD2HxkiAAAACXBIWXMAAAsTAAALEwEAmpwYAAALImlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDYgNzkuMTY0NjQ4LCAyMDIxLzAxLzEyLTE1OjUyOjI5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjIuMiAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjEtMDItMThUMDg6MzY6NDEtMDU6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIxLTAyLTE4VDE1OjM4OjUwLTA1OjAwIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjIwYjRjZTFjLWNkNjgtNDY0Mi05MDEzLWRmODI4MDkxZDgzMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmUxMjY0ODcyLThjYjMtYjY0MS1hODcxLWQyZmVjNzM5ZmMwMiIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmYyODI4NWFlLTMwNmItNDkwYy1iOTg3LTg1NDg3NDRiYmFiNCIgdGlmZjpPcmllbnRhdGlvbj0iMSIgdGlmZjpYUmVzb2x1dGlvbj0iNzIwMDAwLzEwMDAwIiB0aWZmOllSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiIGV4aWY6Q29sb3JTcGFjZT0iMSIgZXhpZjpQaXhlbFhEaW1lbnNpb249IjEwMCIgZXhpZjpQaXhlbFlEaW1lbnNpb249IjEwMCI+IDxwaG90b3Nob3A6VGV4dExheWVycz4gPHJkZjpCYWc+IDxyZGY6bGkgcGhvdG9zaG9wOkxheWVyTmFtZT0iSGkiIHBob3Rvc2hvcDpMYXllclRleHQ9IkhpIi8+IDwvcmRmOkJhZz4gPC9waG90b3Nob3A6VGV4dExheWVycz4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpmMjgyODVhZS0zMDZiLTQ5MGMtYjk4Ny04NTQ4NzQ0YmJhYjQiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMDg6MzY6NDEtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpkMDFhMjJkOC1mNGVlLTQ5YzEtYTFhZC1jYzA4MTU4NTM3MDUiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6MjYtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpiMjAyYTRkZC0yYjk5LTQxMDQtOGVkNC03MDUxZTE0MjgwMWIiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vdm5kLmFkb2JlLnBob3Rvc2hvcCB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImRlcml2ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImNvbnZlcnRlZCBmcm9tIGFwcGxpY2F0aW9uL3ZuZC5hZG9iZS5waG90b3Nob3AgdG8gaW1hZ2UvcG5nIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyMGI0Y2UxYy1jZDY4LTQ2NDItOTAxMy1kZjgyODA5MWQ4MzAiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpiMjAyYTRkZC0yYjk5LTQxMDQtOGVkNC03MDUxZTE0MjgwMWIiIHN0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";
 },{}],"scripts/hiImage01.js":[function(require,module,exports) {
 "use strict";
@@ -4348,7 +4490,7 @@ var _hi = _interopRequireDefault(require("../hi1.png"));
 
 var _canvas = require("./lib/canvas");
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _math = require("./lib/math");
 
@@ -4403,7 +4545,7 @@ var hiImage01 = function hiImage01(_) {
     // }
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.radius = (0, _math.randomNumberBetween)(1, 5);
       props.color = particleColor;
 
@@ -4413,7 +4555,7 @@ var hiImage01 = function hiImage01(_) {
         props.x = canvas.width;
       }
 
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
 
     (0, _canvas.background)(canvas, context)({
@@ -4432,12 +4574,12 @@ var hiImage01 = function hiImage01(_) {
     });
 
     for (var i = 0; i < numParticles; i++) {
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeWrap)(canvas, particlesArray[i]);
-      var pxColor = (0, _canvas.getImageColor)(imageData, Math.round(particlesArray[i].x / imageZoomFactor), Math.round(particlesArray[i].y / imageZoomFactor));
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeWrap)(canvas, particlesArray[i]);
+      var pxColor = (0, _canvas.getImageDataColor)(imageData, Math.round(particlesArray[i].x / imageZoomFactor), Math.round(particlesArray[i].y / imageZoomFactor));
 
       if (pxColor.r > 250) {
-        (0, _particle.drag)(particlesArray[i], 0.001);
+        (0, _Particle.drag)(particlesArray[i], 0.001);
         particlesArray[i].color = {
           r: 3,
           g: 227,
@@ -4447,7 +4589,7 @@ var hiImage01 = function hiImage01(_) {
         particlesArray[i].color = particleColor;
       }
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
     }
   };
 
@@ -4459,7 +4601,7 @@ var hiImage01 = function hiImage01(_) {
 };
 
 exports.hiImage01 = hiImage01;
-},{"../hi1.png":"hi1.png","./lib/canvas":"scripts/lib/canvas.js","./lib/particle":"scripts/lib/particle.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation1.js":[function(require,module,exports) {
+},{"../hi1.png":"hi1.png","./lib/canvas":"scripts/lib/canvas.js","./lib/Particle":"scripts/lib/Particle.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation1.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4467,7 +4609,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation1 = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4485,9 +4627,9 @@ var variation1 = function variation1() {
     centerRadius = canvas.height / 4;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.radius = 5;
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
   };
 
@@ -4495,15 +4637,15 @@ var variation1 = function variation1() {
     (0, _canvas.fillCanvas)(canvas, context)();
 
     for (var i = 0; i < numParticles; i++) {
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
-      (0, _particle.avoidPoint)({
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _Particle.avoidPoint)({
         radius: centerRadius,
         x: canvasCenterX,
         y: canvasCenterY
       }, particlesArray[i], 4);
-      (0, _particle.attractPoint)(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-      (0, _canvas.drawPoint)(context)(particlesArray[i]);
+      (0, _Particle.attractPoint)(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
       (0, _canvas.drawPointTrail)(context)(particlesArray[i]);
     }
 
@@ -4518,7 +4660,7 @@ var variation1 = function variation1() {
 };
 
 exports.variation1 = variation1;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation2.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation2.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4526,7 +4668,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation2 = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4547,7 +4689,7 @@ var variation2 = function variation2() {
 
   var setup = function setup(canvas, context) {
     for (var i = 0; i < config.numParticles; i++) {
-      particlesArray.push(new _particle.Particle((0, _particle.createRandomParticleValues)(canvas)));
+      particlesArray.push(new _Particle.Particle((0, _Particle.createRandomParticleValues)(canvas)));
     }
   };
 
@@ -4558,7 +4700,7 @@ var variation2 = function variation2() {
       particlesArray[i].radius -= config.decay;
 
       if (particlesArray[i].radius <= 0) {
-        var newValues = (0, _particle.createRandomParticleValues)(canvas);
+        var newValues = (0, _Particle.createRandomParticleValues)(canvas);
         var newCoords = mouse;
         newValues.x = newCoords.x + (0, _math.randomNumberBetween)(-10, 10);
         newValues.y = newCoords.y + (0, _math.randomNumberBetween)(-10, 10);
@@ -4572,9 +4714,9 @@ var variation2 = function variation2() {
         particlesArray[i].mass *= -1;
       }
 
-      (0, _particle.avoidPoint)(mouse, particlesArray[i]); // attractPoint(psMouseCoords(), particlesArray[i]);
+      (0, _Particle.avoidPoint)(mouse, particlesArray[i]); // attractPoint(psMouseCoords(), particlesArray[i]);
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]); // drawPointTrail(context)(particlesArray[i]);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]); // drawPointTrail(context)(particlesArray[i]);
     }
 
     (0, _canvas.connectParticles)(context)(particlesArray, 100);
@@ -4590,7 +4732,7 @@ var variation2 = function variation2() {
 };
 
 exports.variation2 = variation2;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"domokun.png":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"domokun.png":[function(require,module,exports) {
 module.exports = "/domokun.0afe23b8.png";
 },{}],"scripts/domokun.js":[function(require,module,exports) {
 "use strict";
@@ -4606,7 +4748,7 @@ var _canvas = require("./lib/canvas");
 
 var _math = require("./lib/math");
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4631,7 +4773,7 @@ var domokun = function domokun(_) {
 
     for (var y = 0, height = imageData.height; y < height; y++) {
       for (var x = 0, width = imageData.width; x < width; x++) {
-        var pxColor = (0, _canvas.getImageColor)(imageData, x, y);
+        var pxColor = (0, _canvas.getImageDataColor)(imageData, x, y);
 
         if (pxColor.a > cropColor) {
           var points = (0, _math.scalePointToCanvas)(canvas.width, canvas.height, imageData.width, imageData.height, imageZoomFactor, x, y);
@@ -4640,7 +4782,7 @@ var domokun = function domokun(_) {
           var mass = (0, _math.randomNumberBetween)(2, 12);
           var color = pxColor;
           var radius = imageZoomFactor;
-          particlesArray.push(new _particle.Particle({
+          particlesArray.push(new _Particle.Particle({
             x: pX,
             y: pY,
             mass: mass,
@@ -4658,8 +4800,8 @@ var domokun = function domokun(_) {
     (0, _canvas.background)(canvas, context)('yellow');
 
     for (var i = 0; i < numParticles; i++) {
-      (0, _particle.pointPush)(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-      (0, _canvas.drawSquare)(context)(particlesArray[i]);
+      (0, _Particle.pointPush)(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
+      (0, _canvas.drawSquareFilled)(context)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, particlesArray[i].color);
     } // drawMouse(context)(mouse);
 
   };
@@ -4672,7 +4814,7 @@ var domokun = function domokun(_) {
 };
 
 exports.domokun = domokun;
-},{"../domokun.png":"domokun.png","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/particle":"scripts/lib/particle.js"}],"scripts/variation4.js":[function(require,module,exports) {
+},{"../domokun.png":"domokun.png","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/Particle":"scripts/lib/Particle.js"}],"scripts/variation4.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4680,7 +4822,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation4 = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4702,7 +4844,7 @@ var variation4 = function variation4() {
       var x = Math.cos(rad) * diameter + centerX;
       var y = Math.sin(rad) * diameter + centerY;
       circles.push([x, y]);
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.x = x;
       props.y = y;
       props.radius = 1;
@@ -4712,7 +4854,7 @@ var variation4 = function variation4() {
         b: 0
       };
       props.index = circles.length - 1;
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
 
     config.numParticles = particlesArray.length;
@@ -4724,8 +4866,8 @@ var variation4 = function variation4() {
     (0, _canvas.fillCanvas)(canvas, context)(0.005, '255,255,255');
 
     for (var i = 0; i < config.numParticles; i++) {
-      (0, _particle.pointPush)(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
-      (0, _canvas.drawPoint)(context)(particlesArray[i]); // let index = particlesArray[i].index + 1;
+      (0, _Particle.pointPush)(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]); // let index = particlesArray[i].index + 1;
       // if(index === circles.length) {
       //     index = 0;
       // }
@@ -4746,7 +4888,7 @@ var variation4 = function variation4() {
 };
 
 exports.variation4 = variation4;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation5.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation5.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4754,7 +4896,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation5 = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4769,7 +4911,7 @@ var variation5 = function variation5() {
 
   var setup = function setup(canvas, context) {
     for (var i = 0; i < config.numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.x = canvas.width / 2;
       props.y = canvas.height / 2;
       props.color = {
@@ -4777,8 +4919,8 @@ var variation5 = function variation5() {
         g: 0,
         b: 0
       };
-      props.radius = .5;
-      particlesArray.push(new _particle.Particle(props));
+      props.radius = 0.5;
+      particlesArray.push(new _Particle.Particle(props));
     }
 
     var centerX = canvas.width / 2;
@@ -4799,18 +4941,18 @@ var variation5 = function variation5() {
   var draw = function draw(canvas, context, mouse) {
     // fillCanvas(canvas, context)(.005,'255,255,255');
     for (var i = 0; i < config.numParticles; i++) {
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
 
       for (var c = 0; c < circles.length; c++) {
-        (0, _particle.avoidPoint)({
+        (0, _Particle.avoidPoint)({
           radius: circles[c][2],
           x: circles[c][0],
           y: circles[c][1]
         }, particlesArray[i], 4);
       }
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
     }
 
     (0, _canvas.connectParticles)(context)(particlesArray, 50);
@@ -4824,7 +4966,7 @@ var variation5 = function variation5() {
 };
 
 exports.variation5 = variation5;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation6.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4832,7 +4974,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation6 = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4846,39 +4988,39 @@ var variation6 = function variation6() {
 
   var setup = function setup(canvas, context) {
     for (var i = 0; i < numParticles; i++) {
-      var initValues = (0, _particle.createRandomParticleValues)(canvas);
+      var initValues = (0, _Particle.createRandomParticleValues)(canvas);
       initValues.color = {
         r: 255,
         g: 255,
         b: 255
       };
-      particlesArray.push(new _particle.Particle(initValues));
+      particlesArray.push(new _Particle.Particle(initValues));
     }
   };
 
   var draw = function draw(canvas, context, mouse) {
-    (0, _canvas.fillCanvas)(canvas, context)(.08);
+    (0, _canvas.fillCanvas)(canvas, context)(0.08);
     if (hue++ > 361) hue = 0;
 
     for (var i = 0; i < numParticles; i++) {
       particlesArray[i].radius -= 0.05;
 
       if (particlesArray[i].radius <= 0) {
-        var initValues = (0, _particle.createRandomParticleValues)(canvas);
+        var initValues = (0, _Particle.createRandomParticleValues)(canvas);
         initValues.x = mouse.x ? mouse.x : canvas.width / 2;
         initValues.y = mouse.y ? mouse.y : canvas.height / 2; // let h = lerpRange(0,canvas.width,100,200,initValues.x);
 
-        var s = (0, _math.lerpRange)(0, 10, 0, 100, initValues.radius);
-        var l = (0, _math.lerpRange)(0, 10, 25, 75, initValues.radius);
+        var s = (0, _math.mapRange)(0, 10, 0, 100, initValues.radius);
+        var l = (0, _math.mapRange)(0, 10, 25, 75, initValues.radius);
         initValues.color = "hsl(".concat(hue, ",").concat(s, "%,").concat(l, "%)");
         particlesArray[i].initValues(initValues);
       }
 
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
-      (0, _particle.gravityPoint)()(canvas.width / 2, canvas.height, 2000, particlesArray[i]); // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _Particle.gravityPoint)()(canvas.width / 2, canvas.height, 2000, particlesArray[i]); // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
     } // connectParticles(context)(particlesArray, 100);
 
 
@@ -4892,7 +5034,7 @@ var variation6 = function variation6() {
 };
 
 exports.variation6 = variation6;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/rainbow-rake-orbit-mouse.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/rainbow-rake-orbit-mouse.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4900,7 +5042,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.rainbowRakeOrbit = void 0;
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -4927,10 +5069,10 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
     centerRadius = canvas.height / 4;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.radius = 1; // Math.sqrt(props.mass);
 
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
   }; // const targetX = mouse.x ? mouse.x : canvas.width / 2;
   // const targetY = mouse.y ? mouse.y : canvas.height / 2;
@@ -4966,10 +5108,10 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
         mode = 1;
       }
 
-      (0, _particle.attract)(attractor, particlesArray[i], mode, 2000);
+      (0, _Particle.attract)(attractor, particlesArray[i], mode, 2000);
       particlesArray[i].vVector = particlesArray[i].vVector.limit(20);
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]);
-      (0, _particle.edgeBounce)(canvas, particlesArray[i]);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
+      (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
       (0, _canvas.drawRotatedParticle)(context, _canvas.drawRake, particlesArray[i]);
       particlesArray[i].aVector = {
         x: 0,
@@ -4986,7 +5128,7 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
 };
 
 exports.rainbowRakeOrbit = rainbowRakeOrbit;
-},{"./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/threeAttractors.js":[function(require,module,exports) {
+},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/threeAttractors.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4996,7 +5138,7 @@ exports.threeAttractors = void 0;
 
 var _math = require("./lib/math");
 
-var _particle = require("./lib/particle");
+var _Particle = require("./lib/Particle");
 
 var _canvas = require("./lib/canvas");
 
@@ -5040,11 +5182,11 @@ var threeAttractors = function threeAttractors() {
       mass: 10,
       g: 3
     };
-    gridPoints = (0, _math.createGridPoints)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
+    gridPoints = (0, _math.createGridPointsXY)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
     numParticles = gridPoints.length;
 
     for (var i = 0; i < numParticles; i++) {
-      var props = (0, _particle.createRandomParticleValues)(canvas);
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.x = gridPoints[i][0];
       props.y = gridPoints[i][1];
       props.velocityX = 0;
@@ -5053,14 +5195,14 @@ var threeAttractors = function threeAttractors() {
       props.radius = 1; // randomNumberBetween(10, 30);
 
       props.spikes = (0, _math.createRandomNumberArray)(20, 0, 360);
-      var h = (0, _math.lerpRange)(0, canvas.width, 0, 90, props.x);
+      var h = (0, _math.mapRange)(0, canvas.width, 0, 90, props.x);
       var s = 100; // lerpRange(0,10,0,100,prop.radius);
 
       var l = 50; // lerpRange(0,10,25,75,prop.radius);
 
       props.color = "hsla(".concat(h, ",").concat(s, "%,").concat(l, "%,0.1)"); // props.color = { r: 0, g: 0, b: 0, a: 0.1 };
 
-      particlesArray.push(new _particle.Particle(props));
+      particlesArray.push(new _Particle.Particle(props));
     }
 
     (0, _canvas.background)(canvas, context)('white');
@@ -5069,13 +5211,13 @@ var threeAttractors = function threeAttractors() {
   var draw = function draw(canvas, context, mouse) {
     // background(canvas, context)({ r: 255, g: 255, b: 255, a: 0.001 });
     for (var i = 0; i < numParticles; i++) {
-      (0, _particle.attract)(leftattractor, particlesArray[i], -1, attractorDist);
-      (0, _particle.attract)(midattractor, particlesArray[i], 1, attractorDist);
-      (0, _particle.attract)(rightattractor, particlesArray[i], -1, attractorDist);
+      (0, _Particle.attract)(leftattractor, particlesArray[i], -1, attractorDist);
+      (0, _Particle.attract)(midattractor, particlesArray[i], 1, attractorDist);
+      (0, _Particle.attract)(rightattractor, particlesArray[i], -1, attractorDist);
       particlesArray[i].vVector = particlesArray[i].vVector.limit(10);
-      (0, _particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
 
-      (0, _canvas.drawPoint)(context)(particlesArray[i]);
+      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
     }
 
     (0, _canvas.connectParticles)(context)(particlesArray, 50, false);
@@ -5089,7 +5231,7 @@ var threeAttractors = function threeAttractors() {
 };
 
 exports.threeAttractors = threeAttractors;
-},{"./lib/math":"scripts/lib/math.js","./lib/particle":"scripts/lib/particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"./lib/math":"scripts/lib/math.js","./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -5247,7 +5389,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53941" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54026" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

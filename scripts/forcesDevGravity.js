@@ -10,20 +10,20 @@ import {
     friction,
     drag,
     attract,
-} from './lib/particle';
+} from './lib/Particle';
 import {
     clearCanvas,
     connectParticles,
     drawMouse,
-    drawPoint,
+    drawParticlePoint,
     drawPointTrail,
     drawRotatedParticle,
     drawTestPoint,
-    drawTriangle,
+    drawTriangleFilled,
     background,
     drawRake,
     drawParticleVectors,
-    drawRect,
+    drawRectFilled,
 } from './lib/canvas';
 
 export const forcesDevGravity = () => {

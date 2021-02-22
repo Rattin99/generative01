@@ -9,23 +9,23 @@ import {
     applyForce,
     friction,
     drag,
-} from './lib/particle';
+} from './lib/Particle';
 import {
     clearCanvas,
     connectParticles,
     drawMouse,
-    drawPoint,
+    drawParticlePoint,
     drawPointTrail,
     drawRotatedParticle,
     drawTestPoint,
-    drawTriangle,
+    drawTriangleFilled,
     background,
     drawRake,
     drawParticleVectors,
-    drawRect,
+    drawRectFilled,
 } from './lib/canvas';
 import { clamp } from './lib/math';
-import { Vector } from './lib/vector';
+import { Vector } from './lib/Vector';
 
 export const forcesDev = () => {
     const config = {
@@ -61,7 +61,7 @@ export const forcesDev = () => {
 
     const draw = (canvas, context, mouse) => {
         background(canvas, context)({ r: 0, g: 0, b: 50, a: 0.5 });
-        drawRect(context)(0, canvas.height / 2, canvas.width, canvas.height / 2, 'rgba(255,255,255,.1');
+        drawRectFilled(context)(0, canvas.height / 2, canvas.width, canvas.height / 2, 'rgba(255,255,255,.1');
         for (let i = 0; i < numParticles; i++) {
             const gravity = new Vector(0, 0.25);
             const wind = new Vector(1, 0);

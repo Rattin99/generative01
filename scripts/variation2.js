@@ -1,5 +1,5 @@
-import { avoidPoint, Particle, createRandomParticleValues } from './lib/particle';
-import { clearCanvas, connectParticles, drawMouse, drawPoint } from './lib/canvas';
+import { avoidPoint, Particle, createRandomParticleValues } from './lib/Particle';
+import { clearCanvas, connectParticles, drawMouse, drawParticlePoint } from './lib/canvas';
 import { randomNumberBetween } from './lib/math';
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
@@ -45,7 +45,7 @@ export const variation2 = () => {
 
             avoidPoint(mouse, particlesArray[i]);
             // attractPoint(psMouseCoords(), particlesArray[i]);
-            drawPoint(context)(particlesArray[i]);
+            drawParticlePoint(context)(particlesArray[i]);
             // drawPointTrail(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 100);

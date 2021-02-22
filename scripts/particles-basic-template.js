@@ -6,8 +6,8 @@ import {
     updatePosWithVelocity,
     createRandomParticleValues,
     edgeWrap,
-} from './lib/particle';
-import { background, connectParticles, drawMouse, drawPoint, drawPointTrail } from './lib/canvas';
+} from './lib/Particle';
+import { background, connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from './lib/canvas';
 import { mapRange } from './lib/math';
 
 export const particleBasicTemplate = () => {
@@ -62,7 +62,7 @@ export const particleBasicTemplate = () => {
         for (let i = 0; i < numParticles; i++) {
             updatePosWithVelocity(particlesArray[i]);
             edgeWrap(canvas, particlesArray[i]);
-            drawPoint(context)(particlesArray[i]);
+            drawParticlePoint(context)(particlesArray[i]);
         }
     };
 

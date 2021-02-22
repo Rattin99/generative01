@@ -5,8 +5,8 @@ import {
     updatePosWithVelocity,
     edgeBounce,
     gravityPoint,
-} from './lib/particle';
-import { fillCanvas, connectParticles, drawMouse, drawPoint } from './lib/canvas';
+} from './lib/Particle';
+import { fillCanvas, connectParticles, drawMouse, drawParticlePoint } from './lib/canvas';
 import { mapRange, randomNumberBetween } from './lib/math';
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
@@ -43,7 +43,7 @@ export const variation6 = () => {
 
             gravityPoint()(canvas.width / 2, canvas.height, 2000, particlesArray[i]);
             // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
-            drawPoint(context)(particlesArray[i]);
+            drawParticlePoint(context)(particlesArray[i]);
         }
         // connectParticles(context)(particlesArray, 100);
         return 1;

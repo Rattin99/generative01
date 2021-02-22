@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { pointDistance, normalizeInverse, randomNumberBetween, lerp, pointAngleFromVelocity, clamp } from './math';
-import { Vector } from './vector';
+import { Vector } from './Vector';
 
 const MAX_COORD_HISTORY = 30;
 
