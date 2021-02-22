@@ -1,10 +1,9 @@
-import random from 'canvas-sketch-util/random';
-import { background, drawCircleFilled, drawQuadRectFilled, drawRoundRectFilled, drawTextFilled } from './lib/canvas';
+import { background, drawLineAngle, setStokeColor } from './lib/canvas';
 import { nicePalette } from './lib/palettes';
-import { create3dNoise, createGridPointsUV, marginify, oneOf, toSinValue } from './lib/math';
+import { create3dNoise, createGridPointsUV, marginify, oneOf, toSinValue, uvFromAngle } from './lib/math';
 import { Timeline } from './lib/Timeline';
 
-export const timebasedTemplate = () => {
+export const windLines = () => {
     const config = {
         width: 600,
         height: 600,
@@ -26,22 +25,19 @@ export const timebasedTemplate = () => {
     };
 
     const draw = (canvas, context, mouse) => {
-        background(canvas, context)('rgba(255,255,255,1');
+        background(canvas, context)('rgba(255,255,255,.1');
 
-        // drawTextFilled(context)(timeline.playhead, 25, 25, 'red');
-
-        grid.forEach(({ position, color }) => {
+        grid.forEach(({ position, rotation, color }) => {
             const [u, v] = position;
             const { x, y } = marginify({ margin: 100, u, v, width: canvas.width, height: canvas.height });
             const t = toSinValue(timeline.playhead) * 0.1;
-            const radius = create3dNoise(u, v, counter, 3 * t) * 100;
-            // drawCircleFilled(context)(x, y, radius, color);
-            drawQuadRectFilled(context)(x, y, radius, radius, color);
-            drawRoundRectFilled(context)(x, y, radius, radius, 5, color);
+            const wave = create3dNoise(u, v, counter, 3 * t) * 10;
+            const startvect = uvFromAngle((rotation + wave) * -1).setMag(25);
+            setStokeColor(context)(color);
+            drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
         });
 
         counter += 0.01;
-        // returns -1 if number of loops exceeded
         return timeline.onFrame();
     };
 

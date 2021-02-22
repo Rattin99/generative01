@@ -1,6 +1,13 @@
 import tinycolor from 'tinycolor2';
 
-import { radiansToDegrees, pointAngleFromVelocity, pointDistance, normalizeInverse, pointOnCircle } from './math';
+import {
+    radiansToDegrees,
+    pointAngleFromVelocity,
+    pointDistance,
+    normalizeInverse,
+    pointOnCircle,
+    uvFromAngle,
+} from './math';
 
 export const resizeCanvas = (canvas, width, height) => {
     canvas.width = width;
@@ -40,21 +47,23 @@ export const drawParticlePoint = (context) => ({ x, y, radius, color }) => {
     context.fill();
 };
 
-export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth) => {
+export const setStokeColor = (context) => (color) => (context.strokeStyle = tinycolor(color).toRgbString());
+
+// linecap = butt, round, square
+export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth, linecap = 'butt') => {
     context.lineWidth = strokeWidth;
+    context.lineCap = linecap;
     context.beginPath();
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);
     context.stroke();
 };
 
-export const drawThickLine = (context) => (x1, y1, x2, y2, strokeWidth) => {
-    context.lineWidth = strokeWidth;
-    context.lineCap = 'round';
-    context.beginPath();
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
+export const drawLineAngle = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
+    const vect = uvFromAngle(angle).setMag(length);
+    const x2 = x1 + vect.x;
+    const y2 = y1 + vect.y;
+    drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
 };
 
 export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
