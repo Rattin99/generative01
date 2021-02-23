@@ -9,7 +9,7 @@ import {
     applyForce,
     friction,
     drag,
-} from './lib/Particle';
+} from '../lib/Particle';
 import {
     clearCanvas,
     connectParticles,
@@ -23,9 +23,9 @@ import {
     drawRake,
     drawParticleVectors,
     drawRectFilled,
-} from './lib/canvas';
-import { clamp } from './lib/math';
-import { Vector } from './lib/Vector';
+} from '../lib/canvas';
+import { clamp } from '../lib/math';
+import { Vector } from '../lib/Vector';
 
 export const forcesDev = () => {
     const config = {

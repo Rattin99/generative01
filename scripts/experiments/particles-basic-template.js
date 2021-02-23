@@ -6,9 +6,9 @@ import {
     updatePosWithVelocity,
     createRandomParticleValues,
     edgeWrap,
-} from './lib/Particle';
-import { background, connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from './lib/canvas';
-import { mapRange } from './lib/math';
+} from '../lib/Particle';
+import { background, connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas';
+import { mapRange } from '../lib/math';
 
 export const particleBasicTemplate = () => {
     const config = {

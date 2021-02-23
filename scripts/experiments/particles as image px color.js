@@ -1,4 +1,4 @@
-import sourcePng from '../hi1.png';
+import sourcePng from '../../hi1.png';
 import {
     clearCanvas,
     drawMouse,
@@ -7,8 +7,8 @@ import {
     getImageDataFromImage,
     getImageDataColor,
     connectParticles,
-} from './lib/canvas';
-import { mapRange, randomNumberBetween, scalePointToCanvas } from './lib/math';
+} from '../lib/canvas';
+import { mapRange, randomNumberBetween, scalePointToCanvas } from '../lib/math';
 import {
     createRandomParticleValues,
     edgeBounce,
@@ -16,7 +16,7 @@ import {
     Particle,
     pointPush,
     updatePosWithVelocity,
-} from './lib/Particle';
+} from '../lib/Particle';
 
 export const hiImage01 = (_) => {
     const config = {

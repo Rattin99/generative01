@@ -1,5 +1,5 @@
-import { createRandomParticleValues, Particle, pointPush } from './lib/Particle';
-import { connectParticles, drawParticlePoint, fillCanvas } from './lib/canvas';
+import { createRandomParticleValues, Particle, pointPush } from '../lib/Particle';
+import { connectParticles, drawParticlePoint, fillCanvas } from '../lib/canvas';
 
 export const variation4 = () => {
     const config = {

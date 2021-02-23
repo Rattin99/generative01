@@ -5,9 +5,9 @@ import {
     Particle,
     updatePosWithVelocity,
     createRandomParticleValues,
-} from './lib/Particle';
-import { clearCanvas, connectParticles, drawMouse, drawParticlePoint, drawPointTrail, fillCanvas } from './lib/canvas';
-import { randomNumberBetween } from './lib/math';
+} from '../lib/Particle';
+import { clearCanvas, connectParticles, drawMouse, drawParticlePoint, drawPointTrail, fillCanvas } from '../lib/canvas';
+import { randomNumberBetween } from '../lib/math';
 
 export const variation5 = () => {
     const config = {

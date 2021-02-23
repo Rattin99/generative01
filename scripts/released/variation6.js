@@ -5,9 +5,9 @@ import {
     updatePosWithVelocity,
     edgeBounce,
     gravityPoint,
-} from './lib/Particle';
-import { fillCanvas, connectParticles, drawMouse, drawParticlePoint } from './lib/canvas';
-import { mapRange, randomNumberBetween } from './lib/math';
+} from '../lib/Particle';
+import { fillCanvas, connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas';
+import { mapRange, randomNumberBetween } from '../lib/math';
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 export const variation6 = () => {

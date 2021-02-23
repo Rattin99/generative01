@@ -1,7 +1,7 @@
-import { Particle, createRandomParticleValues, applyForce } from './lib/Particle';
-import { drawParticlePoint, background, drawPointTrail, drawCircleFilled } from './lib/canvas';
-import { clamp, mapRange, pointDistance, randomNumberBetween } from './lib/math';
-import { Vector } from './lib/Vector';
+import { Particle, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { drawParticlePoint, background, drawPointTrail, drawCircleFilled } from '../lib/canvas';
+import { clamp, mapRange, pointDistance, randomNumberBetween } from '../lib/math';
+import { Vector } from '../lib/Vector';
 
 // Based on Coding Train https://www.youtube.com/watch?v=Iaz9TqYWUmA
 // But it didn't work like his, idk the error - just making it "pretty"
@@ -16,6 +16,7 @@ class Blackhole {
         this.rs = (2 * G * this.mass) / (c * c);
     }
 
+    // Better algorithm https://youtu.be/Iaz9TqYWUmA
     pull(particle, mode) {
         const dir = this.pos.sub(new Vector(particle.x, particle.y));
         const r = dir.mag();

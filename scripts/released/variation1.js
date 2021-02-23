@@ -5,8 +5,8 @@ import {
     Particle,
     updatePosWithVelocity,
     createRandomParticleValues,
-} from './lib/Particle';
-import { clearCanvas, connectParticles, drawMouse, drawParticlePoint, drawPointTrail, fillCanvas } from './lib/canvas';
+} from '../lib/Particle';
+import { clearCanvas, connectParticles, drawMouse, drawParticlePoint, drawPointTrail, fillCanvas } from '../lib/canvas';
 
 // Based on https://www.youtube.com/watch?v=d620nV6bp0A
 export const variation1 = () => {

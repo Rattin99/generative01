@@ -1,4 +1,4 @@
-import sourcePng from '../hi1.png';
+import sourcePng from '../../hi1.png';
 import {
     clearCanvas,
     drawSquareFilled,
@@ -7,9 +7,9 @@ import {
     getImageDataColor,
     connectParticles,
     drawParticlePoint,
-} from './lib/canvas';
-import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from './lib/Particle';
-import { createGridPointsXY, createRandomNumberArray, mapRange, randomNumberBetween } from './lib/math';
+} from '../lib/canvas';
+import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from '../lib/Particle';
+import { createGridPointsXY, createRandomNumberArray, mapRange, randomNumberBetween } from '../lib/math';
 
 export const hiImage01 = (_) => {
     const config = {

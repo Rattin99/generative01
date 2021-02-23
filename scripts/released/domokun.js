@@ -1,4 +1,4 @@
-import domokunPng from '../domokun.png';
+import domokunPng from '../../domokun.png';
 import {
     clearCanvas,
     drawMouse,
@@ -6,9 +6,9 @@ import {
     background,
     getImageDataFromImage,
     getImageDataColor,
-} from './lib/canvas';
-import { randomNumberBetween, scalePointToCanvas } from './lib/math';
-import { Particle, pointPush } from './lib/Particle';
+} from '../lib/canvas';
+import { randomNumberBetween, scalePointToCanvas } from '../lib/math';
+import { Particle, pointPush } from '../lib/Particle';
 
 // Based on https://www.youtube.com/watch?v=afdHgwn1XCY
 export const domokun = (_) => {

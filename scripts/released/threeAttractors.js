@@ -1,4 +1,4 @@
-import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPointsXY, mapRange } from './lib/math';
+import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPointsXY, mapRange } from '../lib/math';
 import {
     attractPoint,
     avoidPoint,
@@ -8,7 +8,7 @@ import {
     createRandomParticleValues,
     edgeWrap,
     attract,
-} from './lib/Particle';
+} from '../lib/Particle';
 import {
     background,
     clearCanvas,
@@ -20,7 +20,7 @@ import {
     fillCanvas,
     drawSpikeCircle,
     drawAttractor,
-} from './lib/canvas';
+} from '../lib/canvas';
 
 export const threeAttractors = () => {
     const config = {

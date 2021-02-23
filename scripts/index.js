@@ -6,20 +6,20 @@ import normliaze from 'normalize.css';
 
 import { sketch } from './lib/sketch';
 import { getRandomSeed } from './lib/math';
-import { forcesDev } from './forcesDev';
-import { forcesDevGravity } from './forcesDevGravity';
-import { testGrid } from './test-grid';
-import { blackhole } from './blackhole';
-import { windLines } from './windLines';
-import { hiImage01 } from './hiImage01';
-import { variation1 } from './variation1';
-import { variation2 } from './variation2';
-import { domokun } from './domokun';
-import { variation4 } from './variation4';
-import { variation5 } from './variation5';
-import { variation6 } from './variation6';
-import { rainbowRakeOrbit } from './rainbow-rake-orbit-mouse';
-import { threeAttractors } from './threeAttractors';
+import { forcesDev } from './experiments/forcesDev';
+import { forcesDevGravity } from './experiments/forcesDevGravity';
+import { testGrid } from './experiments/test-grid';
+import { blackhole } from './experiments/blackhole';
+import { windLines } from './released/windLines';
+import { hiImage01 } from './released/hiImage01';
+import { variation1 } from './released/variation1';
+import { variation2 } from './released/variation2';
+import { domokun } from './released/domokun';
+import { variation4 } from './released/variation4';
+import { variation5 } from './released/variation5';
+import { variation6 } from './released/variation6';
+import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
+import { threeAttractors } from './released/threeAttractors';
 
 const s = sketch();
 

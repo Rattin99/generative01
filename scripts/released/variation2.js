@@ -1,6 +1,6 @@
-import { avoidPoint, Particle, createRandomParticleValues } from './lib/Particle';
-import { clearCanvas, connectParticles, drawMouse, drawParticlePoint } from './lib/canvas';
-import { randomNumberBetween } from './lib/math';
+import { avoidPoint, Particle, createRandomParticleValues } from '../lib/Particle';
+import { clearCanvas, connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas';
+import { randomNumberBetween } from '../lib/math';
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 export const variation2 = () => {
