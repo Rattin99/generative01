@@ -9,6 +9,7 @@ import { getRandomSeed } from './lib/math';
 import { forcesDev } from './forcesDev';
 import { forcesDevGravity } from './forcesDevGravity';
 import { testGrid } from './test-grid';
+import { blackhole } from './blackhole';
 import { windLines } from './windLines';
 import { hiImage01 } from './hiImage01';
 import { variation1 } from './variation1';
@@ -22,7 +23,7 @@ import { threeAttractors } from './threeAttractors';
 
 const s = sketch();
 
-const DEBUG = false;
+const DEBUG = true;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -110,5 +111,5 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 if (DEBUG) {
     // s.run(forcesDev());
     // s.run(testGrid());
-    s.run(windLines());
+    s.run(blackhole());
 }
