@@ -34,6 +34,22 @@ export const oneOf = (arry) => {
     return arry[i];
 };
 
+export const lowest = (arry) =>
+    arry.reduce((acc, v) => {
+        if (v < acc) {
+            acc = v;
+        }
+        return acc;
+    }, 0);
+
+export const highest = (arry) =>
+    arry.reduce((acc, v) => {
+        if (v > acc) {
+            acc = v;
+        }
+        return acc;
+    }, 0);
+
 export const createRandomNumberArray = (len, min, max) =>
     Array.from(new Array(len)).map(() => randomNumberBetween(min, max));
 

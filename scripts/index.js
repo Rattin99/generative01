@@ -24,7 +24,7 @@ import { threeAttractors } from './released/threeAttractors';
 
 const s = sketch();
 
-const DEBUG = true;
+const DEBUG = false;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -56,7 +56,7 @@ const getQueryVariable = (variable) => {
 };
 
 let variationKey = getQueryVariable('variation');
-variationKey = variationKey || '1';
+variationKey = variationKey || '11';
 
 const variations = {
     1: {
@@ -98,6 +98,10 @@ const variations = {
     10: {
         note: 'In the breeze',
         sketch: windLines,
+    },
+    11: {
+        note: 'Inspired by Churn, Kenny Vaden https://www.reddit.com/r/generative/comments/lq8r11/churn_r_code/',
+        sketch: waves01,
     },
 };
 

@@ -1,5 +1,8 @@
+import tinycolor from 'tinycolor2';
 import * as nicepalettes from 'nice-color-palettes';
 import { oneOf } from './math';
+
+export const asTinyColor = (arry) => arry.map((c) => tinycolor(c));
 
 export const palettes = {
     pop: ['#ed3441', '#ffd630', '#329fe3', '#154296', '#ffffff', '#303030'],
@@ -9,6 +12,14 @@ export const palettes = {
     '90s': ['#42C8B0', '#4575F3', '#6933B0', '#D36F88', '#FC8D45'],
     retro_sunset: ['#FFD319', '#FF2975', '#F222FF', '#8C1EFF', '#FF901F'],
     vapor_wave: ['#F6A3EF', '#50D8EC', '#DD6DFB', '#EECD69', '#6FEAE6'],
+    // https://www.colourlovers.com/palette/694737/Thought_Provoking
+    thought_provoking: [
+        'hsl(46, 75%, 70%)',
+        'hsl(10, 66%, 56%)',
+        'hsl(350, 65%, 46%)',
+        'hsl(336, 40%, 24%)',
+        'hsl(185, 19%, 40%)',
+    ],
 };
 
 export const nicePalette = (_) => nicepalettes[oneOf(Object.keys(nicepalettes))];
