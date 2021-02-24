@@ -13,6 +13,12 @@ const limitArrayLen = (arr) => {
 };
 
 export class Particle {
+    #x;
+
+    #y;
+
+    #color;
+
     constructor(values) {
         this.initValues(values);
     }
@@ -38,8 +44,8 @@ export class Particle {
     }) {
         this.props = rest;
         this.index = index || 0;
-        this._x = x || 0;
-        this._y = y || 0;
+        this.#x = x || 0;
+        this.#y = y || 0;
         this.xHistory = [x];
         this.yHistory = [y];
         this.oX = x || this.oX;
@@ -52,12 +58,12 @@ export class Particle {
         // this.oVelocityY = velocityY || 0;
         this.mass = mass || 1;
         this.radius = radius || 1;
-        this._color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
+        this.#color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
         this.rotation = rotation || 0;
         this.lifetime = lifetime || 1;
         this.drawFn = drawFn;
         this.updateFn = updateFn;
-        // always return a string
+        // must always return a string
         this.colorFn = colorFn;
     }
 
@@ -65,26 +71,31 @@ export class Particle {
         if (this.colorFn) {
             return tinycolor(this.colorFn(this));
         }
-        return this._color;
+        return this.#color;
     }
 
     set color(value) {
-        this._color = tinycolor(value);
+        this.#color = tinycolor(value);
     }
 
     get colorStr() {
         if (this.colorFn) {
-            return this.colorFn(this);
+            const res = this.colorFn(this);
+            if (typeof res !== 'string') {
+                console.warn('Particle color fn must return a string!');
+                return '#ff0000';
+            }
+            return res;
         }
-        return this._color.toRgbString();
+        return this.#color.toRgbString();
     }
 
     get x() {
-        return this._x;
+        return this.#x;
     }
 
     set x(value) {
-        this._x = value;
+        this.#x = value;
         this.xHistory.unshift(value);
         if (this.xHistory.length > MAX_COORD_HISTORY) {
             this.xHistory = this.xHistory.slice(0, MAX_COORD_HISTORY);
@@ -92,11 +103,11 @@ export class Particle {
     }
 
     get y() {
-        return this._y;
+        return this.#y;
     }
 
     set y(value) {
-        this._y = value;
+        this.#y = value;
         this.yHistory.unshift(value);
         if (this.yHistory.length > MAX_COORD_HISTORY) {
             this.yHistory = this.yHistory.slice(0, MAX_COORD_HISTORY);

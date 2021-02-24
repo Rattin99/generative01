@@ -9,19 +9,24 @@ export class Timeline {
         this.loop = loop || 0; // total loops
         this.duration = duration || 1; // duration of each loop in seconds
         this.totalLoopFrames = this.duration ? this.duration * this.fps : 1;
-        this.drawLoopIterations = 0; // number of times drawn
+        this.iterations = 0; // number of times drawn
         this.time = 0; // elapsed time in seconds
         this.playhead = 0; // current progress of the loop between 0 and 1
         this.frame = 1; // frame of the loop
         this.elapsedLoops = 0;
+        this.startTime = Date.now();
+    }
+
+    get elapsed() {
+        return Date.now() - this.startTime;
     }
 
     onFrame() {
-        this.drawLoopIterations++;
+        this.iterations++;
         // one frame
         this.frame++;
         this.playhead = this.frame / this.totalLoopFrames;
-        if (this.drawLoopIterations % this.fps === 0) {
+        if (this.iterations % this.fps === 0) {
             // a second elapsed
             this.time++;
             if (this.frame >= this.totalLoopFrames) {

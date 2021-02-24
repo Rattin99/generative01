@@ -10,6 +10,7 @@ import { forcesDev } from './experiments/forcesDev';
 import { forcesDevGravity } from './experiments/forcesDevGravity';
 import { testGrid } from './experiments/test-grid';
 import { blackhole } from './experiments/blackhole';
+import { waves01 } from './experiments/waves01';
 import { windLines } from './released/windLines';
 import { hiImage01 } from './released/hiImage01';
 import { variation1 } from './released/variation1';
@@ -111,5 +112,6 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 if (DEBUG) {
     // s.run(forcesDev());
     // s.run(testGrid());
-    s.run(blackhole());
+    // s.run(blackhole());
+    s.run(waves01());
 }

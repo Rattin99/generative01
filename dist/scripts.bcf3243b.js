@@ -3586,6 +3586,10 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to get private field on non-instance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to set private field on non-instance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
+
 var MAX_COORD_HISTORY = 30;
 
 var limitArrayLen = function limitArrayLen(arr) {
@@ -3598,9 +3602,30 @@ var limitArrayLen = function limitArrayLen(arr) {
   return arr;
 };
 
+var _x = new WeakMap();
+
+var _y = new WeakMap();
+
+var _color = new WeakMap();
+
 var Particle = /*#__PURE__*/function () {
   function Particle(values) {
     _classCallCheck(this, Particle);
+
+    _x.set(this, {
+      writable: true,
+      value: void 0
+    });
+
+    _y.set(this, {
+      writable: true,
+      value: void 0
+    });
+
+    _color.set(this, {
+      writable: true,
+      value: void 0
+    });
 
     this.initValues(values);
   }
@@ -3628,8 +3653,11 @@ var Particle = /*#__PURE__*/function () {
 
       this.props = rest;
       this.index = index || 0;
-      this._x = x || 0;
-      this._y = y || 0;
+
+      _classPrivateFieldSet(this, _x, x || 0);
+
+      _classPrivateFieldSet(this, _y, y || 0);
+
       this.xHistory = [x];
       this.yHistory = [y];
       this.oX = x || this.oX;
@@ -3642,15 +3670,17 @@ var Particle = /*#__PURE__*/function () {
 
       this.mass = mass || 1;
       this.radius = radius || 1;
-      this._color = color ? (0, _tinycolor.default)(color) : (0, _tinycolor.default)({
+
+      _classPrivateFieldSet(this, _color, color ? (0, _tinycolor.default)(color) : (0, _tinycolor.default)({
         r: 255,
         g: 255,
         b: 255
-      });
+      }));
+
       this.rotation = rotation || 0;
       this.lifetime = lifetime || 1;
       this.drawFn = drawFn;
-      this.updateFn = updateFn; // always return a string
+      this.updateFn = updateFn; // must always return a string
 
       this.colorFn = colorFn;
     }
@@ -3672,27 +3702,35 @@ var Particle = /*#__PURE__*/function () {
         return (0, _tinycolor.default)(this.colorFn(this));
       }
 
-      return this._color;
+      return _classPrivateFieldGet(this, _color);
     },
     set: function set(value) {
-      this._color = (0, _tinycolor.default)(value);
+      _classPrivateFieldSet(this, _color, (0, _tinycolor.default)(value));
     }
   }, {
     key: "colorStr",
     get: function get() {
       if (this.colorFn) {
-        return this.colorFn(this);
+        var res = this.colorFn(this);
+
+        if (typeof res !== 'string') {
+          console.warn('Particle color fn must return a string!');
+          return '#ff0000';
+        }
+
+        return res;
       }
 
-      return this._color.toRgbString();
+      return _classPrivateFieldGet(this, _color).toRgbString();
     }
   }, {
     key: "x",
     get: function get() {
-      return this._x;
+      return _classPrivateFieldGet(this, _x);
     },
     set: function set(value) {
-      this._x = value;
+      _classPrivateFieldSet(this, _x, value);
+
       this.xHistory.unshift(value);
 
       if (this.xHistory.length > MAX_COORD_HISTORY) {
@@ -3702,10 +3740,11 @@ var Particle = /*#__PURE__*/function () {
   }, {
     key: "y",
     get: function get() {
-      return this._y;
+      return _classPrivateFieldGet(this, _y);
     },
     set: function set(value) {
-      this._y = value;
+      _classPrivateFieldSet(this, _y, value);
+
       this.yHistory.unshift(value);
 
       if (this.yHistory.length > MAX_COORD_HISTORY) {
@@ -3983,7 +4022,7 @@ var pointPush = function pointPush(point, particle) {
 };
 
 exports.pointPush = pointPush;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./Vector":"scripts/lib/Vector.js"}],"scripts/forcesDev.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./Vector":"scripts/lib/Vector.js"}],"scripts/experiments/forcesDev.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3991,13 +4030,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.forcesDev = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
-var _Vector = require("./lib/Vector");
+var _Vector = require("../lib/Vector");
 
 var forcesDev = function forcesDev() {
   var config = {
@@ -4075,7 +4114,7 @@ var forcesDev = function forcesDev() {
 };
 
 exports.forcesDev = forcesDev;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/Vector":"scripts/lib/Vector.js"}],"scripts/forcesDevGravity.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/Vector":"scripts/lib/Vector.js"}],"scripts/experiments/forcesDevGravity.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4083,9 +4122,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.forcesDevGravity = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
 var forcesDevGravity = function forcesDevGravity() {
   var config = {// width: 700,
@@ -4168,7 +4207,7 @@ var forcesDevGravity = function forcesDevGravity() {
 };
 
 exports.forcesDevGravity = forcesDevGravity;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/test-grid.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/experiments/test-grid.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4176,11 +4215,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.testGrid = void 0;
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
 var testGrid = function testGrid() {
   var config = {// width: 500,
@@ -4282,7 +4321,7 @@ var testGrid = function testGrid() {
 };
 
 exports.testGrid = testGrid;
-},{"./lib/math":"scripts/lib/math.js","./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/blackhole.js":[function(require,module,exports) {
+},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/experiments/blackhole.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4290,13 +4329,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.blackhole = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
-var _Vector = require("./lib/Vector");
+var _Vector = require("../lib/Vector");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -4316,7 +4355,8 @@ var Blackhole = /*#__PURE__*/function () {
     this.pos = new _Vector.Vector(x, y);
     this.mass = m;
     this.rs = 2 * G * this.mass / (c * c);
-  }
+  } // Better algorithm https://youtu.be/Iaz9TqYWUmA
+
 
   _createClass(Blackhole, [{
     key: "pull",
@@ -4431,7 +4471,7 @@ var blackhole = function blackhole() {
 };
 
 exports.blackhole = blackhole;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/Vector":"scripts/lib/Vector.js"}],"node_modules/nice-color-palettes/100.json":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/Vector":"scripts/lib/Vector.js"}],"node_modules/nice-color-palettes/100.json":[function(require,module,exports) {
 module.exports = [["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#300030","#480048","#601848","#c04848","#f07241"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#73c8a9","#dee1b6","#e1b866","#bd5532","#373b44"],["#805841","#dcf7f3","#fffcdd","#ffd8d8","#f5a2a2"]];
 },{}],"scripts/lib/palettes.js":[function(require,module,exports) {
 "use strict";
@@ -4499,7 +4539,7 @@ var Timeline = /*#__PURE__*/function () {
     this.duration = duration || 1; // duration of each loop in seconds
 
     this.totalLoopFrames = this.duration ? this.duration * this.fps : 1;
-    this.drawLoopIterations = 0; // number of times drawn
+    this.iterations = 0; // number of times drawn
 
     this.time = 0; // elapsed time in seconds
 
@@ -4508,17 +4548,18 @@ var Timeline = /*#__PURE__*/function () {
     this.frame = 1; // frame of the loop
 
     this.elapsedLoops = 0;
+    this.startTime = Date.now();
   }
 
   _createClass(Timeline, [{
     key: "onFrame",
     value: function onFrame() {
-      this.drawLoopIterations++; // one frame
+      this.iterations++; // one frame
 
       this.frame++;
       this.playhead = this.frame / this.totalLoopFrames;
 
-      if (this.drawLoopIterations % this.fps === 0) {
+      if (this.iterations % this.fps === 0) {
         // a second elapsed
         this.time++;
 
@@ -4537,13 +4578,232 @@ var Timeline = /*#__PURE__*/function () {
 
       return 1;
     }
+  }, {
+    key: "elapsed",
+    get: function get() {
+      return Date.now() - this.startTime;
+    }
   }]);
 
   return Timeline;
 }();
 
 exports.Timeline = Timeline;
-},{}],"scripts/windLines.js":[function(require,module,exports) {
+},{}],"scripts/experiments/waves01.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.waves01 = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _canvas = require("../lib/canvas");
+
+var _palettes = require("../lib/palettes");
+
+var _math = require("../lib/math");
+
+var _Timeline = require("../lib/Timeline");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+Original inspiration https://www.reddit.com/r/generative/comments/lq8r11/churn_r_code/
+ */
+// period == freqency, phase = angle
+// sin((phase + (Math.PI*2) + x) / period) * ampilitude;
+// const theta = (angle + Math.PI * 2 + i) / frequency;
+var createWave = function createWave(width, angle, frequency, amplitude) {
+  var cosOffset = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+  var wave = [];
+  var cfrequency = frequency + cosOffset / 2;
+  var camplitude = amplitude / cosOffset;
+
+  for (var i = 0; i < width; i++) {
+    var s = Math.sin((angle + Math.PI * 2 + i) / frequency) * amplitude;
+    var c = 0; // Math.cos((angle + Math.PI * 2 + i) / cfrequency) * camplitude;
+
+    var z = Math.sin((angle + 90 + Math.PI * 2 + i) / (frequency * cosOffset)) * (amplitude * cosOffset * 0.5);
+    wave.push(s + c - z);
+  }
+
+  return wave;
+};
+
+var lowest = function lowest(arry) {
+  return arry.reduce(function (acc, v) {
+    if (v < acc) {
+      acc = v;
+    }
+
+    return acc;
+  }, 0);
+};
+
+var highest = function highest(arry) {
+  return arry.reduce(function (acc, v) {
+    if (v > acc) {
+      acc = v;
+    }
+
+    return acc;
+  }, 0);
+}; // get the lowest of top and the highest of bottom, height+=that difference
+
+
+var drawWaveLine = function drawWaveLine(context) {
+  return function (startx, endx, yorigin, height, topWave, bottomWave, color) {
+    var dots = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : true;
+    var currentX = startx;
+    var currentY = yorigin;
+    var highestTop = lowest(topWave);
+    var lineheight = highest(bottomWave) - lowest(topWave) + height;
+    var gradient = context.createLinearGradient(0, yorigin, 0, yorigin + lineheight);
+    gradient.addColorStop(0, (0, _tinycolor.default)(color).toRgbString());
+    gradient.addColorStop(1, (0, _tinycolor.default)(color).darken(20).toRgbString());
+    context.strokeStyle = (0, _tinycolor.default)(color).darken(70).toRgbString();
+    context.lineWidth = 0.75;
+    context.beginPath();
+    context.moveTo(startx, currentY);
+    var xstep = (endx - startx) / topWave.length + 1;
+    topWave.forEach(function (w) {
+      context.lineTo(currentX, w + currentY);
+      currentX += xstep;
+    });
+    currentY += lineheight;
+    context.lineTo(currentX, currentY);
+    xstep = (endx - startx) / bottomWave.length + 1;
+    bottomWave.forEach(function (w) {
+      context.lineTo(currentX, w + currentY);
+      currentX -= xstep;
+    });
+    context.lineTo(startx, currentY);
+
+    if (dots) {
+      context.stroke();
+      context.fillStyle = gradient;
+    } else {
+      context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    }
+
+    context.fill();
+
+    if (dots) {
+      currentX = startx;
+      currentY = yorigin;
+      xstep = (endx - startx) / topWave.length + 1;
+      topWave.forEach(function (w) {
+        if (true || w <= highestTop * 0.5) {
+          if ((0, _math.randomNumberBetween)(0, 100) < 2) {
+            // context.strokeStyle = tinycolor(color).darken(20).toRgbString();
+            // context.lineWidth = 0.5;
+            context.beginPath();
+            context.arc(currentX + (0, _math.randomNumberBetween)(-30, 30), w + currentY - (0, _math.randomNumberBetween)(5, 30), 2, 0, Math.PI * 2, false); // context.fillStyle = tinycolor(color).lighten(10).toRgbString();
+
+            context.fill();
+            context.stroke();
+          }
+        }
+
+        currentX += xstep;
+      });
+    }
+  };
+};
+
+var waves01 = function waves01() {
+  var config = {// width: 900,
+    // height: 800,
+  };
+  var canvasHeight;
+  var canvasMiddle;
+  var topColor = '#BF1F3C';
+  var bottomColor = '#A0E3F2';
+  var timeline = new _Timeline.Timeline(config.fps, 0, 5);
+  var waveResolution = 200;
+  var lineHeight = 50;
+  var yIncrement = 1;
+  var currentY;
+  var maxY;
+  var topwave;
+  var bottomwave;
+  var angle = 90;
+  var frequency = 10;
+  var amplitude = 10;
+  var cosOffset = 0;
+
+  var createWaves = function createWaves() {
+    var distFromCenter = (0, _math.pointDistance)({
+      x: 0,
+      y: currentY
+    }, {
+      x: 0,
+      y: canvasMiddle
+    }); // mapRange(0, canvasMiddle, 0.1, 0.5, distFromCenter);
+    // angle = 90 + randomNumberBetween(-5, 5);
+    // angle += randomNumberBetween(-1, 1);
+
+    angle = (0, _math.mapRange)(0, canvasMiddle, 0, 360, distFromCenter);
+    frequency = (0, _math.mapRange)(0, canvasMiddle, 10, 2, distFromCenter); // - randomNumberBetween(0, 1);
+
+    amplitude = (0, _math.mapRange)(0, canvasMiddle, 1, 10, distFromCenter) + (0, _math.randomNumberBetween)(10, 20);
+    cosOffset = (0, _math.randomNumberBetween)(1, 5);
+    topwave = createWave(waveResolution, angle, frequency, amplitude, cosOffset);
+    bottomwave = createWave(waveResolution, angle, frequency, amplitude, cosOffset);
+  };
+
+  var setup = function setup(canvas, context) {
+    canvasHeight = canvas.height;
+    canvasMiddle = canvas.height / 2;
+    currentY = 100;
+    maxY = canvas.height - currentY - lineHeight;
+    createWaves();
+    (0, _canvas.background)(canvas, context)('rgba(255,255,255,1');
+  };
+
+  var draw = function draw(canvas, context, mouse) {
+    var distFromCenter = (0, _math.pointDistance)({
+      x: 0,
+      y: currentY
+    }, {
+      x: 0,
+      y: canvasMiddle
+    }); // const h = mapRange(0, canvasHeight, 160, 200, currentY);
+    // const s = randomNumberBetween(50, 100);
+    // const l = mapRange(0, canvasMiddle, 50, 0, distFromCenter) - randomNumberBetween(-10, 20);
+    // const a = 1;
+    // const color = `hsla(${h},${s}%,${l}%,${a})`;
+
+    var color = _tinycolor.default.mix(topColor, bottomColor, (0, _math.mapRange)(0, canvasHeight, 0, 100, currentY));
+
+    color.spin((0, _math.mapRange)(0, canvasMiddle / 2, 90, 0, distFromCenter));
+    color.brighten((0, _math.mapRange)(0, canvasMiddle / 2, 20, 0, distFromCenter));
+    color.darken((0, _math.mapRange)(0, canvasMiddle, 0, 50, distFromCenter) + (0, _math.randomNumberBetween)(0, 30));
+    drawWaveLine(context)(0, canvas.width, currentY, lineHeight, topwave, bottomwave, color, true);
+    currentY += yIncrement;
+    createWaves();
+
+    if (currentY > maxY) {
+      // final white lines at top and bottom to clean up edges
+      drawWaveLine(context)(0, canvas.width, currentY + lineHeight, 200, topwave, [0], 'white', false);
+      drawWaveLine(context)(0, canvas.width, -100, 100, topwave, bottomwave, 'white', false);
+      return -1;
+    }
+
+    return timeline.onFrame();
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
+};
+
+exports.waves01 = waves01;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/palettes":"scripts/lib/palettes.js","../lib/math":"scripts/lib/math.js","../lib/Timeline":"scripts/lib/Timeline.js"}],"scripts/released/windLines.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4551,13 +4811,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.windLines = void 0;
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _palettes = require("./lib/palettes");
+var _palettes = require("../lib/palettes");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
-var _Timeline = require("./lib/Timeline");
+var _Timeline = require("../lib/Timeline");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -4629,9 +4889,9 @@ var windLines = function windLines() {
 };
 
 exports.windLines = windLines;
-},{"./lib/canvas":"scripts/lib/canvas.js","./lib/palettes":"scripts/lib/palettes.js","./lib/math":"scripts/lib/math.js","./lib/Timeline":"scripts/lib/Timeline.js"}],"hi1.png":[function(require,module,exports) {
+},{"../lib/canvas":"scripts/lib/canvas.js","../lib/palettes":"scripts/lib/palettes.js","../lib/math":"scripts/lib/math.js","../lib/Timeline":"scripts/lib/Timeline.js"}],"hi1.png":[function(require,module,exports) {
 module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAIAAAD2HxkiAAAACXBIWXMAAAsTAAALEwEAmpwYAAALImlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDYgNzkuMTY0NjQ4LCAyMDIxLzAxLzEyLTE1OjUyOjI5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjIuMiAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjEtMDItMThUMDg6MzY6NDEtMDU6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIxLTAyLTE4VDE1OjM4OjUwLTA1OjAwIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjIwYjRjZTFjLWNkNjgtNDY0Mi05MDEzLWRmODI4MDkxZDgzMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmUxMjY0ODcyLThjYjMtYjY0MS1hODcxLWQyZmVjNzM5ZmMwMiIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmYyODI4NWFlLTMwNmItNDkwYy1iOTg3LTg1NDg3NDRiYmFiNCIgdGlmZjpPcmllbnRhdGlvbj0iMSIgdGlmZjpYUmVzb2x1dGlvbj0iNzIwMDAwLzEwMDAwIiB0aWZmOllSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiIGV4aWY6Q29sb3JTcGFjZT0iMSIgZXhpZjpQaXhlbFhEaW1lbnNpb249IjEwMCIgZXhpZjpQaXhlbFlEaW1lbnNpb249IjEwMCI+IDxwaG90b3Nob3A6VGV4dExheWVycz4gPHJkZjpCYWc+IDxyZGY6bGkgcGhvdG9zaG9wOkxheWVyTmFtZT0iSGkiIHBob3Rvc2hvcDpMYXllclRleHQ9IkhpIi8+IDwvcmRmOkJhZz4gPC9waG90b3Nob3A6VGV4dExheWVycz4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpmMjgyODVhZS0zMDZiLTQ5MGMtYjk4Ny04NTQ4NzQ0YmJhYjQiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMDg6MzY6NDEtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpkMDFhMjJkOC1mNGVlLTQ5YzEtYTFhZC1jYzA4MTU4NTM3MDUiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6MjYtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpiMjAyYTRkZC0yYjk5LTQxMDQtOGVkNC03MDUxZTE0MjgwMWIiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vdm5kLmFkb2JlLnBob3Rvc2hvcCB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImRlcml2ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImNvbnZlcnRlZCBmcm9tIGFwcGxpY2F0aW9uL3ZuZC5hZG9iZS5waG90b3Nob3AgdG8gaW1hZ2UvcG5nIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyMGI0Y2UxYy1jZDY4LTQ2NDItOTAxMy1kZjgyODA5MWQ4MzAiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpiMjAyYTRkZC0yYjk5LTQxMDQtOGVkNC03MDUxZTE0MjgwMWIiIHN0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";
-},{}],"scripts/hiImage01.js":[function(require,module,exports) {
+},{}],"scripts/released/hiImage01.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4639,13 +4899,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.hiImage01 = void 0;
 
-var _hi = _interopRequireDefault(require("../hi1.png"));
+var _hi = _interopRequireDefault(require("../../hi1.png"));
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4754,7 +5014,7 @@ var hiImage01 = function hiImage01(_) {
 };
 
 exports.hiImage01 = hiImage01;
-},{"../hi1.png":"hi1.png","./lib/canvas":"scripts/lib/canvas.js","./lib/Particle":"scripts/lib/Particle.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation1.js":[function(require,module,exports) {
+},{"../../hi1.png":"hi1.png","../lib/canvas":"scripts/lib/canvas.js","../lib/Particle":"scripts/lib/Particle.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/variation1.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4762,9 +5022,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation1 = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
 // Based on https://www.youtube.com/watch?v=d620nV6bp0A
 var variation1 = function variation1() {
@@ -4813,7 +5073,7 @@ var variation1 = function variation1() {
 };
 
 exports.variation1 = variation1;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation2.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/released/variation2.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4821,11 +5081,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation2 = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 var variation2 = function variation2() {
@@ -4885,9 +5145,9 @@ var variation2 = function variation2() {
 };
 
 exports.variation2 = variation2;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"domokun.png":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"domokun.png":[function(require,module,exports) {
 module.exports = "/domokun.0afe23b8.png";
-},{}],"scripts/domokun.js":[function(require,module,exports) {
+},{}],"scripts/released/domokun.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4895,13 +5155,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.domokun = void 0;
 
-var _domokun = _interopRequireDefault(require("../domokun.png"));
+var _domokun = _interopRequireDefault(require("../../domokun.png"));
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4967,7 +5227,7 @@ var domokun = function domokun(_) {
 };
 
 exports.domokun = domokun;
-},{"../domokun.png":"domokun.png","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js","./lib/Particle":"scripts/lib/Particle.js"}],"scripts/variation4.js":[function(require,module,exports) {
+},{"../../domokun.png":"domokun.png","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js"}],"scripts/released/variation4.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4975,9 +5235,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation4 = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
 var variation4 = function variation4() {
   var config = {
@@ -5041,7 +5301,7 @@ var variation4 = function variation4() {
 };
 
 exports.variation4 = variation4;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/variation5.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/released/variation5.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5049,11 +5309,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation5 = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
 var variation5 = function variation5() {
   var config = {
@@ -5119,7 +5379,7 @@ var variation5 = function variation5() {
 };
 
 exports.variation5 = variation5;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/variation6.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/variation6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5127,11 +5387,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation6 = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 var variation6 = function variation6() {
@@ -5187,7 +5447,7 @@ var variation6 = function variation6() {
 };
 
 exports.variation6 = variation6;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js","./lib/math":"scripts/lib/math.js"}],"scripts/rainbow-rake-orbit-mouse.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/rainbow-rake-orbit-mouse.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5195,9 +5455,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.rainbowRakeOrbit = void 0;
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
 var rainbowRakeOrbit = function rainbowRakeOrbit() {
   var config = {// width: 700,
@@ -5281,7 +5541,7 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
 };
 
 exports.rainbowRakeOrbit = rainbowRakeOrbit;
-},{"./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/threeAttractors.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/released/threeAttractors.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5289,11 +5549,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.threeAttractors = void 0;
 
-var _math = require("./lib/math");
+var _math = require("../lib/math");
 
-var _Particle = require("./lib/Particle");
+var _Particle = require("../lib/Particle");
 
-var _canvas = require("./lib/canvas");
+var _canvas = require("../lib/canvas");
 
 var threeAttractors = function threeAttractors() {
   var config = {// width: 500,
@@ -5384,7 +5644,7 @@ var threeAttractors = function threeAttractors() {
 };
 
 exports.threeAttractors = threeAttractors;
-},{"./lib/math":"scripts/lib/math.js","./lib/Particle":"scripts/lib/Particle.js","./lib/canvas":"scripts/lib/canvas.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -5393,33 +5653,35 @@ var _sketch = require("./lib/sketch");
 
 var _math = require("./lib/math");
 
-var _forcesDev = require("./forcesDev");
+var _forcesDev = require("./experiments/forcesDev");
 
-var _forcesDevGravity = require("./forcesDevGravity");
+var _forcesDevGravity = require("./experiments/forcesDevGravity");
 
-var _testGrid = require("./test-grid");
+var _testGrid = require("./experiments/test-grid");
 
-var _blackhole = require("./blackhole");
+var _blackhole = require("./experiments/blackhole");
 
-var _windLines = require("./windLines");
+var _waves = require("./experiments/waves01");
 
-var _hiImage = require("./hiImage01");
+var _windLines = require("./released/windLines");
 
-var _variation = require("./variation1");
+var _hiImage = require("./released/hiImage01");
 
-var _variation2 = require("./variation2");
+var _variation = require("./released/variation1");
 
-var _domokun = require("./domokun");
+var _variation2 = require("./released/variation2");
 
-var _variation3 = require("./variation4");
+var _domokun = require("./released/domokun");
 
-var _variation4 = require("./variation5");
+var _variation3 = require("./released/variation4");
 
-var _variation5 = require("./variation6");
+var _variation4 = require("./released/variation5");
 
-var _rainbowRakeOrbitMouse = require("./rainbow-rake-orbit-mouse");
+var _variation5 = require("./released/variation6");
 
-var _threeAttractors = require("./threeAttractors");
+var _rainbowRakeOrbitMouse = require("./released/rainbow-rake-orbit-mouse");
+
+var _threeAttractors = require("./released/threeAttractors");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5518,9 +5780,10 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 if (DEBUG) {
   // s.run(forcesDev());
   // s.run(testGrid());
-  s.run((0, _blackhole.blackhole)());
+  // s.run(blackhole());
+  s.run((0, _waves.waves01)());
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./lib/math":"scripts/lib/math.js","./forcesDev":"scripts/forcesDev.js","./forcesDevGravity":"scripts/forcesDevGravity.js","./test-grid":"scripts/test-grid.js","./blackhole":"scripts/blackhole.js","./windLines":"scripts/windLines.js","./hiImage01":"scripts/hiImage01.js","./variation1":"scripts/variation1.js","./variation2":"scripts/variation2.js","./domokun":"scripts/domokun.js","./variation4":"scripts/variation4.js","./variation5":"scripts/variation5.js","./variation6":"scripts/variation6.js","./rainbow-rake-orbit-mouse":"scripts/rainbow-rake-orbit-mouse.js","./threeAttractors":"scripts/threeAttractors.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./lib/math":"scripts/lib/math.js","./experiments/forcesDev":"scripts/experiments/forcesDev.js","./experiments/forcesDevGravity":"scripts/experiments/forcesDevGravity.js","./experiments/test-grid":"scripts/experiments/test-grid.js","./experiments/blackhole":"scripts/experiments/blackhole.js","./experiments/waves01":"scripts/experiments/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -5548,7 +5811,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58358" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63423" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
