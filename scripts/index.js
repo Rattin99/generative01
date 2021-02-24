@@ -6,10 +6,13 @@ import normliaze from 'normalize.css';
 
 import { sketch } from './lib/sketch';
 import { getRandomSeed } from './lib/math';
-import { forcesDev } from './experiments/forcesDev';
-import { forcesDevGravity } from './experiments/forcesDevGravity';
-import { testGrid } from './experiments/test-grid';
-import { blackhole } from './experiments/blackhole';
+// import { forcesDev } from './experiments/forcesDev';
+// import { forcesDevGravity } from './experiments/forcesDevGravity';
+// import { testGrid } from './experiments/test-grid';
+// import { blackhole } from './experiments/blackhole';
+// import { parametric01 } from './experiments/parametric01';
+import { lissajous01 } from './experiments/lissajous01';
+
 import { waves01 } from './released/waves01';
 import { windLines } from './released/windLines';
 import { hiImage01 } from './released/hiImage01';
@@ -24,7 +27,7 @@ import { threeAttractors } from './released/threeAttractors';
 
 const s = sketch();
 
-const DEBUG = false;
+const DEBUG = lissajous01;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -105,7 +108,7 @@ const variations = {
     },
 };
 
-if (variations.hasOwnProperty(variationKey) & !DEBUG) {
+if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
     const vToRun = variations[variationKey];
     setNote(vToRun.note);
     s.run(vToRun.sketch());
@@ -114,8 +117,5 @@ if (variations.hasOwnProperty(variationKey) & !DEBUG) {
 }
 
 if (DEBUG) {
-    // s.run(forcesDev());
-    // s.run(testGrid());
-    // s.run(blackhole());
-    s.run(waves01());
+    s.run(DEBUG());
 }
