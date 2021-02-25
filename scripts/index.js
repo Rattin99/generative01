@@ -5,14 +5,14 @@ Explorations with generative code
 import normliaze from 'normalize.css';
 
 import { sketch } from './lib/sketch';
-import { getRandomSeed } from './lib/math';
+
 // import { forcesDev } from './experiments/forcesDev';
 // import { forcesDevGravity } from './experiments/forcesDevGravity';
 // import { testGrid } from './experiments/test-grid';
 // import { blackhole } from './experiments/blackhole';
 // import { parametric01 } from './experiments/parametric01';
-import { lissajous01 } from './experiments/lissajous01';
 
+import { lissajous01 } from './released/lissajous01';
 import { waves01 } from './released/waves01';
 import { windLines } from './released/windLines';
 import { hiImage01 } from './released/hiImage01';
@@ -24,16 +24,17 @@ import { variation5 } from './released/variation5';
 import { variation6 } from './released/variation6';
 import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
 import { threeAttractors } from './released/threeAttractors';
+import { oneOf } from './lib/math';
 
 const s = sketch();
 
-const DEBUG = lissajous01;
+const DEBUG = undefined; // = lissajous01;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
     console.log('Saving capture');
     const imageURI = s.canvas().toDataURL('image/png');
-    document.getElementById('download').setAttribute('download', `canvas-${getRandomSeed()}.png`);
+    document.getElementById('download').setAttribute('download', `${s.variationName()}.png`);
     document.getElementById('download').href = imageURI;
 };
 
@@ -57,9 +58,6 @@ const getQueryVariable = (variable) => {
     }
     return false;
 };
-
-let variationKey = getQueryVariable('variation');
-variationKey = variationKey || '11';
 
 const variations = {
     1: {
@@ -106,7 +104,15 @@ const variations = {
         note: 'Inspired by Churn, Kenny Vaden https://www.reddit.com/r/generative/comments/lq8r11/churn_r_code/',
         sketch: waves01,
     },
+    12: {
+        note: 'Experimenting with rose shapes. Refresh for new randomized set.',
+        sketch: lissajous01,
+    },
 };
+
+let variationKey = getQueryVariable('variation');
+const variationKeys = Object.keys(variations);
+variationKey = variationKey || variationKeys[variationKeys.length - 1];
 
 if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
     const vToRun = variations[variationKey];

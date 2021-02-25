@@ -1,8 +1,28 @@
 import tinycolor from 'tinycolor2';
 import * as nicepalettes from 'nice-color-palettes';
-import { oneOf } from './math';
+import { oneOf, randomWholeBetween } from './math';
 
 export const asTinyColor = (arry) => arry.map((c) => tinycolor(c));
+
+export const brightest = (arry) => {
+    const colors = asTinyColor(arry);
+    return colors.reduce((acc, c) => {
+        if (c.getBrightness() > acc.getBrightness()) {
+            acc = c;
+        }
+        return acc;
+    }, colors[0]);
+};
+
+export const darkest = (arry) => {
+    const colors = asTinyColor(arry);
+    return colors.reduce((acc, c) => {
+        if (c.getBrightness() < acc.getBrightness()) {
+            acc = c;
+        }
+        return acc;
+    }, colors[0]);
+};
 
 export const palettes = {
     pop: ['#ed3441', '#ffd630', '#329fe3', '#154296', '#ffffff', '#303030'],
@@ -22,5 +42,5 @@ export const palettes = {
     ],
 };
 
-export const nicePalette = (_) => nicepalettes[oneOf(Object.keys(nicepalettes))];
+export const nicePalette = (_) => nicepalettes[randomWholeBetween(0, 99)];
 export const palette = (_) => palettes[oneOf(Object.keys(palettes))];

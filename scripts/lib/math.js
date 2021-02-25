@@ -1,14 +1,4 @@
 /*
-  // Math aliases
-  var π = Math.PI
-  var random = Math.random
-  var round = Math.round
-  var floor = Math.floor
-  var abs = Math.abs
-  var sin = Math.sin
-  var cos = Math.cos
-  var tan = Math.tan
-
   Math Snippets
   https://github.com/terkelg/math
 */
@@ -16,21 +6,67 @@
 import random from 'canvas-sketch-util/random';
 import { Vector } from './Vector';
 
+// Math aliases
+const π = Math.PI;
+const { PI } = Math;
+const TAU = Math.PI * 2;
+const { abs } = Math;
+const { sin } = Math;
+const { cos } = Math;
+const { tan } = Math;
+const { pow } = Math;
+const { round } = Math;
+const { floor } = Math;
+
 random.setSeed(random.getRandomSeed());
 console.log(`Using seed ${random.getSeed()}`);
 
-export const TAU = Math.PI * 2;
+// https://www.mathsisfun.com/numbers/fibonacci-sequence.html
+export const fibonacci = [
+    0,
+    1,
+    1,
+    2,
+    3,
+    5,
+    8,
+    13,
+    21,
+    34,
+    55,
+    89,
+    144,
+    233,
+    377,
+    610,
+    987,
+    1597,
+    2584,
+    4181,
+    6765,
+    10946,
+    17711,
+    28657,
+    46368,
+    75025,
+    121393,
+    196418,
+    317811,
+];
+
+export const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
 export const getRandomSeed = () => random.getSeed();
 export const setRandomSeed = (s) => random.setRandomSeed(s);
 
 export const randomNumberBetween = (min, max) => random.value() * (max - min) + min;
+export const randomWholeBetween = (min, max) => Math.round(random.value() * (max - min) + min);
 export const randomNumberBetweenMid = (min, max) => randomNumberBetween(min, max) - max / 2;
 
 export const randomSign = () => (Math.round(random.value()) == 1 ? 1 : -1);
 
 export const oneOf = (arry) => {
-    const i = Math.round(randomNumberBetween(0, arry.length - 1));
+    const i = randomWholeBetween(0, arry.length - 1);
     return arry[i];
 };
 

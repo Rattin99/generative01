@@ -21,9 +21,18 @@ const variation = () => {
         draw,
     };
 };
+
+TODO
+- [ ] merge screen shot code
+- [ ] Canvas Recorder  https://xosh.org/canvas-recorder/
+- [ ] pass obj to variation setup and draw functions
+- [ ] coords of a mouse down to variation?
+- [ ] better touch input
+- [ ] svg https://github.com/canvg/canvg
 */
 
 import { fillCanvas, resizeCanvas } from './canvas';
+import { getRandomSeed } from './math';
 
 export const sketch = () => {
     const mouse = {
@@ -40,8 +49,8 @@ export const sketch = () => {
     const canvasSizeFraction = 0.85;
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
-    canvas.width = window.innerWidth * canvasSizeFraction;
-    canvas.height = window.innerHeight * canvasSizeFraction;
+
+    resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
 
     const getCanvas = (_) => canvas;
     const getContext = (_) => context;
@@ -68,7 +77,7 @@ export const sketch = () => {
     };
 
     const windowResize = (evt) =>
-        resizeCanvas(canvas, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+        resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
 
     window.addEventListener('mousedown', mouseDown);
     window.addEventListener('touchstart', mouseDown);
@@ -82,7 +91,7 @@ export const sketch = () => {
     window.addEventListener('mouseout', mouseOut);
     window.addEventListener('touchcancel', mouseOut);
 
-    window.addEventListener('resize', windowResize);
+    // window.addEventListener('resize', windowResize);
 
     const run = (variation) => {
         currentVariation = variation;
@@ -94,7 +103,7 @@ export const sketch = () => {
             console.log('Sketch config:', variation.config);
             if (config.width && config.height) {
                 window.removeEventListener('resize', windowResize);
-                resizeCanvas(canvas, config.width, config.height);
+                resizeCanvas(canvas, context, config.width, config.height);
             }
             if (config.background) {
                 backgroundColor = config.background;
@@ -107,6 +116,8 @@ export const sketch = () => {
         let rendering = true;
         const targetFpsInterval = 1000 / fps;
         let lastAnimationFrameTime;
+
+        context.translate(0.5, 0.5);
 
         const startSketch = () => {
             window.removeEventListener('load', startSketch);
@@ -150,7 +161,21 @@ export const sketch = () => {
         window.addEventListener('load', startSketch);
     };
 
+    const getVariationName = () => {
+        const seed = getRandomSeed();
+        let name = 'untitled';
+        if (
+            currentVariation &&
+            currentVariation.hasOwnProperty('config') &&
+            currentVariation.config.hasOwnProperty('name')
+        ) {
+            name = currentVariation.config.name;
+        }
+        return `sketch-${name}-${seed}`;
+    };
+
     return {
+        variationName: getVariationName,
         canvas: getCanvas,
         context: getContext,
         mouse: getMouse,

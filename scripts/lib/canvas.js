@@ -9,10 +9,24 @@ import {
     uvFromAngle,
 } from './math';
 
-export const resizeCanvas = (canvas, width, height) => {
-    canvas.width = width;
-    canvas.height = height;
+export const resizeCanvas = (canvas, context, width, height) => {
+    const dpr = window.devicePixelRatio;
+
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    if (dpr === 2) {
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        // context.scale(dpr, dpr);
+        context.scale(1, 1);
+    } else {
+        canvas.width = width;
+        canvas.height = height;
+    }
 };
+
+export const contextScale = (_) => window.devicePixelRatio;
 
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -33,6 +47,11 @@ export const resetStyles = (context) => {
     context.lineWidth = 1;
     context.setLineDash([]);
     context.lineCap = 'butt';
+};
+
+// https://www.rgraph.net/canvas/howto-antialias.html
+export const sharpLines = (context) => {
+    context.translate(0.5, 0.5);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -146,9 +165,15 @@ export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
     context.fill();
 };
 
+export const textstyles = {
+    size: (s) => `${s * contextScale()}rem "Helvetica Neue",Helvetica,Arial,sans-serif`,
+    default: '1rem "Helvetica Neue",Helvetica,Arial,sans-serif',
+    small: '0.75rem "Helvetica Neue",Helvetica,Arial,sans-serif',
+};
+
 export const drawTextFilled = (context) => (text, x, y, color, style) => {
     context.fillStyle = tinycolor(color).toRgbString();
-    context.font = style || '1rem "Helvetica Neue",Helvetica,Arial,sans-serif';
+    context.font = style || textstyles.default;
     context.fillText(text, x, y);
 };
 

@@ -101,7 +101,9 @@ const drawWaveLine = (context) => (startx, endx, yorigin, height, topWave, botto
 };
 
 export const waves01 = () => {
-    const config = {};
+    const config = {
+        name: 'waves01',
+    };
 
     let canvasHeight;
     let canvasMiddle;
