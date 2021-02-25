@@ -3602,19 +3602,31 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 /*
 Based on Coding Challenge #116​: Lissajous Curve Table https://www.youtube.com/watch?v=--6eyLO78CY
 
  */
+var PI = Math.PI;
+var TAU = Math.PI * 2;
+var abs = Math.abs;
+var sin = Math.sin;
+var cos = Math.cos;
+var tan = Math.tan;
+var pow = Math.pow;
+
 var point = function point(context, x, y, radius, color) {
   context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
   context.beginPath();
   context.arc(x, y, radius, 0, Math.PI * 2, false);
   context.fill();
+};
+
+var pointStroked = function pointStroked(context, x, y, radius, color) {
+  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
+  context.lineWidth = 0.5;
+  context.beginPath();
+  context.arc(x, y, radius, 0, Math.PI * 2, false);
+  context.stroke();
 };
 
 var line = function line(context, x1, y1, x2, y2, color) {
@@ -3626,51 +3638,45 @@ var line = function line(context, x1, y1, x2, y2, color) {
   context.stroke();
 };
 
-var Curve = /*#__PURE__*/function () {
-  function Curve(centerX, centerY, radius, angle, speed) {
-    _classCallCheck(this, Curve);
+var Curve = function Curve(centerX, centerY, radius, angle, speed) {
+  _classCallCheck(this, Curve);
 
-    this.x = undefined;
-    this.y = undefined;
-    this.centerX = centerX;
-    this.centerY = centerY;
-    this.radius = radius;
-    this.speed = speed || 1;
-    this.angle = angle || 0;
-  }
-
-  _createClass(Curve, [{
-    key: "update",
-    value: function update() {}
-  }, {
-    key: "draw",
-    value: function draw() {}
-  }]);
-
-  return Curve;
-}();
+  this.x = undefined;
+  this.y = undefined;
+  this.centerX = centerX;
+  this.centerY = centerY;
+  this.radius = radius;
+  this.speed = speed || 1;
+  this.angle = angle || 0;
+};
 
 var lissajous01 = function lissajous01() {
   var config = {
-    width: 600,
-    height: 600
+    width: 1000,
+    height: 1000
   };
   var curves = [];
   var canvasCenterX;
   var canvasCenterY;
   var centerRadius;
-  var angle = 0;
+  var columns = 1;
+  var margin = 50;
+  var tick = 0;
 
   var setup = function setup(canvas, context) {
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
-    var fourths = canvas.width / 4;
-    var eights = canvas.width / 8;
+    var colSize = (canvas.width - margin * 2) / columns;
+    var colOffset = (canvas.width - margin * 2) / (columns * 2);
 
-    for (var x = eights; x < canvas.width; x += fourths) {
-      for (var y = eights; y < canvas.width; y += fourths) {
-        curves.push(new Curve(x, y, eights * 0.75, 0, 0.05));
+    if (columns === 1) {
+      curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
+    } else {
+      for (var x = colOffset + margin; x < canvas.width - margin; x += colSize) {
+        for (var y = colOffset + margin; y < canvas.height - margin; y += colSize) {
+          curves.push(new Curve(x, y, colOffset * 0.75, 0, 0.05));
+        }
       }
     }
 
@@ -3681,20 +3687,69 @@ var lissajous01 = function lissajous01() {
     });
   };
 
+  var circleX = function circleX(curve) {
+    var v = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    return curve.radius * Math.cos(curve.angle * v);
+  };
+
+  var circleY = function circleY(curve) {
+    var v = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    return curve.radius * Math.sin(curve.angle * v);
+  }; // k is # of petals
+  // https://en.wikipedia.org/wiki/Rose_(mathematics)
+  // http://xahlee.info/SpecialPlaneCurves_dir/Rose_dir/rose.html
+
+
+  var roseX = function roseX(curve) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    var a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+    var b = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+    return curve.radius * Math.cos(k * curve.angle * a) * Math.cos(curve.angle * b);
+  };
+
+  var roseY = function roseY(curve) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    var a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+    var b = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+    return curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
+  }; // https://www.huffpost.com/entry/flowers_b_9817126
+  // x = cos(14πk/9000)(1-(3/4)(sin(20πk/9000))4-(1/4)(cos(60πk/9000))3)
+  // y = sin(14πk/9000)(1-(3/4)(sin(20πk/9000))4-(1/4)(cos(60πk/9000))3)
+  // r = (1/120)+(1/18)(sin(60πk/9000))4+(1/18)(sin(160πk/9000))4
+
+
+  var manyX = function manyX(curve, r, k, i) {
+    return r * cos(14 * PI * k / i) * pow(1 - 0.75 * sin(20 * PI * k / i), 4) - 0.25 * (pow(cos(60 * PI * k / i)), 3);
+  };
+
+  var manyY = function manyY(curve, r, k, i) {
+    return r * sin(14 * PI * k / i) * pow(1 - 0.75 * sin(20 * PI * k / i), 4) - 0.25 * pow(cos(60 * PI * k / i), 3);
+  };
+
+  var manyR = function manyR(curve, k, i) {
+    return abs(0.008333333333 + 0.05555555556 * sin(60 * PI * k / i) * 4 + 0.05555555556 * pow(sin(160 * PI * k / i), 4));
+  };
+
   var draw = function draw(canvas, context, mouse) {
     (0, _canvas.background)(canvas, context)({
       r: 230,
       g: 230,
       b: 230,
-      a: 0.01
+      a: 0.001
     });
 
     for (var i = 0; i < curves.length; i++) {
+      var pointRad = 0.5;
       var c = curves[i];
       var px = c.x;
-      var py = c.y;
-      c.x = c.centerX + c.radius * Math.cos(c.angle * (i + 1));
-      c.y = c.centerY + c.radius * Math.sin(c.angle * (i + 1));
+      var py = c.y; // c.x = c.centerX + circleX(c);
+      // c.y = c.centerY + circleY(c);
+      // c.x = c.centerX + roseX(c, (i + 1) / 9, 1);
+      // c.y = c.centerY + roseY(c, (i + 1) / 9, 1);
+
+      c.x = c.centerX + manyX(c, c.radius * 0.15, tick, 9000);
+      c.y = c.centerY + manyY(c, c.radius * 0.15, tick, 9000);
+      pointRad = manyR(c, tick, 9000) * 250;
       c.angle += c.speed;
       var distFromCenter = (0, _math.pointDistance)({
         x: canvasCenterX,
@@ -3703,13 +3758,16 @@ var lissajous01 = function lissajous01() {
         x: c.x,
         y: c.y
       });
-      var h = (0, _math.mapRange)(0, canvasCenterX, 0, 360, distFromCenter);
+      var h = (0, _math.mapRange)(0, canvasCenterX, 180, 270, distFromCenter);
       var s = 100;
-      var l = 40;
-      var color = "hsl(".concat(h, ",").concat(s, "%,").concat(l, "%)"); // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
+      var l = 30;
+      var a = 0.1;
+      var color = "hsla(".concat(h, ",").concat(s, "%,").concat(l, "%,").concat(a, ")"); // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
 
-      point(context, c.x, c.y, 2, color);
+      pointStroked(context, c.x, c.y, pointRad, color);
     }
+
+    tick++;
   };
 
   return {
@@ -5504,7 +5562,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60086" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53166" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
