@@ -42,7 +42,7 @@ class Curve {
         this.angle = angle || 0;
         this.noise = noise;
 
-        // Randomize some noise possibilties
+        // Randomize some noise possibilities
         this.xa = oneOf([randomWholeBetween(1, 5), round2(this.noise)]);
         this.xb = oneOf([randomWholeBetween(1, 5), round2(this.noise)]);
         this.ya = oneOf([randomWholeBetween(1, 5), round2(this.noise)]);

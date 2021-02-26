@@ -21,6 +21,10 @@ const { floor } = Math;
 random.setSeed(random.getRandomSeed());
 console.log(`Using seed ${random.getSeed()}`);
 
+// φ phi
+export const golden = 1.6180339887498948482;
+// g angles: 222.5, 137.5
+
 // https://www.mathsisfun.com/numbers/fibonacci-sequence.html
 export const fibonacci = [
     0,

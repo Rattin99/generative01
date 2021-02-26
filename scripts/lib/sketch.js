@@ -23,6 +23,8 @@ const variation = () => {
 };
 
 TODO
+- [ ] options for layout: portrait, landscape
+- [ ] canvas ratio: auto, square, golden, letter
 - [ ] merge screen shot code
 - [ ] Canvas Recorder  https://xosh.org/canvas-recorder/
 - [ ] pass obj to variation setup and draw functions
@@ -31,8 +33,22 @@ TODO
 - [ ] svg https://github.com/canvg/canvg
 */
 
-import { fillCanvas, resizeCanvas } from './canvas';
-import { getRandomSeed } from './math';
+import { resizeCanvas } from './canvas';
+import { getRandomSeed, golden } from './math';
+
+export const orientation = {
+    portrait: 0,
+    landscape: 1,
+};
+
+export const ratio = {
+    letter: 0.773,
+    golden: golden - 1,
+    square: -1,
+    auto: 1,
+};
+
+const defaultValue = (obj, key, value) => (obj.hasOwnProperty(key) ? obj[key] : value);
 
 export const sketch = () => {
     const mouse = {
@@ -49,8 +65,6 @@ export const sketch = () => {
     const canvasSizeFraction = 0.85;
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
-
-    resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
 
     const getCanvas = (_) => canvas;
     const getContext = (_) => context;
@@ -93,6 +107,34 @@ export const sketch = () => {
 
     // window.addEventListener('resize', windowResize);
 
+    // resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+    const applyCanvasSize = (config) => {
+        const width = defaultValue(config, 'width', window.innerWidth * canvasSizeFraction);
+        const height = defaultValue(config, 'height', window.innerHeight * canvasSizeFraction);
+        let newWidth = width;
+        let newHeight = height;
+
+        const cfgOrientation = defaultValue(config, 'orientation', orientation.landscape);
+        const cfgRatio = defaultValue(config, 'ratio', ratio.auto);
+
+        const aSide = Math.min(width, height);
+        const bSide = Math.round(cfgRatio * aSide);
+
+        if (cfgRatio === ratio.square) {
+            newWidth = aSide;
+            newHeight = aSide;
+        } else if (cfgOrientation === orientation.portrait) {
+            newWidth = bSide;
+            newHeight = aSide;
+        } else if (cfgOrientation === orientation.landscape && cfgRatio !== ratio.auto) {
+            console.log('land');
+            newWidth = aSide;
+            newHeight = bSide;
+        }
+
+        resizeCanvas(canvas, context, newWidth, newHeight);
+    };
+
     const run = (variation) => {
         currentVariation = variation;
 
@@ -101,10 +143,7 @@ export const sketch = () => {
         if (variation.hasOwnProperty('config')) {
             const { config } = variation;
             console.log('Sketch config:', variation.config);
-            if (config.width && config.height) {
-                window.removeEventListener('resize', windowResize);
-                resizeCanvas(canvas, context, config.width, config.height);
-            }
+            applyCanvasSize(config);
             if (config.background) {
                 backgroundColor = config.background;
             }
