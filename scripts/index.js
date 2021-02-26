@@ -29,7 +29,7 @@ import { blank } from './experiments/blank';
 
 const s = sketch();
 
-const DEBUG = blank;
+const DEBUG = undefined;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {

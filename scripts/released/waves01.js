@@ -1,5 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../lib/canvas';
+import { ratio, orientation } from '../lib/sketch';
 import { create2dNoise, mapRange, randomNumberBetween, lowest, highest } from '../lib/math';
 
 /*
@@ -103,6 +104,8 @@ const drawWaveLine = (context) => (startx, endx, yorigin, height, topWave, botto
 export const waves01 = () => {
     const config = {
         name: 'waves01',
+        // orientation: orientation.portrait,
+        ratio: ratio.square,
     };
 
     let canvasHeight;

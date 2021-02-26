@@ -9,6 +9,8 @@ import {
     uvFromAngle,
 } from './math';
 
+export let isHiDPI = false;
+
 export const resizeCanvas = (canvas, context, width, height) => {
     const dpr = window.devicePixelRatio;
 
@@ -16,6 +18,7 @@ export const resizeCanvas = (canvas, context, width, height) => {
     canvas.style.height = `${height}px`;
 
     if (dpr === 2) {
+        isHiDPI = true;
         canvas.width = Math.floor(width * dpr);
         canvas.height = Math.floor(height * dpr);
         // context.scale(dpr, dpr);

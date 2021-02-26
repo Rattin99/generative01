@@ -1,6 +1,7 @@
 body {
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
 #wrapper {
@@ -16,6 +17,7 @@ body {
 }
 
 #note {
+  user-select: text;
   position: fixed;
   left: 0rem;
   bottom: 0rem;

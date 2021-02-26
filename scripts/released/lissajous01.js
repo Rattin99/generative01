@@ -2,6 +2,7 @@ import tinycolor from 'tinycolor2';
 import { background, drawTextFilled, textstyles } from '../lib/canvas';
 import { create2dNoise, mapRange, oneOf, pointDistance, randomWholeBetween, round2 } from '../lib/math';
 import { brightest, darkest, nicePalette } from '../lib/palettes';
+import { ratio } from '../lib/sketch';
 
 const point = (context, x, y, radius, color) => {
     context.fillStyle = tinycolor(color).toRgbString();
@@ -73,8 +74,7 @@ class Curve {
 export const lissajous01 = () => {
     const config = {
         name: 'lissajous01',
-        width: 1000,
-        height: 1000,
+        ratio: ratio.square,
     };
 
     const renderBatch = 10;

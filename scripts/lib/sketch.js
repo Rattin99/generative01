@@ -33,7 +33,7 @@ TODO
 - [ ] svg https://github.com/canvg/canvg
 */
 
-import { resizeCanvas } from './canvas';
+import { isHiDPI, resizeCanvas } from './canvas';
 import { getRandomSeed, golden } from './math';
 
 export const orientation = {
@@ -75,9 +75,10 @@ export const sketch = () => {
     };
 
     const mouseMove = (evt) => {
+        const mult = isHiDPI ? 2 : 1;
         const canvasFrame = canvas.getBoundingClientRect();
-        mouse.x = evt.x - canvasFrame.x;
-        mouse.y = evt.y - canvasFrame.y;
+        mouse.x = (evt.x - canvasFrame.x) * mult;
+        mouse.y = (evt.y - canvasFrame.y) * mult;
     };
 
     const mouseUp = (evt) => {
@@ -107,7 +108,6 @@ export const sketch = () => {
 
     // window.addEventListener('resize', windowResize);
 
-    // resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
     const applyCanvasSize = (config) => {
         const width = defaultValue(config, 'width', window.innerWidth * canvasSizeFraction);
         const height = defaultValue(config, 'height', window.innerHeight * canvasSizeFraction);
@@ -150,6 +150,13 @@ export const sketch = () => {
             if (config.fps) {
                 fps = config.fps;
             }
+        } else {
+            resizeCanvas(
+                canvas,
+                context,
+                window.innerWidth * canvasSizeFraction,
+                window.innerHeight * canvasSizeFraction
+            );
         }
 
         let rendering = true;
