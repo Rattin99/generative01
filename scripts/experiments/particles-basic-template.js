@@ -25,7 +25,7 @@ export const particleBasicTemplate = () => {
     let canvasCenterY;
     let centerRadius;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
@@ -53,7 +53,7 @@ export const particleBasicTemplate = () => {
         drawCircle(context)(mouse);
      */
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)({ r: 100, g: 100, b: 100, a: 1 });
 
         // if you want to rotate

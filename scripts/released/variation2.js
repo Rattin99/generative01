@@ -16,13 +16,13 @@ export const variation2 = () => {
 
     const particlesArray = [];
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         for (let i = 0; i < config.numParticles; i++) {
             particlesArray.push(new Particle(createRandomParticleValues(canvas)));
         }
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         clearCanvas(canvas, context)();
 
         for (let i = 0; i < config.numParticles; i++) {

@@ -44,7 +44,7 @@ export const hiImage01 = (_) => {
         return data;
     };
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         imageData = getImageDataFromImage(context)(png);
         clearCanvas(canvas, context)();
 
@@ -65,7 +65,7 @@ export const hiImage01 = (_) => {
         }
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)('yellow');
 
         for (let i = 0; i < numParticles; i++) {

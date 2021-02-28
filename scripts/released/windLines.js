@@ -15,7 +15,7 @@ export const windLines = () => {
 
     const timeline = new Timeline(config.fps, 0, 5);
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         const colors = nicePalette();
         grid = grid.map((g) => {
             g.color = oneOf(colors);
@@ -24,7 +24,7 @@ export const windLines = () => {
         background(canvas, context)('rgba(255,255,255,1');
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)('rgba(255,255,255,.1');
 
         grid.forEach(({ position, rotation, color }) => {

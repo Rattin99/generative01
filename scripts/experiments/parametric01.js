@@ -48,7 +48,7 @@ export const parametric01 = () => {
     let drawSpeed = 0;
     let pathSpeed = 0.0001;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
@@ -80,7 +80,7 @@ export const parametric01 = () => {
     // // const a = mapRange(0, hole.rs * 1.5, 0.1, 1, distFromCenter); // 50;
     // const color = `hsl(${h},${s}%,${l}%)`;
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         // background(canvas, context)({ r: 230, g: 230, b: 230, a: 0.01 });
 
         const stepsPerFrame = 100;

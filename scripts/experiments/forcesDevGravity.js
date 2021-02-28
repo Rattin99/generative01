@@ -42,7 +42,7 @@ export const forcesDevGravity = () => {
     let canvasCenterY;
     let centerRadius;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
@@ -69,7 +69,7 @@ export const forcesDevGravity = () => {
     //     particle.velocityY = clamp(-vLimit, vLimit, particle.velocityY);
     // };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)({ r: 0, g: 0, b: 50, a: 0.01 });
 
         let mode = 1;

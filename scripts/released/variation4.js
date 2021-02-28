@@ -9,7 +9,7 @@ export const variation4 = () => {
     const particlesArray = [];
     const circles = [];
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         const diameter = canvas.height / 4;
@@ -33,7 +33,7 @@ export const variation4 = () => {
     };
 
     // will run every frame
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         fillCanvas(canvas, context)(0.005, '255,255,255');
         for (let i = 0; i < config.numParticles; i++) {
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 5);

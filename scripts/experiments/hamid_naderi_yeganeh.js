@@ -91,7 +91,7 @@ export const hny = () => {
     const margin = 50;
     let tick = 0;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
@@ -158,7 +158,7 @@ export const hny = () => {
     T(k)=18πk/4000
      */
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)({ r: 230, g: 230, b: 230, a: 0.001 });
 
         for (let b = 0; b < renderBatch; b++) {

@@ -44,7 +44,7 @@ export const threeAttractors = () => {
     let canvasCenterY;
     let centerRadius;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
@@ -81,7 +81,7 @@ export const threeAttractors = () => {
         background(canvas, context)('white');
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         // background(canvas, context)({ r: 255, g: 255, b: 255, a: 0.001 });
         for (let i = 0; i < numParticles; i++) {
             attract(leftattractor, particlesArray[i], -1, attractorDist);

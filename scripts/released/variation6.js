@@ -15,7 +15,7 @@ export const variation6 = () => {
     const particlesArray = [];
     let hue = 0;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         for (let i = 0; i < numParticles; i++) {
             const initValues = createRandomParticleValues(canvas);
             initValues.color = { r: 255, g: 255, b: 255 };
@@ -23,7 +23,7 @@ export const variation6 = () => {
         }
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         fillCanvas(canvas, context)(0.08);
         if (hue++ > 361) hue = 0;
         for (let i = 0; i < numParticles; i++) {

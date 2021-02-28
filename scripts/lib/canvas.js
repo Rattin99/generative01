@@ -10,26 +10,25 @@ import {
 } from './math';
 
 export let isHiDPI = false;
+export let contextScale = 1;
 
-export const resizeCanvas = (canvas, context, width, height) => {
-    const dpr = window.devicePixelRatio;
+export const resizeCanvas = (canvas, context, width, height, scale) => {
+    contextScale = scale || window.devicePixelRatio;
 
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    if (dpr === 2) {
+    canvas.width = Math.floor(width * contextScale);
+    canvas.height = Math.floor(height * contextScale);
+
+    if (contextScale === 2) {
         isHiDPI = true;
-        canvas.width = Math.floor(width * dpr);
-        canvas.height = Math.floor(height * dpr);
-        // context.scale(dpr, dpr);
         context.scale(1, 1);
+        // context.scale(2, 2);
     } else {
-        canvas.width = width;
-        canvas.height = height;
+        context.scale(contextScale, contextScale);
     }
 };
-
-export const contextScale = (_) => window.devicePixelRatio;
 
 export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 

@@ -17,7 +17,7 @@ export const variation5 = () => {
     const particlesArray = [];
     const circles = [];
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         for (let i = 0; i < config.numParticles; i++) {
             const props = createRandomParticleValues(canvas);
             props.x = canvas.width / 2;
@@ -39,7 +39,7 @@ export const variation5 = () => {
         fillCanvas(canvas, context)(1, '255,255,255');
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         // fillCanvas(canvas, context)(.005,'255,255,255');
         for (let i = 0; i < config.numParticles; i++) {
             updatePosWithVelocity(particlesArray[i]);

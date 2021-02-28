@@ -35,7 +35,7 @@ class Curve {
 
     constructor(centerX, centerY, radius, angle, speed, noise) {
         this.#x = undefined;
-        this.#y = undefined;
+        this.#y = 0;
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
@@ -50,6 +50,10 @@ class Curve {
         this.yb = oneOf([randomWholeBetween(1, 5), round2(this.noise)]);
     }
 
+    get height() {
+        return this.radius * 2;
+    }
+
     get x() {
         return this.#x + this.centerX;
     }
@@ -59,7 +63,8 @@ class Curve {
     }
 
     get y() {
-        return this.#y + this.centerY;
+        // return this.#y;
+        return this.#y;
     }
 
     set y(v) {
@@ -71,7 +76,7 @@ class Curve {
     }
 }
 
-export const lissajous01 = () => {
+export const lissajous02 = () => {
     const config = {
         name: 'lissajous01',
         ratio: ratio.square,
@@ -84,6 +89,8 @@ export const lissajous01 = () => {
     let centerRadius;
     const columns = 3;
     const margin = 50;
+    let colSize;
+    let colOffset;
     const palette = nicePalette();
     const colorBackground = brightest(palette).clone().lighten(10);
     const colorCurve = darkest(palette).clone().darken(25);
@@ -95,8 +102,8 @@ export const lissajous01 = () => {
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
 
-        const colSize = (canvas.width - margin * 2) / columns;
-        const colOffset = (canvas.width - margin * 2) / (columns * 2);
+        colSize = (canvas.width - margin * 2) / columns;
+        colOffset = (canvas.width - margin * 2) / (columns * 2);
 
         if (columns === 1) {
             curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
@@ -137,13 +144,14 @@ export const lissajous01 = () => {
 
                 const { xa } = c;
                 const { xb } = c;
-                const { ya } = c;
-                const { yb } = c;
+                // const { ya } = c;
+                // const { yb } = c;
 
                 // c.x = circleX(c);
                 // c.y = circleY(c);
                 c.x = roseX(c, k, xa, xb);
-                c.y = roseY(c, k, ya, yb);
+                // c.y = roseY(c, k, ya, yb);
+                c.y += 1;
 
                 // TODO, put a/b on the canvas so i can remember them!
 
@@ -156,10 +164,12 @@ export const lissajous01 = () => {
                 const color = `hsla(${h},${s}%,${l}%,${a})`;
 
                 // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
-                pointStroked(context, c.x, c.y, pointRad, colorCurve);
+                pointStroked(context, c.x, c.y + c.centerY - colOffset + margin / 2, pointRad, colorCurve);
+
+                if (c.y > c.height) c.y = 0;
 
                 drawTextFilled(context)(
-                    `k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`,
+                    `k=${k}, ${xa}, ${xb}`,
                     c.centerX - c.radius,
                     c.centerY + c.radius + 40,
                     colorText,

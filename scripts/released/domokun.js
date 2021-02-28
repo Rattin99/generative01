@@ -23,7 +23,7 @@ export const domokun = (_) => {
     png.src = domokunPng;
     const particlesArray = [];
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         const imageData = getImageDataFromImage(context)(png);
         clearCanvas(canvas, context)();
 
@@ -56,7 +56,7 @@ export const domokun = (_) => {
         numParticles = particlesArray.length;
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)('yellow');
 
         for (let i = 0; i < numParticles; i++) {

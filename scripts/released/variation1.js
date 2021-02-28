@@ -17,7 +17,7 @@ export const variation1 = () => {
     let canvasCenterY;
     let centerRadius;
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
@@ -29,7 +29,7 @@ export const variation1 = () => {
         }
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         fillCanvas(canvas, context)();
 
         for (let i = 0; i < numParticles; i++) {

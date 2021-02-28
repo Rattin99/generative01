@@ -5,12 +5,12 @@ Convenience canvas sketch runner. Based on p5js
 const variation = () => {
     const config = {};
 
-    const setup = (canvas, context) => {
+    const setup = ({canvas, context}) => {
         // create initial state
     };
 
     // will run every frame
-    const draw = (canvas, context, mouse) => {
+    const draw = ({canvas, context, mouse}) => {
         // draw on every frame
         return 1; // -1 to exit animation loop
     };
@@ -33,7 +33,7 @@ TODO
 - [ ] svg https://github.com/canvg/canvg
 */
 
-import { isHiDPI, resizeCanvas } from './canvas';
+import { isHiDPI, contextScale, resizeCanvas } from './canvas';
 import { getRandomSeed, golden } from './math';
 
 export const orientation = {
@@ -167,12 +167,12 @@ export const sketch = () => {
 
         const startSketch = () => {
             window.removeEventListener('load', startSketch);
-            variation.setup(canvas, context);
+            variation.setup({ canvas, context });
 
             // fillCanvas(canvas, context)(1,backgroundColor);
 
             const render = () => {
-                const result = variation.draw(canvas, context, mouse);
+                const result = variation.draw({ canvas, context, mouse });
                 if (result !== -1) {
                     requestAnimationFrame(render);
                 }
@@ -189,7 +189,7 @@ export const sketch = () => {
 
                 if (elapsed > targetFpsInterval) {
                     lastAnimationFrameTime = now - (elapsed % targetFpsInterval);
-                    const result = variation.draw(canvas, context, mouse);
+                    const result = variation.draw({ canvas, context, mouse });
                     if (result === -1) {
                         rendering = false;
                     }

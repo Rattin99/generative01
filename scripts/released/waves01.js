@@ -149,7 +149,7 @@ export const waves01 = () => {
         };
     };
 
-    const setup = (canvas, context) => {
+    const setup = ({ canvas, context }) => {
         canvasHeight = canvas.height;
         canvasMiddle = canvas.height / 2;
 
@@ -170,7 +170,7 @@ export const waves01 = () => {
         background(canvas, context)(tinycolor(colorBackground).lighten(20));
     };
 
-    const draw = (canvas, context, mouse) => {
+    const draw = ({ canvas, context, mouse }) => {
         const mid = canvasMiddle;
 
         for (let i = 0; i < waves.length; i++) {
