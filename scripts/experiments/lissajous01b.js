@@ -76,7 +76,7 @@ class Curve {
     }
 }
 
-export const lissajous02 = () => {
+export const lissajous01b = () => {
     const config = {
         name: 'lissajous01',
         ratio: ratio.square,

@@ -55,7 +55,8 @@ export const threeAttractors = () => {
         midattractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 10 };
         rightattractor = { x: canvas.width, y: canvas.height / 2, mass: 10, g: 3 };
 
-        gridPoints = createGridPointsXY(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
+        gridPoints = createGridPointsXY(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50)
+            .points;
         numParticles = gridPoints.length;
 
         for (let i = 0; i < numParticles; i++) {

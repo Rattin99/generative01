@@ -60,6 +60,18 @@ export const sharpLines = (context) => {
 // PRIMITIVES
 //----------------------------------------------------------------------------------------------------------------------
 
+// TODO, circle or square?
+export const pixel = (context) => (x, y, color = 'black', mode = 'square') => {
+    context.fillStyle = tinycolor(color).toRgbString();
+    if (mode === 'circle') {
+        context.beginPath();
+        context.arc(x, y, contextScale, 0, Math.PI * 2, false);
+        context.fill();
+    } else {
+        context.fillRect(x, y, contextScale, contextScale);
+    }
+};
+
 // TODO use circle?
 export const drawParticlePoint = (context) => ({ x, y, radius, color }) => {
     context.beginPath();
@@ -71,7 +83,9 @@ export const drawParticlePoint = (context) => ({ x, y, radius, color }) => {
 export const setStokeColor = (context) => (color) => (context.strokeStyle = tinycolor(color).toRgbString());
 
 // linecap = butt, round, square
-export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth, linecap = 'butt') => {
+export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt') => {
+    // color = 'black',
+    // context.strokeStyle = tinycolor(color).toRgbString();
     context.lineWidth = strokeWidth;
     context.lineCap = linecap;
     context.beginPath();
@@ -87,8 +101,10 @@ export const drawLineAngle = (context) => (x1, y1, angle, length, strokeWidth, l
     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
 };
 
-export const drawCircle = (context) => (strokeWidth, x, y, radius) => {
-    // context.strokeStyle = 'rgba(255,255,255,.25)';
+export const drawCircle = (context) => (strokeWidth, x, y, radius, color) => {
+    if (color) {
+        context.strokeStyle = tinycolor(color).toRgbString();
+    }
     context.lineWidth = strokeWidth;
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
@@ -102,6 +118,15 @@ export const drawCircleFilled = (context) => (x, y, radius, color) => {
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = color;
     context.fill();
+};
+
+export const drawRect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
+    if (color) {
+        context.strokeStyle = tinycolor(color).toRgbString();
+    }
+    context.lineWidth = strokeWidth;
+    context.rect(x, y, w, h);
+    context.stroke();
 };
 
 export const drawRectFilled = (context) => (x, y, w, h, color = 'white') => {
@@ -168,7 +193,7 @@ export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
 };
 
 export const textstyles = {
-    size: (s) => `${s * contextScale()}rem "Helvetica Neue",Helvetica,Arial,sans-serif`,
+    size: (s) => `${s * contextScale}rem "Helvetica Neue",Helvetica,Arial,sans-serif`,
     default: '1rem "Helvetica Neue",Helvetica,Arial,sans-serif',
     small: '0.75rem "Helvetica Neue",Helvetica,Arial,sans-serif',
 };

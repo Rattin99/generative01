@@ -2599,7 +2599,7 @@ Vector.angleBetween = function (a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createGridPointsUV = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoise = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.fibonacci = exports.golden = void 0;
+exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoise = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.fibonacci = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -2897,15 +2897,14 @@ var createCirclePoints = function createCirclePoints(offsetX, offsetY, diameter,
   }
 
   return points;
-}; // -> [[x,y], ...]
-
+};
 
 exports.createCirclePoints = createCirclePoints;
 
 var createGridPointsXY = function createGridPointsXY(width, height, xMargin, yMargin, columns, rows) {
   var gridPoints = [];
-  var colStep = (width - xMargin * 2) / (columns - 1);
-  var rowStep = (height - yMargin * 2) / (rows - 1);
+  var colStep = Math.round((width - xMargin * 2) / (columns - 1));
+  var rowStep = Math.round((height - yMargin * 2) / (rows - 1));
 
   for (var col = 0; col < columns; col++) {
     var x = xMargin + col * colStep;
@@ -2916,11 +2915,40 @@ var createGridPointsXY = function createGridPointsXY(width, height, xMargin, yMa
     }
   }
 
-  return gridPoints;
+  return {
+    points: gridPoints,
+    columnWidth: colStep,
+    rowHeight: rowStep
+  };
+};
+
+exports.createGridPointsXY = createGridPointsXY;
+
+var createGridCellsXY = function createGridCellsXY(width, height, columns, rows) {
+  var margin = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+  var gutter = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+  var gridPoints = [];
+  var colStep = Math.round((width - margin * 2 - gutter * (columns - 1)) / columns);
+  var rowStep = Math.round((height - margin * 2 - gutter * (rows - 1)) / rows);
+
+  for (var col = 0; col < columns; col++) {
+    var x = margin + col * colStep + gutter * col;
+
+    for (var row = 0; row < rows; row++) {
+      var y = margin + row * rowStep + gutter * row;
+      gridPoints.push([x, y]);
+    }
+  }
+
+  return {
+    points: gridPoints,
+    columnWidth: colStep,
+    rowHeight: rowStep
+  };
 }; // -> [{radius, rotation, position:[u,v]}, ...]
 
 
-exports.createGridPointsXY = createGridPointsXY;
+exports.createGridCellsXY = createGridCellsXY;
 
 var createGridPointsUV = function createGridPointsUV(columns, rows) {
   rows = rows || columns;
@@ -2953,7 +2981,7 @@ exports.createGridPointsUV = createGridPointsUV;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.drawSpikeCircle = exports.drawRake = exports.drawTextFilled = exports.textstyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
+exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.drawSpikeCircle = exports.drawRake = exports.drawTextFilled = exports.textstyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.pixel = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -3029,10 +3057,29 @@ var sharpLines = function sharpLines(context) {
 }; //----------------------------------------------------------------------------------------------------------------------
 // PRIMITIVES
 //----------------------------------------------------------------------------------------------------------------------
-// TODO use circle?
+// TODO, circle or square?
 
 
 exports.sharpLines = sharpLines;
+
+var pixel = function pixel(context) {
+  return function (x, y) {
+    var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'black';
+    var mode = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'square';
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+
+    if (mode === 'circle') {
+      context.beginPath();
+      context.arc(x, y, contextScale, 0, Math.PI * 2, false);
+      context.fill();
+    } else {
+      context.fillRect(x, y, contextScale, contextScale);
+    }
+  };
+}; // TODO use circle?
+
+
+exports.pixel = pixel;
 
 var drawParticlePoint = function drawParticlePoint(context) {
   return function (_ref) {
@@ -3059,8 +3106,11 @@ var setStokeColor = function setStokeColor(context) {
 exports.setStokeColor = setStokeColor;
 
 var drawLine = function drawLine(context) {
-  return function (x1, y1, x2, y2, strokeWidth) {
+  return function (x1, y1, x2, y2) {
+    var strokeWidth = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
     var linecap = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 'butt';
+    // color = 'black',
+    // context.strokeStyle = tinycolor(color).toRgbString();
     context.lineWidth = strokeWidth;
     context.lineCap = linecap;
     context.beginPath();
@@ -3084,8 +3134,11 @@ var drawLineAngle = function drawLineAngle(context) {
 exports.drawLineAngle = drawLineAngle;
 
 var drawCircle = function drawCircle(context) {
-  return function (strokeWidth, x, y, radius) {
-    // context.strokeStyle = 'rgba(255,255,255,.25)';
+  return function (strokeWidth, x, y, radius, color) {
+    if (color) {
+      context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
+    }
+
     context.lineWidth = strokeWidth;
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
@@ -3107,6 +3160,23 @@ var drawCircleFilled = function drawCircleFilled(context) {
 };
 
 exports.drawCircleFilled = drawCircleFilled;
+
+var drawRect = function drawRect(context) {
+  return function (x, y, w, h) {
+    var strokeWidth = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+    var color = arguments.length > 5 ? arguments[5] : undefined;
+
+    if (color) {
+      context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
+    }
+
+    context.lineWidth = strokeWidth;
+    context.rect(x, y, w, h);
+    context.stroke();
+  };
+};
+
+exports.drawRect = drawRect;
 
 var drawRectFilled = function drawRectFilled(context) {
   return function (x, y, w, h) {
@@ -3193,7 +3263,7 @@ var drawRoundRectFilled = function drawRoundRectFilled(context) {
 exports.drawRoundRectFilled = drawRoundRectFilled;
 var textstyles = {
   size: function size(s) {
-    return "".concat(s * contextScale(), "rem \"Helvetica Neue\",Helvetica,Arial,sans-serif");
+    return "".concat(s * contextScale, "rem \"Helvetica Neue\",Helvetica,Arial,sans-serif");
   },
   default: '1rem "Helvetica Neue",Helvetica,Arial,sans-serif',
   small: '0.75rem "Helvetica Neue",Helvetica,Arial,sans-serif'
@@ -3467,7 +3537,7 @@ exports.getImageDataColor = getImageDataColor;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sketch = exports.ratio = exports.orientation = void 0;
+exports.sketch = exports.scale = exports.ratio = exports.orientation = void 0;
 
 var _canvas = require("./canvas");
 
@@ -3480,12 +3550,12 @@ Convenience canvas sketch runner. Based on p5js
 const variation = () => {
     const config = {};
 
-    const setup = (canvas, context) => {
+    const setup = ({canvas, context}) => {
         // create initial state
     };
 
     // will run every frame
-    const draw = (canvas, context, mouse) => {
+    const draw = ({canvas, context, mouse}) => {
         // draw on every frame
         return 1; // -1 to exit animation loop
     };
@@ -3519,6 +3589,11 @@ var ratio = {
   auto: 1
 };
 exports.ratio = ratio;
+var scale = {
+  standard: 1,
+  hidpi: 2
+};
+exports.scale = scale;
 
 var defaultValue = function defaultValue(obj, key, value) {
   return obj.hasOwnProperty(key) ? obj[key] : value;
@@ -3590,6 +3665,7 @@ var sketch = function sketch() {
     var newHeight = height;
     var cfgOrientation = defaultValue(config, 'orientation', orientation.landscape);
     var cfgRatio = defaultValue(config, 'ratio', ratio.auto);
+    var cfgScale = defaultValue(config, 'scale', scale.standard);
     var aSide = Math.min(width, height);
     var bSide = Math.round(cfgRatio * aSide);
 
@@ -3605,7 +3681,7 @@ var sketch = function sketch() {
       newHeight = bSide;
     }
 
-    (0, _canvas.resizeCanvas)(canvas, context, newWidth, newHeight);
+    (0, _canvas.resizeCanvas)(canvas, context, newWidth, newHeight, cfgScale);
   };
 
   var run = function run(variation) {
@@ -3635,10 +3711,17 @@ var sketch = function sketch() {
 
     var startSketch = function startSketch() {
       window.removeEventListener('load', startSketch);
-      variation.setup(canvas, context); // fillCanvas(canvas, context)(1,backgroundColor);
+      variation.setup({
+        canvas: canvas,
+        context: context
+      }); // fillCanvas(canvas, context)(1,backgroundColor);
 
       var render = function render() {
-        var result = variation.draw(canvas, context, mouse);
+        var result = variation.draw({
+          canvas: canvas,
+          context: context,
+          mouse: mouse
+        });
 
         if (result !== -1) {
           requestAnimationFrame(render);
@@ -3656,7 +3739,11 @@ var sketch = function sketch() {
 
         if (elapsed > targetFpsInterval) {
           lastAnimationFrameTime = now - elapsed % targetFpsInterval;
-          var result = variation.draw(canvas, context, mouse);
+          var result = variation.draw({
+            canvas: canvas,
+            context: context,
+            mouse: mouse
+          });
 
           if (result === -1) {
             rendering = false;
@@ -3783,8 +3870,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.lissajous01 = void 0;
 
-var _tinycolor = _interopRequireDefault(require("tinycolor2"));
-
 var _canvas = require("../lib/canvas");
 
 var _math = require("../lib/math");
@@ -3793,66 +3878,20 @@ var _palettes = require("../lib/palettes");
 
 var _sketch = require("../lib/sketch");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _classPrivateFieldGet(receiver, privateMap) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to get private field on non-instance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-
-function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to set private field on non-instance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
-
-var point = function point(context, x, y, radius, color) {
-  context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-  context.beginPath();
-  context.arc(x, y, radius, 0, Math.PI * 2, false);
-  context.fill();
-};
-
-var pointStroked = function pointStroked(context, x, y, radius, color) {
-  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
-  context.lineWidth = 0.5;
-  context.beginPath();
-  context.arc(x, y, radius, 0, Math.PI * 2, false);
-  context.stroke();
-};
-
-var line = function line(context, x1, y1, x2, y2, color) {
-  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
-  context.lineWidth = 0.5;
-  context.beginPath();
-  context.moveTo(x1, y1);
-  context.lineTo(x2, y2);
-  context.stroke();
-};
-
-var _x = new WeakMap();
-
-var _y = new WeakMap();
-
 var Curve = /*#__PURE__*/function () {
-  function Curve(centerX, centerY, radius, angle, speed, noise) {
+  function Curve(x, y, radius, angle, speed, noise) {
     _classCallCheck(this, Curve);
 
-    _x.set(this, {
-      writable: true,
-      value: void 0
-    });
-
-    _y.set(this, {
-      writable: true,
-      value: void 0
-    });
-
-    _classPrivateFieldSet(this, _x, undefined);
-
-    _classPrivateFieldSet(this, _y, undefined);
-
-    this.centerX = centerX;
-    this.centerY = centerY;
+    this.x = x;
+    this.y = y;
+    this.originX = x;
+    this.originY = y;
     this.radius = radius;
     this.speed = speed || 1;
     this.angle = angle || 0;
@@ -3865,20 +3904,19 @@ var Curve = /*#__PURE__*/function () {
   }
 
   _createClass(Curve, [{
-    key: "x",
+    key: "size",
     get: function get() {
-      return _classPrivateFieldGet(this, _x) + this.centerX;
-    },
-    set: function set(v) {
-      _classPrivateFieldSet(this, _x, v);
+      return this.radius * 2;
     }
   }, {
-    key: "y",
+    key: "centerX",
     get: function get() {
-      return _classPrivateFieldGet(this, _y) + this.centerY;
-    },
-    set: function set(v) {
-      _classPrivateFieldSet(this, _y, v);
+      return this.originX + this.radius;
+    }
+  }, {
+    key: "centerY",
+    get: function get() {
+      return this.originY + this.radius;
     }
   }, {
     key: "distFromCenter",
@@ -3899,7 +3937,8 @@ var Curve = /*#__PURE__*/function () {
 var lissajous01 = function lissajous01() {
   var config = {
     name: 'lissajous01',
-    ratio: _sketch.ratio.square
+    ratio: _sketch.ratio.square,
+    scale: _sketch.scale.hidpi
   };
   var renderBatch = 10;
   var curves = [];
@@ -3907,30 +3946,33 @@ var lissajous01 = function lissajous01() {
   var canvasCenterY;
   var centerRadius;
   var columns = 3;
-  var margin = 50;
+  var margin;
   var palette = (0, _palettes.nicePalette)();
   var colorBackground = (0, _palettes.brightest)(palette).clone().lighten(10);
   var colorCurve = (0, _palettes.darkest)(palette).clone().darken(25);
   var colorText = colorBackground.clone().darken(15).desaturate(20);
   var tick = 0;
+  var grid;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
-    var colSize = (canvas.width - margin * 2) / columns;
-    var colOffset = (canvas.width - margin * 2) / (columns * 2);
+    margin = 50 * _canvas.contextScale;
 
     if (columns === 1) {
       curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
     } else {
-      for (var y = colOffset + margin; y < canvas.height - margin; y += colSize) {
-        for (var x = colOffset + margin; x < canvas.width - margin; x += colSize) {
-          curves.push(new Curve(x, y, colOffset * 0.9, 0, 0.05, (0, _math.create2dNoise)(x, y)));
-        }
-      }
-    } // background(canvas, context)({ r: 230, g: 230, b: 230 });
-
+      grid = (0, _math.createGridCellsXY)(canvas.width, canvas.width, columns, columns, margin, margin / 2);
+      console.log(grid);
+      grid.points.forEach(function (point) {
+        var x = point[0];
+        var y = point[1];
+        curves.push(new Curve(x, y, grid.columnWidth / 2, 0, 0.05, (0, _math.create2dNoise)(x, y)));
+      });
+    }
 
     (0, _canvas.background)(canvas, context)(colorBackground);
   };
@@ -3962,7 +4004,12 @@ var lissajous01 = function lissajous01() {
     return curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var context = _ref2.context;
+    grid.points.forEach(function (point) {
+      (0, _canvas.drawRect)(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
+    });
+
     for (var b = 0; b < renderBatch; b++) {
       for (var i = 0; i < curves.length; i++) {
         var idx = i + 1;
@@ -3986,9 +4033,10 @@ var lissajous01 = function lissajous01() {
         var l = 30;
         var a = 0.75;
         var color = "hsla(".concat(h, ",").concat(s, "%,").concat(l, "%,").concat(a, ")"); // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
+        // pointStroked(context, c.x, c.y, pointRad, colorCurve);
 
-        pointStroked(context, c.x, c.y, pointRad, colorCurve);
-        (0, _canvas.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb, ", ").concat(ya, ", ").concat(yb), c.centerX - c.radius, c.centerY + c.radius + 40, colorText, _canvas.textstyles.size(0.75));
+        (0, _canvas.pixel)(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
+        (0, _canvas.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb, ", ").concat(ya, ", ").concat(yb), c.originX, c.originY + c.size + margin / 3, colorText, _canvas.textstyles.size(0.75));
       }
 
       tick++;
@@ -4003,7 +4051,7 @@ var lissajous01 = function lissajous01() {
 };
 
 exports.lissajous01 = lissajous01;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/palettes":"scripts/lib/palettes.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/released/waves01.js":[function(require,module,exports) {
+},{"../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/palettes":"scripts/lib/palettes.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/released/waves01.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4145,7 +4193,9 @@ var waves01 = function waves01() {
     };
   };
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasHeight = canvas.height;
     canvasMiddle = canvas.height / 2;
     waveRows = canvas.height;
@@ -4162,7 +4212,10 @@ var waves01 = function waves01() {
     (0, _canvas.background)(canvas, context)((0, _tinycolor.default)(colorBackground).lighten(20));
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     var mid = canvasMiddle;
 
     for (var i = 0; i < waves.length; i++) {
@@ -4308,7 +4361,9 @@ var windLines = function windLines() {
   var grid = (0, _math.createGridPointsUV)(15, 15);
   var timeline = new _Timeline.Timeline(config.fps, 0, 5);
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     var colors = (0, _palettes.nicePalette)();
     grid = grid.map(function (g) {
       g.color = (0, _math.oneOf)(colors);
@@ -4317,12 +4372,15 @@ var windLines = function windLines() {
     (0, _canvas.background)(canvas, context)('rgba(255,255,255,1');
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.background)(canvas, context)('rgba(255,255,255,.1');
-    grid.forEach(function (_ref) {
-      var position = _ref.position,
-          rotation = _ref.rotation,
-          color = _ref.color;
+    grid.forEach(function (_ref3) {
+      var position = _ref3.position,
+          rotation = _ref3.rotation,
+          color = _ref3.color;
 
       var _position = _slicedToArray(position, 2),
           u = _position[0],
@@ -4864,7 +4922,9 @@ var hiImage01 = function hiImage01(_) {
   //     return data;
   // };
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     imageData = (0, _canvas.getImageDataFromImage)(context)(png);
     (0, _canvas.clearCanvas)(canvas, context)();
     imageZoomFactor = canvas.width / imageData.width; // imageColorData = createColorArrayFromImageData(imageData);
@@ -4907,7 +4967,10 @@ var hiImage01 = function hiImage01(_) {
     });
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.background)(canvas, context)({
       r: 255,
       g: 255,
@@ -4963,7 +5026,9 @@ var variation1 = function variation1() {
   var canvasCenterY;
   var centerRadius;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
@@ -4975,7 +5040,10 @@ var variation1 = function variation1() {
     }
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.fillCanvas)(canvas, context)();
 
     for (var i = 0; i < numParticles; i++) {
@@ -5029,13 +5097,19 @@ var variation2 = function variation2() {
   };
   var particlesArray = [];
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+
     for (var i = 0; i < config.numParticles; i++) {
       particlesArray.push(new _Particle.Particle((0, _Particle.createRandomParticleValues)(canvas)));
     }
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.clearCanvas)(canvas, context)();
 
     for (var i = 0; i < config.numParticles; i++) {
@@ -5107,7 +5181,9 @@ var domokun = function domokun(_) {
   png.src = _domokun.default;
   var particlesArray = [];
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     var imageData = (0, _canvas.getImageDataFromImage)(context)(png);
     (0, _canvas.clearCanvas)(canvas, context)();
     var imageZoomFactor = canvas.width / imageSize;
@@ -5138,7 +5214,10 @@ var domokun = function domokun(_) {
     numParticles = particlesArray.length;
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.background)(canvas, context)('yellow');
 
     for (var i = 0; i < numParticles; i++) {
@@ -5175,7 +5254,9 @@ var variation4 = function variation4() {
   var particlesArray = [];
   var circles = [];
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     var centerX = canvas.width / 2;
     var centerY = canvas.height / 2;
     var diameter = canvas.height / 4;
@@ -5204,7 +5285,10 @@ var variation4 = function variation4() {
   }; // will run every frame
 
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.fillCanvas)(canvas, context)(0.005, '255,255,255');
 
     for (var i = 0; i < config.numParticles; i++) {
@@ -5251,7 +5335,10 @@ var variation5 = function variation5() {
   var particlesArray = [];
   var circles = [];
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+
     for (var i = 0; i < config.numParticles; i++) {
       var props = (0, _Particle.createRandomParticleValues)(canvas);
       props.x = canvas.width / 2;
@@ -5280,7 +5367,11 @@ var variation5 = function variation5() {
     (0, _canvas.fillCanvas)(canvas, context)(1, '255,255,255');
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
+
     // fillCanvas(canvas, context)(.005,'255,255,255');
     for (var i = 0; i < config.numParticles; i++) {
       (0, _Particle.updatePosWithVelocity)(particlesArray[i]);
@@ -5328,7 +5419,10 @@ var variation6 = function variation6() {
   var particlesArray = [];
   var hue = 0;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+
     for (var i = 0; i < numParticles; i++) {
       var initValues = (0, _Particle.createRandomParticleValues)(canvas);
       initValues.color = {
@@ -5340,7 +5434,10 @@ var variation6 = function variation6() {
     }
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.fillCanvas)(canvas, context)(0.08);
     if (hue++ > 361) hue = 0;
 
@@ -5405,7 +5502,9 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
   var canvasCenterY;
   var centerRadius;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
@@ -5432,7 +5531,10 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
   // };
 
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     (0, _canvas.background)(canvas, context)({
       r: 0,
       g: 0,
@@ -5501,7 +5603,9 @@ var threeAttractors = function threeAttractors() {
   var canvasCenterY;
   var centerRadius;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
@@ -5524,7 +5628,7 @@ var threeAttractors = function threeAttractors() {
       mass: 10,
       g: 3
     };
-    gridPoints = (0, _math.createGridPointsXY)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50);
+    gridPoints = (0, _math.createGridPointsXY)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50).points;
     numParticles = gridPoints.length;
 
     for (var i = 0; i < numParticles; i++) {
@@ -5550,7 +5654,11 @@ var threeAttractors = function threeAttractors() {
     (0, _canvas.background)(canvas, context)('white');
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
+
     // background(canvas, context)({ r: 255, g: 255, b: 255, a: 0.001 });
     for (var i = 0; i < numParticles; i++) {
       (0, _Particle.attract)(leftattractor, particlesArray[i], -1, attractorDist);
@@ -5596,14 +5704,19 @@ var blank = function blank() {
   var canvasCenterY;
   var centerRadius;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
     (0, _canvas.background)(canvas, context)('blue');
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
     return -1;
   };
 
@@ -5615,13 +5728,13 @@ var blank = function blank() {
 };
 
 exports.blank = blank;
-},{"../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/released/lissajous02.js":[function(require,module,exports) {
+},{"../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/experiments/lissajous01b.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.lissajous02 = void 0;
+exports.lissajous01b = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -5742,7 +5855,7 @@ var Curve = /*#__PURE__*/function () {
   return Curve;
 }();
 
-var lissajous02 = function lissajous02() {
+var lissajous01b = function lissajous01b() {
   var config = {
     name: 'lissajous01',
     ratio: _sketch.ratio.square
@@ -5762,7 +5875,9 @@ var lissajous02 = function lissajous02() {
   var colorText = colorBackground.clone().darken(15).desaturate(20);
   var tick = 0;
 
-  var setup = function setup(canvas, context) {
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
@@ -5810,7 +5925,11 @@ var lissajous02 = function lissajous02() {
     return curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
   };
 
-  var draw = function draw(canvas, context, mouse) {
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context,
+        mouse = _ref2.mouse;
+
     for (var b = 0; b < renderBatch; b++) {
       for (var i = 0; i < curves.length; i++) {
         var idx = i + 1;
@@ -5852,7 +5971,7 @@ var lissajous02 = function lissajous02() {
   };
 };
 
-exports.lissajous02 = lissajous02;
+exports.lissajous01b = lissajous01b;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/palettes":"scripts/lib/palettes.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -5888,7 +6007,7 @@ var _math = require("./lib/math");
 
 var _blank = require("./experiments/blank");
 
-var _lissajous2 = require("./released/lissajous02");
+var _lissajous01b = require("./experiments/lissajous01b");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5901,7 +6020,8 @@ Explorations with generative code
 // import { blackhole } from './experiments/blackhole';
 // import { parametric01 } from './experiments/parametric01';
 var s = (0, _sketch.sketch)();
-var DEBUG = _variation.variation1; // TODO append random seed value
+var DEBUG = undefined; // const DEBUG = variation1;
+// TODO append random seed value
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
   console.log('Saving capture');
@@ -6001,7 +6121,7 @@ if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
 if (DEBUG) {
   s.run(DEBUG());
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./lib/math":"scripts/lib/math.js","./experiments/blank":"scripts/experiments/blank.js","./released/lissajous02":"scripts/released/lissajous02.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./lib/math":"scripts/lib/math.js","./experiments/blank":"scripts/experiments/blank.js","./experiments/lissajous01b":"scripts/experiments/lissajous01b.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -6029,7 +6149,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58472" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54731" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

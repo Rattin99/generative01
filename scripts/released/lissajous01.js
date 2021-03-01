@@ -1,43 +1,22 @@
-import tinycolor from 'tinycolor2';
-import { background, drawTextFilled, textstyles } from '../lib/canvas';
-import { create2dNoise, mapRange, oneOf, pointDistance, randomWholeBetween, round2 } from '../lib/math';
+import { background, drawTextFilled, textstyles, pixel, drawRect, contextScale } from '../lib/canvas';
+import {
+    create2dNoise,
+    mapRange,
+    oneOf,
+    pointDistance,
+    randomWholeBetween,
+    round2,
+    createGridCellsXY,
+} from '../lib/math';
 import { brightest, darkest, nicePalette } from '../lib/palettes';
-import { ratio } from '../lib/sketch';
-
-const point = (context, x, y, radius, color) => {
-    context.fillStyle = tinycolor(color).toRgbString();
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fill();
-};
-
-const pointStroked = (context, x, y, radius, color) => {
-    context.strokeStyle = tinycolor(color).toRgbString();
-    context.lineWidth = 0.5;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.stroke();
-};
-
-const line = (context, x1, y1, x2, y2, color) => {
-    context.strokeStyle = tinycolor(color).toRgbString();
-    context.lineWidth = 0.5;
-    context.beginPath();
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
-};
+import { ratio, scale } from '../lib/sketch';
 
 class Curve {
-    #x;
-
-    #y;
-
-    constructor(centerX, centerY, radius, angle, speed, noise) {
-        this.#x = undefined;
-        this.#y = undefined;
-        this.centerX = centerX;
-        this.centerY = centerY;
+    constructor(x, y, radius, angle, speed, noise) {
+        this.x = x;
+        this.y = y;
+        this.originX = x;
+        this.originY = y;
         this.radius = radius;
         this.speed = speed || 1;
         this.angle = angle || 0;
@@ -50,20 +29,16 @@ class Curve {
         this.yb = oneOf([randomWholeBetween(1, 5), round2(this.noise)]);
     }
 
-    get x() {
-        return this.#x + this.centerX;
+    get size() {
+        return this.radius * 2;
     }
 
-    set x(v) {
-        this.#x = v;
+    get centerX() {
+        return this.originX + this.radius;
     }
 
-    get y() {
-        return this.#y + this.centerY;
-    }
-
-    set y(v) {
-        this.#y = v;
+    get centerY() {
+        return this.originY + this.radius;
     }
 
     get distFromCenter() {
@@ -75,6 +50,7 @@ export const lissajous01 = () => {
     const config = {
         name: 'lissajous01',
         ratio: ratio.square,
+        scale: scale.hidpi,
     };
 
     const renderBatch = 10;
@@ -83,32 +59,31 @@ export const lissajous01 = () => {
     let canvasCenterY;
     let centerRadius;
     const columns = 3;
-    const margin = 50;
+    let margin;
     const palette = nicePalette();
     const colorBackground = brightest(palette).clone().lighten(10);
     const colorCurve = darkest(palette).clone().darken(25);
     const colorText = colorBackground.clone().darken(15).desaturate(20);
     let tick = 0;
+    let grid;
 
     const setup = ({ canvas, context }) => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
-
-        const colSize = (canvas.width - margin * 2) / columns;
-        const colOffset = (canvas.width - margin * 2) / (columns * 2);
-
+        margin = 50 * contextScale;
         if (columns === 1) {
             curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
         } else {
-            for (let y = colOffset + margin; y < canvas.height - margin; y += colSize) {
-                for (let x = colOffset + margin; x < canvas.width - margin; x += colSize) {
-                    curves.push(new Curve(x, y, colOffset * 0.9, 0, 0.05, create2dNoise(x, y)));
-                }
-            }
+            grid = createGridCellsXY(canvas.width, canvas.width, columns, columns, margin, margin / 2);
+            console.log(grid);
+            grid.points.forEach((point) => {
+                const x = point[0];
+                const y = point[1];
+                curves.push(new Curve(x, y, grid.columnWidth / 2, 0, 0.05, create2dNoise(x, y)));
+            });
         }
 
-        // background(canvas, context)({ r: 230, g: 230, b: 230 });
         background(canvas, context)(colorBackground);
     };
 
@@ -123,7 +98,10 @@ export const lissajous01 = () => {
     const roseY = (curve, k = 1, a = 1, b = 1) =>
         curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
 
-    const draw = ({ canvas, context, mouse }) => {
+    const draw = ({ context }) => {
+        grid.points.forEach((point) => {
+            drawRect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
+        });
         for (let b = 0; b < renderBatch; b++) {
             for (let i = 0; i < curves.length; i++) {
                 const idx = i + 1;
@@ -156,12 +134,13 @@ export const lissajous01 = () => {
                 const color = `hsla(${h},${s}%,${l}%,${a})`;
 
                 // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
-                pointStroked(context, c.x, c.y, pointRad, colorCurve);
+                // pointStroked(context, c.x, c.y, pointRad, colorCurve);
+                pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
 
                 drawTextFilled(context)(
                     `k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`,
-                    c.centerX - c.radius,
-                    c.centerY + c.radius + 40,
+                    c.originX,
+                    c.originY + c.size + margin / 3,
                     colorText,
                     textstyles.size(0.75)
                 );

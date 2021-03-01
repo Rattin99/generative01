@@ -48,6 +48,11 @@ export const ratio = {
     auto: 1,
 };
 
+export const scale = {
+    standard: 1,
+    hidpi: 2,
+};
+
 const defaultValue = (obj, key, value) => (obj.hasOwnProperty(key) ? obj[key] : value);
 
 export const sketch = () => {
@@ -116,6 +121,7 @@ export const sketch = () => {
 
         const cfgOrientation = defaultValue(config, 'orientation', orientation.landscape);
         const cfgRatio = defaultValue(config, 'ratio', ratio.auto);
+        const cfgScale = defaultValue(config, 'scale', scale.standard);
 
         const aSide = Math.min(width, height);
         const bSide = Math.round(cfgRatio * aSide);
@@ -132,7 +138,7 @@ export const sketch = () => {
             newHeight = bSide;
         }
 
-        resizeCanvas(canvas, context, newWidth, newHeight);
+        resizeCanvas(canvas, context, newWidth, newHeight, cfgScale);
     };
 
     const run = (variation) => {

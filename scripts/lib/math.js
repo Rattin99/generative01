@@ -177,12 +177,11 @@ export const createCirclePoints = (offsetX, offsetY, diameter, steps, sx = 1, sy
     return points;
 };
 
-// -> [[x,y], ...]
 export const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows) => {
     const gridPoints = [];
 
-    const colStep = (width - xMargin * 2) / (columns - 1);
-    const rowStep = (height - yMargin * 2) / (rows - 1);
+    const colStep = Math.round((width - xMargin * 2) / (columns - 1));
+    const rowStep = Math.round((height - yMargin * 2) / (rows - 1));
 
     for (let col = 0; col < columns; col++) {
         const x = xMargin + col * colStep;
@@ -192,7 +191,24 @@ export const createGridPointsXY = (width, height, xMargin, yMargin, columns, row
         }
     }
 
-    return gridPoints;
+    return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
+};
+
+export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0) => {
+    const gridPoints = [];
+
+    const colStep = Math.round((width - margin * 2 - gutter * (columns - 1)) / columns);
+    const rowStep = Math.round((height - margin * 2 - gutter * (rows - 1)) / rows);
+
+    for (let col = 0; col < columns; col++) {
+        const x = margin + col * colStep + gutter * col;
+        for (let row = 0; row < rows; row++) {
+            const y = margin + row * rowStep + gutter * row;
+            gridPoints.push([x, y]);
+        }
+    }
+
+    return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
 };
 
 // -> [{radius, rotation, position:[u,v]}, ...]

@@ -26,11 +26,12 @@ import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
 import { threeAttractors } from './released/threeAttractors';
 import { oneOf } from './lib/math';
 import { blank } from './experiments/blank';
-import { lissajous02 } from './released/lissajous02';
+import { lissajous01b } from './experiments/lissajous01b';
 
 const s = sketch();
 
-const DEBUG = variation1;
+const DEBUG = undefined;
+// const DEBUG = variation1;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
