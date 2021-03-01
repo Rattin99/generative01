@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background, connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas';
-import { create2dNoise, mapRange, pointDistance, randomNumberBetween } from '../lib/math';
+import { create2dNoiseAbs, mapRange, pointDistance, randomNumberBetween } from '../lib/math';
 
 /*
 Based on Coding Challenge #116​: Lissajous Curve Table https://www.youtube.com/watch?v=--6eyLO78CY
@@ -104,7 +104,7 @@ export const hny = () => {
         } else {
             for (let x = colOffset + margin; x < canvas.width - margin; x += colSize) {
                 for (let y = colOffset + margin; y < canvas.height - margin; y += colSize) {
-                    curves.push(new Curve(x, y, colOffset * 0.75, 0, 0.05, create2dNoise(x, y)));
+                    curves.push(new Curve(x, y, colOffset * 0.75, 0, 0.05, create2dNoiseAbs(x, y)));
                 }
             }
         }

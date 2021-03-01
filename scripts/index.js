@@ -24,14 +24,13 @@ import { variation5 } from './released/variation5';
 import { variation6 } from './released/variation6';
 import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
 import { threeAttractors } from './released/threeAttractors';
-import { oneOf } from './lib/math';
-import { blank } from './experiments/blank';
-import { lissajous01b } from './experiments/lissajous01b';
+
+import { flowField } from './experiments/flow-field';
 
 const s = sketch();
 
-const DEBUG = undefined;
-// const DEBUG = variation1;
+// const DEBUG = undefined;
+const DEBUG = flowField;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {

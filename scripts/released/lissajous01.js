@@ -1,6 +1,6 @@
-import { background, drawTextFilled, textstyles, pixel, drawRect, contextScale } from '../lib/canvas';
+import { background, drawTextFilled, textStyles, pixel, drawRect, contextScale, textAlignLeftTop } from '../lib/canvas';
 import {
-    create2dNoise,
+    create2dNoiseAbs,
     mapRange,
     oneOf,
     pointDistance,
@@ -80,7 +80,7 @@ export const lissajous01 = () => {
             grid.points.forEach((point) => {
                 const x = point[0];
                 const y = point[1];
-                curves.push(new Curve(x, y, grid.columnWidth / 2, 0, 0.05, create2dNoise(x, y)));
+                curves.push(new Curve(x, y, grid.columnWidth / 2, 0, 0.05, create2dNoiseAbs(x, y)));
             });
         }
 
@@ -98,18 +98,21 @@ export const lissajous01 = () => {
     const roseY = (curve, k = 1, a = 1, b = 1) =>
         curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
 
+    const linearYDown = (curve) => {
+        let { y } = curve;
+        if (++y > curve.size) y = 0;
+        return y;
+    };
+
     const draw = ({ context }) => {
         grid.points.forEach((point) => {
             drawRect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
         });
         for (let b = 0; b < renderBatch; b++) {
             for (let i = 0; i < curves.length; i++) {
-                const idx = i + 1;
-                const pointRad = 1;
+                // const idx = i + 1;
+                // const pointRad = 1;
                 const c = curves[i];
-
-                // const px = c.x;
-                // const py = c.y;
 
                 const k = round2(((i + 1) * 2) / 9);
 
@@ -122,27 +125,27 @@ export const lissajous01 = () => {
                 // c.y = circleY(c);
                 c.x = roseX(c, k, xa, xb);
                 c.y = roseY(c, k, ya, yb);
+                // c.y = linearYDown(c);
 
                 // TODO, put a/b on the canvas so i can remember them!
 
                 c.angle += c.speed;
 
-                const h = mapRange(0, c.radius, 180, 270, c.distFromCenter);
-                const s = 100;
-                const l = 30;
-                const a = 0.75;
-                const color = `hsla(${h},${s}%,${l}%,${a})`;
+                // const h = mapRange(0, c.radius, 180, 270, c.distFromCenter);
+                // const s = 100;
+                // const l = 30;
+                // const a = 0.75;
+                // const color = `hsla(${h},${s}%,${l}%,${a})`;
 
-                // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
-                // pointStroked(context, c.x, c.y, pointRad, colorCurve);
                 pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
 
+                textAlignLeftTop(context);
                 drawTextFilled(context)(
                     `k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`,
                     c.originX,
                     c.originY + c.size + margin / 3,
                     colorText,
-                    textstyles.size(0.75)
+                    textStyles.size(10)
                 );
             }
             tick++;

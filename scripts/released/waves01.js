@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../lib/canvas';
 import { ratio, orientation } from '../lib/sketch';
-import { create2dNoise, mapRange, randomNumberBetween, lowest, highest } from '../lib/math';
+import { create2dNoiseAbs, mapRange, randomNumberBetween, lowest, highest } from '../lib/math';
 
 /*
 Original inspiration
@@ -140,7 +140,7 @@ export const waves01 = () => {
         frequency = mapRange(0, mid, 8, 30, distFromCenter);
         amplitude = mapRange(0, mid, 15, 20, distFromCenter) + randomNumberBetween(-5, 5);
 
-        const noise = create2dNoise(angle, idx, amplitude * 0.5, frequency * randomNumberBetween(0, 2));
+        const noise = create2dNoiseAbs(angle, idx, amplitude * 0.5, frequency * randomNumberBetween(0, 2));
         cosOffset = noise / randomNumberBetween(2, 10);
 
         return {

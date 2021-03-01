@@ -56,6 +56,11 @@ export const sharpLines = (context) => {
     context.translate(0.5, 0.5);
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+export const blendMode = (context) => (mode) => {
+    context.globalCompositeOperation = mode;
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 // PRIMITIVES
 //----------------------------------------------------------------------------------------------------------------------
@@ -192,16 +197,27 @@ export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
     context.fill();
 };
 
-export const textstyles = {
-    size: (s) => `${s * contextScale}rem "Helvetica Neue",Helvetica,Arial,sans-serif`,
-    default: '1rem "Helvetica Neue",Helvetica,Arial,sans-serif',
-    small: '0.75rem "Helvetica Neue",Helvetica,Arial,sans-serif',
+export const textStyles = {
+    size: (s) => `${s * contextScale}px "Helvetica Neue",Helvetica,Arial,sans-serif`,
+    default: '16px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    small: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
 };
 
 export const drawTextFilled = (context) => (text, x, y, color, style) => {
+    console.log(style);
     context.fillStyle = tinycolor(color).toRgbString();
-    context.font = style || textstyles.default;
+    context.font = style || textStyles.default;
     context.fillText(text, x, y);
+};
+
+export const textAlignLeftTop = (context) => {
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+};
+
+export const textAlignAllCenter = (context) => {
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
 };
 
 //----------------------------------------------------------------------------------------------------------------------

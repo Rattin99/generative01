@@ -2599,7 +2599,7 @@ Vector.angleBetween = function (a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoise = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.fibonacci = exports.golden = void 0;
+exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoiseAbs = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.fibonacci = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -2870,19 +2870,27 @@ exports.scalePointToCanvas = scalePointToCanvas;
 var create2dNoise = function create2dNoise(u, v) {
   var amplitude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
   var frequency = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0.5;
-  return Math.abs(_random.default.noise2D(u * frequency, v * frequency)) * amplitude;
+  return _random.default.noise2D(u * frequency, v * frequency) * amplitude;
 };
 
 exports.create2dNoise = create2dNoise;
 
-var create3dNoise = function create3dNoise(u, v, t) {
+var create2dNoiseAbs = function create2dNoiseAbs(u, v) {
+  var amplitude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+  var frequency = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0.5;
+  return Math.abs(_random.default.noise2D(u * frequency, v * frequency)) * amplitude;
+};
+
+exports.create2dNoiseAbs = create2dNoiseAbs;
+
+var create3dNoiseAbs = function create3dNoiseAbs(u, v, t) {
   var amplitude = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
   var frequency = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0.5;
   return Math.abs(_random.default.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;
 }; // [[x,y], ...]
 
 
-exports.create3dNoise = create3dNoise;
+exports.create3dNoiseAbs = create3dNoiseAbs;
 
 var createCirclePoints = function createCirclePoints(offsetX, offsetY, diameter, steps) {
   var sx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
@@ -2927,21 +2935,27 @@ exports.createGridPointsXY = createGridPointsXY;
 var createGridCellsXY = function createGridCellsXY(width, height, columns, rows) {
   var margin = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
   var gutter = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-  var gridPoints = [];
-  var colStep = Math.round((width - margin * 2 - gutter * (columns - 1)) / columns);
-  var rowStep = Math.round((height - margin * 2 - gutter * (rows - 1)) / rows);
+  var noiseFn = arguments.length > 6 ? arguments[6] : undefined;
+  var points = [];
+  var coords = [];
+  var colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
+  var rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
 
   for (var col = 0; col < columns; col++) {
     var x = margin + col * colStep + gutter * col;
+    coords[col] = [];
 
     for (var row = 0; row < rows; row++) {
       var y = margin + row * rowStep + gutter * row;
-      gridPoints.push([x, y]);
+      var noise = noiseFn ? noiseFn(x, y) : 0;
+      points.push([x, y, noise]);
+      coords[col][row] = noise;
     }
   }
 
   return {
-    points: gridPoints,
+    points: points,
+    coords: coords,
     columnWidth: colStep,
     rowHeight: rowStep
   };
@@ -2961,8 +2975,8 @@ var createGridPointsUV = function createGridPointsUV(columns, rows) {
       var u = columns <= 1 ? 0.5 : x / (columns - 1);
       var v = columns <= 1 ? 0.5 : y / (rows - 1); // const radius = Math.abs(random.gaussian() * 0.02);
 
-      var radius = create2dNoise(u, v);
-      var rotation = create2dNoise(u, v);
+      var radius = create2dNoiseAbs(u, v);
+      var rotation = create2dNoiseAbs(u, v);
       points.push({
         radius: radius,
         rotation: rotation,
@@ -2981,7 +2995,7 @@ exports.createGridPointsUV = createGridPointsUV;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.drawSpikeCircle = exports.drawRake = exports.drawTextFilled = exports.textstyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.pixel = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
+exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.drawSpikeCircle = exports.drawRake = exports.textAlignAllCenter = exports.textAlignLeftTop = exports.drawTextFilled = exports.textStyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.pixel = exports.blendMode = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -3054,13 +3068,22 @@ exports.resetStyles = resetStyles;
 
 var sharpLines = function sharpLines(context) {
   context.translate(0.5, 0.5);
+}; // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+
+
+exports.sharpLines = sharpLines;
+
+var blendMode = function blendMode(context) {
+  return function (mode) {
+    context.globalCompositeOperation = mode;
+  };
 }; //----------------------------------------------------------------------------------------------------------------------
 // PRIMITIVES
 //----------------------------------------------------------------------------------------------------------------------
 // TODO, circle or square?
 
 
-exports.sharpLines = sharpLines;
+exports.blendMode = blendMode;
 
 var pixel = function pixel(context) {
   return function (x, y) {
@@ -3261,28 +3284,43 @@ var drawRoundRectFilled = function drawRoundRectFilled(context) {
 };
 
 exports.drawRoundRectFilled = drawRoundRectFilled;
-var textstyles = {
+var textStyles = {
   size: function size(s) {
-    return "".concat(s * contextScale, "rem \"Helvetica Neue\",Helvetica,Arial,sans-serif");
+    return "".concat(s * contextScale, "px \"Helvetica Neue\",Helvetica,Arial,sans-serif");
   },
-  default: '1rem "Helvetica Neue",Helvetica,Arial,sans-serif',
-  small: '0.75rem "Helvetica Neue",Helvetica,Arial,sans-serif'
+  default: '16px "Helvetica Neue",Helvetica,Arial,sans-serif',
+  small: '12px "Helvetica Neue",Helvetica,Arial,sans-serif'
 };
-exports.textstyles = textstyles;
+exports.textStyles = textStyles;
 
 var drawTextFilled = function drawTextFilled(context) {
   return function (text, x, y, color, style) {
+    console.log(style);
     context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-    context.font = style || textstyles.default;
+    context.font = style || textStyles.default;
     context.fillText(text, x, y);
   };
+};
+
+exports.drawTextFilled = drawTextFilled;
+
+var textAlignLeftTop = function textAlignLeftTop(context) {
+  context.textAlign = 'left';
+  context.textBaseline = 'top';
+};
+
+exports.textAlignLeftTop = textAlignLeftTop;
+
+var textAlignAllCenter = function textAlignAllCenter(context) {
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
 }; //----------------------------------------------------------------------------------------------------------------------
 // COMPLEX SHAPES
 //----------------------------------------------------------------------------------------------------------------------
 // TODO center it
 
 
-exports.drawTextFilled = drawTextFilled;
+exports.textAlignAllCenter = textAlignAllCenter;
 
 var drawRake = function drawRake(context) {
   return function (_ref2, spacing) {
@@ -3970,7 +4008,7 @@ var lissajous01 = function lissajous01() {
       grid.points.forEach(function (point) {
         var x = point[0];
         var y = point[1];
-        curves.push(new Curve(x, y, grid.columnWidth / 2, 0, 0.05, (0, _math.create2dNoise)(x, y)));
+        curves.push(new Curve(x, y, grid.columnWidth / 2, 0, 0.05, (0, _math.create2dNoiseAbs)(x, y)));
       });
     }
 
@@ -4004,6 +4042,12 @@ var lissajous01 = function lissajous01() {
     return curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
   };
 
+  var linearYDown = function linearYDown(curve) {
+    var y = curve.y;
+    if (++y > curve.size) y = 0;
+    return y;
+  };
+
   var draw = function draw(_ref2) {
     var context = _ref2.context;
     grid.points.forEach(function (point) {
@@ -4012,11 +4056,9 @@ var lissajous01 = function lissajous01() {
 
     for (var b = 0; b < renderBatch; b++) {
       for (var i = 0; i < curves.length; i++) {
-        var idx = i + 1;
-        var pointRad = 1;
-        var c = curves[i]; // const px = c.x;
-        // const py = c.y;
-
+        // const idx = i + 1;
+        // const pointRad = 1;
+        var c = curves[i];
         var k = (0, _math.round2)((i + 1) * 2 / 9);
         var xa = c.xa;
         var xb = c.xb;
@@ -4025,18 +4067,18 @@ var lissajous01 = function lissajous01() {
         // c.y = circleY(c);
 
         c.x = roseX(c, k, xa, xb);
-        c.y = roseY(c, k, ya, yb); // TODO, put a/b on the canvas so i can remember them!
+        c.y = roseY(c, k, ya, yb); // c.y = linearYDown(c);
+        // TODO, put a/b on the canvas so i can remember them!
 
-        c.angle += c.speed;
-        var h = (0, _math.mapRange)(0, c.radius, 180, 270, c.distFromCenter);
-        var s = 100;
-        var l = 30;
-        var a = 0.75;
-        var color = "hsla(".concat(h, ",").concat(s, "%,").concat(l, "%,").concat(a, ")"); // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
-        // pointStroked(context, c.x, c.y, pointRad, colorCurve);
+        c.angle += c.speed; // const h = mapRange(0, c.radius, 180, 270, c.distFromCenter);
+        // const s = 100;
+        // const l = 30;
+        // const a = 0.75;
+        // const color = `hsla(${h},${s}%,${l}%,${a})`;
 
         (0, _canvas.pixel)(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
-        (0, _canvas.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb, ", ").concat(ya, ", ").concat(yb), c.originX, c.originY + c.size + margin / 3, colorText, _canvas.textstyles.size(0.75));
+        (0, _canvas.textAlignLeftTop)(context);
+        (0, _canvas.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb, ", ").concat(ya, ", ").concat(yb), c.originX, c.originY + c.size + margin / 3, colorText, _canvas.textStyles.size(10));
       }
 
       tick++;
@@ -4185,7 +4227,7 @@ var waves01 = function waves01() {
     angle = (0, _math.mapRange)(0, waveRows, 0, 360, idx);
     frequency = (0, _math.mapRange)(0, mid, 8, 30, distFromCenter);
     amplitude = (0, _math.mapRange)(0, mid, 15, 20, distFromCenter) + (0, _math.randomNumberBetween)(-5, 5);
-    var noise = (0, _math.create2dNoise)(angle, idx, amplitude * 0.5, frequency * (0, _math.randomNumberBetween)(0, 2));
+    var noise = (0, _math.create2dNoiseAbs)(angle, idx, amplitude * 0.5, frequency * (0, _math.randomNumberBetween)(0, 2));
     cosOffset = noise / (0, _math.randomNumberBetween)(2, 10);
     return {
       top: createWave(waveResolution, angle, frequency, amplitude, cosOffset),
@@ -4397,7 +4439,7 @@ var windLines = function windLines() {
           y = _marginify.y;
 
       var t = (0, _math.toSinValue)(timeline.playhead) * 0.1;
-      var wave = (0, _math.create3dNoise)(u, v, counter, 3 * t) * 10;
+      var wave = (0, _math.create3dNoiseAbs)(u, v, counter, 3 * t) * 10;
       var startvect = (0, _math.uvFromAngle)((rotation + wave) * -1).setMag(25);
       (0, _canvas.setStokeColor)(context)(color);
       (0, _canvas.drawLineAngle)(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
@@ -5681,199 +5723,37 @@ var threeAttractors = function threeAttractors() {
 };
 
 exports.threeAttractors = threeAttractors;
-},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/experiments/blank.js":[function(require,module,exports) {
+},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/experiments/flow-field.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.blank = void 0;
-
-var _canvas = require("../lib/canvas");
-
-var _sketch = require("../lib/sketch");
-
-var blank = function blank() {
-  var config = {// width: 700,
-    // height: 500,
-    // fps: 60,
-    // orientation: orientation.portrait,
-    // ratio: ratio.square,
-  };
-  var canvasCenterX;
-  var canvasCenterY;
-  var centerRadius;
-
-  var setup = function setup(_ref) {
-    var canvas = _ref.canvas,
-        context = _ref.context;
-    canvasCenterX = canvas.width / 2;
-    canvasCenterY = canvas.height / 2;
-    centerRadius = canvas.height / 4;
-    (0, _canvas.background)(canvas, context)('blue');
-  };
-
-  var draw = function draw(_ref2) {
-    var canvas = _ref2.canvas,
-        context = _ref2.context,
-        mouse = _ref2.mouse;
-    return -1;
-  };
-
-  return {
-    config: config,
-    setup: setup,
-    draw: draw
-  };
-};
-
-exports.blank = blank;
-},{"../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/experiments/lissajous01b.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.lissajous01b = void 0;
-
-var _tinycolor = _interopRequireDefault(require("tinycolor2"));
-
-var _canvas = require("../lib/canvas");
+exports.flowField = void 0;
 
 var _math = require("../lib/math");
 
-var _palettes = require("../lib/palettes");
+var _Particle = require("../lib/Particle");
+
+var _canvas = require("../lib/canvas");
 
 var _sketch = require("../lib/sketch");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var TAU = Math.PI * 2;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _classPrivateFieldGet(receiver, privateMap) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to get private field on non-instance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-
-function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to set private field on non-instance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
-
-var point = function point(context, x, y, radius, color) {
-  context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-  context.beginPath();
-  context.arc(x, y, radius, 0, Math.PI * 2, false);
-  context.fill();
-};
-
-var pointStroked = function pointStroked(context, x, y, radius, color) {
-  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
-  context.lineWidth = 0.5;
-  context.beginPath();
-  context.arc(x, y, radius, 0, Math.PI * 2, false);
-  context.stroke();
-};
-
-var line = function line(context, x1, y1, x2, y2, color) {
-  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
-  context.lineWidth = 0.5;
-  context.beginPath();
-  context.moveTo(x1, y1);
-  context.lineTo(x2, y2);
-  context.stroke();
-};
-
-var _x = new WeakMap();
-
-var _y = new WeakMap();
-
-var Curve = /*#__PURE__*/function () {
-  function Curve(centerX, centerY, radius, angle, speed, noise) {
-    _classCallCheck(this, Curve);
-
-    _x.set(this, {
-      writable: true,
-      value: void 0
-    });
-
-    _y.set(this, {
-      writable: true,
-      value: void 0
-    });
-
-    _classPrivateFieldSet(this, _x, undefined);
-
-    _classPrivateFieldSet(this, _y, 0);
-
-    this.centerX = centerX;
-    this.centerY = centerY;
-    this.radius = radius;
-    this.speed = speed || 1;
-    this.angle = angle || 0;
-    this.noise = noise; // Randomize some noise possibilities
-
-    this.xa = (0, _math.oneOf)([(0, _math.randomWholeBetween)(1, 5), (0, _math.round2)(this.noise)]);
-    this.xb = (0, _math.oneOf)([(0, _math.randomWholeBetween)(1, 5), (0, _math.round2)(this.noise)]);
-    this.ya = (0, _math.oneOf)([(0, _math.randomWholeBetween)(1, 5), (0, _math.round2)(this.noise)]);
-    this.yb = (0, _math.oneOf)([(0, _math.randomWholeBetween)(1, 5), (0, _math.round2)(this.noise)]);
-  }
-
-  _createClass(Curve, [{
-    key: "height",
-    get: function get() {
-      return this.radius * 2;
-    }
-  }, {
-    key: "x",
-    get: function get() {
-      return _classPrivateFieldGet(this, _x) + this.centerX;
-    },
-    set: function set(v) {
-      _classPrivateFieldSet(this, _x, v);
-    }
-  }, {
-    key: "y",
-    get: function get() {
-      // return this.#y;
-      return _classPrivateFieldGet(this, _y);
-    },
-    set: function set(v) {
-      _classPrivateFieldSet(this, _y, v);
-    }
-  }, {
-    key: "distFromCenter",
-    get: function get() {
-      return (0, _math.pointDistance)({
-        x: this.centerX,
-        y: this.centerY
-      }, {
-        x: this.x,
-        y: this.y
-      });
-    }
-  }]);
-
-  return Curve;
-}();
-
-var lissajous01b = function lissajous01b() {
+var flowField = function flowField() {
   var config = {
-    name: 'lissajous01',
-    ratio: _sketch.ratio.square
+    name: 'flowField',
+    ratio: _sketch.ratio.square,
+    scale: _sketch.scale.standard
   };
-  var renderBatch = 10;
-  var curves = [];
+  var numParticles = 50;
+  var particlesArray = [];
+  var grid;
+  var gridResolution = 30;
   var canvasCenterX;
   var canvasCenterY;
   var centerRadius;
-  var columns = 3;
-  var margin = 50;
-  var colSize;
-  var colOffset;
-  var palette = (0, _palettes.nicePalette)();
-  var colorBackground = (0, _palettes.brightest)(palette).clone().lighten(10);
-  var colorCurve = (0, _palettes.darkest)(palette).clone().darken(25);
-  var colorText = colorBackground.clone().darken(15).desaturate(20);
-  var tick = 0;
 
   var setup = function setup(_ref) {
     var canvas = _ref.canvas,
@@ -5881,48 +5761,43 @@ var lissajous01b = function lissajous01b() {
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
     centerRadius = canvas.height / 4;
-    colSize = (canvas.width - margin * 2) / columns;
-    colOffset = (canvas.width - margin * 2) / (columns * 2);
 
-    if (columns === 1) {
-      curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
-    } else {
-      for (var y = colOffset + margin; y < canvas.height - margin; y += colSize) {
-        for (var x = colOffset + margin; x < canvas.width - margin; x += colSize) {
-          curves.push(new Curve(x, y, colOffset * 0.9, 0, 0.05, (0, _math.create2dNoise)(x, y)));
-        }
-      }
-    } // background(canvas, context)({ r: 230, g: 230, b: 230 });
+    var noiseFn = function noiseFn(x, y) {
+      return (0, _math.round2)((0, _math.create2dNoise)(x, y, 1, 0.001));
+    };
 
+    grid = (0, _math.createGridCellsXY)(canvas.width, canvas.width, gridResolution, gridResolution, 0, 0, noiseFn);
+    console.log(grid);
 
-    (0, _canvas.background)(canvas, context)(colorBackground);
-  };
+    for (var i = 0; i < numParticles; i++) {
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
+      props.x = (0, _math.randomWholeBetween)(0, canvas.width);
+      props.y = (0, _math.randomWholeBetween)(0, canvas.height);
+      props.velocityX = 0;
+      props.velocityY = 0;
+      props.mass = 1;
+      props.radius = 4; // const h = mapRange(0, canvas.width, 0, 90, props.x);
+      // const s = 100; // lerpRange(0,10,0,100,prop.radius);
+      // const l = 50; // lerpRange(0,10,25,75,prop.radius);
+      // props.color = `hsla(${h},${s}%,${l}%,1)`;
 
-  var circleX = function circleX(curve) {
-    var v = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-    return curve.radius * Math.cos(curve.angle * v);
-  };
+      props.color = 'red';
+      particlesArray.push(new _Particle.Particle(props));
+    }
 
-  var circleY = function circleY(curve) {
-    var v = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-    return curve.radius * Math.sin(curve.angle * v);
-  }; // k is # of petals
-  // https://en.wikipedia.org/wiki/Rose_(mathematics)
-  // http://xahlee.info/SpecialPlaneCurves_dir/Rose_dir/rose.html
+    (0, _canvas.background)(canvas, context)('white');
+    (0, _canvas.textAlignAllCenter)(context);
+    grid.points.forEach(function (point) {
+      var x = point[0];
+      var y = point[1];
+      var n = point[2];
+      var midX = grid.columnWidth / 2;
+      var midY = grid.rowHeight / 2; // drawRectFilled(context)(x, y, grid.columnWidth, grid.rowHeight, `hsl(${360 * (n * 2)},100,50)`);
 
-
-  var roseX = function roseX(curve) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-    var a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-    var b = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-    return curve.radius * Math.cos(k * curve.angle * a) * Math.cos(curve.angle * b);
-  };
-
-  var roseY = function roseY(curve) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-    var a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-    var b = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-    return curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b);
+      (0, _canvas.drawRectFilled)(context)(x, y, grid.columnWidth, grid.rowHeight, "rgba(0,0,0,".concat(n / 2 + 0.5));
+      (0, _canvas.drawLineAngle)(context)(x + midX, y + midY, n * TAU, midY); // drawTextFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
+    });
+    (0, _canvas.background)(canvas, context)('rgba(255,255,255,.75)');
   };
 
   var draw = function draw(_ref2) {
@@ -5930,37 +5805,26 @@ var lissajous01b = function lissajous01b() {
         context = _ref2.context,
         mouse = _ref2.mouse;
 
-    for (var b = 0; b < renderBatch; b++) {
-      for (var i = 0; i < curves.length; i++) {
-        var idx = i + 1;
-        var pointRad = 1;
-        var c = curves[i]; // const px = c.x;
-        // const py = c.y;
+    // background(canvas, context)('white');
+    for (var i = 0; i < numParticles; i++) {
+      particlesArray[i].vVector = particlesArray[i].vVector.limit(10);
+      var noiseX = Math.floor((0, _math.mapRange)(0, canvas.width, 0, gridResolution - 1, particlesArray[i].x));
+      var noiseY = Math.floor((0, _math.mapRange)(0, canvas.height, 0, gridResolution - 1, particlesArray[i].y));
+      var noiseAtPoint = 0;
 
-        var k = (0, _math.round2)((i + 1) * 2 / 9);
-        var xa = c.xa;
-        var xb = c.xb; // const { ya } = c;
-        // const { yb } = c;
-        // c.x = circleX(c);
-        // c.y = circleY(c);
-
-        c.x = roseX(c, k, xa, xb); // c.y = roseY(c, k, ya, yb);
-
-        c.y += 1; // TODO, put a/b on the canvas so i can remember them!
-
-        c.angle += c.speed;
-        var h = (0, _math.mapRange)(0, c.radius, 180, 270, c.distFromCenter);
-        var s = 100;
-        var l = 30;
-        var a = 0.75;
-        var color = "hsla(".concat(h, ",").concat(s, "%,").concat(l, "%,").concat(a, ")"); // if (px && py) line(context, px, py, c.x, c.y, 'rgba(0,0,0,.1');
-
-        pointStroked(context, c.x, c.y + c.centerY - colOffset + margin / 2, pointRad, colorCurve);
-        if (c.y > c.height) c.y = 0;
-        (0, _canvas.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb), c.centerX - c.radius, c.centerY + c.radius + 40, colorText, _canvas.textstyles.size(0.75));
+      try {
+        noiseAtPoint = grid.coords[noiseX][noiseY];
+      } catch (e) {
+        console.log("Error at ".concat(noiseX, ", ").concat(noiseY));
       }
 
-      tick++;
+      var force = (0, _math.uvFromAngle)(noiseAtPoint * TAU);
+      (0, _Particle.applyForce)(force, particlesArray[i]);
+      particlesArray[i].vVector = particlesArray[i].vVector.limit(2);
+      (0, _Particle.updatePosWithVelocity)(particlesArray[i]); // edgeBounce(canvas, particlesArray[i]);
+
+      (0, _Particle.edgeWrap)(canvas, particlesArray[i]);
+      (0, _canvas.pixel)(context)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].color);
     }
   };
 
@@ -5971,8 +5835,8 @@ var lissajous01b = function lissajous01b() {
   };
 };
 
-exports.lissajous01b = lissajous01b;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/palettes":"scripts/lib/palettes.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/index.js":[function(require,module,exports) {
+exports.flowField = flowField;
+},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -6003,11 +5867,7 @@ var _rainbowRakeOrbitMouse = require("./released/rainbow-rake-orbit-mouse");
 
 var _threeAttractors = require("./released/threeAttractors");
 
-var _math = require("./lib/math");
-
-var _blank = require("./experiments/blank");
-
-var _lissajous01b = require("./experiments/lissajous01b");
+var _flowField = require("./experiments/flow-field");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -6019,9 +5879,9 @@ Explorations with generative code
 // import { testGrid } from './experiments/test-grid';
 // import { blackhole } from './experiments/blackhole';
 // import { parametric01 } from './experiments/parametric01';
-var s = (0, _sketch.sketch)();
-var DEBUG = undefined; // const DEBUG = variation1;
-// TODO append random seed value
+var s = (0, _sketch.sketch)(); // const DEBUG = undefined;
+
+var DEBUG = _flowField.flowField; // TODO append random seed value
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
   console.log('Saving capture');
@@ -6121,7 +5981,7 @@ if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
 if (DEBUG) {
   s.run(DEBUG());
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./lib/math":"scripts/lib/math.js","./experiments/blank":"scripts/experiments/blank.js","./experiments/lissajous01b":"scripts/experiments/lissajous01b.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./experiments/flow-field":"scripts/experiments/flow-field.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -6149,7 +6009,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54731" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56661" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

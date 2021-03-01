@@ -160,9 +160,12 @@ export const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoo
 };
 
 export const create2dNoise = (u, v, amplitude = 1, frequency = 0.5) =>
+    random.noise2D(u * frequency, v * frequency) * amplitude;
+
+export const create2dNoiseAbs = (u, v, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise2D(u * frequency, v * frequency)) * amplitude;
 
-export const create3dNoise = (u, v, t, amplitude = 1, frequency = 0.5) =>
+export const create3dNoiseAbs = (u, v, t, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;
 
 // [[x,y], ...]
@@ -194,21 +197,25 @@ export const createGridPointsXY = (width, height, xMargin, yMargin, columns, row
     return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
 };
 
-export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0) => {
-    const gridPoints = [];
+export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0, noiseFn) => {
+    const points = [];
+    const coords = [];
 
-    const colStep = Math.round((width - margin * 2 - gutter * (columns - 1)) / columns);
-    const rowStep = Math.round((height - margin * 2 - gutter * (rows - 1)) / rows);
+    const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
+    const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
 
     for (let col = 0; col < columns; col++) {
         const x = margin + col * colStep + gutter * col;
+        coords[col] = [];
         for (let row = 0; row < rows; row++) {
             const y = margin + row * rowStep + gutter * row;
-            gridPoints.push([x, y]);
+            const noise = noiseFn ? noiseFn(x, y) : 0;
+            points.push([x, y, noise]);
+            coords[col][row] = noise;
         }
     }
 
-    return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
+    return { points, coords, columnWidth: colStep, rowHeight: rowStep };
 };
 
 // -> [{radius, rotation, position:[u,v]}, ...]
@@ -224,8 +231,8 @@ export const createGridPointsUV = (columns, rows) => {
             const u = columns <= 1 ? 0.5 : x / (columns - 1);
             const v = columns <= 1 ? 0.5 : y / (rows - 1);
             // const radius = Math.abs(random.gaussian() * 0.02);
-            const radius = create2dNoise(u, v);
-            const rotation = create2dNoise(u, v);
+            const radius = create2dNoiseAbs(u, v);
+            const rotation = create2dNoiseAbs(u, v);
             points.push({
                 radius,
                 rotation,

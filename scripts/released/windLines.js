@@ -1,6 +1,6 @@
 import { background, drawLineAngle, setStokeColor } from '../lib/canvas';
 import { nicePalette } from '../lib/palettes';
-import { create3dNoise, createGridPointsUV, marginify, oneOf, toSinValue, uvFromAngle } from '../lib/math';
+import { create3dNoiseAbs, createGridPointsUV, marginify, oneOf, toSinValue, uvFromAngle } from '../lib/math';
 import { Timeline } from '../lib/Timeline';
 
 export const windLines = () => {
@@ -31,7 +31,7 @@ export const windLines = () => {
             const [u, v] = position;
             const { x, y } = marginify({ margin: 100, u, v, width: canvas.width, height: canvas.height });
             const t = toSinValue(timeline.playhead) * 0.1;
-            const wave = create3dNoise(u, v, counter, 3 * t) * 10;
+            const wave = create3dNoiseAbs(u, v, counter, 3 * t) * 10;
             const startvect = uvFromAngle((rotation + wave) * -1).setMag(25);
             setStokeColor(context)(color);
             drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
