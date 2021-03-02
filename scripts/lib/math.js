@@ -197,25 +197,21 @@ export const createGridPointsXY = (width, height, xMargin, yMargin, columns, row
     return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
 };
 
-export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0, noiseFn) => {
+export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0) => {
     const points = [];
-    const coords = [];
 
     const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
     const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
 
     for (let col = 0; col < columns; col++) {
         const x = margin + col * colStep + gutter * col;
-        coords[col] = [];
         for (let row = 0; row < rows; row++) {
             const y = margin + row * rowStep + gutter * row;
-            const noise = noiseFn ? noiseFn(x, y) : 0;
-            points.push([x, y, noise]);
-            coords[col][row] = noise;
+            points.push([x, y]);
         }
     }
 
-    return { points, coords, columnWidth: colStep, rowHeight: rowStep };
+    return { points, columnWidth: colStep, rowHeight: rowStep };
 };
 
 // -> [{radius, rotation, position:[u,v]}, ...]
