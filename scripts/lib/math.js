@@ -58,6 +58,14 @@ export const fibonacci = [
     317811,
 ];
 
+export const snapNumber = (snap, n) => Math.floor(n / snap) * snap;
+
+// Hough transform
+// https://stackoverflow.com/questions/24372921/how-to-calculate-quantized-angle
+export const houghQuantize = (width, theta) => Math.floor((width * theta) / TAU + 0.5);
+// https://stackoverflow.com/questions/47047691/how-to-quantize-directions-in-canny-edge-detector-in-python
+export const quantize = (width, theta) => (Math.round(theta * (width / Math.PI)) + width) % width;
+
 export const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
 export const getRandomSeed = () => random.getSeed();
@@ -164,6 +172,9 @@ export const create2dNoise = (u, v, amplitude = 1, frequency = 0.5) =>
 
 export const create2dNoiseAbs = (u, v, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise2D(u * frequency, v * frequency)) * amplitude;
+
+export const create3dNoise = (u, v, t, amplitude = 1, frequency = 0.5) =>
+    random.noise3D(u * frequency, v * frequency, t * frequency) * amplitude;
 
 export const create3dNoiseAbs = (u, v, t, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;

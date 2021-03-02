@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import * as nicepalettes from 'nice-color-palettes';
-import { oneOf, randomWholeBetween } from './math';
+import { mapRange, oneOf, randomWholeBetween } from './math';
 
 export const asTinyColor = (arry) => arry.map((c) => tinycolor(c));
 
@@ -44,3 +44,11 @@ export const palettes = {
 
 export const nicePalette = (_) => nicepalettes[randomWholeBetween(0, 99)];
 export const palette = (_) => palettes[oneOf(Object.keys(palettes))];
+
+// hslFromRange(50, 90,270, v);
+export const hslFromRange = (y1, x2, y2, v) => {
+    const h = mapRange(0, y1, x2, y2, v);
+    const s = 100;
+    const l = 50;
+    return tinycolor(`hsl(${h},${s}%,${l}%)`);
+};

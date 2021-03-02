@@ -2599,7 +2599,7 @@ Vector.angleBetween = function (a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoiseAbs = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.fibonacci = exports.golden = void 0;
+exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -2633,6 +2633,27 @@ var golden = 1.6180339887498948482; // g angles: 222.5, 137.5
 exports.golden = golden;
 var fibonacci = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657, 46368, 75025, 121393, 196418, 317811];
 exports.fibonacci = fibonacci;
+
+var snapNumber = function snapNumber(snap, n) {
+  return Math.floor(n / snap) * snap;
+}; // Hough transform
+// https://stackoverflow.com/questions/24372921/how-to-calculate-quantized-angle
+
+
+exports.snapNumber = snapNumber;
+
+var houghQuantize = function houghQuantize(width, theta) {
+  return Math.floor(width * theta / TAU + 0.5);
+}; // https://stackoverflow.com/questions/47047691/how-to-quantize-directions-in-canny-edge-detector-in-python
+
+
+exports.houghQuantize = houghQuantize;
+
+var quantize = function quantize(width, theta) {
+  return (Math.round(theta * (width / Math.PI)) + width) % width;
+};
+
+exports.quantize = quantize;
 
 var round2 = function round2(num) {
   return Math.round((num + Number.EPSILON) * 100) / 100;
@@ -2882,6 +2903,14 @@ var create2dNoiseAbs = function create2dNoiseAbs(u, v) {
 };
 
 exports.create2dNoiseAbs = create2dNoiseAbs;
+
+var create3dNoise = function create3dNoise(u, v, t) {
+  var amplitude = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+  var frequency = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0.5;
+  return _random.default.noise3D(u * frequency, v * frequency, t * frequency) * amplitude;
+};
+
+exports.create3dNoise = create3dNoise;
 
 var create3dNoiseAbs = function create3dNoiseAbs(u, v, t) {
   var amplitude = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
@@ -3823,7 +3852,7 @@ module.exports = [["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365"
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.palette = exports.nicePalette = exports.palettes = exports.darkest = exports.brightest = exports.asTinyColor = void 0;
+exports.hslFromRange = exports.palette = exports.nicePalette = exports.palettes = exports.darkest = exports.brightest = exports.asTinyColor = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -3891,9 +3920,19 @@ exports.nicePalette = nicePalette;
 
 var palette = function palette(_) {
   return palettes[(0, _math.oneOf)(Object.keys(palettes))];
-};
+}; // hslFromRange(50, 90,270, v);
+
 
 exports.palette = palette;
+
+var hslFromRange = function hslFromRange(y1, x2, y2, v) {
+  var h = (0, _math.mapRange)(0, y1, x2, y2, v);
+  var s = 100;
+  var l = 50;
+  return (0, _tinycolor.default)("hsl(".concat(h, ",").concat(s, "%,").concat(l, "%)"));
+};
+
+exports.hslFromRange = hslFromRange;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","nice-color-palettes":"node_modules/nice-color-palettes/100.json","./math":"scripts/lib/math.js"}],"scripts/released/lissajous01.js":[function(require,module,exports) {
 "use strict";
 
@@ -5717,7 +5756,76 @@ var threeAttractors = function threeAttractors() {
 };
 
 exports.threeAttractors = threeAttractors;
-},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/experiments/flow-field.js":[function(require,module,exports) {
+},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/lib/attractors.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.jongAttractor = exports.cliffordAttractor = exports.d = exports.c = exports.b = exports.a = exports.sinField = exports.diagLines = exports.simplexNoise3d = exports.simplexNoise2d = void 0;
+
+var _math = require("./math");
+
+var TAU = Math.PI * 2;
+
+var simplexNoise2d = function simplexNoise2d(x, y) {
+  return (0, _math.create2dNoise)(x, y, 1, 0.002) * TAU;
+};
+
+exports.simplexNoise2d = simplexNoise2d;
+
+var simplexNoise3d = function simplexNoise3d(x, y, t) {
+  return (0, _math.create3dNoise)(x, y, t, 1, 0.002) * TAU;
+};
+
+exports.simplexNoise3d = simplexNoise3d;
+
+var diagLines = function diagLines(x, y) {
+  return (x + y) * 0.01 * TAU;
+}; // From https://medium.com/@bit101/flow-fields-part-i-3ebebc688fd8
+
+
+exports.diagLines = diagLines;
+
+var sinField = function sinField(x, y) {
+  return (Math.sin(x * 0.01) + Math.sin(y * 0.01)) * TAU;
+}; // random attractor params
+
+
+exports.sinField = sinField;
+var a = (0, _math.randomNumberBetween)(-2, 2);
+exports.a = a;
+var b = (0, _math.randomNumberBetween)(-2, 2);
+exports.b = b;
+var c = (0, _math.randomNumberBetween)(-2, 2);
+exports.c = c;
+var d = (0, _math.randomNumberBetween)(-2, 2); // http://paulbourke.net/fractals/clifford/
+
+exports.d = d;
+
+var cliffordAttractor = function cliffordAttractor(width, height, x, y) {
+  var scale = 0.01;
+  x = (x - width / 2) * scale;
+  y = (y - height / 2) * scale;
+  var x1 = Math.sin(a * y) + c * Math.cos(a * x);
+  var y1 = Math.sin(b * x) + d * Math.cos(b * y);
+  return Math.atan2(y1 - y, x1 - x);
+}; // http://paulbourke.net/fractals/peterdejong/
+
+
+exports.cliffordAttractor = cliffordAttractor;
+
+var jongAttractor = function jongAttractor(width, height, x, y) {
+  var scale = 0.01;
+  x = (x - width / 2) * scale;
+  y = (y - height / 2) * scale;
+  var x1 = Math.sin(a * y) - Math.cos(b * x);
+  var y1 = Math.sin(c * x) - Math.cos(d * y);
+  return Math.atan2(y1 - y, x1 - x);
+};
+
+exports.jongAttractor = jongAttractor;
+},{"./math":"scripts/lib/math.js"}],"scripts/experiments/flow-field.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5737,6 +5845,10 @@ var _sketch = require("../lib/sketch");
 
 var _palettes = require("../lib/palettes");
 
+var _Vector = require("../lib/Vector");
+
+var _attractors = require("../lib/attractors");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
@@ -5747,97 +5859,11 @@ Read
 https://codepen.io/DonKarlssonSan/post/particles-in-simplex-noise-flow-field
 https://tylerxhobbs.com/essays/2020/flow-fields
  */
+var TAU = Math.PI * 2;
+
 var tile = function tile(context, x, y, size, color, angle) {
-  // context.beginPath();
-  // context.arc(x, y, Math.floor(size/2), 0, Math.PI * 2, false);
-  // context.fillStyle = color.toRgbString();
-  // context.fill();
-  // context.save();
-  // context.translate(x, y);
-  // context.rotate();
-  (0, _canvas.drawQuadRectFilled)(context)(x, y, size, size, color); // context.restore();
-};
-
-var TAU = Math.PI * 2; // const noiseFn = (x, y) => round2(create2dNoise(x, y, 1, 0.001));
-
-var createNoiseField = function createNoiseField(width, height, columns, rows) {
-  var margin = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
-  var gutter = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-  var noiseFn = arguments.length > 6 ? arguments[6] : undefined;
-  var points = [];
-  var coords = [];
-  var colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
-  var rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
-
-  for (var col = 0; col < columns; col++) {
-    var x = margin + col * colStep + gutter * col;
-    coords[col] = [];
-
-    for (var row = 0; row < rows; row++) {
-      var y = margin + row * rowStep + gutter * row;
-      var noise = noiseFn ? noiseFn(x, y) : 0;
-      points.push([x, y, noise]);
-      coords[col][row] = noise;
-    }
-  }
-
-  return {
-    points: points,
-    coords: coords,
-    columnWidth: colStep,
-    rowHeight: rowStep
-  };
-};
-
-var drawNoiseField = function drawNoiseField(context, field) {
-  // textAlignAllCenter(context);
-  field.points.forEach(function (point) {
-    var x = point[0];
-    var y = point[1];
-    var n = point[2];
-    var midX = field.columnWidth / 2;
-    var midY = field.rowHeight / 2; // drawRectFilled(context)(x, y, grid.columnWidth, grid.rowHeight, `hsl(${360 * (n * 2)},100,50)`);
-
-    (0, _canvas.drawRectFilled)(context)(x, y, field.columnWidth, field.rowHeight, "rgba(0,0,0,".concat(n / 2 + 0.5));
-    (0, _canvas.drawLineAngle)(context)(x + midX, y + midY, n * TAU, midY); // drawTextFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
-  });
-}; // Map canvas coords to field resolution and get index in array
-
-
-var getNoiseFieldVectorAtPoint = function getNoiseFieldVectorAtPoint(field, resolution, width, height, x, y) {
-  var noiseX = Math.floor((0, _math.mapRange)(0, width, 0, resolution - 1, x));
-  var noiseY = Math.floor((0, _math.mapRange)(0, height, 0, resolution - 1, y));
-  return field.coords[noiseX][noiseY]; // return uvFromAngle(field.coords[noiseX][noiseY] * TAU);
-}; // From https://medium.com/@bit101/flow-fields-part-i-3ebebc688fd8
-
-
-var sinField = function sinField(x, y) {
-  return (Math.sin(x * 0.01) + Math.sin(y * 0.01)) * Math.PI * 2;
-}; // random attractor params
-
-
-var a = Math.random() * 4 - 2;
-var b = Math.random() * 4 - 2;
-var c = Math.random() * 4 - 2;
-var d = Math.random() * 4 - 2; // http://paulbourke.net/fractals/clifford/
-
-var cliffordAttractor = function cliffordAttractor(width, height, x, y) {
-  var scale = 0.005;
-  x = (x - width / 2) * scale;
-  y = (y - height / 2) * scale;
-  var x1 = Math.sin(a * y) + c * Math.cos(a * x);
-  var y1 = Math.sin(b * x) + d * Math.cos(b * y);
-  return Math.atan2(y1 - y, x1 - x);
-}; // http://paulbourke.net/fractals/peterdejong/
-
-
-var jongAttractor = function jongAttractor(width, height, x, y) {
-  var scale = 0.005;
-  x = (x - width / 2) * scale;
-  y = (y - height / 2) * scale;
-  var x1 = Math.sin(a * y) - Math.cos(b * x);
-  var y1 = Math.sin(c * x) - Math.cos(d * y);
-  return Math.atan2(y1 - y, x1 - x);
+  (0, _canvas.drawQuadRectFilled)(context)(x, y, size, size, color); // drawRoundRectFilled(context)(x, y, size, size, 3, color);
+  // drawRectFilled(context)(x, y, size, size, color);
 };
 
 var flowField = function flowField() {
@@ -5848,12 +5874,18 @@ var flowField = function flowField() {
   };
   var numParticles = 100;
   var particlesArray = [];
-  var fieldResolution = 30;
-  var noiseField;
-  var canvasCenterX;
-  var canvasCenterY;
-  var centerRadius;
   var palette = (0, _palettes.nicePalette)();
+  var clifford;
+  var jong;
+  var time = 0;
+  var tileSize = 10;
+  var tileHistory = [];
+  var currentTilePos = [];
+
+  var checkHistory = function checkHistory(x, y) {
+    var pos = "".concat(x, ",").concat(y);
+    return tileHistory.includes(pos);
+  };
 
   var createRandomParticle = function createRandomParticle(canvas) {
     var props = (0, _Particle.createRandomParticleValues)(canvas);
@@ -5862,54 +5894,27 @@ var flowField = function flowField() {
     props.velocityX = 0;
     props.velocityY = 0;
     var color = (0, _tinycolor.default)((0, _math.oneOf)(palette));
-    props.color = color.desaturate((0, _math.randomWholeBetween)(0, 25)); // const h = mapRange(0, canvas.width, 90, 270, props.x);
-    // const s = 100; // lerpRange(0,10,0,100,prop.radius);
-    // const l = 50; // lerpRange(0,10,25,75,prop.radius);
-    // props.color = `hsla(${h},${s}%,${l}%,1)`;
-
+    props.color = color.desaturate((0, _math.randomWholeBetween)(0, 25));
     return new _Particle.Particle(props);
   };
 
   var setup = function setup(_ref) {
     var canvas = _ref.canvas,
         context = _ref.context;
-    canvasCenterX = canvas.width / 2;
-    canvasCenterY = canvas.height / 2;
-    centerRadius = canvas.height / 4;
 
-    var noiseFn = function noiseFn(x, y) {
-      return (0, _math.round2)((0, _math.create2dNoise)(x, y, 1, 0.001));
+    clifford = function clifford(x, y) {
+      return (0, _attractors.cliffordAttractor)(canvas.width, canvas.height, x, y);
     };
 
-    noiseField = createNoiseField(canvas.width, canvas.width, fieldResolution, fieldResolution, 0, 0, noiseFn);
+    jong = function jong(x, y) {
+      return (0, _attractors.jongAttractor)(canvas.width, canvas.height, x, y);
+    };
 
     for (var i = 0; i < numParticles; i++) {
       particlesArray.push(createRandomParticle(canvas));
     }
 
-    (0, _canvas.background)(canvas, context)('white'); // drawNoiseField(context, noiseField);
-    // background(canvas, context)('rgba(255,255,255,.75)');
-
     (0, _canvas.background)(canvas, context)('rgba(50,50,50,1)');
-  };
-
-  var radius = 10;
-
-  var snapPx = function snapPx(r, px) {
-    return Math.floor(px / r) * r;
-  };
-
-  var tileHistory = [];
-  var currentTilePos = [];
-
-  var checkHistory = function checkHistory(x, y) {
-    var pos = "".concat(x, ",").concat(y);
-
-    if (tileHistory.includes(pos)) {
-      return true;
-    }
-
-    return false;
   };
 
   var drawTile = function drawTile(canvas, context, force, particle) {
@@ -5918,49 +5923,112 @@ var flowField = function flowField() {
     particle.vVector = particle.vVector.limit(4);
     (0, _Particle.updatePosWithVelocity)(particle);
     (0, _Particle.edgeWrap)(canvas, particle);
-    var x = snapPx(radius, particle.x);
-    var y = snapPx(radius, particle.y);
+    var x = (0, _math.snapNumber)(tileSize, particle.x);
+    var y = (0, _math.snapNumber)(tileSize, particle.y); // Prevent overlap with a previous tile
 
     if (!checkHistory(x, y)) {
       currentTilePos.push("".concat(x, ",").concat(y));
-      tile(context, x, y, radius, particle.color, angle);
+      tile(context, x, y, tileSize, particle.color, angle);
       return true;
     }
 
     return false;
   };
 
-  var drawPixel = function drawPixel(canvas, context, force, particle) {
+  var drawPixel = function drawPixel(canvas, context, force, particle, color) {
+    var rad = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
     (0, _Particle.applyForce)(force, particle);
-    particle.vVector = particle.vVector.limit(1);
+    particle.vVector = particle.vVector.limit(5);
     (0, _Particle.updatePosWithVelocity)(particle);
     (0, _Particle.edgeWrap)(canvas, particle);
-    (0, _canvas.pixel)(context)(particle.x, particle.y, 'white'); // particle.color
-
+    var pcolor = color || particle.color;
+    var x = (0, _math.snapNumber)(rad * 2, particle.x);
+    var y = (0, _math.snapNumber)(rad * 2, particle.y);
+    (0, _canvas.drawCircleFilled)(context)(x, y, rad, pcolor);
     return true;
   };
 
-  var draw = function draw(_ref2) {
-    var canvas = _ref2.canvas,
-        context = _ref2.context;
-    (0, _canvas.background)(canvas, context)('rgba(50,50,50,.001)');
+  var renderField = function renderField(_ref2, context, fn, cell) {
+    var width = _ref2.width,
+        height = _ref2.height;
+    var mid = cell / 2;
+
+    for (var x = 0; x < width; x += cell) {
+      for (var y = 0; y < height; y += cell) {
+        var theta = fn(x, y);
+        (0, _canvas.drawLineAngle)(context)(x + mid, y + mid, theta, mid);
+      }
+    }
+  };
+
+  var draw = function draw(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
+    // renderField(canvas, context, simplexNoise2d, 20);
+    drawParticles({
+      canvas: canvas,
+      context: context
+    }); // drawFibers({ canvas, context });
+  };
+
+  var drawParticles = function drawParticles(_ref4) {
+    var canvas = _ref4.canvas,
+        context = _ref4.context;
+
+    // background(canvas, context)('rgba(50,50,50,.01)');
+    // const n3d = (x, y) => simplexNoise3d(x, y, time);
+    // renderField(canvas, context, n3d, 20);
+    for (var i = 0; i < numParticles; i++) {
+      var particle = particlesArray[i]; // vals from -5 to 5
+
+      var sNoise2d = (0, _attractors.simplexNoise2d)(particle.x, particle.y);
+      var sNoise3d = (0, _attractors.simplexNoise3d)(particle.x, particle.y, time);
+      var diag = (0, _attractors.diagLines)(particle.x, particle.y);
+      var sinF = (0, _attractors.sinField)(particle.x, particle.y);
+      var clif = clifford(particle.x, particle.y);
+      var jng = jong(particle.x, particle.y); // const theta = clif;
+      // const theta = snapNumber(Math.PI / 2, sNoise3d);
+
+      var theta = (0, _math.quantize)(2, sNoise3d);
+      var force = (0, _math.uvFromAngle)(theta); // force.x += Math.cos(theta) * 0.1;
+      // force.y += Math.sin(theta) * 0.1;
+
+      var clr = (0, _palettes.hslFromRange)(5, 180, 270, Math.abs(theta)).setAlpha(0.25);
+      var size = 3; // mapRange(0, 5, 1, 5, Math.abs(theta));
+      // drawTile(canvas, context, force, particle);
+
+      drawPixel(canvas, context, force, particle, clr, size);
+      particle.aVector = new _Vector.Vector(0, 0);
+    }
+
+    time += 0.01;
+  };
+
+  var drawFibers = function drawFibers(_ref5) {
+    var canvas = _ref5.canvas,
+        context = _ref5.context;
     var particle = createRandomParticle(canvas);
-    var length = 50;
+    var length = 200;
     var run = true;
 
     for (var i = 0; i < length; i++) {
-      var sNoise = getNoiseFieldVectorAtPoint(noiseField, fieldResolution, canvas.width, canvas.height, particle.x, particle.y);
-      var sinF = sinField(particle.x, particle.y);
-      var clif = cliffordAttractor(canvas.width, canvas.height, particle.x, particle.y);
-      var jong = jongAttractor(canvas.width, canvas.height, particle.x, particle.y); // const force = uvFromAngle(sNoise * TAU);
-      // const force = uvFromAngle(sinF);
+      var sNoise2d = (0, _attractors.simplexNoise2d)(particle.x, particle.y);
+      var sNoise3d = (0, _attractors.simplexNoise3d)(particle.x, particle.y, time);
+      var sinF = (0, _attractors.sinField)(particle.x, particle.y);
+      var clif = (0, _attractors.cliffordAttractor)(canvas.width, canvas.height, particle.x, particle.y);
 
-      var force = (0, _math.uvFromAngle)(clif); // const force = uvFromAngle(jong);
+      var _jong = (0, _attractors.jongAttractor)(canvas.width, canvas.height, particle.x, particle.y);
+
+      var theta = sNoise3d;
+      var force = (0, _math.uvFromAngle)(theta);
+      var clr = (0, _palettes.hslFromRange)(5, 270, 359, Math.abs(theta)).setAlpha(0.1);
+      var size = (0, _math.mapRange)(0, 5, 1, 5, Math.abs(theta));
 
       if (run) {
-        // run = drawTile(canvas, context, force, particle);
-        drawPixel(canvas, context, force, particle);
+        run = drawTile(canvas, context, force, particle, theta); // drawPixel(canvas, context, force, particle);
       }
+
+      particle.aVector = new _Vector.Vector(0, 0);
     }
 
     tileHistory = tileHistory.concat(currentTilePos);
@@ -5973,9 +6041,67 @@ var flowField = function flowField() {
     draw: draw
   };
 };
+/*
+// const noiseFn = (x, y) => round2(create2dNoise(x, y, 1, 0.001));
+// noiseField = createNoiseField(canvas.width, canvas.width, fieldResolution, fieldResolution, 0, 0, noiseFn);
+// drawNoiseField(context, noiseField);
+const createNoiseField = (width, height, columns, rows, margin = 0, gutter = 0, noiseFn) => {
+    const points = [];
+    const coords = [];
+
+    const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
+    const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
+
+    for (let col = 0; col < columns; col++) {
+        const x = margin + col * colStep + gutter * col;
+        coords[col] = [];
+        for (let row = 0; row < rows; row++) {
+            const y = margin + row * rowStep + gutter * row;
+            const noise = noiseFn ? noiseFn(x, y) : 0;
+            points.push([x, y, noise]);
+            coords[col][row] = noise;
+        }
+    }
+
+    return { points, coords, columnWidth: colStep, rowHeight: rowStep };
+};
+
+// const sNoise = getNoiseFieldVectorAtPoint(
+//     noiseField,
+//     fieldResolution,
+//     canvas.width,
+//     canvas.height,
+//     particle.x,
+//     particle.y
+// );
+
+// Map canvas coords to field resolution and get index in array
+const getNoiseFieldVectorAtPoint = (field, resolution, width, height, x, y) => {
+    const noiseX = Math.floor(mapRange(0, width, 0, resolution - 1, x));
+    const noiseY = Math.floor(mapRange(0, height, 0, resolution - 1, y));
+    return field.coords[noiseX][noiseY] * TAU;
+};
+
+const drawNoiseField = (context, field) => {
+    // textAlignAllCenter(context);
+    field.points.forEach((point) => {
+        const x = point[0];
+        const y = point[1];
+        const n = point[2];
+        const midX = field.columnWidth / 2;
+        const midY = field.rowHeight / 2;
+
+        // drawRectFilled(context)(x, y, grid.columnWidth, grid.rowHeight, `hsl(${360 * (n * 2)},100,50)`);
+        drawRectFilled(context)(x, y, field.columnWidth, field.rowHeight, `rgba(0,0,0,${n / 2 + 0.5}`);
+        drawLineAngle(context)(x + midX, y + midY, n * TAU, midY);
+        // drawTextFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
+    });
+};
+*/
+
 
 exports.flowField = flowField;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -6148,7 +6274,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61857" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53561" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

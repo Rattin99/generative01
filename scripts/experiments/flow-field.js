@@ -2,37 +2,28 @@ import tinycolor from 'tinycolor2';
 import {
     mapRange,
     create2dNoise,
-    round2,
     randomWholeBetween,
     uvFromAngle,
     oneOf,
     aFromVector,
-    radiansToDegrees,
+    snapNumber,
+    create3dNoise,
+    quantize,
+    houghQuantize,
 } from '../lib/math';
-import {
-    edgeBounce,
-    edgeWrap,
-    Particle,
-    updatePosWithVelocity,
-    createRandomParticleValues,
-    applyForce,
-} from '../lib/Particle';
-import {
-    background,
-    drawCircleFilled,
-    drawLine,
-    drawLineAngle,
-    drawQuadRectFilled,
-    drawRect,
-    drawRectFilled,
-    drawTextFilled,
-    pixel,
-    resetStyles,
-    textAlignAllCenter,
-    textStyles,
-} from '../lib/canvas';
+import { edgeWrap, Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { background, drawCircleFilled, drawLineAngle, drawQuadRectFilled } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { nicePalette } from '../lib/palettes';
+import { nicePalette, hslFromRange } from '../lib/palettes';
+import { Vector } from '../lib/Vector';
+import {
+    simplexNoise2d,
+    simplexNoise3d,
+    sinField,
+    cliffordAttractor,
+    jongAttractor,
+    diagLines,
+} from '../lib/attractors';
 
 /*
 https://www.khanacademy.org/math/multivariable-calculus/thinking-about-multivariable-function/visualizing-vector-valued-functions/v/parametric-curves
@@ -43,21 +34,185 @@ https://codepen.io/DonKarlssonSan/post/particles-in-simplex-noise-flow-field
 https://tylerxhobbs.com/essays/2020/flow-fields
  */
 
-const tile = (context, x, y, size, color, angle) => {
-    // context.beginPath();
-    // context.arc(x, y, Math.floor(size/2), 0, Math.PI * 2, false);
-    // context.fillStyle = color.toRgbString();
-    // context.fill();
-    // context.save();
-    // context.translate(x, y);
-    // context.rotate();
-    drawQuadRectFilled(context)(x, y, size, size, color);
-    // context.restore();
-};
-
 const TAU = Math.PI * 2;
 
+const tile = (context, x, y, size, color, angle) => {
+    drawQuadRectFilled(context)(x, y, size, size, color);
+    // drawRoundRectFilled(context)(x, y, size, size, 3, color);
+    // drawRectFilled(context)(x, y, size, size, color);
+};
+
+export const flowField = () => {
+    const config = {
+        name: 'flowField',
+        ratio: ratio.square,
+        scale: scale.standard,
+    };
+
+    const numParticles = 100;
+    const particlesArray = [];
+
+    const palette = nicePalette();
+    let clifford;
+    let jong;
+
+    let time = 0;
+
+    const tileSize = 10;
+
+    let tileHistory = [];
+    let currentTilePos = [];
+    const checkHistory = (x, y) => {
+        const pos = `${x},${y}`;
+        return tileHistory.includes(pos);
+    };
+
+    const createRandomParticle = (canvas) => {
+        const props = createRandomParticleValues(canvas);
+        props.x = randomWholeBetween(0, canvas.width);
+        props.y = randomWholeBetween(0, canvas.height);
+        props.velocityX = 0;
+        props.velocityY = 0;
+        const color = tinycolor(oneOf(palette));
+        props.color = color.desaturate(randomWholeBetween(0, 25));
+        return new Particle(props);
+    };
+
+    const setup = ({ canvas, context }) => {
+        clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
+        jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
+
+        for (let i = 0; i < numParticles; i++) {
+            particlesArray.push(createRandomParticle(canvas));
+        }
+
+        background(canvas, context)('rgba(50,50,50,1)');
+    };
+
+    const drawTile = (canvas, context, force, particle) => {
+        const angle = aFromVector(force);
+
+        applyForce(force, particle);
+        particle.vVector = particle.vVector.limit(4);
+        updatePosWithVelocity(particle);
+        edgeWrap(canvas, particle);
+
+        const x = snapNumber(tileSize, particle.x);
+        const y = snapNumber(tileSize, particle.y);
+
+        // Prevent overlap with a previous tile
+        if (!checkHistory(x, y)) {
+            currentTilePos.push(`${x},${y}`);
+            tile(context, x, y, tileSize, particle.color, angle);
+            return true;
+        }
+
+        return false;
+    };
+
+    const drawPixel = (canvas, context, force, particle, color, rad = 1) => {
+        applyForce(force, particle);
+        particle.vVector = particle.vVector.limit(5);
+        updatePosWithVelocity(particle);
+        edgeWrap(canvas, particle);
+        const pcolor = color || particle.color;
+        const x = snapNumber(rad * 2, particle.x);
+        const y = snapNumber(rad * 2, particle.y);
+        drawCircleFilled(context)(x, y, rad, pcolor);
+        return true;
+    };
+
+    const renderField = ({ width, height }, context, fn, cell) => {
+        const mid = cell / 2;
+        for (let x = 0; x < width; x += cell) {
+            for (let y = 0; y < height; y += cell) {
+                const theta = fn(x, y);
+                drawLineAngle(context)(x + mid, y + mid, theta, mid);
+            }
+        }
+    };
+
+    const draw = ({ canvas, context }) => {
+        // renderField(canvas, context, simplexNoise2d, 20);
+        drawParticles({ canvas, context });
+        // drawFibers({ canvas, context });
+    };
+
+    const drawParticles = ({ canvas, context }) => {
+        // background(canvas, context)('rgba(50,50,50,.01)');
+        // const n3d = (x, y) => simplexNoise3d(x, y, time);
+        // renderField(canvas, context, n3d, 20);
+
+        for (let i = 0; i < numParticles; i++) {
+            const particle = particlesArray[i];
+
+            // vals from -5 to 5
+            const sNoise2d = simplexNoise2d(particle.x, particle.y);
+            const sNoise3d = simplexNoise3d(particle.x, particle.y, time);
+            const diag = diagLines(particle.x, particle.y);
+            const sinF = sinField(particle.x, particle.y);
+            const clif = clifford(particle.x, particle.y);
+            const jng = jong(particle.x, particle.y);
+
+            // const theta = clif;
+            // const theta = snapNumber(Math.PI / 2, sNoise3d);
+            const theta = quantize(2, sNoise3d);
+
+            const force = uvFromAngle(theta);
+
+            // force.x += Math.cos(theta) * 0.1;
+            // force.y += Math.sin(theta) * 0.1;
+
+            const clr = hslFromRange(5, 180, 270, Math.abs(theta)).setAlpha(0.25);
+            const size = 3; // mapRange(0, 5, 1, 5, Math.abs(theta));
+
+            // drawTile(canvas, context, force, particle);
+            drawPixel(canvas, context, force, particle, clr, size);
+
+            particle.aVector = new Vector(0, 0);
+        }
+
+        time += 0.01;
+    };
+
+    const drawFibers = ({ canvas, context }) => {
+        const particle = createRandomParticle(canvas);
+        const length = 200;
+        let run = true;
+        for (let i = 0; i < length; i++) {
+            const sNoise2d = simplexNoise2d(particle.x, particle.y);
+            const sNoise3d = simplexNoise3d(particle.x, particle.y, time);
+            const sinF = sinField(particle.x, particle.y);
+            const clif = cliffordAttractor(canvas.width, canvas.height, particle.x, particle.y);
+            const jong = jongAttractor(canvas.width, canvas.height, particle.x, particle.y);
+
+            const theta = sNoise3d;
+            const force = uvFromAngle(theta);
+            const clr = hslFromRange(5, 270, 359, Math.abs(theta)).setAlpha(0.1);
+            const size = mapRange(0, 5, 1, 5, Math.abs(theta));
+
+            if (run) {
+                run = drawTile(canvas, context, force, particle, theta);
+                // drawPixel(canvas, context, force, particle);
+            }
+
+            particle.aVector = new Vector(0, 0);
+        }
+        tileHistory = tileHistory.concat(currentTilePos);
+        currentTilePos = [];
+    };
+
+    return {
+        config,
+        setup,
+        draw,
+    };
+};
+
+/*
 // const noiseFn = (x, y) => round2(create2dNoise(x, y, 1, 0.001));
+// noiseField = createNoiseField(canvas.width, canvas.width, fieldResolution, fieldResolution, 0, 0, noiseFn);
+// drawNoiseField(context, noiseField);
 const createNoiseField = (width, height, columns, rows, margin = 0, gutter = 0, noiseFn) => {
     const points = [];
     const coords = [];
@@ -79,6 +234,22 @@ const createNoiseField = (width, height, columns, rows, margin = 0, gutter = 0, 
     return { points, coords, columnWidth: colStep, rowHeight: rowStep };
 };
 
+// const sNoise = getNoiseFieldVectorAtPoint(
+//     noiseField,
+//     fieldResolution,
+//     canvas.width,
+//     canvas.height,
+//     particle.x,
+//     particle.y
+// );
+
+// Map canvas coords to field resolution and get index in array
+const getNoiseFieldVectorAtPoint = (field, resolution, width, height, x, y) => {
+    const noiseX = Math.floor(mapRange(0, width, 0, resolution - 1, x));
+    const noiseY = Math.floor(mapRange(0, height, 0, resolution - 1, y));
+    return field.coords[noiseX][noiseY] * TAU;
+};
+
 const drawNoiseField = (context, field) => {
     // textAlignAllCenter(context);
     field.points.forEach((point) => {
@@ -94,178 +265,4 @@ const drawNoiseField = (context, field) => {
         // drawTextFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
     });
 };
-
-// Map canvas coords to field resolution and get index in array
-const getNoiseFieldVectorAtPoint = (field, resolution, width, height, x, y) => {
-    const noiseX = Math.floor(mapRange(0, width, 0, resolution - 1, x));
-    const noiseY = Math.floor(mapRange(0, height, 0, resolution - 1, y));
-    return field.coords[noiseX][noiseY];
-    // return uvFromAngle(field.coords[noiseX][noiseY] * TAU);
-};
-
-// From https://medium.com/@bit101/flow-fields-part-i-3ebebc688fd8
-const sinField = (x, y) => (Math.sin(x * 0.01) + Math.sin(y * 0.01)) * Math.PI * 2;
-
-// random attractor params
-const a = Math.random() * 4 - 2;
-const b = Math.random() * 4 - 2;
-const c = Math.random() * 4 - 2;
-const d = Math.random() * 4 - 2;
-
-// http://paulbourke.net/fractals/clifford/
-const cliffordAttractor = (width, height, x, y) => {
-    const scale = 0.005;
-    x = (x - width / 2) * scale;
-    y = (y - height / 2) * scale;
-    const x1 = Math.sin(a * y) + c * Math.cos(a * x);
-    const y1 = Math.sin(b * x) + d * Math.cos(b * y);
-    return Math.atan2(y1 - y, x1 - x);
-};
-
-// http://paulbourke.net/fractals/peterdejong/
-const jongAttractor = (width, height, x, y) => {
-    const scale = 0.005;
-    x = (x - width / 2) * scale;
-    y = (y - height / 2) * scale;
-    const x1 = Math.sin(a * y) - Math.cos(b * x);
-    const y1 = Math.sin(c * x) - Math.cos(d * y);
-    return Math.atan2(y1 - y, x1 - x);
-};
-
-export const flowField = () => {
-    const config = {
-        name: 'flowField',
-        ratio: ratio.square,
-        scale: scale.standard,
-    };
-
-    const numParticles = 100;
-    const particlesArray = [];
-    const fieldResolution = 30;
-    let noiseField;
-
-    let canvasCenterX;
-    let canvasCenterY;
-    let centerRadius;
-
-    const palette = nicePalette();
-
-    const createRandomParticle = (canvas) => {
-        const props = createRandomParticleValues(canvas);
-        props.x = randomWholeBetween(0, canvas.width);
-        props.y = randomWholeBetween(0, canvas.height);
-        props.velocityX = 0;
-        props.velocityY = 0;
-        const color = tinycolor(oneOf(palette));
-        props.color = color.desaturate(randomWholeBetween(0, 25));
-        // const h = mapRange(0, canvas.width, 90, 270, props.x);
-        // const s = 100; // lerpRange(0,10,0,100,prop.radius);
-        // const l = 50; // lerpRange(0,10,25,75,prop.radius);
-        // props.color = `hsla(${h},${s}%,${l}%,1)`;
-        return new Particle(props);
-    };
-
-    const setup = ({ canvas, context }) => {
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        centerRadius = canvas.height / 4;
-
-        const noiseFn = (x, y) => round2(create2dNoise(x, y, 1, 0.001));
-        noiseField = createNoiseField(canvas.width, canvas.width, fieldResolution, fieldResolution, 0, 0, noiseFn);
-
-        for (let i = 0; i < numParticles; i++) {
-            particlesArray.push(createRandomParticle(canvas));
-        }
-
-        background(canvas, context)('white');
-
-        // drawNoiseField(context, noiseField);
-        // background(canvas, context)('rgba(255,255,255,.75)');
-        background(canvas, context)('rgba(50,50,50,1)');
-    };
-
-    const radius = 10;
-    const snapPx = (r, px) => Math.floor(px / r) * r;
-
-    let tileHistory = [];
-    let currentTilePos = [];
-
-    const checkHistory = (x, y) => {
-        const pos = `${x},${y}`;
-        if (tileHistory.includes(pos)) {
-            return true;
-        }
-        return false;
-    };
-
-    const drawTile = (canvas, context, force, particle) => {
-        const angle = aFromVector(force);
-
-        applyForce(force, particle);
-        particle.vVector = particle.vVector.limit(4);
-        updatePosWithVelocity(particle);
-        edgeWrap(canvas, particle);
-
-        const x = snapPx(radius, particle.x);
-        const y = snapPx(radius, particle.y);
-
-        if (!checkHistory(x, y)) {
-            currentTilePos.push(`${x},${y}`);
-            tile(context, x, y, radius, particle.color, angle);
-            return true;
-        }
-
-        return false;
-    };
-
-    const drawPixel = (canvas, context, force, particle) => {
-        applyForce(force, particle);
-        particle.vVector = particle.vVector.limit(1);
-        updatePosWithVelocity(particle);
-        edgeWrap(canvas, particle);
-
-        pixel(context)(particle.x, particle.y, 'white'); // particle.color
-
-        return true;
-    };
-
-    const draw = ({ canvas, context }) => {
-        background(canvas, context)('rgba(50,50,50,.001)');
-
-        const particle = createRandomParticle(canvas);
-        const length = 50;
-        const run = true;
-        for (let i = 0; i < length; i++) {
-            const sNoise = getNoiseFieldVectorAtPoint(
-                noiseField,
-                fieldResolution,
-                canvas.width,
-                canvas.height,
-                particle.x,
-                particle.y
-            );
-
-            const sinF = sinField(particle.x, particle.y);
-            const clif = cliffordAttractor(canvas.width, canvas.height, particle.x, particle.y);
-            const jong = jongAttractor(canvas.width, canvas.height, particle.x, particle.y);
-
-            // const force = uvFromAngle(sNoise * TAU);
-            // const force = uvFromAngle(sinF);
-            const force = uvFromAngle(clif);
-            // const force = uvFromAngle(jong);
-
-            if (run) {
-                // run = drawTile(canvas, context, force, particle);
-                drawPixel(canvas, context, force, particle);
-            }
-        }
-        tileHistory = tileHistory.concat(currentTilePos);
-        currentTilePos = [];
-    };
-
-    return {
-        config,
-        setup,
-        draw,
-    };
-};
+*/
