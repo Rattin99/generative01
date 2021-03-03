@@ -52,3 +52,16 @@ export const hslFromRange = (y1, x2, y2, v) => {
     const l = 50;
     return tinycolor(`hsl(${h},${s}%,${l}%)`);
 };
+
+/*
+Color between 2 defined and a hue spin in the middle to introduce a 3rd
+// Palette from https://www.colourlovers.com/palette/694737/Thought_Provoking
+
+const colorTop = 'hsl(350, 65%, 46%)';
+const colorBottom = 'hsl(185, 19%, 40%)';
+const distFromCenter = Math.abs(mid - currentY);
+const color = tinycolor.mix(colorTop, colorBottom, mapRange(startY, maxY, 0, 100, currentY));
+color.spin(mapRange(0, mid / 2, 60, 0, distFromCenter));
+color.brighten(mapRange(0, mid / 2, 50, 0, distFromCenter));
+color.darken(mapRange(0, mid, 0, 40, distFromCenter) + randomNumberBetween(0, 30));
+ */

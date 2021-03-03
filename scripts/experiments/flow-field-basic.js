@@ -12,7 +12,14 @@ import {
     houghQuantize,
 } from '../lib/math';
 import { edgeWrap, Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
-import { background, drawCircleFilled, drawLineAngle, drawQuadRectFilled } from '../lib/canvas';
+import {
+    background,
+    drawCircleFilled,
+    drawLineAngle,
+    drawQuadRectFilled,
+    drawRectFilled,
+    drawRoundRectFilled,
+} from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { nicePalette, hslFromRange } from '../lib/palettes';
 import { Vector } from '../lib/Vector';
@@ -36,13 +43,19 @@ https://tylerxhobbs.com/essays/2020/flow-fields
 
 const TAU = Math.PI * 2;
 
-const tile = (context, x, y, size, color, angle) => {
-    drawQuadRectFilled(context)(x, y, size, size, color);
-    // drawRoundRectFilled(context)(x, y, size, size, 3, color);
-    // drawRectFilled(context)(x, y, size, size, color);
+const tile = (context, x, y, size, color, heading) => {
+    drawRoundRectFilled(context)(x, y, size - 2, size - 2, 3, color);
+
+    // context.save();
+    // context.translate(x, y);
+    // context.rotate(heading);
+    // // drawQuadRectFilled(context)(0, 0, size, size, color);
+    // drawRoundRectFilled(context)(0, 0, size - 2, size - 2, 3, color);
+    // // drawRectFilled(context)(0, 0, size, size, color);
+    // context.restore();
 };
 
-export const flowField = () => {
+export const flowFieldBasic = () => {
     const config = {
         name: 'flowField',
         ratio: ratio.square,
@@ -103,7 +116,7 @@ export const flowField = () => {
         // Prevent overlap with a previous tile
         if (!checkHistory(x, y)) {
             currentTilePos.push(`${x},${y}`);
-            tile(context, x, y, tileSize, particle.color, angle);
+            tile(context, x, y, tileSize, particle.color, particle.heading);
             return true;
         }
 
@@ -134,8 +147,8 @@ export const flowField = () => {
 
     const draw = ({ canvas, context }) => {
         // renderField(canvas, context, simplexNoise2d, 20);
-        drawParticles({ canvas, context });
-        // drawFibers({ canvas, context });
+        // drawParticles({ canvas, context });
+        drawFibers({ canvas, context });
     };
 
     const drawParticles = ({ canvas, context }) => {
@@ -177,8 +190,8 @@ export const flowField = () => {
 
     const drawFibers = ({ canvas, context }) => {
         const particle = createRandomParticle(canvas);
-        const length = 200;
-        let run = true;
+        const length = 500;
+        const run = true;
         for (let i = 0; i < length; i++) {
             const sNoise2d = simplexNoise2d(particle.x, particle.y);
             const sNoise3d = simplexNoise3d(particle.x, particle.y, time);
@@ -186,14 +199,14 @@ export const flowField = () => {
             const clif = cliffordAttractor(canvas.width, canvas.height, particle.x, particle.y);
             const jong = jongAttractor(canvas.width, canvas.height, particle.x, particle.y);
 
-            const theta = sNoise3d;
+            const theta = jong;
             const force = uvFromAngle(theta);
             const clr = hslFromRange(5, 270, 359, Math.abs(theta)).setAlpha(0.1);
             const size = mapRange(0, 5, 1, 5, Math.abs(theta));
 
             if (run) {
-                run = drawTile(canvas, context, force, particle, theta);
-                // drawPixel(canvas, context, force, particle);
+                // run = drawTile(canvas, context, force, particle);
+                drawPixel(canvas, context, force, particle);
             }
 
             particle.aVector = new Vector(0, 0);

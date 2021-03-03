@@ -2,8 +2,8 @@ import { create2dNoise, create3dNoise, randomNumberBetween } from './math';
 
 const TAU = Math.PI * 2;
 
-export const simplexNoise2d = (x, y) => create2dNoise(x, y, 1, 0.002) * TAU;
-export const simplexNoise3d = (x, y, t) => create3dNoise(x, y, t, 1, 0.002) * TAU;
+export const simplexNoise2d = (x, y, f = 0.0005) => create2dNoise(x, y, 1, f) * TAU;
+export const simplexNoise3d = (x, y, t, f = 0.002) => create3dNoise(x, y, t, 1, f) * TAU;
 
 export const diagLines = (x, y) => (x + y) * 0.01 * TAU;
 
@@ -11,10 +11,10 @@ export const diagLines = (x, y) => (x + y) * 0.01 * TAU;
 export const sinField = (x, y) => (Math.sin(x * 0.01) + Math.sin(y * 0.01)) * TAU;
 
 // random attractor params
-export const a = randomNumberBetween(-2, 2);
-export const b = randomNumberBetween(-2, 2);
-export const c = randomNumberBetween(-2, 2);
-export const d = randomNumberBetween(-2, 2);
+const a = randomNumberBetween(-2, 2);
+const b = randomNumberBetween(-2, 2);
+const c = randomNumberBetween(-2, 2);
+const d = randomNumberBetween(-2, 2);
 
 // http://paulbourke.net/fractals/clifford/
 export const cliffordAttractor = (width, height, x, y) => {

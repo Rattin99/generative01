@@ -2,15 +2,9 @@
 Explorations with generative code
 */
 
-import normliaze from 'normalize.css';
+import normalize from 'normalize.css';
 
 import { sketch } from './lib/sketch';
-
-// import { forcesDev } from './experiments/forcesDev';
-// import { forcesDevGravity } from './experiments/forcesDevGravity';
-// import { testGrid } from './experiments/test-grid';
-// import { blackhole } from './experiments/blackhole';
-// import { parametric01 } from './experiments/parametric01';
 
 import { lissajous01 } from './released/lissajous01';
 import { waves01 } from './released/waves01';
@@ -25,12 +19,15 @@ import { variation6 } from './released/variation6';
 import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
 import { threeAttractors } from './released/threeAttractors';
 
-import { flowField } from './experiments/flow-field';
+import { flowFieldParticles } from './released/flow-field-particles';
+import { flowFieldTiles } from './experiments/flow-field-tiles';
+import { flowFieldImage } from './experiments/flow-field-image';
+import { flowFieldArcs } from './experiments/flow-field-arcs';
 
 const s = sketch();
 
 // const DEBUG = undefined;
-const DEBUG = flowField;
+const DEBUG = flowFieldArcs;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -109,6 +106,14 @@ const variations = {
     12: {
         note: 'Experimenting with rose shapes. Refresh for new randomized set.',
         sketch: lissajous01,
+    },
+    13: {
+        note: 'Particles and fibers flowing with 3d simplex noise.',
+        sketch: flowFieldParticles,
+    },
+    14: {
+        note: 'Arcs flowing with 3d simplex noise.',
+        sketch: flowFieldArcs,
     },
 };
 

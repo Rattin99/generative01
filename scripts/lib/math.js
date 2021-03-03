@@ -156,6 +156,7 @@ export const aFromVector = ({ x, y }) => Math.atan2(y, x);
 export const uvFromAngle = (a) => new Vector(Math.cos(a), Math.sin(a));
 
 export const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
+export const degreesToRadians = (deg) => (deg * Math.PI) / 180;
 
 // Scale up point grid and center in the canvas
 export const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y) => {

@@ -2599,7 +2599,7 @@ Vector.angleBetween = function (a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
+exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -2872,10 +2872,16 @@ exports.uvFromAngle = uvFromAngle;
 
 var radiansToDegrees = function radiansToDegrees(rad) {
   return rad * 180 / Math.PI;
+};
+
+exports.radiansToDegrees = radiansToDegrees;
+
+var degreesToRadians = function degreesToRadians(deg) {
+  return deg * Math.PI / 180;
 }; // Scale up point grid and center in the canvas
 
 
-exports.radiansToDegrees = radiansToDegrees;
+exports.degreesToRadians = degreesToRadians;
 
 var scalePointToCanvas = function scalePointToCanvas(canvasWidth, canvasHeight, width, height, zoomFactor, x, y) {
   var particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
@@ -3931,6 +3937,19 @@ var hslFromRange = function hslFromRange(y1, x2, y2, v) {
   var l = 50;
   return (0, _tinycolor.default)("hsl(".concat(h, ",").concat(s, "%,").concat(l, "%)"));
 };
+/*
+Color between 2 defined and a hue spin in the middle to introduce a 3rd
+// Palette from https://www.colourlovers.com/palette/694737/Thought_Provoking
+
+const colorTop = 'hsl(350, 65%, 46%)';
+const colorBottom = 'hsl(185, 19%, 40%)';
+const distFromCenter = Math.abs(mid - currentY);
+const color = tinycolor.mix(colorTop, colorBottom, mapRange(startY, maxY, 0, 100, currentY));
+color.spin(mapRange(0, mid / 2, 60, 0, distFromCenter));
+color.brighten(mapRange(0, mid / 2, 50, 0, distFromCenter));
+color.darken(mapRange(0, mid, 0, 40, distFromCenter) + randomNumberBetween(0, 30));
+ */
+
 
 exports.hslFromRange = hslFromRange;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","nice-color-palettes":"node_modules/nice-color-palettes/100.json","./math":"scripts/lib/math.js"}],"scripts/released/lissajous01.js":[function(require,module,exports) {
@@ -5762,20 +5781,22 @@ exports.threeAttractors = threeAttractors;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.jongAttractor = exports.cliffordAttractor = exports.d = exports.c = exports.b = exports.a = exports.sinField = exports.diagLines = exports.simplexNoise3d = exports.simplexNoise2d = void 0;
+exports.jongAttractor = exports.cliffordAttractor = exports.sinField = exports.diagLines = exports.simplexNoise3d = exports.simplexNoise2d = void 0;
 
 var _math = require("./math");
 
 var TAU = Math.PI * 2;
 
 var simplexNoise2d = function simplexNoise2d(x, y) {
-  return (0, _math.create2dNoise)(x, y, 1, 0.002) * TAU;
+  var f = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0.0005;
+  return (0, _math.create2dNoise)(x, y, 1, f) * TAU;
 };
 
 exports.simplexNoise2d = simplexNoise2d;
 
 var simplexNoise3d = function simplexNoise3d(x, y, t) {
-  return (0, _math.create3dNoise)(x, y, t, 1, 0.002) * TAU;
+  var f = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0.002;
+  return (0, _math.create3dNoise)(x, y, t, 1, f) * TAU;
 };
 
 exports.simplexNoise3d = simplexNoise3d;
@@ -5794,14 +5815,9 @@ var sinField = function sinField(x, y) {
 
 exports.sinField = sinField;
 var a = (0, _math.randomNumberBetween)(-2, 2);
-exports.a = a;
 var b = (0, _math.randomNumberBetween)(-2, 2);
-exports.b = b;
 var c = (0, _math.randomNumberBetween)(-2, 2);
-exports.c = c;
 var d = (0, _math.randomNumberBetween)(-2, 2); // http://paulbourke.net/fractals/clifford/
-
-exports.d = d;
 
 var cliffordAttractor = function cliffordAttractor(width, height, x, y) {
   var scale = 0.01;
@@ -5825,13 +5841,293 @@ var jongAttractor = function jongAttractor(width, height, x, y) {
 };
 
 exports.jongAttractor = jongAttractor;
-},{"./math":"scripts/lib/math.js"}],"scripts/experiments/flow-field.js":[function(require,module,exports) {
+},{"./math":"scripts/lib/math.js"}],"scripts/released/flow-field-particles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.flowField = void 0;
+exports.flowFieldParticles = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("../lib/math");
+
+var _Particle = require("../lib/Particle");
+
+var _canvas = require("../lib/canvas");
+
+var _sketch = require("../lib/sketch");
+
+var _Vector = require("../lib/Vector");
+
+var _attractors = require("../lib/attractors");
+
+var _palettes = require("../lib/palettes");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var flowFieldParticles = function flowFieldParticles() {
+  var config = {
+    name: 'flowFieldParticles',
+    ratio: _sketch.ratio.square,
+    scale: _sketch.scale.standard
+  };
+  var numParticles = 400;
+  var particlesArray = [];
+  var maxSize = 3;
+  var time = 0;
+
+  var createRandomParticle = function createRandomParticle(canvas) {
+    var props = (0, _Particle.createRandomParticleValues)(canvas);
+    props.x = (0, _math.randomWholeBetween)(0, canvas.width);
+    props.y = (0, _math.randomWholeBetween)(0, canvas.height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    return new _Particle.Particle(props);
+  };
+
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+
+    for (var i = 0; i < numParticles; i++) {
+      particlesArray.push(createRandomParticle(canvas));
+    }
+
+    (0, _canvas.background)(canvas, context)('rgba(50,50,50,1)');
+  };
+
+  var drawPixel = function drawPixel(canvas, context, force, particle, color) {
+    var rad = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
+    (0, _Particle.applyForce)(force, particle);
+    particle.vVector = particle.vVector.limit(1);
+    (0, _Particle.updatePosWithVelocity)(particle);
+    (0, _Particle.edgeWrap)(canvas, particle);
+    var pcolor = color || particle.color;
+    var x = (0, _math.snapNumber)(maxSize * 2, particle.x);
+    var y = (0, _math.snapNumber)(maxSize * 2, particle.y);
+    (0, _canvas.drawCircleFilled)(context)(x, y, rad, pcolor);
+    return true;
+  };
+
+  var drawParticles = function drawParticles(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context;
+
+    for (var i = 0; i < numParticles; i++) {
+      var particle = particlesArray[i];
+      var sNoise3d = (0, _attractors.simplexNoise3d)(particle.x, particle.y, time, 0.002);
+      var theta = (0, _math.quantize)(3, sNoise3d);
+      var force = (0, _math.uvFromAngle)(theta);
+      var clr = (0, _palettes.hslFromRange)(5, 270, 360, Math.abs(theta)).setAlpha(0.25);
+      var size = (0, _math.mapRange)(0, 5, 1, maxSize, Math.abs(theta));
+      drawPixel(canvas, context, force, particle, clr, size);
+      particle.aVector = new _Vector.Vector(0, 0);
+    }
+  };
+
+  var drawFibers = function drawFibers(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
+    var particle = createRandomParticle(canvas);
+    var length = 200;
+
+    for (var i = 0; i < length; i++) {
+      var sNoise3d = (0, _attractors.simplexNoise3d)(particle.x, particle.y, time, 0.002);
+      var theta = sNoise3d;
+      var force = (0, _math.uvFromAngle)(theta);
+      var clr = 'rgba(0,0,0,.05)';
+      drawPixel(canvas, context, force, particle, clr, 1);
+      particle.aVector = new _Vector.Vector(0, 0);
+    }
+  };
+
+  var draw = function draw(_ref4) {
+    var canvas = _ref4.canvas,
+        context = _ref4.context;
+    drawFibers({
+      canvas: canvas,
+      context: context
+    });
+    drawParticles({
+      canvas: canvas,
+      context: context
+    });
+    time += 0.01;
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
+};
+
+exports.flowFieldParticles = flowFieldParticles;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js","../lib/palettes":"scripts/lib/palettes.js"}],"scripts/experiments/flow-field-tiles.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.flowFieldTiles = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("../lib/math");
+
+var _Particle = require("../lib/Particle");
+
+var _canvas = require("../lib/canvas");
+
+var _sketch = require("../lib/sketch");
+
+var _palettes = require("../lib/palettes");
+
+var _Vector = require("../lib/Vector");
+
+var _attractors = require("../lib/attractors");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var tile = function tile(context, x, y, size, color, heading) {
+  (0, _canvas.drawQuadRectFilled)(context)(x, y, size, size, color); // context.save();
+  // context.translate(x, y);
+  // context.rotate(heading);
+  // drawQuadRectFilled(context)(0, 0, size, size, color);
+  // context.restore();
+};
+
+var flowFieldTiles = function flowFieldTiles() {
+  var config = {
+    name: 'flowFieldTiles',
+    ratio: _sketch.ratio.square,
+    scale: _sketch.scale.standard
+  };
+  var palette = (0, _palettes.nicePalette)();
+  var clifford;
+  var jong;
+  var tileSize = 5; // Simple collision
+
+  var tileHistory = [];
+  var currentTilePos = [];
+
+  var checkHistory = function checkHistory(x, y) {
+    var pos = "".concat(x, ",").concat(y);
+    return tileHistory.includes(pos);
+  };
+
+  var createRandomParticle = function createRandomParticle(canvas) {
+    var props = (0, _Particle.createRandomParticleValues)(canvas);
+    props.x = (0, _math.randomWholeBetween)(0, canvas.width);
+    props.y = (0, _math.randomWholeBetween)(0, canvas.height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    var color = (0, _tinycolor.default)((0, _math.oneOf)(palette));
+    props.color = color;
+    return new _Particle.Particle(props);
+  };
+
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+
+    clifford = function clifford(x, y) {
+      return (0, _attractors.cliffordAttractor)(canvas.width, canvas.height, x, y);
+    };
+
+    jong = function jong(x, y) {
+      return (0, _attractors.jongAttractor)(canvas.width, canvas.height, x, y);
+    };
+
+    (0, _canvas.background)(canvas, context)('rgba(50,50,50,1)');
+  };
+
+  var renderField = function renderField(_ref2, context, fn, cell) {
+    var width = _ref2.width,
+        height = _ref2.height;
+    var mid = cell / 2;
+
+    for (var x = 0; x < width; x += cell) {
+      for (var y = 0; y < height; y += cell) {
+        var theta = fn(x, y);
+        (0, _canvas.drawLineAngle)(context)(x + mid, y + mid, theta, mid);
+      }
+    }
+  };
+
+  var drawTile = function drawTile(canvas, context, force, particle, color) {
+    var smallerTile = tileSize * 1.3;
+    var x = (0, _math.snapNumber)(smallerTile, particle.x);
+    var y = (0, _math.snapNumber)(smallerTile, particle.y);
+    color = color || particle.color; // Prevent overlap with a previous tile
+
+    if (!checkHistory(x, y)) {
+      currentTilePos.push("".concat(x, ",").concat(y));
+      tile(context, x, y, tileSize, color, particle.heading);
+      return true;
+    }
+
+    return false;
+  };
+
+  var drawFibers = function drawFibers(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
+    var particle = createRandomParticle(canvas);
+    var length = 500;
+    var run = true;
+
+    for (var i = 0; i < length; i++) {
+      var theta = (0, _attractors.simplexNoise2d)(particle.x, particle.y, 0.00005);
+      var force = (0, _math.uvFromAngle)(theta);
+      var color = particle.color.clone();
+      var saturation = (0, _math.mapRange)(0, 5, 0, 100, Math.abs(theta));
+      var brightness = (0, _math.mapRange)(0, 5, 0, 100, Math.abs(theta));
+      color.saturate(saturation).brighten(brightness);
+
+      if (run) {
+        // Run stops if the fiber collides with a previous one
+        (0, _Particle.applyForce)(force, particle);
+        particle.vVector = particle.vVector.limit(4);
+        (0, _Particle.updatePosWithVelocity)(particle);
+        (0, _Particle.edgeWrap)(canvas, particle);
+        run = drawTile(canvas, context, force, particle, color);
+      }
+
+      particle.aVector = new _Vector.Vector(0, 0);
+    }
+
+    tileHistory = tileHistory.concat(currentTilePos);
+    currentTilePos = [];
+  };
+
+  var draw = function draw(_ref4) {
+    var canvas = _ref4.canvas,
+        context = _ref4.context;
+    // renderField(canvas, context, simplexNoise2d, 20);
+    drawFibers({
+      canvas: canvas,
+      context: context
+    });
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
+};
+
+exports.flowFieldTiles = flowFieldTiles;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js"}],"scripts/experiments/flow-field-image.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.flowFieldImage = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -5852,23 +6148,24 @@ var _attractors = require("../lib/attractors");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-https://www.khanacademy.org/math/multivariable-calculus/thinking-about-multivariable-function/visualizing-vector-valued-functions/v/parametric-curves
-Based on https://www.youtube.com/watch?v=BjoM9oKOAKY
-Attractor fns https://medium.com/@bit101/flow-fields-part-i-3ebebc688fd8
-Read
-https://codepen.io/DonKarlssonSan/post/particles-in-simplex-noise-flow-field
-https://tylerxhobbs.com/essays/2020/flow-fields
+https://marcteyssier.com/projects/flowfield/
+https://larrycarlson.com/collections/wavy-art-prints
  */
 var TAU = Math.PI * 2;
 
-var tile = function tile(context, x, y, size, color, angle) {
-  (0, _canvas.drawQuadRectFilled)(context)(x, y, size, size, color); // drawRoundRectFilled(context)(x, y, size, size, 3, color);
-  // drawRectFilled(context)(x, y, size, size, color);
+var tile = function tile(context, x, y, size, color, heading) {
+  (0, _canvas.drawRoundRectFilled)(context)(x, y, size - 2, size - 2, 3, color); // context.save();
+  // context.translate(x, y);
+  // context.rotate(heading);
+  // // drawQuadRectFilled(context)(0, 0, size, size, color);
+  // drawRoundRectFilled(context)(0, 0, size - 2, size - 2, 3, color);
+  // // drawRectFilled(context)(0, 0, size, size, color);
+  // context.restore();
 };
 
-var flowField = function flowField() {
+var flowFieldImage = function flowFieldImage() {
   var config = {
-    name: 'flowField',
+    name: 'flowFieldImage',
     ratio: _sketch.ratio.square,
     scale: _sketch.scale.standard
   };
@@ -5928,7 +6225,7 @@ var flowField = function flowField() {
 
     if (!checkHistory(x, y)) {
       currentTilePos.push("".concat(x, ",").concat(y));
-      tile(context, x, y, tileSize, particle.color, angle);
+      tile(context, x, y, tileSize, particle.color, particle.heading);
       return true;
     }
 
@@ -5964,11 +6261,11 @@ var flowField = function flowField() {
   var draw = function draw(_ref3) {
     var canvas = _ref3.canvas,
         context = _ref3.context;
-    // renderField(canvas, context, simplexNoise2d, 20);
-    drawParticles({
-      canvas: canvas,
-      context: context
-    }); // drawFibers({ canvas, context });
+    return (// renderField(canvas, context, simplexNoise2d, 20);
+      // drawParticles({ canvas, context });
+      // drawFibers({ canvas, context });
+      -1
+    );
   };
 
   var drawParticles = function drawParticles(_ref4) {
@@ -6008,7 +6305,7 @@ var flowField = function flowField() {
     var canvas = _ref5.canvas,
         context = _ref5.context;
     var particle = createRandomParticle(canvas);
-    var length = 200;
+    var length = 500;
     var run = true;
 
     for (var i = 0; i < length; i++) {
@@ -6019,13 +6316,14 @@ var flowField = function flowField() {
 
       var _jong = (0, _attractors.jongAttractor)(canvas.width, canvas.height, particle.x, particle.y);
 
-      var theta = sNoise3d;
+      var theta = _jong;
       var force = (0, _math.uvFromAngle)(theta);
       var clr = (0, _palettes.hslFromRange)(5, 270, 359, Math.abs(theta)).setAlpha(0.1);
       var size = (0, _math.mapRange)(0, 5, 1, 5, Math.abs(theta));
 
       if (run) {
-        run = drawTile(canvas, context, force, particle, theta); // drawPixel(canvas, context, force, particle);
+        // run = drawTile(canvas, context, force, particle);
+        drawPixel(canvas, context, force, particle);
       }
 
       particle.aVector = new _Vector.Vector(0, 0);
@@ -6041,67 +6339,120 @@ var flowField = function flowField() {
     draw: draw
   };
 };
-/*
-// const noiseFn = (x, y) => round2(create2dNoise(x, y, 1, 0.001));
-// noiseField = createNoiseField(canvas.width, canvas.width, fieldResolution, fieldResolution, 0, 0, noiseFn);
-// drawNoiseField(context, noiseField);
-const createNoiseField = (width, height, columns, rows, margin = 0, gutter = 0, noiseFn) => {
-    const points = [];
-    const coords = [];
 
-    const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
-    const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
+exports.flowFieldImage = flowFieldImage;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js"}],"scripts/experiments/flow-field-arcs.js":[function(require,module,exports) {
+"use strict";
 
-    for (let col = 0; col < columns; col++) {
-        const x = margin + col * colStep + gutter * col;
-        coords[col] = [];
-        for (let row = 0; row < rows; row++) {
-            const y = margin + row * rowStep + gutter * row;
-            const noise = noiseFn ? noiseFn(x, y) : 0;
-            points.push([x, y, noise]);
-            coords[col][row] = noise;
-        }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.flowFieldArcs = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _canvas = require("../lib/canvas");
+
+var _sketch = require("../lib/sketch");
+
+var _palettes = require("../lib/palettes");
+
+var _attractors = require("../lib/attractors");
+
+var _math = require("../lib/math");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var TAU = Math.PI * 2;
+
+var arc = function arc(context, x, y, size, thick, color, theta) {
+  var startR = (0, _math.snapNumber)(Math.PI / 2, theta);
+  var endR = startR + Math.PI / 2;
+  var clockWise = true;
+  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
+  context.lineCap = 'round';
+  context.lineWidth = thick;
+  context.beginPath();
+  context.arc(x + size, y + size, size, startR, endR, clockWise);
+  context.stroke();
+};
+
+var circle = function circle(context, x, y, size, color, theta) {
+  var startR = 0; // snapNumber(Math.PI / 2, theta);
+
+  var endR = TAU; // startR + Math.PI / 2;
+
+  var clockWise = true;
+  var rad = (0, _math.mapRange)(0, 5, size * 0.2, size * 0.6, Math.abs(theta));
+  context.beginPath();
+  context.arc(x + size, y + size, rad, startR, endR, clockWise);
+  context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+  context.fill();
+};
+
+var line = function line(context, x, y, size, thick, color, theta) {
+  var startR = (0, _math.snapNumber)(Math.PI / 2, theta) + Math.PI / 2;
+  context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
+  (0, _canvas.drawLineAngle)(context)(x + size, y + size, startR, size * 2, thick, 'round');
+};
+
+var flowFieldArcs = function flowFieldArcs() {
+  var config = {
+    name: 'flowFieldArcs',
+    ratio: _sketch.ratio.square,
+    scale: _sketch.scale.standard
+  };
+  var time = 0;
+  var palette = (0, _palettes.nicePalette)();
+  var colorBackground = (0, _tinycolor.default)('rgba(50,50,50,1)');
+
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+    (0, _canvas.background)(canvas, context)(colorBackground);
+  };
+
+  var renderField = function renderField(_ref2, context, fn, cell) {
+    var width = _ref2.width,
+        height = _ref2.height;
+    var mid = cell / 2;
+
+    for (var x = 0; x < width; x += cell) {
+      for (var y = 0; y < height; y += cell) {
+        var theta = fn(x, y);
+        var arcColor = (0, _palettes.hslFromRange)(5, 270, 360, Math.abs(theta));
+        var lineColor = (0, _palettes.hslFromRange)(5, 180, 270, Math.abs(theta)).darken(10);
+        line(context, x, y, mid, mid * 0.5, lineColor, theta);
+        circle(context, x, y, mid, lineColor, theta);
+        arc(context, x, y, mid, mid * 0.5, arcColor, theta);
+        arc(context, x, y, mid, mid * 0.1, 'yellow', theta);
+      }
     }
+  };
 
-    return { points, coords, columnWidth: colStep, rowHeight: rowStep };
+  var draw = function draw(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
+    (0, _canvas.background)(canvas, context)(colorBackground.setAlpha(0.1)); // const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
+    // const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
+
+    var noise = function noise(x, y) {
+      return (0, _attractors.simplexNoise3d)(x, y, time, 0.001);
+    };
+
+    renderField(canvas, context, noise, Math.round(canvas.width / 20));
+    time += 0.25;
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
 };
 
-// const sNoise = getNoiseFieldVectorAtPoint(
-//     noiseField,
-//     fieldResolution,
-//     canvas.width,
-//     canvas.height,
-//     particle.x,
-//     particle.y
-// );
-
-// Map canvas coords to field resolution and get index in array
-const getNoiseFieldVectorAtPoint = (field, resolution, width, height, x, y) => {
-    const noiseX = Math.floor(mapRange(0, width, 0, resolution - 1, x));
-    const noiseY = Math.floor(mapRange(0, height, 0, resolution - 1, y));
-    return field.coords[noiseX][noiseY] * TAU;
-};
-
-const drawNoiseField = (context, field) => {
-    // textAlignAllCenter(context);
-    field.points.forEach((point) => {
-        const x = point[0];
-        const y = point[1];
-        const n = point[2];
-        const midX = field.columnWidth / 2;
-        const midY = field.rowHeight / 2;
-
-        // drawRectFilled(context)(x, y, grid.columnWidth, grid.rowHeight, `hsl(${360 * (n * 2)},100,50)`);
-        drawRectFilled(context)(x, y, field.columnWidth, field.rowHeight, `rgba(0,0,0,${n / 2 + 0.5}`);
-        drawLineAngle(context)(x + midX, y + midY, n * TAU, midY);
-        // drawTextFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
-    });
-};
-*/
-
-
-exports.flowField = flowField;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js"}],"scripts/index.js":[function(require,module,exports) {
+exports.flowFieldArcs = flowFieldArcs;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/attractors":"scripts/lib/attractors.js","../lib/math":"scripts/lib/math.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -6132,21 +6483,22 @@ var _rainbowRakeOrbitMouse = require("./released/rainbow-rake-orbit-mouse");
 
 var _threeAttractors = require("./released/threeAttractors");
 
-var _flowField = require("./experiments/flow-field");
+var _flowFieldParticles = require("./released/flow-field-particles");
+
+var _flowFieldTiles = require("./experiments/flow-field-tiles");
+
+var _flowFieldImage = require("./experiments/flow-field-image");
+
+var _flowFieldArcs = require("./experiments/flow-field-arcs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
 Explorations with generative code
 */
-// import { forcesDev } from './experiments/forcesDev';
-// import { forcesDevGravity } from './experiments/forcesDevGravity';
-// import { testGrid } from './experiments/test-grid';
-// import { blackhole } from './experiments/blackhole';
-// import { parametric01 } from './experiments/parametric01';
 var s = (0, _sketch.sketch)(); // const DEBUG = undefined;
 
-var DEBUG = _flowField.flowField; // TODO append random seed value
+var DEBUG = _flowFieldArcs.flowFieldArcs; // TODO append random seed value
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
   console.log('Saving capture');
@@ -6229,6 +6581,14 @@ var variations = {
   12: {
     note: 'Experimenting with rose shapes. Refresh for new randomized set.',
     sketch: _lissajous.lissajous01
+  },
+  13: {
+    note: 'Particles and fibers flowing with 3d simplex noise.',
+    sketch: _flowFieldParticles.flowFieldParticles
+  },
+  14: {
+    note: 'Arcs flowing with 3d simplex noise.',
+    sketch: _flowFieldArcs.flowFieldArcs
   }
 };
 var variationKey = getQueryVariable('variation');
@@ -6246,7 +6606,7 @@ if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
 if (DEBUG) {
   s.run(DEBUG());
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./experiments/flow-field":"scripts/experiments/flow-field.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./released/flow-field-particles":"scripts/released/flow-field-particles.js","./experiments/flow-field-tiles":"scripts/experiments/flow-field-tiles.js","./experiments/flow-field-image":"scripts/experiments/flow-field-image.js","./experiments/flow-field-arcs":"scripts/experiments/flow-field-arcs.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -6274,7 +6634,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53561" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62481" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
