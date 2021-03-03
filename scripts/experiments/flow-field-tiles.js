@@ -33,12 +33,13 @@ import {
 } from '../lib/attractors';
 
 const tile = (context, x, y, size, color, heading) => {
-    drawQuadRectFilled(context)(x, y, size, size, color);
-    // context.save();
-    // context.translate(x, y);
-    // context.rotate(heading);
-    // drawQuadRectFilled(context)(0, 0, size, size, color);
-    // context.restore();
+    // drawQuadRectFilled(context)(x, y, size, size, color);
+
+    context.save();
+    context.translate(x - size / 2, y - size / 2);
+    context.rotate(heading);
+    drawRoundRectFilled(context)(0, 0, size, size, 3, color);
+    context.restore();
 };
 
 export const flowFieldTiles = () => {
@@ -52,7 +53,7 @@ export const flowFieldTiles = () => {
     let clifford;
     let jong;
 
-    const tileSize = 5;
+    const tileSize = 15;
 
     // Simple collision
     let tileHistory = [];
@@ -91,7 +92,7 @@ export const flowFieldTiles = () => {
     };
 
     const drawTile = (canvas, context, force, particle, color) => {
-        const smallerTile = tileSize * 1.3;
+        const smallerTile = tileSize * 1.5;
         const x = snapNumber(smallerTile, particle.x);
         const y = snapNumber(smallerTile, particle.y);
 
@@ -124,7 +125,6 @@ export const flowFieldTiles = () => {
                 applyForce(force, particle);
                 particle.vVector = particle.vVector.limit(4);
                 updatePosWithVelocity(particle);
-                edgeWrap(canvas, particle);
                 run = drawTile(canvas, context, force, particle, color);
             }
 

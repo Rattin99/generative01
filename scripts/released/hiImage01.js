@@ -17,13 +17,15 @@ export const hiImage01 = (_) => {
         height: 600,
     };
 
-    const numParticles = 500;
     let imageZoomFactor;
     const png = new Image();
     png.src = sourcePng;
-    const particlesArray = [];
     let imageData;
+
+    const numParticles = 500;
+    const particlesArray = [];
     const particleColor = { r: 252, g: 3, b: 152 };
+
     // let imageColorData;
 
     // const createColorArrayFromImageData = (imageData) => {
@@ -39,7 +41,6 @@ export const hiImage01 = (_) => {
     const setup = ({ canvas, context }) => {
         imageData = getImageDataFromImage(context)(png);
         clearCanvas(canvas, context)();
-
         imageZoomFactor = canvas.width / imageData.width;
 
         // imageColorData = createColorArrayFromImageData(imageData);

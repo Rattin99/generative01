@@ -19,15 +19,16 @@ import { variation6 } from './released/variation6';
 import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
 import { threeAttractors } from './released/threeAttractors';
 
-import { flowFieldParticles } from './released/flow-field-particles';
 import { flowFieldTiles } from './experiments/flow-field-tiles';
-import { flowFieldImage } from './experiments/flow-field-image';
-import { flowFieldArcs } from './experiments/flow-field-arcs';
+
+import { flowFieldParticles } from './released/flow-field-particles';
+import { flowFieldImage } from './released/flow-field-image';
+import { flowFieldArcs } from './released/flow-field-arcs';
 
 const s = sketch();
 
-// const DEBUG = undefined;
-const DEBUG = flowFieldArcs;
+const DEBUG = undefined;
+// const DEBUG = flowFieldImage;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -114,6 +115,10 @@ const variations = {
     14: {
         note: 'Arcs flowing with 3d simplex noise.',
         sketch: flowFieldArcs,
+    },
+    15: {
+        note: 'Rendering an image with flow fields. Photo by Francesca Zama https://unsplash.com/photos/OFjnQOf1pPA',
+        sketch: flowFieldImage,
     },
 };
 
