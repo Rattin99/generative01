@@ -25,11 +25,12 @@ import { flowFieldParticles } from './released/flow-field-particles';
 import { flowFieldImage } from './released/flow-field-image';
 import { flowFieldArcs } from './released/flow-field-arcs';
 import { radialNoise } from './released/radial-noise';
+import { radialImage } from './experiments/radial-image';
 
 const s = sketch();
 
-const DEBUG = undefined;
-// const DEBUG = radialNoise;
+// const DEBUG = undefined;
+const DEBUG = radialImage;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
