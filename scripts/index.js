@@ -24,12 +24,12 @@ import { flowFieldTiles } from './experiments/flow-field-tiles';
 import { flowFieldParticles } from './released/flow-field-particles';
 import { flowFieldImage } from './released/flow-field-image';
 import { flowFieldArcs } from './released/flow-field-arcs';
-import { imageRadial } from './experiments/image-radial';
+import { radialNoise } from './released/radial-noise';
 
 const s = sketch();
 
-// const DEBUG = undefined;
-const DEBUG = imageRadial;
+const DEBUG = undefined;
+// const DEBUG = radialNoise;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -120,6 +120,10 @@ const variations = {
     15: {
         note: 'Rendering an image with flow fields. Photo by Francesca Zama https://unsplash.com/photos/OFjnQOf1pPA',
         sketch: flowFieldImage,
+    },
+    16: {
+        note: 'Simplex noise going around ...',
+        sketch: radialNoise,
     },
 };
 

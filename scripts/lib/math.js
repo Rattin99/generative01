@@ -5,6 +5,7 @@
 
 import random from 'canvas-sketch-util/random';
 import { Vector } from './Vector';
+import { drawCircleFilled } from './canvas';
 
 // Math aliases
 const π = Math.PI;
@@ -179,6 +180,12 @@ export const create3dNoise = (u, v, t, amplitude = 1, frequency = 0.5) =>
 
 export const create3dNoiseAbs = (u, v, t, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;
+
+export const randomPointAround = (range = 20) => {
+    const radius = randomWholeBetween(0, range);
+    const angle = randomNumberBetween(0, TAU);
+    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+};
 
 // [[x,y], ...]
 export const createCirclePoints = (offsetX, offsetY, diameter, steps, sx = 1, sy = 1) => {

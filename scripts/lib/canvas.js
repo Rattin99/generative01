@@ -256,6 +256,21 @@ export const drawSpikeCircle = (context) => ({ x, y, radius, color }, spikes, sp
     }
 };
 
+export const splatter = (context) => (x, y, color, size, amount = 3, range = 20) => {
+    for (let i = 0; i < amount; i++) {
+        const s = randomWholeBetween(size * 0.25, size * 3);
+        // circle dist
+        const radius = randomWholeBetween(0, range);
+        const angle = randomNumberBetween(0, TAU);
+        const xoff = radius * Math.cos(angle);
+        const yoff = radius * Math.sin(angle);
+        // square dist
+        // const xoff = randomWholeBetween(-range, range);
+        // const yoff = randomWholeBetween(-range, range);
+        drawCircleFilled(context)(x + xoff, y + yoff, s, color);
+    }
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 // PARTICLE INTERACTIVITY AND FANCY STUFF
 //----------------------------------------------------------------------------------------------------------------------
@@ -311,21 +326,6 @@ export const drawPointTrail = (context) => (particle) => {
         context.strokeStyle = pColor.toRgbString();
         alpha -= aFade;
         stroke -= sFade;
-    }
-};
-
-export const splatter = (context) => (x, y, color, size, amount = 3, range = 20) => {
-    for (let i = 0; i < amount; i++) {
-        const s = randomWholeBetween(size * 0.25, size * 3);
-        // circle dist
-        const radius = randomWholeBetween(0, range);
-        const angle = randomNumberBetween(0, TAU);
-        const xoff = radius * Math.cos(angle);
-        const yoff = radius * Math.sin(angle);
-        // square dist
-        // const xoff = randomWholeBetween(-range, range);
-        // const yoff = randomWholeBetween(-range, range);
-        drawCircleFilled(context)(x + xoff, y + yoff, s, color);
     }
 };
 
@@ -408,3 +408,19 @@ export const getImageDataColor = (imageData, x, y) => ({
     b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
     a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
 });
+
+/*
+const getImagePixelTheta = (x, y) => {
+        const imagePixelColor = tinycolor(getImageDataColor(imageData, x, y)).getBrightness();
+        return (imagePixelColor / 256) * TAU;
+    };
+
+    const getImagePixelColor = (x, y) => {
+        const imagePixel = getImageDataColor(
+            imageData,
+            Math.round(x / imageZoomFactor),
+            Math.round(y / imageZoomFactor)
+        );
+        return tinycolor(imagePixel);
+    };
+ */
