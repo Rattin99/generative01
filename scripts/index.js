@@ -24,11 +24,12 @@ import { flowFieldTiles } from './experiments/flow-field-tiles';
 import { flowFieldParticles } from './released/flow-field-particles';
 import { flowFieldImage } from './released/flow-field-image';
 import { flowFieldArcs } from './released/flow-field-arcs';
+import { imageRadial } from './experiments/image-radial';
 
 const s = sketch();
 
-const DEBUG = undefined;
-// const DEBUG = flowFieldImage;
+// const DEBUG = undefined;
+const DEBUG = imageRadial;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
