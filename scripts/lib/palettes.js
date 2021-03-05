@@ -25,7 +25,7 @@ export const darkest = (arry) => {
 };
 
 export const palettes = {
-    pop: ['#ed3441', '#ffd630', '#329fe3', '#154296', '#ffffff', '#303030'],
+    pop: ['#ed3441', '#ffd630', '#329fe3', '#154296', '#303030'],
     '70s': ['#73BFA3', '#F2DBAE', '#F29829', '#D9631E', '#593C2C'],
     '80s_pastells': ['#FF3F3F', '#FF48C4', '#F3EA5F', '#C04DF9', '#2BD1FC', '#38CEF6'],
     '80s_pop': ['#FF82E2', '#70BAFF', '#FED715', '#0037B3', '#FE0879'],

@@ -26,11 +26,12 @@ import { flowFieldImage } from './released/flow-field-image';
 import { flowFieldArcs } from './released/flow-field-arcs';
 import { radialNoise } from './released/radial-noise';
 import { radialImage } from './experiments/radial-image';
+import { flowFieldRibbons } from './released/flow-field-ribbons';
 
 const s = sketch();
 
-// const DEBUG = undefined;
-const DEBUG = radialImage;
+const DEBUG = undefined;
+// const DEBUG = flowFieldRibbons;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -125,6 +126,10 @@ const variations = {
     16: {
         note: 'Simplex noise going around ...',
         sketch: radialNoise,
+    },
+    17: {
+        note: 'Ribbons attracted to an attractor',
+        sketch: flowFieldRibbons,
     },
 };
 

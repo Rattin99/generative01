@@ -63,9 +63,9 @@ export const snapNumber = (snap, n) => Math.floor(n / snap) * snap;
 
 // Hough transform
 // https://stackoverflow.com/questions/24372921/how-to-calculate-quantized-angle
-export const houghQuantize = (width, theta) => Math.floor((width * theta) / TAU + 0.5);
+export const houghQuantize = (numAngles, theta) => Math.floor((numAngles * theta) / TAU + 0.5);
 // https://stackoverflow.com/questions/47047691/how-to-quantize-directions-in-canny-edge-detector-in-python
-export const quantize = (width, theta) => (Math.round(theta * (width / Math.PI)) + width) % width;
+export const quantize = (numAngles, theta) => (Math.round(theta * (numAngles / Math.PI)) + numAngles) % numAngles;
 
 export const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
@@ -76,7 +76,9 @@ export const randomNumberBetween = (min, max) => random.value() * (max - min) + 
 export const randomWholeBetween = (min, max) => Math.round(random.value() * (max - min) + min);
 export const randomNumberBetweenMid = (min, max) => randomNumberBetween(min, max) - max / 2;
 
-export const randomSign = () => (Math.round(random.value()) == 1 ? 1 : -1);
+export const randomSign = () => (Math.round(random.value()) === 1 ? 1 : -1);
+export const randomBoolean = () => Math.round(random.value()) === 1;
+export const randomChance = (chance = 0.5) => random.chance(chance);
 
 export const oneOf = (arry) => {
     const i = randomWholeBetween(0, arry.length - 1);

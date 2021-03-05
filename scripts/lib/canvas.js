@@ -382,6 +382,26 @@ export const drawAttractor = (context) => ({ x, y, mass, g }, mode, radius) => {
     context.fill();
 };
 
+export const renderField = ({ width, height }, context, fn, color = 'black', cell = '50', length) => {
+    const mid = cell / 2;
+    for (let x = 0; x < width; x += cell) {
+        for (let y = 0; y < height; y += cell) {
+            const theta = fn(x, y);
+            const vect = uvFromAngle(theta).setMag(length || mid);
+            const x1 = x + mid;
+            const y1 = y + mid;
+            const x2 = x1 + vect.x;
+            const y2 = y1 + vect.y;
+            context.strokeStyle = tinycolor(color);
+            context.lineWidth = 1;
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+        }
+    }
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 // IMAGE DATA / PIXELS
 //----------------------------------------------------------------------------------------------------------------------
