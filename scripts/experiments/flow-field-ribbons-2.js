@@ -30,7 +30,8 @@ const drawRibbonSegment = (context, sideA, sideB, color, stroke = false, thickne
     const rColor = tinycolor(color).clone();
     const gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
     gradient.addColorStop(0, rColor.toRgbString());
-    gradient.addColorStop(1, rColor.clone().darken(20).toRgbString());
+    gradient.addColorStop(0.5, rColor.toRgbString());
+    gradient.addColorStop(1, rColor.clone().darken(30).saturate(50).toRgbString());
 
     context.beginPath();
     context.moveTo(segStartX, segStartY);
@@ -53,18 +54,24 @@ const drawRibbonSegment = (context, sideA, sideB, color, stroke = false, thickne
 };
 
 const drawRibbon = (context) => (sideA, sideB, color, stroke = false, thickness = 1) => {
-    const segmentGap = 3;
-    const segments = randomWholeBetween(1, 4);
-    const segmentsStep = Math.ceil((sideA.length - segmentGap * (segments - 1)) / segments);
+    const segmentGap = randomWholeBetween(1, 4);
+    const segments = randomWholeBetween(1, 3);
+    // const segmentsStep = Math.ceil((sideA.length - segmentGap * (segments - 1)) / segments);
     const segmentData = [];
 
+    let left = sideA.length;
+    let start = 0;
+
     for (let i = 0; i < segments; i++) {
-        const start = i * segmentsStep + segmentGap * i;
-        const len = segmentsStep;
+        const len = randomWholeBetween(1, left / 2);
+        // const start = i * segmentsStep + segmentGap * i;
+        // const len = segmentsStep;
         segmentData.push({
             sideA: sideA.slice(start, start + len),
             sideB: sideB.slice(start, start + len).reverse(),
         });
+        start += len + segmentGap;
+        left -= len + segmentGap;
     }
     segmentData.forEach((s) => {
         drawRibbonSegment(context, s.sideA, s.sideB, color, stroke, thickness);
@@ -82,7 +89,7 @@ export const flowFieldRibbons2 = () => {
 
     let canvasMidX;
     let canvasMidY;
-    const palette = palettes.pop;
+    const palette = palettes['80s_pop'];
     const backgroundColor = tinycolor('white');
 
     let time = 0;
@@ -114,7 +121,7 @@ export const flowFieldRibbons2 = () => {
     const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
     const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
     const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
-    const noise = simplex2d; // randomBoolean() ? clifford : jong;
+    const noise = randomBoolean() ? clifford : jong;
 
     let maxRadius;
 
@@ -125,11 +132,21 @@ export const flowFieldRibbons2 = () => {
 
         background(canvas, context)(backgroundColor);
 
-        renderField(canvas, context, noise, 'rgba(0,0,0,.15)', canvas.width / 10, 5);
+        renderField(
+            canvas,
+            context,
+            noise,
+            tinycolor(oneOf(palette)).lighten(30),
+            canvas.width / 10,
+            canvas.width / 20
+        );
     };
 
-    const ribbonLen = 200; // randomWholeBetween(100, 1000);
-    const ribbonThickness = 200; // randomWholeBetween(10, 50);
+    const ribbonLen = randomWholeBetween(200, 500);
+    const ribbonThickness = randomWholeBetween(100, 300);
+
+    const maxItterations = randomWholeBetween(10, 30);
+    let currentItteration = 0;
 
     const draw = ({ canvas, context }) => {
         const color = oneOf(palette);
@@ -149,6 +166,8 @@ export const flowFieldRibbons2 = () => {
         drawRibbon(context)(sideA, sideB, color, false, ribbonThickness);
 
         time += 0.01;
+
+        if (++currentItteration > maxItterations) return -1;
     };
 
     return {

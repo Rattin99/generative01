@@ -7079,7 +7079,8 @@ var drawRibbonSegment = function drawRibbonSegment(context, sideA, sideB, color)
   var rColor = (0, _tinycolor.default)(color).clone();
   var gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
   gradient.addColorStop(0, rColor.toRgbString());
-  gradient.addColorStop(1, rColor.clone().darken(20).toRgbString());
+  gradient.addColorStop(0.5, rColor.toRgbString());
+  gradient.addColorStop(1, rColor.clone().darken(30).saturate(50).toRgbString());
   context.beginPath();
   context.moveTo(segStartX, segStartY);
   sideA.forEach(function (w, i) {
@@ -7104,18 +7105,23 @@ var drawRibbon = function drawRibbon(context) {
   return function (sideA, sideB, color) {
     var stroke = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     var thickness = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
-    var segmentGap = 3;
-    var segments = (0, _math.randomWholeBetween)(1, 4);
-    var segmentsStep = Math.ceil((sideA.length - segmentGap * (segments - 1)) / segments);
+    var segmentGap = (0, _math.randomWholeBetween)(1, 4);
+    var segments = (0, _math.randomWholeBetween)(1, 3); // const segmentsStep = Math.ceil((sideA.length - segmentGap * (segments - 1)) / segments);
+
     var segmentData = [];
+    var left = sideA.length;
+    var start = 0;
 
     for (var i = 0; i < segments; i++) {
-      var start = i * segmentsStep + segmentGap * i;
-      var len = segmentsStep;
+      var len = (0, _math.randomWholeBetween)(1, left / 2); // const start = i * segmentsStep + segmentGap * i;
+      // const len = segmentsStep;
+
       segmentData.push({
         sideA: sideA.slice(start, start + len),
         sideB: sideB.slice(start, start + len).reverse()
       });
+      start += len + segmentGap;
+      left -= len + segmentGap;
     }
 
     segmentData.forEach(function (s) {
@@ -7132,7 +7138,7 @@ var flowFieldRibbons2 = function flowFieldRibbons2() {
   };
   var canvasMidX;
   var canvasMidY;
-  var palette = _palettes.palettes.pop;
+  var palette = _palettes.palettes['80s_pop'];
   var backgroundColor = (0, _tinycolor.default)('white');
   var time = 0;
 
@@ -7178,8 +7184,7 @@ var flowFieldRibbons2 = function flowFieldRibbons2() {
     return (0, _attractors.jongAttractor)(canvas.width, canvas.height, x, y);
   };
 
-  var noise = simplex2d; // randomBoolean() ? clifford : jong;
-
+  var noise = (0, _math.randomBoolean)() ? clifford : jong;
   var maxRadius;
 
   var setup = function setup(_ref) {
@@ -7189,12 +7194,13 @@ var flowFieldRibbons2 = function flowFieldRibbons2() {
     canvasMidY = canvas.height / 2;
     maxRadius = canvas.width * 0.4;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _canvas.renderField)(canvas, context, noise, 'rgba(0,0,0,.15)', canvas.width / 10, 5);
+    (0, _canvas.renderField)(canvas, context, noise, (0, _tinycolor.default)((0, _math.oneOf)(palette)).lighten(30), canvas.width / 10, canvas.width / 20);
   };
 
-  var ribbonLen = 200; // randomWholeBetween(100, 1000);
-
-  var ribbonThickness = 200; // randomWholeBetween(10, 50);
+  var ribbonLen = (0, _math.randomWholeBetween)(200, 500);
+  var ribbonThickness = (0, _math.randomWholeBetween)(100, 300);
+  var maxItterations = (0, _math.randomWholeBetween)(10, 30);
+  var currentItteration = 0;
 
   var draw = function draw(_ref2) {
     var canvas = _ref2.canvas,
@@ -7211,6 +7217,7 @@ var flowFieldRibbons2 = function flowFieldRibbons2() {
     var sideB = createRibbon(noise, x2, y2, len, 1);
     drawRibbon(context)(sideA, sideB, color, false, ribbonThickness);
     time += 0.01;
+    if (++currentItteration > maxItterations) return -1;
   };
 
   return {
@@ -7423,7 +7430,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55490" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53325" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
