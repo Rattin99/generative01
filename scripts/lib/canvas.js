@@ -208,7 +208,6 @@ export const textStyles = {
 };
 
 export const drawTextFilled = (context) => (text, x, y, color, style) => {
-    console.log(style);
     context.fillStyle = tinycolor(color).toRgbString();
     context.font = style || textStyles.default;
     context.fillText(text, x, y);

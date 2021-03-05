@@ -76,7 +76,6 @@ export const lissajous01 = () => {
             curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
         } else {
             grid = createGridCellsXY(canvas.width, canvas.width, columns, columns, margin, margin / 2);
-            console.log(grid);
             grid.points.forEach((point) => {
                 const x = point[0];
                 const y = point[1];

@@ -24,7 +24,38 @@ export const darkest = (arry) => {
     }, colors[0]);
 };
 
+export const warmWhite = tinycolor('hsl(42, 14%, 86%)');
+export const warmPink = tinycolor('hsl(29, 42%, 86%)');
+
+// greys from https://uxdesign.cc/dark-mode-ui-design-the-definitive-guide-part-1-color-53dcfaea5129
+export const coolGreyDark = tinycolor('#1f2933');
+export const warmGreyDark = tinycolor('#27241d');
+
 export const palettes = {
+    greyWarm: [
+        '#faf97f',
+        '#e8e6e1',
+        '#d3cec4',
+        '#b8b2a7',
+        '#a39e93',
+        '#857f72',
+        '#625d52',
+        '#504a40',
+        '#423d33',
+        '#27241d',
+    ],
+    greyCool: [
+        '#f5f7fa',
+        '#e4e7eb',
+        '#cbd2d9',
+        '#9aa5b1',
+        '#7b8794',
+        '#616e7c',
+        '#52606d',
+        '#3e4c59',
+        '#323f4b',
+        '#1f2933',
+    ],
     pop: ['#ed3441', '#ffd630', '#329fe3', '#154296', '#303030'],
     '70s': ['#73BFA3', '#F2DBAE', '#F29829', '#D9631E', '#593C2C'],
     '80s_pastells': ['#FF3F3F', '#FF48C4', '#F3EA5F', '#C04DF9', '#2BD1FC', '#38CEF6'],

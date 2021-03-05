@@ -31,7 +31,7 @@ const drawRibbonSegment = (context, sideA, sideB, color, stroke = false, thickne
     const gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
     gradient.addColorStop(0, rColor.toRgbString());
     gradient.addColorStop(0.5, rColor.toRgbString());
-    gradient.addColorStop(1, rColor.clone().darken(30).saturate(50).toRgbString());
+    gradient.addColorStop(1, rColor.clone().darken(20).saturate(50).toRgbString());
 
     context.beginPath();
     context.moveTo(segStartX, segStartY);
@@ -54,7 +54,7 @@ const drawRibbonSegment = (context, sideA, sideB, color, stroke = false, thickne
 };
 
 const drawRibbon = (context) => (sideA, sideB, color, stroke = false, thickness = 1) => {
-    const segmentGap = randomWholeBetween(1, 4);
+    const segmentGap = 1; // randomWholeBetween(1, 4);
     const segments = randomWholeBetween(1, 3);
     // const segmentsStep = Math.ceil((sideA.length - segmentGap * (segments - 1)) / segments);
     const segmentData = [];
@@ -132,14 +132,14 @@ export const flowFieldRibbons2 = () => {
 
         background(canvas, context)(backgroundColor);
 
-        renderField(
-            canvas,
-            context,
-            noise,
-            tinycolor(oneOf(palette)).lighten(30),
-            canvas.width / 10,
-            canvas.width / 20
-        );
+        // renderField(
+        //     canvas,
+        //     context,
+        //     noise,
+        //     tinycolor(oneOf(palette)).lighten(30),
+        //     canvas.width / 10,
+        //     canvas.width / 20
+        // );
     };
 
     const ribbonLen = randomWholeBetween(200, 500);

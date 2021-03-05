@@ -1,4 +1,4 @@
-import { create2dNoise, create3dNoise, randomNumberBetween } from './math';
+import { create2dNoise, create3dNoise, pointDistance, randomNumberBetween } from './math';
 
 const TAU = Math.PI * 2;
 
@@ -34,4 +34,24 @@ export const jongAttractor = (width, height, x, y) => {
     const x1 = Math.sin(a * y) - Math.cos(b * x);
     const y1 = Math.sin(c * x) - Math.cos(d * y);
     return Math.atan2(y1 - y, x1 - x);
+};
+
+// Misc formula
+const flowAtPoint = (x, y) => {
+    const scale = 0.01;
+    const fromCenter = pointDistance({ x, y }, { x: canvasMidX, y: canvasMidY });
+    const simplex = simplexNoise2d(x, y, 0.01);
+    // const theta = simplex;
+    const theta = (fromCenter + simplex) / 2; // mostly radial around middle
+    // const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
+    // const r2 = (Math.pow(x, 2) + 0.8 * Math.pow(y, 1 / 2)) * 8 * Math.PI * 4;
+    // const theta = ((r1 + r2 + simplex) / 3) * 0.001;
+    // const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
+    // const theta = Math.atan2(y, x); // cones out from top left
+    // const theta = x + y + Math.cos(x * scale) * Math.sin(x * scale); // bl to tr diag and cross perp lines
+    // const theta = Math.cos(x * scale) * Math.sin(x * scale); // vertical lines
+    // const theta = Math.cos(x) * Math.sin(x) * scale; // horizontal lines
+    // const theta = x * Math.sin(y) * scale; // scribble
+    // const theta = Math.sin(x * scale) + Math.sin(y * scale); // diamonds
+    return theta * TAU;
 };
