@@ -137,6 +137,14 @@ export class Particle {
         return pointAngleFromVelocity(this);
     }
 
+    reverseVelocityX() {
+        this.velocityX *= -1;
+    }
+
+    reverseVelocityY() {
+        this.velocityY *= -1;
+    }
+
     draw() {
         this.drawFn(this);
     }
@@ -225,26 +233,20 @@ export const attract = ({ x, y, mass, g }, particle, mode = 1, affectDist = 1000
 };
 
 export const edgeBounce = ({ width, height }, particle) => {
-    // if (particle.x + particle.radius > width || particle.x - particle.radius < 0) {
-    //     particle.velocityX *= -1;
-    // }
-    // if (particle.y + particle.radius > height || particle.y - particle.radius < 0) {
-    //     particle.velocityY *= -1;
-    // }
     if (particle.x + particle.radius > width) {
-        particle.velocityX *= -1;
+        particle.reverseVelocityX();
         particle.x = width - particle.radius;
     }
     if (particle.x - particle.radius < 0) {
-        particle.velocityX *= -1;
+        particle.reverseVelocityX();
         particle.x = particle.radius;
     }
     if (particle.y + particle.radius > height) {
-        particle.velocityY *= -1;
+        particle.reverseVelocityY();
         particle.y = height - particle.radius;
     }
     if (particle.y - particle.radius < 0) {
-        particle.velocityY *= -1;
+        particle.reverseVelocityY();
         particle.y = particle.radius;
     }
 };

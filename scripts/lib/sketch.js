@@ -35,6 +35,7 @@ TODO
 
 import { isHiDPI, contextScale, resizeCanvas } from './canvas';
 import { getRandomSeed, golden } from './math';
+import { defaultValue } from './utils';
 
 export const orientation = {
     portrait: 0,
@@ -52,8 +53,6 @@ export const scale = {
     standard: 1,
     hidpi: 2,
 };
-
-const defaultValue = (obj, key, value) => (obj.hasOwnProperty(key) ? obj[key] : value);
 
 export const sketch = () => {
     const mouse = {

@@ -1,25 +1,17 @@
-import {
-    attractPoint,
-    avoidPoint,
-    edgeBounce,
-    Particle,
-    updatePosWithVelocity,
-    createRandomParticleValues,
-    edgeWrap,
-} from '../lib/Particle';
-import { background, connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas';
+import { Particle, updatePosWithVelocity, createRandomParticleValues, edgeWrap } from '../lib/Particle';
+import { background, drawParticlePoint } from '../lib/canvas';
 import { mapRange } from '../lib/math';
+import { ratio, scale } from '../lib/sketch';
 
 export const particleBasicTemplate = () => {
     const config = {
-        width: 200,
-        height: 200,
-        fps: 24,
+        name: 'particles-template',
+        ratio: ratio.square,
+        scale: scale.standard,
     };
 
     const numParticles = 500;
     const particlesArray = [];
-    const hue = 0;
 
     let canvasCenterX;
     let canvasCenterY;
@@ -43,15 +35,6 @@ export const particleBasicTemplate = () => {
         }
         // background(canvas, context)('white');
     };
-
-    /*
-        edgeBounce(canvas, particlesArray[i]);
-        avoidPoint({ radius: centerRadius, x:canvasCenterX, y:canvasCenterY }, particlesArray[i], 4);
-        attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-        drawPointTrail(context)(particlesArray[i]);
-        connectParticles(context)(particlesArray, 200);
-        drawCircle(context)(mouse);
-     */
 
     const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)({ r: 100, g: 100, b: 100, a: 1 });

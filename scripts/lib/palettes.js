@@ -24,12 +24,12 @@ export const darkest = (arry) => {
     }, colors[0]);
 };
 
-export const warmWhite = tinycolor('hsl(42, 14%, 86%)');
-export const warmPink = tinycolor('hsl(29, 42%, 86%)');
+export const warmWhite = tinycolor('hsl(42, 14%, 86%)').clone();
+export const warmPink = tinycolor('hsl(29, 42%, 86%)').clone();
 
 // greys from https://uxdesign.cc/dark-mode-ui-design-the-definitive-guide-part-1-color-53dcfaea5129
-export const coolGreyDark = tinycolor('#1f2933');
-export const warmGreyDark = tinycolor('#27241d');
+export const coolGreyDark = tinycolor('#1f2933').clone();
+export const warmGreyDark = tinycolor('#27241d').clone();
 
 export const palettes = {
     greyWarm: [

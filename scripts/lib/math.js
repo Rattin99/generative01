@@ -5,7 +5,6 @@
 
 import random from 'canvas-sketch-util/random';
 import { Vector } from './Vector';
-import { drawCircleFilled } from './canvas';
 
 // Math aliases
 const π = Math.PI;
@@ -72,8 +71,46 @@ export const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 export const getRandomSeed = () => random.getSeed();
 export const setRandomSeed = (s) => random.setRandomSeed(s);
 
-export const randomNumberBetween = (min, max) => random.value() * (max - min) + min;
-export const randomWholeBetween = (min, max) => Math.round(random.value() * (max - min) + min);
+// Box-Muller Transform
+// https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve
+export const randomNormalBM = () => {
+    let u = 0;
+    let v = 0;
+    while (u === 0) u = random.value(); // Converting [0,1) to (0,1)
+    while (v === 0) v = random.value();
+    let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    num = num / 10.0 + 0.5; // Translate to 0 -> 1
+    if (num > 1 || num < 0) return randomNormalBM(); // resample between 0 and 1
+    return num;
+};
+
+// same source as above
+// better solution https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/
+export const randomNormalBM2 = (min = 0, max = 1, skew = 1) => {
+    let u = 0;
+    let v = 0;
+    while (u === 0) u = random.value(); // Converting [0,1) to (0,1)
+    while (v === 0) v = random.value();
+    let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+
+    num = num / 10.0 + 0.5; // Translate to 0 -> 1
+    if (num > 1 || num < 0) {
+        // // resample between 0 and 1 if out of range
+        num = randomNormalBM2(min, max, skew);
+    } else {
+        num = Math.pow(num, skew); // Skew
+        num *= max - min; // Stretch to fill range
+        num += min; // offset to min
+    }
+    return num;
+};
+
+export const randomNormalNumberBetween = (min, max) => randomNormalBM() * (max - min) + min;
+export const randomNormalWholeBetween = (min, max) => Math.round(randomNormalBM() * (max - min) + min);
+
+export const randomNumberBetween = (min, max) => random.valueNonZero() * (max - min) + min;
+export const randomWholeBetween = (min, max) => Math.round(random.valueNonZero() * (max - min) + min);
+
 export const randomNumberBetweenMid = (min, max) => randomNumberBetween(min, max) - max / 2;
 
 export const randomSign = () => (Math.round(random.value()) === 1 ? 1 : -1);
@@ -134,6 +171,8 @@ export const mapRange = (x1, y1, x2, y2, a) => lerp(x2, y2, invlerp(x1, y1, a));
 
 // Accepts a value 0-1 and returns a value 0-1 in a sin wave
 export const toSinValue = (value) => Math.abs(Math.sin(value * TAU));
+
+export const mapToTau = (start, end, value) => mapRange(start, end, 0, TAU, value);
 
 export const marginify = ({ margin, u, v, width, height }) => ({
     x: lerp(margin, width - margin, u),

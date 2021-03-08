@@ -28,11 +28,12 @@ import { radialNoise } from './released/radial-noise';
 import { radialImage } from './experiments/radial-image';
 import { flowFieldRibbons } from './released/flow-field-ribbons';
 import { flowFieldRibbons2 } from './released/flow-field-ribbons-2';
+import { boxTest } from './experiments/box-test';
 
 const s = sketch();
 
-const DEBUG = undefined;
-// const DEBUG = flowFieldImage;
+// const DEBUG = undefined;
+const DEBUG = boxTest;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {

@@ -46,7 +46,6 @@ export const background = (canvas, context) => (color = 'black') => {
     context.fillRect(0, 0, canvas.width, canvas.height);
 };
 
-// context.save() and context.restore() may be slow, just reset what i'm using
 export const resetStyles = (context) => {
     context.strokeStyle = '#000';
     context.fillStyle = '#fff';
