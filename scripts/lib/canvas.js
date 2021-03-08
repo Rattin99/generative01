@@ -69,14 +69,15 @@ export const blendMode = (context) => (mode) => {
 //----------------------------------------------------------------------------------------------------------------------
 
 // TODO, circle or square?
-export const pixel = (context) => (x, y, color = 'black', mode = 'square') => {
+export const pixel = (context) => (x, y, color = 'black', mode = 'square', size) => {
+    size = size || contextScale;
     context.fillStyle = tinycolor(color).toRgbString();
     if (mode === 'circle') {
         context.beginPath();
-        context.arc(x, y, contextScale, 0, Math.PI * 2, false);
+        context.arc(x, y, size, 0, Math.PI * 2, false);
         context.fill();
     } else {
-        context.fillRect(x, y, contextScale, contextScale);
+        context.fillRect(x, y, size, size);
     }
 };
 

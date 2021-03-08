@@ -3223,14 +3223,16 @@ var pixel = function pixel(context) {
   return function (x, y) {
     var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'black';
     var mode = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'square';
+    var size = arguments.length > 4 ? arguments[4] : undefined;
+    size = size || contextScale;
     context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
 
     if (mode === 'circle') {
       context.beginPath();
-      context.arc(x, y, contextScale, 0, Math.PI * 2, false);
+      context.arc(x, y, size, 0, Math.PI * 2, false);
       context.fill();
     } else {
-      context.fillRect(x, y, contextScale, contextScale);
+      context.fillRect(x, y, size, size);
     }
   };
 }; // TODO use circle?
@@ -7509,6 +7511,11 @@ var defaultMP = {
   bottom: 0,
   left: 0
 };
+
+var defaultFlow = function defaultFlow(x, y) {
+  return 0;
+};
+
 var boxIndex = 0;
 
 var _backgroundColor = new WeakMap();
@@ -7583,6 +7590,7 @@ var Box = /*#__PURE__*/function () {
 
     this.padding = (0, _utils.defaultValue)(props, 'padding', defaultMP);
     this.clip = (0, _utils.defaultValue)(props, 'clip', true);
+    this.flowField = (0, _utils.defaultValue)(props, 'flowField', defaultFlow);
     this.children = children;
   }
 
@@ -7635,6 +7643,11 @@ var Box = /*#__PURE__*/function () {
     key: "translateInto",
     value: function translateInto(point) {
       return new _Point.Point(this.translateX(point.x), this.translateY(point.y));
+    }
+  }, {
+    key: "translateOut",
+    value: function translateOut(point) {
+      return new _Point.Point(point.x - this.x, point.y - this.y);
     }
   }, {
     key: "randomPointInside",
@@ -7708,6 +7721,9 @@ var Box = /*#__PURE__*/function () {
     key: "backgroundColor",
     get: function get() {
       return _classPrivateFieldGet(this, _backgroundColor).clone();
+    },
+    set: function set(c) {
+      _classPrivateFieldSet(this, _backgroundColor, (0, _tinycolor.default)(c));
     }
   }]);
 
@@ -7737,6 +7753,10 @@ var _palettes = require("../lib/palettes");
 
 var _Box = require("../lib/Box");
 
+var _attractors = require("../lib/attractors");
+
+var _Vector = require("../lib/Vector");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var boxTest = function boxTest() {
@@ -7745,13 +7765,14 @@ var boxTest = function boxTest() {
     ratio: _sketch.ratio.square,
     scale: _sketch.scale.standard
   };
-  var numParticles = 50;
+  var numParticles = 10;
   var canvasCenterX;
   var canvasCenterY;
   var centerRadius;
   var grid;
   var boxes = [];
   var palette = _palettes.palettes.pop;
+  var time = 0;
 
   var setup = function setup(_ref) {
     var canvas = _ref.canvas,
@@ -7761,8 +7782,8 @@ var boxTest = function boxTest() {
     centerRadius = canvas.height / 4;
     var boxbg = [_palettes.warmWhite, _palettes.warmGreyDark];
     var boxfg = [_palettes.warmGreyDark, _palettes.warmWhite];
-    var boxrnd = ['whole', 'normal'];
-    grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 2, 1, 100, 50);
+    var boxrnd = ['normal', 'normal'];
+    grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 3, 3, 80, 20);
     grid.points.forEach(function (p, i) {
       boxes.push(new _Box.Box({
         canvas: canvas,
@@ -7770,20 +7791,30 @@ var boxTest = function boxTest() {
         x: p[0],
         y: p[1],
         width: grid.columnWidth,
-        height: grid.rowHeight,
-        backgroundColor: boxbg[i]
+        height: grid.rowHeight
       }));
     });
+    var freq = 0.0001;
     boxes.forEach(function (b, bidx) {
       var particles = [];
+      var clr = bidx % 2 === 0 ? 0 : 1;
+      b.backgroundColor = boxbg[clr];
+
+      b.flowField = function (x, y, t) {
+        return (0, _attractors.simplexNoise3d)(x, y, t, freq);
+      };
+
+      freq += 0.0005;
 
       for (var i = 0; i < numParticles; i++) {
         var props = (0, _Particle.createRandomParticleValues)(canvas);
-        var coords = b.translateInto(b.randomPointInside(boxrnd[bidx]));
+        var coords = b.translateInto(b.randomPointInside(boxrnd[clr]));
         props.x = coords.x;
         props.y = coords.y;
+        props.velocityX = 0;
+        props.velocityY = 0;
         props.radius = 1;
-        props.color = (0, _tinycolor.default)(boxfg[bidx]).clone().setAlpha(0.1);
+        props.color = (0, _tinycolor.default)(boxfg[clr]).clone().setAlpha(0.5);
         particles.push(new _Particle.Particle(props));
       }
 
@@ -7802,14 +7833,22 @@ var boxTest = function boxTest() {
     boxes.forEach(function (box) {
       box.createClip();
       box.children.forEach(function (particle) {
+        // updatePosWithVelocity(particle);
+        var theta = box.flowField(particle.x, particle.y, time);
+        var force = (0, _math.uvFromAngle)(theta);
+        (0, _Particle.applyForce)(force, particle);
+        particle.vVector = particle.vVector.limit(1);
         (0, _Particle.updatePosWithVelocity)(particle);
-        box.particleEdgeBounce(particle);
-        (0, _canvas.pixel)(context)(particle.x, particle.y, particle.color);
-      }); // connectParticles(context)(box.children, 100, true);
+        particle.aVector = new _Vector.Vector(0, 0); // box.particleEdgeBounce(particle);
+
+        box.particleEdgeWrap(particle);
+        (0, _canvas.pixel)(context)(particle.x, particle.y, particle.color, 'circle', 0.75);
+      }); // connectParticles(context)(box.children, 30, true);
       // box.fill(box.backgroundColor.setAlpha(0.1));
 
       box.removeClip();
     });
+    time += 0.1;
   };
 
   return {
@@ -7820,7 +7859,7 @@ var boxTest = function boxTest() {
 };
 
 exports.boxTest = boxTest;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Box":"scripts/lib/Box.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Box":"scripts/lib/Box.js","../lib/attractors":"scripts/lib/attractors.js","../lib/Vector":"scripts/lib/Vector.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -8028,7 +8067,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55298" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62692" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -18,6 +18,8 @@ const defaultMP = {
     left: 0,
 };
 
+const defaultFlow = (x, y) => 0;
+
 let boxIndex = 0;
 
 export class Box {
@@ -35,6 +37,7 @@ export class Box {
         this.#backgroundColor = tinycolor(defaultValue(props, 'backgroundColor', 'white'));
         this.padding = defaultValue(props, 'padding', defaultMP);
         this.clip = defaultValue(props, 'clip', true);
+        this.flowField = defaultValue(props, 'flowField', defaultFlow);
         this.children = children;
     }
 
@@ -60,6 +63,10 @@ export class Box {
 
     get backgroundColor() {
         return this.#backgroundColor.clone();
+    }
+
+    set backgroundColor(c) {
+        this.#backgroundColor = tinycolor(c);
     }
 
     fill(color) {
@@ -102,6 +109,10 @@ export class Box {
 
     translateInto(point) {
         return new Point(this.translateX(point.x), this.translateY(point.y));
+    }
+
+    translateOut(point) {
+        return new Point(point.x - this.x, point.y - this.y);
     }
 
     randomPointInside(distribution = 'whole') {
