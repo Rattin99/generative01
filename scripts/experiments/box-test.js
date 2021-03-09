@@ -39,7 +39,10 @@ export const boxTest = () => {
         const boxfg = [bicPenBlue, boxwhite];
         const boxrnd = ['normal', 'normal'];
 
-        grid = createGridCellsXY(canvas.width, canvas.height, 3, 3, 80, 20);
+        const gridMargin = Math.round(canvas.width / 10);
+        const gridGutter = Math.round(gridMargin / 4);
+
+        grid = createGridCellsXY(canvas.width, canvas.height, 2, 3, gridMargin, gridGutter);
 
         grid.points.forEach((p, i) => {
             boxes.push(
@@ -75,12 +78,13 @@ export const boxTest = () => {
             }
             b.children = particles;
 
-            texturizeRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
+            texturizeRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx * 3 + 1, 'circles2');
         });
 
         // boxes.forEach((b) => {
         //     b.fill();
         // });
+
         return -1;
     };
 

@@ -7829,7 +7829,9 @@ var boxTest = function boxTest() {
     var boxbg = [boxwhite, _palettes.bicPenBlue];
     var boxfg = [_palettes.bicPenBlue, boxwhite];
     var boxrnd = ['normal', 'normal'];
-    grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 3, 3, 80, 20);
+    var gridMargin = Math.round(canvas.width / 10);
+    var gridGutter = Math.round(gridMargin / 4);
+    grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 2, 3, gridMargin, gridGutter);
     grid.points.forEach(function (p, i) {
       boxes.push(new _Box.Box({
         canvas: canvas,
@@ -7866,7 +7868,7 @@ var boxTest = function boxTest() {
       }
 
       b.children = particles;
-      (0, _canvas.texturizeRect)(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
+      (0, _canvas.texturizeRect)(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx * 3 + 1, 'circles2');
     }); // boxes.forEach((b) => {
     //     b.fill();
     // });
@@ -8114,7 +8116,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57625" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49921" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
