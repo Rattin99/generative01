@@ -2,58 +2,54 @@ body {
   position: relative;
   overflow: hidden;
   user-select: none;
+  background: radial-gradient(#999, #666);
 }
 
 #wrapper {
   display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: 1fr;
   justify-content: center;
   align-content: center;
   width: 100vw;
   height: 100vh;
-  // background: radial-gradient(#666, #333);
   object-fit: cover;
-  // Nice wood bgs https://unsplash.com/s/photos/wood
-  background-image: url("https://images.unsplash.com/photo-1547044479-59ce6c0a784a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2700&q=80");
 }
 
-#note {
-  user-select: text;
-  position: fixed;
-  left: 0rem;
-  bottom: 0rem;
-  display: block;
-  font-size: 0.75rem;
-  line-height: 1.3rem;
-  color: #ccc;
-  background: rgba(black, 0.2);
-  font-family: sans-serif;
-  padding: 0.75rem 1rem;
-  backdrop-filter: blur(3px);
-  margin: 0;
-}
-
-#canvas {
-  position: relative;
-  background: #000;
-  margin-top: -5rem;
-  //border: 10px solid white;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 0 8px 8px rgba(0, 0, 0, 0.1),
+#art {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  #canvas {
+    position: relative;
+    background: #000;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 0 8px 8px rgba(0, 0, 0, 0.1),
     0 16px 16px rgba(0, 0, 0, 0.1), 4px 32px 32px rgba(0, 0, 0, 0.05),
     8px 50px 64px rgba(0, 0, 0, 0.15);
-  // filter: url('#goo');
+  }
 }
 
-#download {
-  position: fixed;
-  right: 0rem;
-  bottom: 0rem;
-  margin: 0;
-  display: block;
-  font-size: 0.75rem;
-  color: #ccc;
-  font-family: sans-serif;
-  text-decoration: none;
-  background: rgba(black, 0.2);
+#notes {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  background: rgba(black, 0.4);
   padding: 0.75rem 1rem;
-  backdrop-filter: blur(3px);
+  margin-top: 1rem;
+  user-select: text;
+  font-size: 0.75rem;
+  line-height: 1.3rem;
+  font-family: sans-serif;
+  color: #eee !important;
+
+  #note {
+    margin: 0;
+  }
+
+  #download {
+    margin: 0;
+    text-decoration: none;
+    color: #eee !important;
+  }
 }
+
+

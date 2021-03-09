@@ -62,11 +62,15 @@ export const sketch = () => {
         radius: 100,
     };
 
+    let hasStarted = false;
+
     let fps = 0;
 
-    let currentVariation;
+    let currentVariationFn;
+    let currentVariationRes;
+    let animationId;
 
-    const canvasSizeFraction = 0.85;
+    const canvasSizeFraction = 0.9;
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
@@ -95,9 +99,6 @@ export const sketch = () => {
         mouse.isDown = false;
     };
 
-    const windowResize = (evt) =>
-        resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
-
     window.addEventListener('mousedown', mouseDown);
     window.addEventListener('touchstart', mouseDown);
 
@@ -109,8 +110,6 @@ export const sketch = () => {
 
     window.addEventListener('mouseout', mouseOut);
     window.addEventListener('touchcancel', mouseOut);
-
-    // window.addEventListener('resize', windowResize);
 
     const applyCanvasSize = (config) => {
         const width = defaultValue(config, 'width', window.innerWidth * canvasSizeFraction);
@@ -141,13 +140,16 @@ export const sketch = () => {
     };
 
     const run = (variation) => {
-        currentVariation = variation;
+        currentVariationFn = variation;
 
-        let backgroundColor = '0,0,0';
+        currentVariationRes = currentVariationFn();
 
-        if (variation.hasOwnProperty('config')) {
-            const { config } = variation;
-            console.log('Sketch config:', variation.config);
+        let backgroundColor;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (currentVariationRes.hasOwnProperty('config')) {
+            const { config } = currentVariationRes;
             applyCanvasSize(config);
             if (config.background) {
                 backgroundColor = config.background;
@@ -168,25 +170,25 @@ export const sketch = () => {
         const targetFpsInterval = 1000 / fps;
         let lastAnimationFrameTime;
 
-        context.translate(0.5, 0.5);
+        // context.translate(0.5, 0.5);
 
         const startSketch = () => {
             window.removeEventListener('load', startSketch);
-            variation.setup({ canvas, context });
+            hasStarted = true;
 
-            // fillCanvas(canvas, context)(1,backgroundColor);
+            currentVariationRes.setup({ canvas, context, s: this });
 
             const render = () => {
-                const result = variation.draw({ canvas, context, mouse });
+                const result = currentVariationRes.draw({ canvas, context, mouse });
                 if (result !== -1) {
-                    requestAnimationFrame(render);
+                    animationId = requestAnimationFrame(render);
                 }
             };
 
             // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
             const renderAtFps = () => {
                 if (rendering) {
-                    requestAnimationFrame(renderAtFps);
+                    animationId = window.requestAnimationFrame(renderAtFps);
                 }
 
                 const now = Date.now();
@@ -194,7 +196,7 @@ export const sketch = () => {
 
                 if (elapsed > targetFpsInterval) {
                     lastAnimationFrameTime = now - (elapsed % targetFpsInterval);
-                    const result = variation.draw({ canvas, context, mouse });
+                    const result = currentVariationRes.draw({ canvas, context, mouse });
                     if (result === -1) {
                         rendering = false;
                     }
@@ -202,28 +204,45 @@ export const sketch = () => {
             };
 
             if (!fps) {
-                requestAnimationFrame(render);
+                animationId = window.requestAnimationFrame(render);
             } else {
                 lastAnimationFrameTime = Date.now();
-                requestAnimationFrame(renderAtFps);
+                animationId = window.requestAnimationFrame(renderAtFps);
             }
         };
 
-        window.addEventListener('load', startSketch);
+        if (!hasStarted) {
+            window.addEventListener('load', startSketch);
+        } else {
+            startSketch();
+        }
+    };
+
+    const stop = () => {
+        window.cancelAnimationFrame(animationId);
     };
 
     const getVariationName = () => {
         const seed = getRandomSeed();
         let name = 'untitled';
         if (
-            currentVariation &&
-            currentVariation.hasOwnProperty('config') &&
-            currentVariation.config.hasOwnProperty('name')
+            currentVariationFn &&
+            currentVariationFn.hasOwnProperty('config') &&
+            currentVariationFn.config.hasOwnProperty('name')
         ) {
-            name = currentVariation.config.name;
+            name = currentVariationFn.config.name;
         }
         return `sketch-${name}-${seed}`;
     };
+
+    const windowResize = (evt) => {
+        // resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+        if (animationId) {
+            stop();
+            run(currentVariationFn);
+        }
+    };
+    window.addEventListener('resize', windowResize);
 
     return {
         variationName: getVariationName,
@@ -231,5 +250,7 @@ export const sketch = () => {
         context: getContext,
         mouse: getMouse,
         run,
+        stop,
+        s: sketch,
     };
 };

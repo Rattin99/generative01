@@ -3797,40 +3797,8 @@ var _math = require("./math");
 
 var _utils = require("./utils");
 
-/*
-Convenience canvas sketch runner. Based on p5js
+var _this = void 0;
 
-
-const variation = () => {
-    const config = {};
-
-    const setup = ({canvas, context}) => {
-        // create initial state
-    };
-
-    // will run every frame
-    const draw = ({canvas, context, mouse}) => {
-        // draw on every frame
-        return 1; // -1 to exit animation loop
-    };
-
-    return {
-        config,
-        setup,
-        draw,
-    };
-};
-
-TODO
-- [ ] options for layout: portrait, landscape
-- [ ] canvas ratio: auto, square, golden, letter
-- [ ] merge screen shot code
-- [ ] Canvas Recorder  https://xosh.org/canvas-recorder/
-- [ ] pass obj to variation setup and draw functions
-- [ ] coords of a mouse down to variation?
-- [ ] better touch input
-- [ ] svg https://github.com/canvg/canvg
-*/
 var orientation = {
   portrait: 0,
   landscape: 1
@@ -3856,9 +3824,12 @@ var sketch = function sketch() {
     isDown: false,
     radius: 100
   };
+  var hasStarted = false;
   var fps = 0;
-  var currentVariation;
-  var canvasSizeFraction = 0.85;
+  var currentVariationFn;
+  var currentVariationRes;
+  var animationId;
+  var canvasSizeFraction = 0.9;
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
 
@@ -3895,10 +3866,6 @@ var sketch = function sketch() {
     mouse.isDown = false;
   };
 
-  var windowResize = function windowResize(evt) {
-    return (0, _canvas.resizeCanvas)(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
-  };
-
   window.addEventListener('mousedown', mouseDown);
   window.addEventListener('touchstart', mouseDown);
   window.addEventListener('mousemove', mouseMove);
@@ -3906,7 +3873,7 @@ var sketch = function sketch() {
   window.addEventListener('mouseup', mouseUp);
   window.addEventListener('touchend', mouseUp);
   window.addEventListener('mouseout', mouseOut);
-  window.addEventListener('touchcancel', mouseOut); // window.addEventListener('resize', windowResize);
+  window.addEventListener('touchcancel', mouseOut);
 
   var applyCanvasSize = function applyCanvasSize(config) {
     var width = (0, _utils.defaultValue)(config, 'width', window.innerWidth * canvasSizeFraction);
@@ -3935,12 +3902,14 @@ var sketch = function sketch() {
   };
 
   var run = function run(variation) {
-    currentVariation = variation;
-    var backgroundColor = '0,0,0';
+    currentVariationFn = variation;
+    currentVariationRes = currentVariationFn();
+    var backgroundColor;
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (variation.hasOwnProperty('config')) {
-      var config = variation.config;
-      console.log('Sketch config:', variation.config);
+    if (currentVariationRes.hasOwnProperty('config')) {
+      var _currentVariationRes = currentVariationRes,
+          config = _currentVariationRes.config;
       applyCanvasSize(config);
 
       if (config.background) {
@@ -3956,32 +3925,33 @@ var sketch = function sketch() {
 
     var rendering = true;
     var targetFpsInterval = 1000 / fps;
-    var lastAnimationFrameTime;
-    context.translate(0.5, 0.5);
+    var lastAnimationFrameTime; // context.translate(0.5, 0.5);
 
     var startSketch = function startSketch() {
       window.removeEventListener('load', startSketch);
-      variation.setup({
+      hasStarted = true;
+      currentVariationRes.setup({
         canvas: canvas,
-        context: context
-      }); // fillCanvas(canvas, context)(1,backgroundColor);
+        context: context,
+        s: _this
+      });
 
       var render = function render() {
-        var result = variation.draw({
+        var result = currentVariationRes.draw({
           canvas: canvas,
           context: context,
           mouse: mouse
         });
 
         if (result !== -1) {
-          requestAnimationFrame(render);
+          animationId = requestAnimationFrame(render);
         }
       }; // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
 
 
       var renderAtFps = function renderAtFps() {
         if (rendering) {
-          requestAnimationFrame(renderAtFps);
+          animationId = window.requestAnimationFrame(renderAtFps);
         }
 
         var now = Date.now();
@@ -3989,7 +3959,7 @@ var sketch = function sketch() {
 
         if (elapsed > targetFpsInterval) {
           lastAnimationFrameTime = now - elapsed % targetFpsInterval;
-          var result = variation.draw({
+          var result = currentVariationRes.draw({
             canvas: canvas,
             context: context,
             mouse: mouse
@@ -4002,33 +3972,52 @@ var sketch = function sketch() {
       };
 
       if (!fps) {
-        requestAnimationFrame(render);
+        animationId = window.requestAnimationFrame(render);
       } else {
         lastAnimationFrameTime = Date.now();
-        requestAnimationFrame(renderAtFps);
+        animationId = window.requestAnimationFrame(renderAtFps);
       }
     };
 
-    window.addEventListener('load', startSketch);
+    if (!hasStarted) {
+      window.addEventListener('load', startSketch);
+    } else {
+      startSketch();
+    }
+  };
+
+  var stop = function stop() {
+    window.cancelAnimationFrame(animationId);
   };
 
   var getVariationName = function getVariationName() {
     var seed = (0, _math.getRandomSeed)();
     var name = 'untitled';
 
-    if (currentVariation && currentVariation.hasOwnProperty('config') && currentVariation.config.hasOwnProperty('name')) {
-      name = currentVariation.config.name;
+    if (currentVariationFn && currentVariationFn.hasOwnProperty('config') && currentVariationFn.config.hasOwnProperty('name')) {
+      name = currentVariationFn.config.name;
     }
 
     return "sketch-".concat(name, "-").concat(seed);
   };
 
+  var windowResize = function windowResize(evt) {
+    // resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+    if (animationId) {
+      stop();
+      run(currentVariationFn);
+    }
+  };
+
+  window.addEventListener('resize', windowResize);
   return {
     variationName: getVariationName,
     canvas: getCanvas,
     context: getContext,
     mouse: getMouse,
-    run: run
+    run: run,
+    stop: stop,
+    s: sketch
   };
 };
 
@@ -4041,7 +4030,7 @@ module.exports = [["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365"
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.hslFromRange = exports.palette = exports.nicePalette = exports.palettes = exports.warmGreyDark = exports.coolGreyDark = exports.warmPink = exports.warmWhite = exports.darkest = exports.brightest = exports.asTinyColor = void 0;
+exports.hslFromRange = exports.palette = exports.nicePalette = exports.palettes = exports.warmGreyDark = exports.coolGreyDark = exports.warmPink = exports.warmWhite = exports.paperWhite = exports.bicPenBlue = exports.darkest = exports.brightest = exports.asTinyColor = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -4088,6 +4077,10 @@ var darkest = function darkest(arry) {
 };
 
 exports.darkest = darkest;
+var bicPenBlue = (0, _tinycolor.default)('hsl(250,79,29)').clone();
+exports.bicPenBlue = bicPenBlue;
+var paperWhite = (0, _tinycolor.default)('hsl(53,3,100)').clone();
+exports.paperWhite = paperWhite;
 var warmWhite = (0, _tinycolor.default)('hsl(42, 14%, 86%)').clone();
 exports.warmWhite = warmWhite;
 var warmPink = (0, _tinycolor.default)('hsl(29, 42%, 86%)').clone(); // greys from https://uxdesign.cc/dark-mode-ui-design-the-definitive-guide-part-1-color-53dcfaea5129
@@ -7779,9 +7772,11 @@ var boxTest = function boxTest() {
         context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
-    centerRadius = canvas.height / 4;
-    var boxbg = [_palettes.warmWhite, _palettes.warmGreyDark];
-    var boxfg = [_palettes.warmGreyDark, _palettes.warmWhite];
+    centerRadius = canvas.height / 4; // const boxbg = [warmWhite, warmGreyDark];
+    // const boxbg = [warmWhite, warmGreyDark];
+
+    var boxbg = [_palettes.paperWhite, _palettes.bicPenBlue];
+    var boxfg = [_palettes.bicPenBlue, _palettes.paperWhite];
     var boxrnd = ['normal', 'normal'];
     grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 3, 3, 80, 20);
     grid.points.forEach(function (p, i) {
@@ -8031,13 +8026,13 @@ variationKey = variationKey || variationKeys[variationKeys.length - 1];
 if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
   var vToRun = variations[variationKey];
   setNote(vToRun.note);
-  s.run(vToRun.sketch());
+  s.run(vToRun.sketch);
 } else {
   setNote('Not a valid variation!');
 }
 
 if (DEBUG) {
-  s.run(DEBUG());
+  s.run(DEBUG);
 }
 },{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/waves01":"scripts/released/waves01.js","./released/windLines":"scripts/released/windLines.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./experiments/flow-field-tiles":"scripts/experiments/flow-field-tiles.js","./released/flow-field-particles":"scripts/released/flow-field-particles.js","./released/flow-field-image":"scripts/released/flow-field-image.js","./released/flow-field-arcs":"scripts/released/flow-field-arcs.js","./released/radial-noise":"scripts/released/radial-noise.js","./experiments/radial-image":"scripts/experiments/radial-image.js","./released/flow-field-ribbons":"scripts/released/flow-field-ribbons.js","./released/flow-field-ribbons-2":"scripts/released/flow-field-ribbons-2.js","./experiments/box-test":"scripts/experiments/box-test.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -8067,7 +8062,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62692" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62553" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

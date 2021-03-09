@@ -146,11 +146,11 @@ variationKey = variationKey || variationKeys[variationKeys.length - 1];
 if (variations.hasOwnProperty(variationKey) && DEBUG === undefined) {
     const vToRun = variations[variationKey];
     setNote(vToRun.note);
-    s.run(vToRun.sketch());
+    s.run(vToRun.sketch);
 } else {
     setNote('Not a valid variation!');
 }
 
 if (DEBUG) {
-    s.run(DEBUG());
+    s.run(DEBUG);
 }

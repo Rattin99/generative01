@@ -3,7 +3,7 @@ import { Particle, updatePosWithVelocity, createRandomParticleValues, applyForce
 import { background, connectParticles, drawParticlePoint, pixel, resetStyles } from '../lib/canvas';
 import { createGridCellsXY, mapRange, oneOf, uvFromAngle } from '../lib/math';
 import { ratio, scale } from '../lib/sketch';
-import { palettes, warmGreyDark, warmWhite, warmPink } from '../lib/palettes';
+import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../lib/palettes';
 import { Box } from '../lib/Box';
 import { simplexNoise3d } from '../lib/attractors';
 import { Vector } from '../lib/Vector';
@@ -30,8 +30,10 @@ export const boxTest = () => {
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
 
-        const boxbg = [warmWhite, warmGreyDark];
-        const boxfg = [warmGreyDark, warmWhite];
+        // const boxbg = [warmWhite, warmGreyDark];
+        // const boxbg = [warmWhite, warmGreyDark];
+        const boxbg = [paperWhite, bicPenBlue];
+        const boxfg = [bicPenBlue, paperWhite];
         const boxrnd = ['normal', 'normal'];
 
         grid = createGridCellsXY(canvas.width, canvas.height, 3, 3, 80, 20);

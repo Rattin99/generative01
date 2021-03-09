@@ -24,6 +24,9 @@ export const darkest = (arry) => {
     }, colors[0]);
 };
 
+export const bicPenBlue = tinycolor('hsl(250,79,29)').clone();
+export const paperWhite = tinycolor('hsl(53,3,100)').clone();
+
 export const warmWhite = tinycolor('hsl(42, 14%, 86%)').clone();
 export const warmPink = tinycolor('hsl(29, 42%, 86%)').clone();
 
