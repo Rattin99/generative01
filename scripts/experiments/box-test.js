@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
-import { background, connectParticles, drawParticlePoint, pixel, resetStyles } from '../lib/canvas';
+import { background, connectParticles, drawParticlePoint, pixel, resetStyles, texturizeRect } from '../lib/canvas';
 import { createGridCellsXY, mapRange, oneOf, uvFromAngle } from '../lib/math';
 import { ratio, scale } from '../lib/sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../lib/palettes';
@@ -15,7 +15,7 @@ export const boxTest = () => {
         scale: scale.standard,
     };
 
-    const numParticles = 10;
+    const numParticles = 30;
 
     let canvasCenterX;
     let canvasCenterY;
@@ -30,10 +30,13 @@ export const boxTest = () => {
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
 
+        background(canvas, context)(paperWhite);
+
         // const boxbg = [warmWhite, warmGreyDark];
         // const boxbg = [warmWhite, warmGreyDark];
-        const boxbg = [paperWhite, bicPenBlue];
-        const boxfg = [bicPenBlue, paperWhite];
+        const boxwhite = paperWhite.clone().darken(10).saturate(10);
+        const boxbg = [boxwhite, bicPenBlue];
+        const boxfg = [bicPenBlue, boxwhite];
         const boxrnd = ['normal', 'normal'];
 
         grid = createGridCellsXY(canvas.width, canvas.height, 3, 3, 80, 20);
@@ -56,7 +59,7 @@ export const boxTest = () => {
         boxes.forEach((b, bidx) => {
             const particles = [];
             const clr = bidx % 2 === 0 ? 0 : 1;
-            b.backgroundColor = boxbg[clr];
+            b.backgroundColor = oneOf(palette); // boxbg[clr];
             b.flowField = (x, y, t) => simplexNoise3d(x, y, t, freq);
             freq += 0.0005;
             for (let i = 0; i < numParticles; i++) {
@@ -67,16 +70,17 @@ export const boxTest = () => {
                 props.velocityX = 0;
                 props.velocityY = 0;
                 props.radius = 1;
-                props.color = tinycolor(boxfg[clr]).clone().setAlpha(0.5);
+                props.color = paperWhite.clone(); // tinycolor(boxfg[clr]).clone().setAlpha(0.5);
                 particles.push(new Particle(props));
             }
             b.children = particles;
+
+            texturizeRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
         });
 
-        background(canvas, context)(warmWhite);
-        boxes.forEach((b) => {
-            b.fill();
-        });
+        // boxes.forEach((b) => {
+        //     b.fill();
+        // });
         return -1;
     };
 

@@ -91,7 +91,7 @@ export class Box {
     createClip() {
         this.context.save();
         const region = new Path2D();
-        region.rect(this.x, this.y, this.x + this.width, this.y + this.height);
+        region.rect(this.x, this.y, this.width, this.height);
         this.context.clip(region);
     }
 

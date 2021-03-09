@@ -263,10 +263,10 @@ export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutt
     const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
     const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
 
-    for (let col = 0; col < columns; col++) {
-        const x = margin + col * colStep + gutter * col;
-        for (let row = 0; row < rows; row++) {
-            const y = margin + row * rowStep + gutter * row;
+    for (let row = 0; row < rows; row++) {
+        const y = margin + row * rowStep + gutter * row;
+        for (let col = 0; col < columns; col++) {
+            const x = margin + col * colStep + gutter * col;
             points.push([x, y]);
         }
     }

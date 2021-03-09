@@ -3079,11 +3079,11 @@ var createGridCellsXY = function createGridCellsXY(width, height, columns, rows)
   var colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
   var rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
 
-  for (var col = 0; col < columns; col++) {
-    var x = margin + col * colStep + gutter * col;
+  for (var row = 0; row < rows; row++) {
+    var y = margin + row * rowStep + gutter * row;
 
-    for (var row = 0; row < rows; row++) {
-      var y = margin + row * rowStep + gutter * row;
+    for (var col = 0; col < columns; col++) {
+      var x = margin + col * colStep + gutter * col;
       points.push([x, y]);
     }
   }
@@ -3129,7 +3129,7 @@ exports.createGridPointsUV = createGridPointsUV;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.renderField = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.splatter = exports.drawSpikeCircle = exports.drawRake = exports.textAlignAllCenter = exports.textAlignLeftTop = exports.drawTextFilled = exports.textStyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.pixel = exports.blendMode = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
+exports.getImageDataColor = exports.getColorAverageGrey = exports.getImageDataFromImage = exports.renderField = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.texturizeRect = exports.splatter = exports.drawSpikeCircle = exports.drawRake = exports.textAlignAllCenter = exports.textAlignLeftTop = exports.drawTextFilled = exports.textStyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.pixel = exports.blendMode = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -3526,12 +3526,60 @@ var splatter = function splatter(context) {
       drawCircleFilled(context)(x + xoff, y + yoff, s, color);
     }
   };
+};
+
+exports.splatter = splatter;
+
+var texturizeRect = function texturizeRect(context) {
+  return function (x, y, width, height) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
+    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'circles';
+    context.save();
+    var region = new Path2D();
+    region.rect(x, y, width, height);
+    context.clip(region);
+    var half = width / 4;
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var lineWidth = 1;
+    var fillamount = amount * 100;
+
+    for (var i = 0; i < fillamount; i++) {
+      var tx = (0, _math.randomWholeBetween)(x, x + width);
+      var ty = (0, _math.randomWholeBetween)(y, y + height);
+      var size = (0, _math.randomWholeBetween)(half, width);
+      context.strokeStyle = strokeColor;
+      context.lineWidth = lineWidth;
+      context.beginPath();
+
+      if (mode === 'circles') {
+        context.arc(tx, ty, size, 0, Math.PI * 2, false);
+      } else if (mode === 'circles2') {
+        var _tx = (0, _math.randomNormalWholeBetween)(x, x + width);
+
+        var _ty = (0, _math.randomNormalWholeBetween)(y, y + height);
+
+        var _size = (0, _math.randomWholeBetween)(1, width);
+
+        context.arc(_tx, _ty, _size, 0, Math.PI * 2, false);
+      } else if (mode === 'xhatch') {
+        var tx2 = tx + size * (0, _math.randomSign)();
+        var ty2 = ty + size * (0, _math.randomSign)();
+        context.moveTo(tx, ty);
+        context.lineTo(tx2, ty2);
+      }
+
+      context.stroke();
+    }
+
+    context.restore();
+  };
 }; //----------------------------------------------------------------------------------------------------------------------
 // PARTICLE INTERACTIVITY AND FANCY STUFF
 //----------------------------------------------------------------------------------------------------------------------
 
 
-exports.splatter = splatter;
+exports.texturizeRect = texturizeRect;
 
 var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
   var pSaveX = particle.x;
@@ -7614,7 +7662,7 @@ var Box = /*#__PURE__*/function () {
     value: function createClip() {
       this.context.save();
       var region = new Path2D();
-      region.rect(this.x, this.y, this.x + this.width, this.y + this.height);
+      region.rect(this.x, this.y, this.width, this.height);
       this.context.clip(region);
     }
   }, {
@@ -7758,7 +7806,7 @@ var boxTest = function boxTest() {
     ratio: _sketch.ratio.square,
     scale: _sketch.scale.standard
   };
-  var numParticles = 10;
+  var numParticles = 30;
   var canvasCenterX;
   var canvasCenterY;
   var centerRadius;
@@ -7772,11 +7820,14 @@ var boxTest = function boxTest() {
         context = _ref.context;
     canvasCenterX = canvas.width / 2;
     canvasCenterY = canvas.height / 2;
-    centerRadius = canvas.height / 4; // const boxbg = [warmWhite, warmGreyDark];
+    centerRadius = canvas.height / 4;
+    (0, _canvas.background)(canvas, context)(_palettes.paperWhite); // const boxbg = [warmWhite, warmGreyDark];
     // const boxbg = [warmWhite, warmGreyDark];
 
-    var boxbg = [_palettes.paperWhite, _palettes.bicPenBlue];
-    var boxfg = [_palettes.bicPenBlue, _palettes.paperWhite];
+    var boxwhite = _palettes.paperWhite.clone().darken(10).saturate(10);
+
+    var boxbg = [boxwhite, _palettes.bicPenBlue];
+    var boxfg = [_palettes.bicPenBlue, boxwhite];
     var boxrnd = ['normal', 'normal'];
     grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 3, 3, 80, 20);
     grid.points.forEach(function (p, i) {
@@ -7793,7 +7844,7 @@ var boxTest = function boxTest() {
     boxes.forEach(function (b, bidx) {
       var particles = [];
       var clr = bidx % 2 === 0 ? 0 : 1;
-      b.backgroundColor = boxbg[clr];
+      b.backgroundColor = (0, _math.oneOf)(palette); // boxbg[clr];
 
       b.flowField = function (x, y, t) {
         return (0, _attractors.simplexNoise3d)(x, y, t, freq);
@@ -7809,16 +7860,17 @@ var boxTest = function boxTest() {
         props.velocityX = 0;
         props.velocityY = 0;
         props.radius = 1;
-        props.color = (0, _tinycolor.default)(boxfg[clr]).clone().setAlpha(0.5);
+        props.color = _palettes.paperWhite.clone(); // tinycolor(boxfg[clr]).clone().setAlpha(0.5);
+
         particles.push(new _Particle.Particle(props));
       }
 
       b.children = particles;
-    });
-    (0, _canvas.background)(canvas, context)(_palettes.warmWhite);
-    boxes.forEach(function (b) {
-      b.fill();
-    });
+      (0, _canvas.texturizeRect)(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
+    }); // boxes.forEach((b) => {
+    //     b.fill();
+    // });
+
     return -1;
   };
 
@@ -8062,7 +8114,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62553" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57625" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
