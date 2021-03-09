@@ -226,11 +226,11 @@ export const sketch = () => {
         const seed = getRandomSeed();
         let name = 'untitled';
         if (
-            currentVariationFn &&
-            currentVariationFn.hasOwnProperty('config') &&
-            currentVariationFn.config.hasOwnProperty('name')
+            currentVariationRes &&
+            currentVariationRes.hasOwnProperty('config') &&
+            currentVariationRes.config.hasOwnProperty('name')
         ) {
-            name = currentVariationFn.config.name;
+            name = currentVariationRes.config.name;
         }
         return `sketch-${name}-${seed}`;
     };

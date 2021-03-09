@@ -18,7 +18,7 @@ import { Vector } from '../lib/Vector';
 
 export const shadedBoxes = () => {
     const config = {
-        name: 'box-test',
+        name: 'shadedBoxes',
         ratio: ratio.square,
         scale: scale.standard,
     };
