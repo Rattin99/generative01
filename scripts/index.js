@@ -28,12 +28,12 @@ import { radialNoise } from './released/radial-noise';
 import { radialImage } from './experiments/radial-image';
 import { flowFieldRibbons } from './released/flow-field-ribbons';
 import { flowFieldRibbons2 } from './released/flow-field-ribbons-2';
-import { boxTest } from './experiments/box-test';
+import { shadedBoxes } from './released/shaded-boxes';
 
 const s = sketch();
 
-// const DEBUG = undefined;
-const DEBUG = boxTest;
+const DEBUG = undefined;
+// const DEBUG = shadedBoxes;
 
 // TODO append random seed value
 const saveCanvasCapture = (_) => {
@@ -136,6 +136,10 @@ const variations = {
     18: {
         note: 'Ribbons attracted to an attractor',
         sketch: flowFieldRibbons2,
+    },
+    19: {
+        note: 'Shaded boxes with flow field particles.',
+        sketch: shadedBoxes,
     },
 };
 

@@ -11,6 +11,7 @@ import {
     randomNumberBetween,
     randomSign,
     randomNormalWholeBetween,
+    mapRange,
 } from './math';
 
 const TAU = Math.PI * 2;
@@ -272,7 +273,42 @@ export const splatter = (context) => (x, y, color, size, amount = 3, range = 20)
     }
 };
 
+// More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
+export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = '') => {
+    if (amount <= 0) return;
+    amount = Math.min(amount, 10);
+    context.save();
+    const region = new Path2D();
+    region.rect(x, y, width, height);
+    context.clip(region);
+    const strokeColor = tinycolor(color).toRgbString();
+    const size = 3;
+    const colStep = mapRange(1, 10, 20, 3, amount);
+    const rowStep = mapRange(1, 10, 20, 3, amount);
+
+    context.strokeStyle = strokeColor;
+    context.lineWidth = 2;
+    context.lineCap = 'round';
+
+    for (let i = 0; i < width; i += colStep) {
+        for (let j = 0; j < height; j += rowStep) {
+            const tx = x + randomNormalWholeBetween(i, i + colStep);
+            const ty = y + randomNormalWholeBetween(j, j + rowStep);
+            const tx2 = tx + size;
+            const ty2 = ty + size * -1;
+            context.beginPath();
+            context.moveTo(tx, ty);
+            context.lineTo(tx2, ty2);
+            context.stroke();
+        }
+    }
+
+    context.restore();
+};
+
 export const texturizeRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = 'circles') => {
+    if (amount <= 0) return;
+
     context.save();
     const region = new Path2D();
     region.rect(x, y, width, height);
@@ -281,6 +317,7 @@ export const texturizeRect = (context) => (x, y, width, height, color = 'black',
     const strokeColor = tinycolor(color).toRgbString();
     const lineWidth = 1;
     const fillamount = amount * 100;
+
     for (let i = 0; i < fillamount; i++) {
         const tx = randomWholeBetween(x, x + width);
         const ty = randomWholeBetween(y, y + height);
