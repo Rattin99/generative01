@@ -1,15 +1,19 @@
-import sourcePng from '../../hi1.png';
-import {
-    clearCanvas,
-    drawSquareFilled,
-    background,
-    getImageDataFromImage,
-    getImageDataColor,
-    connectParticles,
-    drawParticlePoint,
-} from '../lib/canvas';
+import sourcePng from '../../media/images/hi1.png';
+import { clearCanvas, drawSquareFilled, background, connectParticles, drawParticlePoint } from '../lib/canvas';
 import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from '../lib/Particle';
 import { createGridPointsXY, createRandomNumberArray, mapRange, randomNumberBetween } from '../lib/math';
+
+const getImageDataFromImage = (context) => (image) => {
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.width);
+};
+
+const getImageDataColor = (imageData, x, y) => ({
+    r: imageData.data[y * 4 * imageData.width + x * 4],
+    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
+});
 
 export const hiImage01 = (_) => {
     const config = {
@@ -26,42 +30,10 @@ export const hiImage01 = (_) => {
     const particlesArray = [];
     const particleColor = { r: 252, g: 3, b: 152 };
 
-    // let imageColorData;
-
-    // const createColorArrayFromImageData = (imageData) => {
-    //     const data = [];
-    //     for (let y = 0, { height } = imageData; y < height; y++) {
-    //         for (let x = 0, { width } = imageData; x < width; x++) {
-    //             data.push({ x, y, ...getImageColor(imageData, x, y) });
-    //         }
-    //     }
-    //     return data;
-    // };
-
     const setup = ({ canvas, context }) => {
         imageData = getImageDataFromImage(context)(png);
         clearCanvas(canvas, context)();
         imageZoomFactor = canvas.width / imageData.width;
-
-        // imageColorData = createColorArrayFromImageData(imageData);
-
-        // const gridPoints = createGridPoints(
-        //     canvas.width,
-        //     canvas.height,
-        //     100,
-        //     100,
-        //     canvas.width / 50,
-        //     canvas.height / 50
-        // );
-        // numParticles = gridPoints.length;
-        // for (let i = 0; i < numParticles; i++) {
-        //     const props = createRandomParticleValues(canvas);
-        //     props.x = gridPoints[i][0];
-        //     props.y = gridPoints[i][1];
-        //     props.radius = randomNumberBetween(1, 5);
-        //     props.color = particleColor;
-        //     particlesArray.push(new Particle(props));
-        // }
 
         for (let i = 0; i < numParticles; i++) {
             const props = createRandomParticleValues(canvas);

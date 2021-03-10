@@ -1,13 +1,5 @@
-import sourcePng from '../../hi1.png';
-import {
-    clearCanvas,
-    drawMouse,
-    drawSquareFilled,
-    background,
-    getImageDataFromImage,
-    getImageDataColor,
-    connectParticles,
-} from '../lib/canvas';
+import sourcePng from '../../media/images/hi1.png';
+import { clearCanvas, drawMouse, drawSquareFilled, background, connectParticles } from '../lib/canvas';
 import { mapRange, randomNumberBetween, scalePointToCanvas } from '../lib/math';
 import {
     createRandomParticleValues,
@@ -17,6 +9,18 @@ import {
     pointPush,
     updatePosWithVelocity,
 } from '../lib/Particle';
+
+const getImageDataFromImage = (context) => (image) => {
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.width);
+};
+
+const getImageDataColor = (imageData, x, y) => ({
+    r: imageData.data[y * 4 * imageData.width + x * 4],
+    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
+});
 
 export const hiImage01 = (_) => {
     const config = {

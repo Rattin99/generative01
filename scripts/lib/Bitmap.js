@@ -83,4 +83,14 @@ export class Bitmap {
     pixelThetaFromCanvas(x, y) {
         return this.pixelTheta(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
     }
+
+    // const createColorArrayFromImageData = (imageData) => {
+    //     const data = [];
+    //     for (let y = 0, { height } = imageData; y < height; y++) {
+    //         for (let x = 0, { width } = imageData; x < width; x++) {
+    //             data.push({ x, y, ...getImageColor(imageData, x, y) });
+    //         }
+    //     }
+    //     return data;
+    // };
 }

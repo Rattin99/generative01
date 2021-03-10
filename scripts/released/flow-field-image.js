@@ -7,8 +7,7 @@ import { Vector } from '../lib/Vector';
 import { diagLines, simplexNoise2d, simplexNoise3d } from '../lib/attractors';
 import { hslFromRange, warmWhite } from '../lib/palettes';
 import { Bitmap } from '../lib/Bitmap';
-// import sourcePng from '../../francesca-zama-woman-400.png';
-import sourcePng from '../../kristijan-arsov-woman-400.png';
+import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
 
 /*
 https://marcteyssier.com/projects/flowfield/

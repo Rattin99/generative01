@@ -23,11 +23,8 @@ const variation = () => {
 };
 
 TODO
-- [ ] options for layout: portrait, landscape
-- [ ] canvas ratio: auto, square, golden, letter
 - [ ] merge screen shot code
 - [ ] Canvas Recorder  https://xosh.org/canvas-recorder/
-- [ ] pass obj to variation setup and draw functions
 - [ ] coords of a mouse down to variation?
 - [ ] better touch input
 - [ ] svg https://github.com/canvg/canvg
@@ -43,7 +40,8 @@ export const orientation = {
 };
 
 export const ratio = {
-    letter: 0.773,
+    letter: 0.773, // 8.5x11
+    poster: 0.667, // 24x36
     golden: golden - 1,
     square: -1,
     auto: 1,

@@ -58,14 +58,13 @@ export const resetStyles = (context) => {
 };
 
 // https://www.rgraph.net/canvas/howto-antialias.html
-export const sharpLines = (context) => {
-    context.translate(0.5, 0.5);
-};
+export const sharpLines = (context) => context.translate(0.5, 0.5);
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
-export const blendMode = (context) => (mode) => {
-    context.globalCompositeOperation = mode;
-};
+export const blendMode = (context) => (mode = 'source-over') => (context.globalCompositeOperation = mode);
+
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
+export const filter = (context) => (f = '') => (context.filter = f);
 
 //----------------------------------------------------------------------------------------------------------------------
 // PRIMITIVES
@@ -204,24 +203,35 @@ export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
     context.fill();
 };
 
+// https://www.cssfontstack.com/
 export const textStyles = {
     size: (s) => `${s * contextScale}px "Helvetica Neue",Helvetica,Arial,sans-serif`,
+    sansHelvetica: (s) => `${s * contextScale}px "Helvetica Neue",Helvetica,Arial,sans-serif`,
+    monoCourier: (s) =>
+        `${s * contextScale}px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace`,
+    monoLucidia: (s) =>
+        `${
+            s * contextScale
+        }px "Lucida Sans Typewriter", "Lucida Console", monaco, "Bitstream Vera Sans Mono", monospace`,
+    serifGeorgia: (s) => `${s * contextScale}px Georgia, Times, "Times New Roman", serif`,
     default: '16px "Helvetica Neue",Helvetica,Arial,sans-serif',
     small: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
 };
 
 export const drawTextFilled = (context) => (text, x, y, color, style) => {
     context.fillStyle = tinycolor(color).toRgbString();
-    context.font = style || textStyles.default;
+    context.font = style || textStyles.sansHelvetica(16);
     context.fillText(text, x, y);
+    // https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics
+    return context.measureText(text);
 };
 
-export const textAlignLeftTop = (context) => {
+export const setTextAlignLeftTop = (context) => {
     context.textAlign = 'left';
     context.textBaseline = 'top';
 };
 
-export const textAlignAllCenter = (context) => {
+export const setTextAlignAllCenter = (context) => {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
 };
@@ -258,6 +268,7 @@ export const drawSpikeCircle = (context) => ({ x, y, radius, color }, spikes, sp
     }
 };
 
+// "paint splatters" around center point
 export const splatter = (context) => (x, y, color, size, amount = 3, range = 20) => {
     for (let i = 0; i < amount; i++) {
         const s = randomWholeBetween(size * 0.25, size * 3);
@@ -274,7 +285,7 @@ export const splatter = (context) => (x, y, color, size, amount = 3, range = 20)
 };
 
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
-export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = '') => {
+export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = 'ticks') => {
     if (amount <= 0) return;
     amount = Math.min(amount, 10);
     context.save();
@@ -476,46 +487,3 @@ export const renderField = ({ width, height }, context, fn, color = 'black', cel
         }
     }
 };
-
-//----------------------------------------------------------------------------------------------------------------------
-// IMAGE DATA / PIXELS
-//----------------------------------------------------------------------------------------------------------------------
-
-export const getImageDataFromImage = (context) => (image) => {
-    context.drawImage(image, 0, 0);
-    return context.getImageData(0, 0, image.width, image.width);
-};
-
-/*
-Gray = 0.21R + 0.72G + 0.07B // Luminosity
-Gray = (R + G + B) ÷ 3 // Average Brightness
-Gray = 0.299R + 0.587G + 0.114B // rec601 standard
-Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
-Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
- */
-// https://sighack.com/post/averaging-rgb-colors-the-right-way
-export const getColorAverageGrey = ({ r, g, b }) => Math.sqrt((r * r + g * g + b * b) / 3);
-
-// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas
-export const getImageDataColor = (imageData, x, y) => ({
-    r: imageData.data[y * 4 * imageData.width + x * 4],
-    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
-    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
-    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
-});
-
-/*
-const getImagePixelTheta = (x, y) => {
-        const imagePixelColor = tinycolor(getImageDataColor(imageData, x, y)).getBrightness();
-        return (imagePixelColor / 256) * TAU;
-    };
-
-    const getImagePixelColor = (x, y) => {
-        const imagePixel = getImageDataColor(
-            imageData,
-            Math.round(x / imageZoomFactor),
-            Math.round(y / imageZoomFactor)
-        );
-        return tinycolor(imagePixel);
-    };
- */

@@ -1,14 +1,19 @@
-import domokunPng from '../../domokun.png';
-import {
-    clearCanvas,
-    drawMouse,
-    drawSquareFilled,
-    background,
-    getImageDataFromImage,
-    getImageDataColor,
-} from '../lib/canvas';
+import domokunPng from '../../media/images/domokun.png';
+import { clearCanvas, drawMouse, drawSquareFilled, background } from '../lib/canvas';
 import { randomNumberBetween, scalePointToCanvas } from '../lib/math';
 import { Particle, pointPush } from '../lib/Particle';
+
+const getImageDataFromImage = (context) => (image) => {
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.width);
+};
+
+const getImageDataColor = (imageData, x, y) => ({
+    r: imageData.data[y * 4 * imageData.width + x * 4],
+    g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+    b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+    a: imageData.data[y * 4 * imageData.width + x * 4 + 3],
+});
 
 // Based on https://www.youtube.com/watch?v=afdHgwn1XCY
 export const domokun = (_) => {

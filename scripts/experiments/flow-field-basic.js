@@ -264,7 +264,7 @@ const getNoiseFieldVectorAtPoint = (field, resolution, width, height, x, y) => {
 };
 
 const drawNoiseField = (context, field) => {
-    // textAlignAllCenter(context);
+    // setTextAlignAllCenter(context);
     field.points.forEach((point) => {
         const x = point[0];
         const y = point[1];
