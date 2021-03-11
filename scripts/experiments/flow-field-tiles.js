@@ -11,7 +11,7 @@ import {
     quantize,
     houghQuantize,
 } from '../lib/math';
-import { edgeWrap, Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { edgeWrap, Particle, createRandomParticleValues } from '../lib/Particle';
 import {
     background,
     drawCircleFilled,
@@ -122,13 +122,13 @@ export const flowFieldTiles = () => {
 
             if (run) {
                 // Run stops if the fiber collides with a previous one
-                applyForce(force, particle);
-                particle.vVector = particle.vVector.limit(4);
-                updatePosWithVelocity(particle);
+                particle.applyForce(force);
+                particle.velocity = particle.velocity.limit(4);
+                particle.updatePosWithVelocity();
                 run = drawTile(canvas, context, force, particle, color);
             }
 
-            particle.aVector = new Vector(0, 0);
+            particle.acceleration = new Vector(0, 0);
         }
         tileHistory = tileHistory.concat(currentTilePos);
         currentTilePos = [];

@@ -1,13 +1,26 @@
-import {
-    attractPoint,
-    avoidPoint,
-    edgeBounce,
-    Particle,
-    updatePosWithVelocity,
-    createRandomParticleValues,
-} from '../lib/Particle';
-import { clearCanvas, connectParticles, drawMouse, drawParticlePoint, drawPointTrail, fillCanvas } from '../lib/canvas';
-import { randomNumberBetween } from '../lib/math';
+import { edgeBounce, Particle, createRandomParticleValues } from '../lib/Particle';
+import { connectParticles, drawParticlePoint, fillCanvas } from '../lib/canvas';
+import { normalizeInverse, pointDistance, randomNumberBetween } from '../lib/math';
+
+const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
+    const distance = pointDistance({ x, y }, particle);
+    if (distance < radius) {
+        const dx = x - particle.x;
+        const dy = y - particle.y;
+        const forceDirectionX = dx / distance;
+        const forceDirectionY = dy / distance;
+        const force = normalizeInverse(0, radius, distance) * f * mult;
+        const tempX = forceDirectionX * force * particle.radius * 2;
+        const tempY = forceDirectionY * force * particle.radius * 2;
+        particle.x += tempX;
+        particle.y += tempY;
+    }
+};
+
+// for moving points, push away/around from point
+const avoidPoint = (point, particle, f = 1) => {
+    gravityPoint(1, (f *= -1))(point.x, point.y, point.radius, particle);
+};
 
 export const variation5 = () => {
     const config = {
@@ -42,7 +55,7 @@ export const variation5 = () => {
     const draw = ({ canvas, context, mouse }) => {
         // fillCanvas(canvas, context)(.005,'255,255,255');
         for (let i = 0; i < config.numParticles; i++) {
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
             for (let c = 0; c < circles.length; c++) {
                 avoidPoint({ radius: circles[c][2], x: circles[c][0], y: circles[c][1] }, particlesArray[i], 4);

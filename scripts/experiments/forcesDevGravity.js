@@ -1,30 +1,5 @@
-import {
-    attractPoint,
-    avoidPoint,
-    edgeBounce,
-    Particle,
-    updatePosWithVelocity,
-    createRandomParticleValues,
-    edgeWrap,
-    applyForce,
-    friction,
-    drag,
-    attract,
-} from '../lib/Particle';
-import {
-    clearCanvas,
-    connectParticles,
-    drawMouse,
-    drawParticlePoint,
-    drawPointTrail,
-    drawRotatedParticle,
-    drawTestPoint,
-    drawTriangleFilled,
-    background,
-    drawRake,
-    drawParticleVectors,
-    drawRectFilled,
-} from '../lib/canvas';
+import { edgeBounce, Particle, createRandomParticleValues, attract } from '../lib/Particle';
+import { drawRotatedParticle, background, drawRake } from '../lib/canvas';
 
 export const forcesDevGravity = () => {
     const config = {
@@ -84,11 +59,11 @@ export const forcesDevGravity = () => {
                 mode = 1;
             }
             attract(attractor, particlesArray[i], mode, 2000);
-            particlesArray[i].vVector = particlesArray[i].vVector.limit(20);
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
+            particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
             drawRotatedParticle(context, drawRake, particlesArray[i]);
-            particlesArray[i].aVector = { x: 0, y: 0 };
+            particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };
 

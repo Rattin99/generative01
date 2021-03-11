@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { pointDistance, normalizeInverse, randomNumberBetween, lerp, pointAngleFromVelocity, clamp } from './math';
+import { pointDistance, randomNumberBetween, lerp, pointAngleFromVelocity, clamp } from './math';
 import { Vector } from './Vector';
 
 const MAX_COORD_HISTORY = 30;
@@ -59,8 +59,8 @@ export class Particle {
         this.#color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
         this.rotation = rotation || 0;
         this.lifetime = lifetime || 1;
-        this.drawFn = drawFn;
-        this.updateFn = updateFn;
+        // this.drawFn = drawFn;
+        // this.updateFn = updateFn;
         // must always return a string
         this.colorFn = colorFn;
     }
@@ -112,20 +112,20 @@ export class Particle {
         }
     }
 
-    get vVector() {
+    get velocity() {
         return new Vector(this.velocityX, this.velocityY, 0);
     }
 
-    set vVector({ x, y }) {
+    set velocity({ x, y }) {
         this.velocityX = x;
         this.velocityY = y;
     }
 
-    get aVector() {
+    get acceleration() {
         return new Vector(this.accelerationX, this.accelerationY, 0);
     }
 
-    set aVector({ x, y }) {
+    set acceleration({ x, y }) {
         this.accelerationX = x;
         this.accelerationY = y;
     }
@@ -143,14 +143,46 @@ export class Particle {
         this.velocityY *= -1;
     }
 
-    draw() {
-        this.drawFn(this);
+    updatePosWithVelocity() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
     }
 
-    update() {
-        this.updateFn(this);
-        this.draw(this);
+    applyForce(fVect) {
+        const fV = fVect.div(this.mass);
+        const aV = this.acceleration.add(fV);
+        const pV = this.velocity.add(aV);
+        this.acceleration = aV;
+        this.velocity = pV;
     }
+
+    // https://www.youtube.com/watch?v=WBdhAuWS6X8
+    friction(mu = 0.1) {
+        const normal = this.mass;
+        const vfriction = this.velocity
+            .normalize()
+            .mult(-1)
+            .setMag(mu * normal);
+        this.applyForce(vfriction);
+    }
+
+    // https://www.youtube.com/watch?v=DxFDgOYEoy8
+    drag(coefficent = 0.1) {
+        const area = 1; // this.radius;
+        const velUnit = this.velocity.normalize().mult(-1);
+        const speed = this.velocity.magSq() * area * coefficent;
+        const vdrag = velUnit.setMag(speed);
+        this.applyForce(vdrag);
+    }
+
+    // draw() {
+    //     this.drawFn(this);
+    // }
+    //
+    // update() {
+    //     this.updateFn(this);
+    //     this.draw(this);
+    // }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -189,39 +221,6 @@ export const createRandomParticleValues = ({ width, height }) => {
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
-export const updatePosWithVelocity = (particle) => {
-    particle.x += particle.vVector.x;
-    particle.y += particle.vVector.y;
-};
-
-// https://www.youtube.com/watch?v=L7CECWLdTmo
-export const applyForce = (fVect, particle) => {
-    const fV = fVect.div(particle.mass);
-    const aV = particle.aVector.add(fV);
-    const pV = particle.vVector.add(aV);
-    particle.aVector = aV;
-    particle.vVector = pV;
-};
-
-// https://www.youtube.com/watch?v=WBdhAuWS6X8
-export const friction = (particle, mu = 0.1) => {
-    const normal = particle.mass;
-    const vfriction = particle.vVector
-        .normalize()
-        .mult(-1)
-        .setMag(mu * normal);
-    applyForce(vfriction, particle);
-};
-
-// https://www.youtube.com/watch?v=DxFDgOYEoy8
-export const drag = (particle, coefficent = 0.1) => {
-    const area = 1; // particle.radius;
-    const velUnit = particle.vVector.normalize().mult(-1);
-    const speed = particle.vVector.magSq() * area * coefficent;
-    const vdrag = velUnit.setMag(speed);
-    applyForce(vdrag, particle);
-};
-
 // https://www.youtube.com/watch?v=EpgB3cNhKPM
 // mode 1 is attract, -1 is repel
 // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
@@ -232,7 +231,7 @@ export const attract = ({ x, y, mass, g }, particle, mode = 1, affectDist = 1000
         const distanceSq = clamp(50, 5000, dir.magSq());
         const strength = (mode * (g * (mass * particle.mass))) / distanceSq;
         const force = dir.setMag(strength);
-        applyForce(force, particle);
+        particle.applyForce(force);
     }
 };
 
@@ -268,58 +267,5 @@ export const edgeWrap = ({ width, height }, particle) => {
         particle.y = 0 + particle.radius;
     } else if (particle.y - particle.radius < 0) {
         particle.y = height - particle.radius;
-    }
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-export const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
-    const distance = pointDistance({ x, y }, particle);
-    if (distance < radius) {
-        const dx = x - particle.x;
-        const dy = y - particle.y;
-        const forceDirectionX = dx / distance;
-        const forceDirectionY = dy / distance;
-        const force = normalizeInverse(0, radius, distance) * f * mult;
-        const tempX = forceDirectionX * force * particle.radius * 2;
-        const tempY = forceDirectionY * force * particle.radius * 2;
-        particle.x += tempX;
-        particle.y += tempY;
-    }
-};
-
-// for moving points, push away/around from point
-export const avoidPoint = (point, particle, f = 1) => {
-    gravityPoint(1, (f *= -1))(point.x, point.y, point.radius, particle);
-};
-
-// for moving points, pull towards point
-export const attractPoint = (point, particle, f = 1) => {
-    gravityPoint(1, f)(point.x, point.y, point.radius, particle);
-};
-
-// for moving static, push away/outward from point
-export const pointPush = (point, particle, f = 1) => {
-    const dx = point.x - particle.x;
-    const dy = point.y - particle.y;
-    const distance = pointDistance(point, particle);
-    const forceDirectionX = dx / distance;
-    const forceDirectionY = dy / distance;
-    const force = normalizeInverse(0, point.radius, distance) * f;
-    particle.velocityX = forceDirectionX * force * particle.mass * 0.8;
-    particle.velocityY = forceDirectionY * force * particle.mass * 0.8;
-
-    if (distance < point.radius) {
-        particle.x -= particle.velocityX;
-        particle.y -= particle.velocityY;
-    } else {
-        // TODO if < 1 then snap to 0
-        if (particle.x !== particle.oX) {
-            particle.x -= (particle.x - particle.oX) * 0.1;
-        }
-        if (particle.y !== particle.oY) {
-            particle.y -= (particle.y - particle.oY) * 0.1;
-        }
     }
 };

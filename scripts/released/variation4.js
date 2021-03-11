@@ -1,5 +1,30 @@
-import { createRandomParticleValues, Particle, pointPush } from '../lib/Particle';
+import { createRandomParticleValues, Particle } from '../lib/Particle';
 import { connectParticles, drawParticlePoint, fillCanvas } from '../lib/canvas';
+import { normalizeInverse, pointDistance } from '../lib/math';
+
+const pointPush = (point, particle, f = 1) => {
+    const dx = point.x - particle.x;
+    const dy = point.y - particle.y;
+    const distance = pointDistance(point, particle);
+    const forceDirectionX = dx / distance;
+    const forceDirectionY = dy / distance;
+    const force = normalizeInverse(0, point.radius, distance) * f;
+    particle.velocityX = forceDirectionX * force * particle.mass * 0.8;
+    particle.velocityY = forceDirectionY * force * particle.mass * 0.8;
+
+    if (distance < point.radius) {
+        particle.x -= particle.velocityX;
+        particle.y -= particle.velocityY;
+    } else {
+        // TODO if < 1 then snap to 0
+        if (particle.x !== particle.oX) {
+            particle.x -= (particle.x - particle.oX) * 0.1;
+        }
+        if (particle.y !== particle.oY) {
+            particle.y -= (particle.y - particle.oY) * 0.1;
+        }
+    }
+};
 
 export const variation4 = () => {
     const config = {

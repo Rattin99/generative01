@@ -1,26 +1,6 @@
-import { createRandomNumberArray, pointOnCircle, randomNumberBetween, createGridPointsXY, mapRange } from '../lib/math';
-import {
-    attractPoint,
-    avoidPoint,
-    edgeBounce,
-    Particle,
-    updatePosWithVelocity,
-    createRandomParticleValues,
-    edgeWrap,
-    attract,
-} from '../lib/Particle';
-import {
-    background,
-    clearCanvas,
-    connectParticles,
-    drawMouse,
-    drawLine,
-    drawParticlePoint,
-    drawPointTrail,
-    fillCanvas,
-    drawSpikeCircle,
-    drawAttractor,
-} from '../lib/canvas';
+import { createRandomNumberArray, createGridPointsXY, mapRange } from '../lib/math';
+import { Particle, createRandomParticleValues, attract } from '../lib/Particle';
+import { background, connectParticles, drawParticlePoint } from '../lib/canvas';
 
 export const testGrid = () => {
     const config = {
@@ -100,9 +80,9 @@ export const testGrid = () => {
             attract(midattractor, particlesArray[i], 1, attractorDist);
             attract(rightattractor, particlesArray[i], -1, attractorDist);
 
-            particlesArray[i].vVector = particlesArray[i].vVector.limit(10);
+            particlesArray[i].velocity = particlesArray[i].velocity.limit(10);
 
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].updatePosWithVelocity();
             // edgeBounce(canvas, particlesArray[i]);
             // edgeWrap(canvas, particlesArray[i]);
             drawParticlePoint(context)(particlesArray[i]);

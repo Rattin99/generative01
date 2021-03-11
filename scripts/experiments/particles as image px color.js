@@ -1,14 +1,7 @@
 import sourcePng from '../../media/images/hi1.png';
 import { clearCanvas, drawMouse, drawSquareFilled, background, connectParticles } from '../lib/canvas';
 import { mapRange, randomNumberBetween, scalePointToCanvas } from '../lib/math';
-import {
-    createRandomParticleValues,
-    edgeBounce,
-    edgeWrap,
-    Particle,
-    pointPush,
-    updatePosWithVelocity,
-} from '../lib/Particle';
+import { createRandomParticleValues, edgeBounce, Particle } from '../lib/Particle';
 
 const getImageDataFromImage = (context) => (image) => {
     context.drawImage(image, 0, 0);
@@ -73,7 +66,7 @@ export const hiImage01 = (_) => {
         background(canvas, context)('yellow');
 
         for (let i = 0; i < numParticles; i++) {
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
 
             const pxColor = getImageDataColor(

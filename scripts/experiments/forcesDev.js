@@ -1,30 +1,5 @@
-import {
-    attractPoint,
-    avoidPoint,
-    edgeBounce,
-    Particle,
-    updatePosWithVelocity,
-    createRandomParticleValues,
-    edgeWrap,
-    applyForce,
-    friction,
-    drag,
-} from '../lib/Particle';
-import {
-    clearCanvas,
-    connectParticles,
-    drawMouse,
-    drawParticlePoint,
-    drawPointTrail,
-    drawRotatedParticle,
-    drawTestPoint,
-    drawTriangleFilled,
-    background,
-    drawRake,
-    drawParticleVectors,
-    drawRectFilled,
-} from '../lib/canvas';
-import { clamp } from '../lib/math';
+import { edgeBounce, Particle, createRandomParticleValues } from '../lib/Particle';
+import { drawRotatedParticle, drawTestPoint, background, drawParticleVectors, drawRectFilled } from '../lib/canvas';
 import { Vector } from '../lib/Vector';
 
 export const forcesDev = () => {
@@ -69,10 +44,10 @@ export const forcesDev = () => {
             const weight = gravity.mult(particlesArray[i].mass);
 
             if (mouse.isDown) {
-                applyForce(wind, particlesArray[i]);
+                particlesArray[i].applyForce(wind);
             }
 
-            applyForce(weight, particlesArray[i]);
+            particlesArray[i].applyForce(weight);
 
             if (particlesArray[i].y + particlesArray[i].radius >= canvas.height) {
                 friction(particlesArray[i]);
@@ -82,11 +57,11 @@ export const forcesDev = () => {
                 drag(particlesArray[i]);
             }
 
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
             drawRotatedParticle(context, drawTestPoint, particlesArray[i]);
             drawParticleVectors(context)(particlesArray[i]);
-            particlesArray[i].aVector = { x: 0, y: 0 };
+            particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };
 

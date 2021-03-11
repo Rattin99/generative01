@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
 import { randomWholeBetween, uvFromAngle, oneOf, randomPointAround, randomBoolean } from '../lib/math';
-import { Particle, updatePosWithVelocity, applyForce } from '../lib/Particle';
+import { Particle } from '../lib/Particle';
 import { background, renderField } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { palettes } from '../lib/palettes';
@@ -108,11 +108,11 @@ export const flowFieldRibbons2 = () => {
             const theta = fieldFn(particle.x, particle.y);
             // theta = quantize(4, theta);
             const force = uvFromAngle(theta);
-            applyForce(force, particle);
-            particle.vVector = particle.vVector.limit(vlimit);
-            updatePosWithVelocity(particle);
+            particle.applyForce(force);
+            particle.velocity = particle.velocity.limit(vlimit);
+            particle.updatePosWithVelocity();
             coords.push([particle.x, particle.y]);
-            particle.aVector = new Vector(0, 0);
+            particle.acceleration = new Vector(0, 0);
         }
         return coords;
     };

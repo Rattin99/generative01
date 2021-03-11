@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { Particle, createRandomParticleValues } from '../lib/Particle';
 import {
     background,
     connectParticles,
@@ -100,10 +100,10 @@ export const shadedBoxes = () => {
             box.children.forEach((particle) => {
                 const theta = box.flowField(particle.x, particle.y, time);
                 const force = uvFromAngle(theta);
-                applyForce(force, particle);
-                particle.vVector = particle.vVector.limit(1);
-                updatePosWithVelocity(particle);
-                particle.aVector = new Vector(0, 0);
+                particle.applyForce(force);
+                particle.velocity = particle.velocity.limit(1);
+                particle.updatePosWithVelocity();
+                particle.acceleration = new Vector(0, 0);
                 box.particleEdgeWrap(particle);
                 pixel(context)(particle.x, particle.y, particle.color, 'circle', 0.5);
             });

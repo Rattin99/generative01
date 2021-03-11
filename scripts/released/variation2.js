@@ -1,6 +1,26 @@
-import { avoidPoint, Particle, createRandomParticleValues } from '../lib/Particle';
+import { Particle, createRandomParticleValues } from '../lib/Particle';
 import { clearCanvas, connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas';
-import { randomNumberBetween } from '../lib/math';
+import { normalizeInverse, pointDistance, randomNumberBetween } from '../lib/math';
+
+const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
+    const distance = pointDistance({ x, y }, particle);
+    if (distance < radius) {
+        const dx = x - particle.x;
+        const dy = y - particle.y;
+        const forceDirectionX = dx / distance;
+        const forceDirectionY = dy / distance;
+        const force = normalizeInverse(0, radius, distance) * f * mult;
+        const tempX = forceDirectionX * force * particle.radius * 2;
+        const tempY = forceDirectionY * force * particle.radius * 2;
+        particle.x += tempX;
+        particle.y += tempY;
+    }
+};
+
+// for moving points, push away/around from point
+const avoidPoint = (point, particle, f = 1) => {
+    gravityPoint(1, (f *= -1))(point.x, point.y, point.radius, particle);
+};
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 export const variation2 = () => {

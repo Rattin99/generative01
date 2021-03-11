@@ -1,7 +1,31 @@
 import domokunPng from '../../media/images/domokun.png';
 import { clearCanvas, drawMouse, drawSquareFilled, background } from '../lib/canvas';
-import { randomNumberBetween, scalePointToCanvas } from '../lib/math';
-import { Particle, pointPush } from '../lib/Particle';
+import { normalizeInverse, pointDistance, randomNumberBetween, scalePointToCanvas } from '../lib/math';
+import { Particle } from '../lib/Particle';
+
+const pointPush = (point, particle, f = 1) => {
+    const dx = point.x - particle.x;
+    const dy = point.y - particle.y;
+    const distance = pointDistance(point, particle);
+    const forceDirectionX = dx / distance;
+    const forceDirectionY = dy / distance;
+    const force = normalizeInverse(0, point.radius, distance) * f;
+    particle.velocityX = forceDirectionX * force * particle.mass * 0.8;
+    particle.velocityY = forceDirectionY * force * particle.mass * 0.8;
+
+    if (distance < point.radius) {
+        particle.x -= particle.velocityX;
+        particle.y -= particle.velocityY;
+    } else {
+        // TODO if < 1 then snap to 0
+        if (particle.x !== particle.oX) {
+            particle.x -= (particle.x - particle.oX) * 0.1;
+        }
+        if (particle.y !== particle.oY) {
+            particle.y -= (particle.y - particle.oY) * 0.1;
+        }
+    }
+};
 
 const getImageDataFromImage = (context) => (image) => {
     context.drawImage(image, 0, 0);

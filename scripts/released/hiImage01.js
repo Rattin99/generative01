@@ -1,6 +1,6 @@
 import sourcePng from '../../media/images/hi1.png';
 import { clearCanvas, drawSquareFilled, background, connectParticles, drawParticlePoint } from '../lib/canvas';
-import { createRandomParticleValues, edgeWrap, Particle, drag, updatePosWithVelocity } from '../lib/Particle';
+import { createRandomParticleValues, edgeWrap, Particle } from '../lib/Particle';
 import { createGridPointsXY, createRandomNumberArray, mapRange, randomNumberBetween } from '../lib/math';
 
 const getImageDataFromImage = (context) => (image) => {
@@ -54,7 +54,7 @@ export const hiImage01 = (_) => {
         background(canvas, context)({ r: 255, g: 255, b: 0, a: 0.004 });
 
         for (let i = 0; i < numParticles; i++) {
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].updatePosWithVelocity();
             edgeWrap(canvas, particlesArray[i]);
 
             const pxColor = getImageDataColor(
@@ -64,7 +64,7 @@ export const hiImage01 = (_) => {
             );
 
             if (pxColor.r > 250) {
-                drag(particlesArray[i], 0.001);
+                particlesArray[i].drag(0.001);
                 particlesArray[i].color = { r: 3, g: 227, b: 252 };
             } else {
                 particlesArray[i].color = particleColor;

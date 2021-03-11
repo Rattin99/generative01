@@ -1,4 +1,4 @@
-import { Particle, updatePosWithVelocity, createRandomParticleValues, edgeWrap } from '../lib/Particle';
+import { Particle, createRandomParticleValues, edgeWrap } from '../lib/Particle';
 import { background, drawParticlePoint } from '../lib/canvas';
 import { mapRange } from '../lib/math';
 import { ratio, scale } from '../lib/sketch';
@@ -43,7 +43,7 @@ export const particleBasicTemplate = () => {
         // if(hue++ > 361) hue = 0;
 
         for (let i = 0; i < numParticles; i++) {
-            updatePosWithVelocity(particlesArray[i]);
+            particlesArray[i].updatePosWithVelocity();
             edgeWrap(canvas, particlesArray[i]);
             drawParticlePoint(context)(particlesArray[i]);
         }

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize } from '../lib/math';
-import { edgeWrap, Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { edgeWrap, Particle, createRandomParticleValues } from '../lib/Particle';
 import { background, drawCircleFilled } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { Vector } from '../lib/Vector';
@@ -38,9 +38,9 @@ export const flowFieldParticles = () => {
     };
 
     const drawPixel = (canvas, context, force, particle, color, rad = 1) => {
-        applyForce(force, particle);
-        particle.vVector = particle.vVector.limit(1);
-        updatePosWithVelocity(particle);
+        particle.applyForce(force);
+        particle.velocity = particle.velocity.limit(1);
+        particle.updatePosWithVelocity();
         edgeWrap(canvas, particle);
         const pcolor = color || particle.color;
         const x = snapNumber(maxSize * 2, particle.x);
@@ -60,7 +60,7 @@ export const flowFieldParticles = () => {
 
             drawPixel(canvas, context, force, particle, clr, size);
 
-            particle.aVector = new Vector(0, 0);
+            particle.acceleration = new Vector(0, 0);
         }
     };
 
@@ -75,7 +75,7 @@ export const flowFieldParticles = () => {
 
             drawPixel(canvas, context, force, particle, clr, 1);
 
-            particle.aVector = new Vector(0, 0);
+            particle.acceleration = new Vector(0, 0);
         }
     };
 

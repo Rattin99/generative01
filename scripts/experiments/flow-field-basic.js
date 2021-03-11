@@ -11,7 +11,7 @@ import {
     quantize,
     houghQuantize,
 } from '../lib/math';
-import { edgeWrap, Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { edgeWrap, Particle, createRandomParticleValues } from '../lib/Particle';
 import {
     background,
     drawCircleFilled,
@@ -105,9 +105,9 @@ export const flowFieldBasic = () => {
     const drawTile = (canvas, context, force, particle) => {
         const angle = aFromVector(force);
 
-        applyForce(force, particle);
-        particle.vVector = particle.vVector.limit(4);
-        updatePosWithVelocity(particle);
+        particle.applyForce(force);
+        particle.velocity = particle.velocity.limit(4);
+        particle.updatePosWithVelocity();
         edgeWrap(canvas, particle);
 
         const x = snapNumber(tileSize, particle.x);
@@ -124,9 +124,9 @@ export const flowFieldBasic = () => {
     };
 
     const drawPixel = (canvas, context, force, particle, color, rad = 1) => {
-        applyForce(force, particle);
-        particle.vVector = particle.vVector.limit(5);
-        updatePosWithVelocity(particle);
+        particle.applyForce(force);
+        particle.velocity = particle.velocity.limit(5);
+        particle.updatePosWithVelocity();
         edgeWrap(canvas, particle);
         const pcolor = color || particle.color;
         const x = snapNumber(rad * 2, particle.x);
@@ -182,7 +182,7 @@ export const flowFieldBasic = () => {
             // drawTile(canvas, context, force, particle);
             drawPixel(canvas, context, force, particle, clr, size);
 
-            particle.aVector = new Vector(0, 0);
+            particle.acceleration = new Vector(0, 0);
         }
 
         time += 0.01;
@@ -209,7 +209,7 @@ export const flowFieldBasic = () => {
                 drawPixel(canvas, context, force, particle);
             }
 
-            particle.aVector = new Vector(0, 0);
+            particle.acceleration = new Vector(0, 0);
         }
         tileHistory = tileHistory.concat(currentTilePos);
         currentTilePos = [];

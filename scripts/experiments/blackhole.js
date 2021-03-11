@@ -1,4 +1,4 @@
-import { Particle, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { Particle, createRandomParticleValues } from '../lib/Particle';
 import { drawParticlePoint, background, drawPointTrail, drawCircleFilled } from '../lib/canvas';
 import { clamp, mapRange, pointDistance, randomNumberBetween } from '../lib/math';
 import { Vector } from '../lib/Vector';
@@ -23,10 +23,10 @@ class Blackhole {
         // const distanceSq = clamp(50, 5000, dir.magSq());
         // const strength = (mode * (g * (mass * particle.mass))) / distanceSq;
         // const force = dir.setMag(strength);
-        // applyForce(force, particle);
+        // particle.applyForce(force);
         const fg = (mode * ((G * this.mass) / 2)) / (r * r);
         const force = dir.setMag(fg);
-        particle.vVector = particle.vVector.add(force).limit(c);
+        particle.velocity = particle.velocity.add(force).limit(c);
     }
 }
 
@@ -87,8 +87,8 @@ export const blackhole = () => {
                 mode = 1;
             }
             hole.pull(particlesArray[i], mode);
-            particlesArray[i].x += particlesArray[i].vVector.x;
-            particlesArray[i].y += particlesArray[i].vVector.y;
+            particlesArray[i].x += particlesArray[i].velocity.x;
+            particlesArray[i].y += particlesArray[i].velocity.y;
 
             const distFromCenter = pointDistance(
                 { x: canvasCenterX, y: canvasCenterY },
@@ -102,7 +102,7 @@ export const blackhole = () => {
 
             // drawPointTrail(context)(particlesArray[i]);
             drawParticlePoint(context)(particlesArray[i]);
-            particlesArray[i].aVector = { x: 0, y: 0 };
+            particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };
 

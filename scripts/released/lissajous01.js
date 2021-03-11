@@ -1,13 +1,13 @@
-import { background, drawTextFilled, textStyles, pixel, drawRect, contextScale, textAlignLeftTop } from '../lib/canvas';
 import {
-    create2dNoiseAbs,
-    mapRange,
-    oneOf,
-    pointDistance,
-    randomWholeBetween,
-    round2,
-    createGridCellsXY,
-} from '../lib/math';
+    background,
+    drawTextFilled,
+    textStyles,
+    pixel,
+    drawRect,
+    contextScale,
+    setTextAlignLeftTop,
+} from '../lib/canvas';
+import { create2dNoiseAbs, oneOf, pointDistance, randomWholeBetween, round2, createGridCellsXY } from '../lib/math';
 import { brightest, darkest, nicePalette } from '../lib/palettes';
 import { ratio, scale } from '../lib/sketch';
 
@@ -138,11 +138,11 @@ export const lissajous01 = () => {
 
                 pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
 
-                textAlignLeftTop(context);
+                setTextAlignLeftTop(context);
                 drawTextFilled(context)(
                     `k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`,
                     c.originX,
-                    c.originY + c.size + margin / 3,
+                    c.originY + c.size + 10,
                     colorText,
                     textStyles.size(10)
                 );

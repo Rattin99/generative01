@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize, pointDistance } from '../lib/math';
-import { Particle, updatePosWithVelocity, createRandomParticleValues, applyForce } from '../lib/Particle';
+import { Particle, createRandomParticleValues } from '../lib/Particle';
 import { background, drawCircleFilled, splatter, renderField } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { Vector } from '../lib/Vector';
@@ -56,9 +56,9 @@ export const flowFieldImage = () => {
     const drawParticle = ({ canvas, context }, particle) => {
         const theta = imageFlow(particle.x, particle.y);
         const force = uvFromAngle(theta);
-        applyForce(force, particle);
-        particle.vVector = particle.vVector.limit(3);
-        updatePosWithVelocity(particle);
+        particle.applyForce(force);
+        particle.velocity = particle.velocity.limit(3);
+        particle.updatePosWithVelocity();
 
         const fromCenter = pointDistance(particle, { x: canvas.width / 2, y: canvas.height / 2 });
 
@@ -77,7 +77,7 @@ export const flowFieldImage = () => {
             splatter(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
         }
 
-        particle.aVector = new Vector(0, 0);
+        particle.acceleration = new Vector(0, 0);
     };
 
     const drawFibers = ({ canvas, context }) => {

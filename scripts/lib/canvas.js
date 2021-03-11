@@ -241,15 +241,6 @@ export const setTextAlignAllCenter = (context) => {
 // COMPLEX SHAPES
 //----------------------------------------------------------------------------------------------------------------------
 
-// TODO center it
-export const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
-    const points = 5;
-    spacing |= radius * 3;
-    for (let i = 0; i < points; i++) {
-        drawParticlePoint(context)({ x: x + spacing * i, y, radius, color });
-    }
-};
-
 // Spikes is an array of angles
 export const drawSpikeCircle = (context) => ({ x, y, radius, color }, spikes, spikeLength = 5) => {
     const circleStroke = 1;
@@ -436,14 +427,20 @@ export const drawParticleVectors = (context) => (particle) => {
     const amult = 100;
     const vel = 'green';
     const acc = 'yellow';
-    const { vVector } = particle;
-    const { aVector } = particle;
+    const { velocity } = particle;
+    const { acceleration } = particle;
 
     context.strokeStyle = tinycolor(vel).toRgbString();
-    drawLine(context)(particle.x, particle.y, particle.x + vVector.x * vmult, particle.y + vVector.y * vmult, 1);
+    drawLine(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
 
     context.strokeStyle = tinycolor(acc).toRgbString();
-    drawLine(context)(particle.x, particle.y, particle.x + aVector.x * amult, particle.y + aVector.y * amult, 1);
+    drawLine(context)(
+        particle.x,
+        particle.y,
+        particle.x + acceleration.x * amult,
+        particle.y + acceleration.y * amult,
+        1
+    );
 };
 
 export const drawMouse = (context) => ({ x, y, radius }) => {
