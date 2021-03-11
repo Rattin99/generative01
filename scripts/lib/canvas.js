@@ -61,6 +61,7 @@ export const resetStyles = (context) => {
 export const sharpLines = (context) => context.translate(0.5, 0.5);
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+// multiply, screen, overlay, soft-light, hard-light, color-dodge, color-burn, darken, lighten, difference, exclusion, hue, saturation, luminosity, color, add, subtract, average, negative
 export const blendMode = (context) => (mode = 'source-over') => (context.globalCompositeOperation = mode);
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
@@ -358,7 +359,7 @@ export const texturizeRect = (context) => (x, y, width, height, color = 'black',
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-// PARTICLE INTERACTIVITY AND FANCY STUFF
+// PARTICLE INTERACTIVITY
 //----------------------------------------------------------------------------------------------------------------------
 
 export const drawRotatedParticle = (ctx, drawFn, particle, ...args) => {

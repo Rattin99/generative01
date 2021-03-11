@@ -54,8 +54,6 @@ export class Particle {
         this.velocityY = velocityY || 0;
         this.accelerationX = accelerationX || 0;
         this.accelerationY = accelerationY || 0;
-        // this.oVelocityX = velocityX || 0;
-        // this.oVelocityY = velocityY || 0;
         this.mass = mass || 1;
         this.radius = radius || 1;
         this.#color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
@@ -155,17 +153,20 @@ export class Particle {
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 export const pixel = (x, y, color, radius) => new Particle({ x, y, color, radius });
 
-export const psCanvasRandom = (canvas) => ({
-    x: randomNumberBetween(0, canvas.width),
-    y: randomNumberBetween(0, canvas.height),
+export const psCanvasRandom = ({ width, height }) => ({
+    x: randomNumberBetween(0, width),
+    y: randomNumberBetween(0, height),
 });
 
-export const createRandomParticleValues = (canvas) => {
+export const createRandomParticleValues = ({ width, height }) => {
     const vel = 2;
     const radius = randomNumberBetween(5, 10);
-    const coords = psCanvasRandom(canvas);
+    const coords = psCanvasRandom({ width, height });
     return {
         radius,
         x: coords.x,
@@ -178,12 +179,15 @@ export const createRandomParticleValues = (canvas) => {
         rotation: randomNumberBetween(-180, 180),
         // color: { r: randomNumberBetween(100, 255), g: randomNumberBetween(100, 255), b: randomNumberBetween(100, 255) },
         color: {
-            r: lerp(0, 255, coords.x / canvas.width),
+            r: lerp(0, 255, coords.x / width),
             g: randomNumberBetween(100, 255),
-            b: lerp(0, 255, coords.y / canvas.height),
+            b: lerp(0, 255, coords.y / height),
         },
     };
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 export const updatePosWithVelocity = (particle) => {
     particle.x += particle.vVector.x;
@@ -232,6 +236,9 @@ export const attract = ({ x, y, mass, g }, particle, mode = 1, affectDist = 1000
     }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 export const edgeBounce = ({ width, height }, particle) => {
     if (particle.x + particle.radius > width) {
         particle.reverseVelocityX();
@@ -263,6 +270,9 @@ export const edgeWrap = ({ width, height }, particle) => {
         particle.y = height - particle.radius;
     }
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 export const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
     const distance = pointDistance({ x, y }, particle);

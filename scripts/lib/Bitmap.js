@@ -1,5 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { clearCanvas, getImageDataColor } from './canvas';
+import { mapRange } from './math';
 
 export class Bitmap {
     constructor(src) {
@@ -84,6 +85,12 @@ export class Bitmap {
         return this.pixelTheta(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
     }
 
+    sizeFromPixelBrightness(x, y, size = 5, low = 0, max = 255) {
+        const pixelColor = this.pixelColorFromCanvas(x, y);
+        const brightness = 256 - pixelColor.getBrightness();
+        return mapRange(low, max, 0, size, brightness);
+    }
+
     // const createColorArrayFromImageData = (imageData) => {
     //     const data = [];
     //     for (let y = 0, { height } = imageData; y < height; y++) {
@@ -94,3 +101,14 @@ export class Bitmap {
     //     return data;
     // };
 }
+
+/*
+const renderImage = () => {
+        for (let x = startX; x < maxX; x++) {
+            for (let y = startY; y < maxY; y++) {
+                const color = image.pixelColorFromCanvas(x, y);
+                pixel(ctx)(x, y, color, 'square', 1);
+            }
+        }
+    };
+ */

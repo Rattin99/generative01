@@ -28,6 +28,7 @@ TODO
 - [ ] coords of a mouse down to variation?
 - [ ] better touch input
 - [ ] svg https://github.com/canvg/canvg
+- [ ] great ideas here http://paperjs.org/features/
 */
 
 import { isHiDPI, contextScale, resizeCanvas } from './canvas';
