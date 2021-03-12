@@ -6,11 +6,11 @@ import normalize from 'normalize.css';
 import { sketch } from './lib/sketch';
 import { variationsIndex } from './variationsIndex';
 
-import { shadedBoxes } from './released/shaded-boxes';
-import { larrycarlson02 } from './released/larrycarlson02';
+import { larrycarlson03 } from './experiments/larrycarlson03';
+import { gridDither } from './experiments/grid-dither';
 
-const experimentalVariation = undefined;
-// const experimentalVariation = larrycarlson02;
+// const experimentalVariation = undefined;
+const experimentalVariation = gridDither;
 
 const s = sketch();
 

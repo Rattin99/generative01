@@ -4,15 +4,15 @@ import { mapRange, randomNormalWholeBetween, randomSign, randomWholeBetween } fr
 
 export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = 'ticks') => {
     if (amount <= 0) return;
-    amount = Math.min(amount, 10);
+    // amount = Math.min(amount, 10);
     context.save();
     const region = new Path2D();
     region.rect(x, y, width, height);
     context.clip(region);
     const strokeColor = tinycolor(color).toRgbString();
     const size = 3;
-    const colStep = mapRange(1, 10, 20, 3, amount);
-    const rowStep = mapRange(1, 10, 20, 3, amount);
+    const colStep = width / amount; // mapRange(1, 10, 20, 3, amount);
+    const rowStep = height / amount; // mapRange(1, 10, 20, 3, amount);
 
     context.strokeStyle = strokeColor;
     context.lineWidth = 2;
@@ -33,7 +33,16 @@ export const stippleRect = (context) => (x, y, width, height, color = 'black', a
 
     context.restore();
 };
-export const texturizeRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = 'circles') => {
+export const texturizeRect = (context) => (
+    x,
+    y,
+    width,
+    height,
+    color = 'black',
+    amount = 5,
+    mode = 'circles',
+    mult = 100
+) => {
     if (amount <= 0) return;
 
     context.save();
@@ -43,7 +52,7 @@ export const texturizeRect = (context) => (x, y, width, height, color = 'black',
     const half = width / 4;
     const strokeColor = tinycolor(color).toRgbString();
     const lineWidth = 1;
-    const fillamount = amount * 100;
+    const fillamount = amount * mult;
 
     for (let i = 0; i < fillamount; i++) {
         const tx = randomWholeBetween(x, x + width);

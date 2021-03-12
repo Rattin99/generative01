@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { clearCanvas, getImageDataColor } from './canvas';
-import { mapRange } from './math';
+import { averageNumArray, mapRange } from './math';
 
 export class Bitmap {
     constructor(src) {
@@ -69,7 +69,7 @@ export class Bitmap {
     // https://sighack.com/post/averaging-rgb-colors-the-right-way
     pixelAverageGrey(x, y) {
         const color = this.pixelColorRaw(x, y);
-        return Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
+        return 255 - Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
     }
 
     pixelTheta(x, y) {
@@ -89,6 +89,16 @@ export class Bitmap {
         const pixelColor = this.pixelColorFromCanvas(x, y);
         const brightness = 256 - pixelColor.getBrightness();
         return mapRange(low, max, 0, size, brightness);
+    }
+
+    averageGreyFromCell(x, y, w, h, res = 2) {
+        const points = [];
+        for (let i = x; i < x + w; i += res) {
+            for (let k = y; k < y + h; k += res) {
+                points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
+            }
+        }
+        return averageNumArray(points);
     }
 
     // const createColorArrayFromImageData = (imageData) => {

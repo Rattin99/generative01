@@ -117,6 +117,8 @@ export const randomSign = () => (Math.round(random.value()) === 1 ? 1 : -1);
 export const randomBoolean = () => Math.round(random.value()) === 1;
 export const randomChance = (chance = 0.5) => random.chance(chance);
 
+export const averageNumArray = (arry) => arry.reduce((a, b) => a + b) / arry.length;
+
 export const oneOf = (arry) => {
     const i = randomWholeBetween(0, arry.length - 1);
     return arry[i];
