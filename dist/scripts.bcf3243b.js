@@ -2383,119 +2383,165 @@ module.exports = createRandom();
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Vector = Vector;
+exports.Vector = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 // Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
 // Edited and expanded to match p5's vectors
 // ref - p5 vector https://p5js.org/reference/#/p5.Vector
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
-function Vector(x, y, z) {
-  this.x = x || 0;
-  this.y = y || 0;
-  this.z = z || 0;
-}
+var Vector = /*#__PURE__*/function () {
+  function Vector(x, y, z) {
+    _classCallCheck(this, Vector);
 
-Vector.prototype = {
-  negative: function negative() {
-    return new Vector(-this.x, -this.y, -this.z);
-  },
-  add: function add(v) {
-    if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
-    return new Vector(this.x + v, this.y + v, this.z + v);
-  },
-  sub: function sub(v) {
-    if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
-    return new Vector(this.x - v, this.y - v, this.z - v);
-  },
-  mult: function mult(v) {
-    if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
-    return new Vector(this.x * v, this.y * v, this.z * v);
-  },
-  div: function div(v) {
-    if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
-    return new Vector(this.x / v, this.y / v, this.z / v);
-  },
-  equals: function equals(v) {
-    return this.x === v.x && this.y === v.y && this.z === v.z;
-  },
-  dot: function dot(v) {
-    return this.x * v.x + this.y * v.y + this.z * v.z;
-  },
-  cross: function cross(v) {
-    return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
-  },
-  length: function length() {
-    return Math.sqrt(this.dot(this));
-  },
-  mag: function mag() {
-    return this.length();
-  },
-  magSq: function magSq() {
-    var m = this.length();
-    return m * m;
-  },
-  setMag: function setMag(m) {
-    var c = this.mag();
-    var r = m / c;
-    return this.mult(r);
-  },
-  normalize: function normalize() {
-    var mag = this.mag();
-    mag = mag || 1;
-    return this.div(mag);
-  },
-  unit: function unit() {
-    return this.divide(this.length());
-  },
-  min: function min() {
-    return Math.min(Math.min(this.x, this.y), this.z);
-  },
-  max: function max() {
-    return Math.max(Math.max(this.x, this.y), this.z);
-  },
-  limit: function limit(v) {
-    var cm = this.mag();
-
-    if (cm > v) {
-      return this.setMag(v);
-    }
-
-    return this;
-  },
-  // clamp(min, max) {
-  //     // export const clamp = (min = 0, max = 1, a) => Math.min(max, Math.max(min, a));
-  // },
-  toAngles: function toAngles() {
-    return {
-      theta: Math.atan2(this.z, this.x),
-      phi: Math.asin(this.y / this.length())
-    };
-  },
-  angleTo: function angleTo(a) {
-    return Math.acos(this.dot(a) / (this.length() * a.length()));
-  },
-  toArray: function toArray(n) {
-    return [this.x, this.y, this.z].slice(0, n || 3);
-  },
-  clone: function clone() {
-    return new Vector(this.x, this.y, this.z);
-  },
-  init: function init(x, y, z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    return this;
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
   }
-};
 
-Vector.negative = function (a, b) {
+  _createClass(Vector, [{
+    key: "negative",
+    value: function negative() {
+      return new Vector(-this.x, -this.y, -this.z);
+    }
+  }, {
+    key: "add",
+    value: function add(v) {
+      if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
+      return new Vector(this.x + v, this.y + v, this.z + v);
+    }
+  }, {
+    key: "sub",
+    value: function sub(v) {
+      if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
+      return new Vector(this.x - v, this.y - v, this.z - v);
+    }
+  }, {
+    key: "mult",
+    value: function mult(v) {
+      if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
+      return new Vector(this.x * v, this.y * v, this.z * v);
+    }
+  }, {
+    key: "div",
+    value: function div(v) {
+      if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
+      return new Vector(this.x / v, this.y / v, this.z / v);
+    }
+  }, {
+    key: "equals",
+    value: function equals(v) {
+      return this.x === v.x && this.y === v.y && this.z === v.z;
+    }
+  }, {
+    key: "dot",
+    value: function dot(v) {
+      return this.x * v.x + this.y * v.y + this.z * v.z;
+    }
+  }, {
+    key: "cross",
+    value: function cross(v) {
+      return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
+    }
+  }, {
+    key: "length",
+    value: function length() {
+      return Math.sqrt(this.dot(this));
+    }
+  }, {
+    key: "mag",
+    value: function mag() {
+      return this.length();
+    }
+  }, {
+    key: "magSq",
+    value: function magSq() {
+      var m = this.length();
+      return m * m;
+    }
+  }, {
+    key: "setMag",
+    value: function setMag(m) {
+      var c = this.mag();
+      var r = m / c;
+      return this.mult(r);
+    }
+  }, {
+    key: "normalize",
+    value: function normalize() {
+      var mag = this.mag();
+      mag = mag || 1;
+      return this.div(mag);
+    }
+  }, {
+    key: "unit",
+    value: function unit() {
+      return this.divide(this.length());
+    }
+  }, {
+    key: "min",
+    value: function min() {
+      return Math.min(Math.min(this.x, this.y), this.z);
+    }
+  }, {
+    key: "max",
+    value: function max() {
+      return Math.max(Math.max(this.x, this.y), this.z);
+    }
+  }, {
+    key: "limit",
+    value: function limit(v) {
+      var cm = this.mag();
+
+      if (cm > v) {
+        return this.setMag(v);
+      }
+
+      return this;
+    }
+  }, {
+    key: "toAngles",
+    value: function toAngles() {
+      return {
+        theta: Math.atan2(this.z, this.x),
+        phi: Math.asin(this.y / this.length())
+      };
+    }
+  }, {
+    key: "angleTo",
+    value: function angleTo(a) {
+      return Math.acos(this.dot(a) / (this.length() * a.length()));
+    }
+  }, {
+    key: "toArray",
+    value: function toArray(n) {
+      return [this.x, this.y, this.z].slice(0, n || 3);
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
+      return new Vector(this.x, this.y, this.z);
+    }
+  }]);
+
+  return Vector;
+}();
+
+exports.Vector = Vector;
+
+var negative = function negative(a, b) {
   b.x = -a.x;
   b.y = -a.y;
   b.z = -a.z;
   return b;
 };
 
-Vector.add = function (a, b, c) {
+var add = function add(a, b, c) {
   if (b instanceof Vector) {
     c.x = a.x + b.x;
     c.y = a.y + b.y;
@@ -2509,7 +2555,7 @@ Vector.add = function (a, b, c) {
   return c;
 };
 
-Vector.subtract = function (a, b, c) {
+var subtract = function subtract(a, b, c) {
   if (b instanceof Vector) {
     c.x = a.x - b.x;
     c.y = a.y - b.y;
@@ -2523,7 +2569,7 @@ Vector.subtract = function (a, b, c) {
   return c;
 };
 
-Vector.multiply = function (a, b, c) {
+var multiply = function multiply(a, b, c) {
   if (b instanceof Vector) {
     c.x = a.x * b.x;
     c.y = a.y * b.y;
@@ -2537,7 +2583,7 @@ Vector.multiply = function (a, b, c) {
   return c;
 };
 
-Vector.divide = function (a, b, c) {
+var divide = function divide(a, b, c) {
   if (b instanceof Vector) {
     c.x = a.x / b.x;
     c.y = a.y / b.y;
@@ -2551,14 +2597,14 @@ Vector.divide = function (a, b, c) {
   return c;
 };
 
-Vector.cross = function (a, b, c) {
+var cross = function cross(a, b, c) {
   c.x = a.y * b.z - a.z * b.y;
   c.y = a.z * b.x - a.x * b.z;
   c.z = a.x * b.y - a.y * b.x;
   return c;
 };
 
-Vector.unit = function (a, b) {
+var unit = function unit(a, b) {
   var length = a.length();
   b.x = a.x / length;
   b.y = a.y / length;
@@ -2566,31 +2612,31 @@ Vector.unit = function (a, b) {
   return b;
 };
 
-Vector.fromAngles = function (theta, phi) {
+var fromAngles = function fromAngles(theta, phi) {
   return new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi));
 };
 
-Vector.randomDirection = function () {
-  return Vector.fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
+var randomDirection = function randomDirection() {
+  return fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
 };
 
-Vector.min = function (a, b) {
+var min = function min(a, b) {
   return new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
 };
 
-Vector.max = function (a, b) {
+var max = function max(a, b) {
   return new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
 };
 
-Vector.lerp = function (a, b, fraction) {
+var lerp = function lerp(a, b, fraction) {
   return b.subtract(a).multiply(fraction).add(a);
 };
 
-Vector.fromArray = function (a) {
+var fromArray = function fromArray(a) {
   return new Vector(a[0], a[1], a[2]);
 };
 
-Vector.angleBetween = function (a, b) {
+var angleBetween = function angleBetween(a, b) {
   return a.angleTo(b);
 };
 },{}],"scripts/lib/math.js":[function(require,module,exports) {
@@ -2599,7 +2645,7 @@ Vector.angleBetween = function (a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = exports.chaikin = exports.randomPointAround = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.mapToTau = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomChance = exports.randomBoolean = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.randomNormalWholeBetween = exports.randomNormalNumberBetween = exports.randomNormalBM2 = exports.randomNormalBM = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
+exports.chaikin = exports.randomPointAround = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.mapToTau = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.randomChance = exports.randomBoolean = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.randomNormalWholeBetween = exports.randomNormalNumberBetween = exports.randomNormalBM2 = exports.randomNormalBM = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -3039,109 +3085,16 @@ var chaikin = function chaikin(arr, num) {
     return [[0.75 * c[0] + 0.25 * arr[(i + 1) % l][0], 0.75 * c[1] + 0.25 * arr[(i + 1) % l][1]], [0.25 * c[0] + 0.75 * arr[(i + 1) % l][0], 0.25 * c[1] + 0.75 * arr[(i + 1) % l][1]]];
   }).flat();
   return num === 1 ? smooth : chaikin(smooth, num - 1);
-}; // [[x,y], ...]
-
+};
 
 exports.chaikin = chaikin;
-
-var createCirclePoints = function createCirclePoints(offsetX, offsetY, diameter, steps) {
-  var sx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
-  var sy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
-  var points = [];
-
-  for (var theta = 0; theta < 360; theta += steps) {
-    var radius = theta * (Math.PI / 180);
-    var x = Math.cos(radius) * diameter + sx + offsetX;
-    var y = Math.sin(radius) * diameter + sy + offsetY;
-    points.push([x, y]);
-  }
-
-  return points;
-};
-
-exports.createCirclePoints = createCirclePoints;
-
-var createGridPointsXY = function createGridPointsXY(width, height, xMargin, yMargin, columns, rows) {
-  var gridPoints = [];
-  var colStep = Math.round((width - xMargin * 2) / (columns - 1));
-  var rowStep = Math.round((height - yMargin * 2) / (rows - 1));
-
-  for (var col = 0; col < columns; col++) {
-    var x = xMargin + col * colStep;
-
-    for (var row = 0; row < rows; row++) {
-      var y = yMargin + row * rowStep;
-      gridPoints.push([x, y]);
-    }
-  }
-
-  return {
-    points: gridPoints,
-    columnWidth: colStep,
-    rowHeight: rowStep
-  };
-};
-
-exports.createGridPointsXY = createGridPointsXY;
-
-var createGridCellsXY = function createGridCellsXY(width, height, columns, rows) {
-  var margin = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
-  var gutter = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-  var points = [];
-  var colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
-  var rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
-
-  for (var row = 0; row < rows; row++) {
-    var y = margin + row * rowStep + gutter * row;
-
-    for (var col = 0; col < columns; col++) {
-      var x = margin + col * colStep + gutter * col;
-      points.push([x, y]);
-    }
-  }
-
-  return {
-    points: points,
-    columnWidth: colStep,
-    rowHeight: rowStep
-  };
-}; // -> [{radius, rotation, position:[u,v]}, ...]
-
-
-exports.createGridCellsXY = createGridCellsXY;
-
-var createGridPointsUV = function createGridPointsUV(columns, rows) {
-  rows = rows || columns;
-  var points = [];
-  var amplitude = 0.1;
-  var frequency = 1;
-
-  for (var x = 0; x < columns; x++) {
-    for (var y = 0; y < rows; y++) {
-      var u = columns <= 1 ? 0.5 : x / (columns - 1);
-      var v = columns <= 1 ? 0.5 : y / (rows - 1); // const radius = Math.abs(random.gaussian() * 0.02);
-
-      var radius = create2dNoiseAbs(u, v);
-      var rotation = create2dNoiseAbs(u, v);
-      points.push({
-        radius: radius,
-        rotation: rotation,
-        position: [u, v]
-      });
-    }
-  }
-
-  return points;
-};
-
-exports.createGridPointsUV = createGridPointsUV;
 },{"canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","./Vector":"scripts/lib/Vector.js"}],"scripts/lib/canvas.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.renderField = exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawTestPoint = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.texturizeRect = exports.stippleRect = exports.splatter = exports.drawSpikeCircle = exports.setTextAlignAllCenter = exports.setTextAlignLeftTop = exports.drawTextFilled = exports.textStyles = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.drawParticlePoint = exports.pixel = exports.filter = exports.blendMode = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
+exports.drawTestPoint = exports.drawRoundRectFilled = exports.drawQuadRectFilled = exports.drawTriangleFilled = exports.drawSquareFilled = exports.drawRectFilled = exports.drawRect = exports.drawCircleFilled = exports.drawCircle = exports.drawLineAngle = exports.drawLine = exports.setStokeColor = exports.pixel = exports.filter = exports.blendMode = exports.sharpLines = exports.resetStyles = exports.background = exports.fillCanvas = exports.clearCanvas = exports.resizeCanvas = exports.contextScale = exports.isHiDPI = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -3149,7 +3102,6 @@ var _math = require("./math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var TAU = Math.PI * 2;
 var isHiDPI = false;
 exports.isHiDPI = isHiDPI;
 var contextScale = 1;
@@ -3238,7 +3190,6 @@ var filter = function filter(context) {
 }; //----------------------------------------------------------------------------------------------------------------------
 // PRIMITIVES
 //----------------------------------------------------------------------------------------------------------------------
-// TODO, circle or square?
 
 
 exports.filter = filter;
@@ -3259,25 +3210,9 @@ var pixel = function pixel(context) {
       context.fillRect(x, y, size, size);
     }
   };
-}; // TODO use circle?
-
-
-exports.pixel = pixel;
-
-var drawParticlePoint = function drawParticlePoint(context) {
-  return function (_ref) {
-    var x = _ref.x,
-        y = _ref.y,
-        radius = _ref.radius,
-        color = _ref.color;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color.toRgbString();
-    context.fill();
-  };
 };
 
-exports.drawParticlePoint = drawParticlePoint;
+exports.pixel = pixel;
 
 var setStokeColor = function setStokeColor(context) {
   return function (color) {
@@ -3441,288 +3376,16 @@ var drawRoundRectFilled = function drawRoundRectFilled(context) {
 
     context.fill();
   };
-}; // https://www.cssfontstack.com/
-
+};
 
 exports.drawRoundRectFilled = drawRoundRectFilled;
-var textStyles = {
-  size: function size(s) {
-    return "".concat(s * contextScale, "px \"Helvetica Neue\",Helvetica,Arial,sans-serif");
-  },
-  sansHelvetica: function sansHelvetica(s) {
-    return "".concat(s * contextScale, "px \"Helvetica Neue\",Helvetica,Arial,sans-serif");
-  },
-  monoCourier: function monoCourier(s) {
-    return "".concat(s * contextScale, "px \"Courier New\", Courier, \"Lucida Sans Typewriter\", \"Lucida Typewriter\", monospace");
-  },
-  monoLucidia: function monoLucidia(s) {
-    return "".concat(s * contextScale, "px \"Lucida Sans Typewriter\", \"Lucida Console\", monaco, \"Bitstream Vera Sans Mono\", monospace");
-  },
-  serifGeorgia: function serifGeorgia(s) {
-    return "".concat(s * contextScale, "px Georgia, Times, \"Times New Roman\", serif");
-  },
-  default: '16px "Helvetica Neue",Helvetica,Arial,sans-serif',
-  small: '12px "Helvetica Neue",Helvetica,Arial,sans-serif'
-};
-exports.textStyles = textStyles;
-
-var drawTextFilled = function drawTextFilled(context) {
-  return function (text, x, y, color, style) {
-    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-    context.font = style || textStyles.sansHelvetica(16);
-    context.fillText(text, x, y); // https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics
-
-    return context.measureText(text);
-  };
-};
-
-exports.drawTextFilled = drawTextFilled;
-
-var setTextAlignLeftTop = function setTextAlignLeftTop(context) {
-  context.textAlign = 'left';
-  context.textBaseline = 'top';
-};
-
-exports.setTextAlignLeftTop = setTextAlignLeftTop;
-
-var setTextAlignAllCenter = function setTextAlignAllCenter(context) {
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-}; //----------------------------------------------------------------------------------------------------------------------
-// COMPLEX SHAPES
-//----------------------------------------------------------------------------------------------------------------------
-// Spikes is an array of angles
-
-
-exports.setTextAlignAllCenter = setTextAlignAllCenter;
-
-var drawSpikeCircle = function drawSpikeCircle(context) {
-  return function (_ref2, spikes) {
-    var x = _ref2.x,
-        y = _ref2.y,
-        radius = _ref2.radius,
-        color = _ref2.color;
-    var spikeLength = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
-    var circleStroke = 1;
-    var spikeStroke = 2;
-    context.strokeStyle = color.toRgbString();
-    context.lineWidth = circleStroke;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
-    // context.fill();
-
-    context.stroke();
-
-    for (var s = 0; s < spikes.length; s++) {
-      var pointA = (0, _math.pointOnCircle)(x, y, radius, spikes[s]);
-      var pointB = (0, _math.pointOnCircle)(x, y, radius + spikeLength, spikes[s]);
-      context.strokeStyle = color.toRgbString();
-      drawLine(context)(pointA.x, pointA.y, pointB.x, pointB.y, spikeStroke);
-    }
-  };
-}; // "paint splatters" around center point
-
-
-exports.drawSpikeCircle = drawSpikeCircle;
-
-var splatter = function splatter(context) {
-  return function (x, y, color, size) {
-    var amount = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 3;
-    var range = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 20;
-
-    for (var i = 0; i < amount; i++) {
-      var s = (0, _math.randomWholeBetween)(size * 0.25, size * 3); // circle dist
-
-      var radius = (0, _math.randomWholeBetween)(0, range);
-      var angle = (0, _math.randomNumberBetween)(0, TAU);
-      var xoff = radius * Math.cos(angle);
-      var yoff = radius * Math.sin(angle); // square dist
-      // const xoff = randomWholeBetween(-range, range);
-      // const yoff = randomWholeBetween(-range, range);
-
-      drawCircleFilled(context)(x + xoff, y + yoff, s, color);
-    }
-  };
-}; // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
-
-
-exports.splatter = splatter;
-
-var stippleRect = function stippleRect(context) {
-  return function (x, y, width, height) {
-    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
-    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
-    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'ticks';
-    if (amount <= 0) return;
-    amount = Math.min(amount, 10);
-    context.save();
-    var region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
-    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
-    var size = 3;
-    var colStep = (0, _math.mapRange)(1, 10, 20, 3, amount);
-    var rowStep = (0, _math.mapRange)(1, 10, 20, 3, amount);
-    context.strokeStyle = strokeColor;
-    context.lineWidth = 2;
-    context.lineCap = 'round';
-
-    for (var i = 0; i < width; i += colStep) {
-      for (var j = 0; j < height; j += rowStep) {
-        var tx = x + (0, _math.randomNormalWholeBetween)(i, i + colStep);
-        var ty = y + (0, _math.randomNormalWholeBetween)(j, j + rowStep);
-        var tx2 = tx + size;
-        var ty2 = ty + size * -1;
-        context.beginPath();
-        context.moveTo(tx, ty);
-        context.lineTo(tx2, ty2);
-        context.stroke();
-      }
-    }
-
-    context.restore();
-  };
-};
-
-exports.stippleRect = stippleRect;
-
-var texturizeRect = function texturizeRect(context) {
-  return function (x, y, width, height) {
-    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
-    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
-    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'circles';
-    if (amount <= 0) return;
-    context.save();
-    var region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
-    var half = width / 4;
-    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
-    var lineWidth = 1;
-    var fillamount = amount * 100;
-
-    for (var i = 0; i < fillamount; i++) {
-      var tx = (0, _math.randomWholeBetween)(x, x + width);
-      var ty = (0, _math.randomWholeBetween)(y, y + height);
-      var size = (0, _math.randomWholeBetween)(half, width);
-      context.strokeStyle = strokeColor;
-      context.lineWidth = lineWidth;
-      context.beginPath();
-
-      if (mode === 'circles') {
-        context.arc(tx, ty, size, 0, Math.PI * 2, false);
-      } else if (mode === 'circles2') {
-        var _tx = (0, _math.randomNormalWholeBetween)(x, x + width);
-
-        var _ty = (0, _math.randomNormalWholeBetween)(y, y + height);
-
-        var _size = (0, _math.randomWholeBetween)(1, width);
-
-        context.arc(_tx, _ty, _size, 0, Math.PI * 2, false);
-      } else if (mode === 'xhatch') {
-        var tx2 = tx + size * (0, _math.randomSign)();
-        var ty2 = ty + size * (0, _math.randomSign)();
-        context.moveTo(tx, ty);
-        context.lineTo(tx2, ty2);
-      }
-
-      context.stroke();
-    }
-
-    context.restore();
-  };
-}; //----------------------------------------------------------------------------------------------------------------------
-// PARTICLE INTERACTIVITY
-//----------------------------------------------------------------------------------------------------------------------
-
-
-exports.texturizeRect = texturizeRect;
-
-var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
-  var pSaveX = particle.x;
-  var pSaveY = particle.y;
-  particle.x = 0;
-  particle.y = 0;
-  ctx.save();
-  ctx.translate(pSaveX, pSaveY);
-  ctx.rotate(particle.heading);
-
-  for (var _len = arguments.length, args = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
-    args[_key - 3] = arguments[_key];
-  }
-
-  drawFn(ctx)(particle, args);
-  ctx.restore();
-  particle.x = pSaveX;
-  particle.y = pSaveY;
-};
-
-exports.drawRotatedParticle = drawRotatedParticle;
-
-var connectParticles = function connectParticles(context) {
-  return function (pArray, proximity) {
-    var useAlpha = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    var len = pArray.length;
-
-    for (var a = 0; a < len; a++) {
-      // all consecutive particles
-      for (var b = a; b < len; b++) {
-        var pA = pArray[a];
-        var pB = pArray[b];
-        var distance = (0, _math.pointDistance)(pA, pB);
-
-        if (distance < proximity) {
-          var pColor = pA.color;
-
-          if (useAlpha) {
-            pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
-          }
-
-          context.strokeStyle = pColor.toHslString();
-          drawLine(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
-        }
-      }
-    }
-
-    resetStyles(context);
-  };
-};
-
-exports.connectParticles = connectParticles;
-
-var drawPointTrail = function drawPointTrail(context) {
-  return function (particle) {
-    var trailLen = particle.xHistory.length;
-    context.lineWidth = particle.radius;
-    var pColor = particle.color;
-    var aFade = 100 / trailLen * 0.01;
-    var alpha = 1;
-    var sFade = particle.radius * 2 / trailLen;
-    var stroke = particle.radius * 2;
-
-    for (var i = 0; i < trailLen; i++) {
-      var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
-      var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-      drawLine(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
-      pColor.setAlpha(alpha);
-      context.strokeStyle = pColor.toRgbString();
-      alpha -= aFade;
-      stroke -= sFade;
-    }
-  };
-}; //----------------------------------------------------------------------------------------------------------------------
-// DEBUG
-//----------------------------------------------------------------------------------------------------------------------
-
-
-exports.drawPointTrail = drawPointTrail;
 
 var drawTestPoint = function drawTestPoint(context) {
-  return function (_ref3) {
-    var x = _ref3.x,
-        y = _ref3.y,
-        radius = _ref3.radius,
-        color = _ref3.color;
+  return function (_ref) {
+    var x = _ref.x,
+        y = _ref.y,
+        radius = _ref.radius,
+        color = _ref.color;
     context.strokeStyle = color.toRgbString();
     context.lineWidth = 1;
     context.beginPath();
@@ -3735,88 +3398,6 @@ var drawTestPoint = function drawTestPoint(context) {
 };
 
 exports.drawTestPoint = drawTestPoint;
-
-var drawParticleVectors = function drawParticleVectors(context) {
-  return function (particle) {
-    var vmult = 5;
-    var amult = 100;
-    var vel = 'green';
-    var acc = 'yellow';
-    var velocity = particle.velocity;
-    var acceleration = particle.acceleration;
-    context.strokeStyle = (0, _tinycolor.default)(vel).toRgbString();
-    drawLine(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
-    context.strokeStyle = (0, _tinycolor.default)(acc).toRgbString();
-    drawLine(context)(particle.x, particle.y, particle.x + acceleration.x * amult, particle.y + acceleration.y * amult, 1);
-  };
-};
-
-exports.drawParticleVectors = drawParticleVectors;
-
-var drawMouse = function drawMouse(context) {
-  return function (_ref4) {
-    var x = _ref4.x,
-        y = _ref4.y,
-        radius = _ref4.radius;
-    if (x === undefined || y === undefined) return;
-    context.strokeStyle = 'rgba(255,255,255,.25)';
-    context.lineWidth = 1;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(255,255,255,.1)';
-    context.fill();
-    context.stroke();
-  };
-};
-
-exports.drawMouse = drawMouse;
-
-var drawAttractor = function drawAttractor(context) {
-  return function (_ref5, mode, radius) {
-    var x = _ref5.x,
-        y = _ref5.y,
-        mass = _ref5.mass,
-        g = _ref5.g;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = 'rgba(0,0,0,.1)';
-    context.fill();
-    context.beginPath();
-    context.arc(x, y, Math.sqrt(mass) * g, 0, Math.PI * 2, false);
-    context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
-    context.fill();
-  };
-};
-
-exports.drawAttractor = drawAttractor;
-
-var renderField = function renderField(_ref6, context, fn) {
-  var width = _ref6.width,
-      height = _ref6.height;
-  var color = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'black';
-  var cell = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '50';
-  var length = arguments.length > 5 ? arguments[5] : undefined;
-  var mid = cell / 2;
-
-  for (var x = 0; x < width; x += cell) {
-    for (var y = 0; y < height; y += cell) {
-      var theta = fn(x, y);
-      var vect = (0, _math.uvFromAngle)(theta).setMag(length || mid);
-      var x1 = x + mid;
-      var y1 = y + mid;
-      var x2 = x1 + vect.x;
-      var y2 = y1 + vect.y;
-      context.strokeStyle = (0, _tinycolor.default)(color);
-      context.lineWidth = 1;
-      context.beginPath();
-      context.moveTo(x1, y1);
-      context.lineTo(x2, y2);
-      context.stroke();
-    }
-  }
-};
-
-exports.renderField = renderField;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/lib/utils.js":[function(require,module,exports) {
 "use strict";
 
@@ -3830,6 +3411,16 @@ var defaultValue = function defaultValue(obj, key, value) {
 };
 
 exports.defaultValue = defaultValue;
+
+var limitArrayLen = function limitArrayLen(arr) {
+  var arrLength = arr.length;
+
+  if (arrLength > MAX_COORD_HISTORY) {
+    arr.splice(0, arrLength - MAX_COORD_HISTORY);
+  }
+
+  return arr;
+};
 },{}],"scripts/lib/sketch.js":[function(require,module,exports) {
 "use strict";
 
@@ -4078,7 +3669,7 @@ exports.sketch = sketch;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.edgeWrap = exports.edgeBounce = exports.attract = exports.createRandomParticleValues = exports.psCanvasRandom = exports.pixel = exports.Particle = void 0;
+exports.edgeWrap = exports.edgeBounce = exports.createRandomParticleValues = exports.Particle = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -4103,16 +3694,6 @@ function _classPrivateFieldGet(receiver, privateMap) { var descriptor = privateM
 function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = privateMap.get(receiver); if (!descriptor) { throw new TypeError("attempted to set private field on non-instance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
 
 var MAX_COORD_HISTORY = 30;
-
-var limitArrayLen = function limitArrayLen(arr) {
-  var arrLength = arr.length;
-
-  if (arrLength > MAX_COORD_HISTORY) {
-    arr.splice(0, arrLength - MAX_COORD_HISTORY);
-  }
-
-  return arr;
-};
 
 var _x = new WeakMap();
 
@@ -4239,6 +3820,34 @@ var Particle = /*#__PURE__*/function () {
       var speed = this.velocity.magSq() * area * coefficent;
       var vdrag = velUnit.setMag(speed);
       this.applyForce(vdrag);
+    } // https://www.youtube.com/watch?v=EpgB3cNhKPM
+    // mode 1 is attract, -1 is repel
+    // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
+
+  }, {
+    key: "attract",
+    value: function attract(_ref2) {
+      var x = _ref2.x,
+          y = _ref2.y,
+          mass = _ref2.mass,
+          g = _ref2.g;
+      var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      var affectDist = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1000;
+
+      if ((0, _math.pointDistance)({
+        x: x,
+        y: y
+      }, {
+        x: this.x,
+        y: this.y
+      }) < affectDist) {
+        g = g || 1;
+        var dir = new _Vector.Vector(x, y).sub(new _Vector.Vector(this.x, this.y));
+        var distanceSq = (0, _math.clamp)(50, 5000, dir.magSq());
+        var strength = mode * (g * (mass * this.mass)) / distanceSq;
+        var force = dir.setMag(strength);
+        this.applyForce(force);
+      }
     } // draw() {
     //     this.drawFn(this);
     // }
@@ -4309,9 +3918,9 @@ var Particle = /*#__PURE__*/function () {
     get: function get() {
       return new _Vector.Vector(this.velocityX, this.velocityY, 0);
     },
-    set: function set(_ref2) {
-      var x = _ref2.x,
-          y = _ref2.y;
+    set: function set(_ref3) {
+      var x = _ref3.x,
+          y = _ref3.y;
       this.velocityX = x;
       this.velocityY = y;
     }
@@ -4320,9 +3929,9 @@ var Particle = /*#__PURE__*/function () {
     get: function get() {
       return new _Vector.Vector(this.accelerationX, this.accelerationY, 0);
     },
-    set: function set(_ref3) {
-      var x = _ref3.x,
-          y = _ref3.y;
+    set: function set(_ref4) {
+      var x = _ref4.x,
+          y = _ref4.y;
       this.accelerationX = x;
       this.accelerationY = y;
     } // Rotation angle to point in direction of velocity
@@ -4341,94 +3950,36 @@ var Particle = /*#__PURE__*/function () {
 
 exports.Particle = Particle;
 
-var pixel = function pixel(x, y, color, radius) {
-  return new Particle({
-    x: x,
-    y: y,
-    color: color,
-    radius: radius
-  });
-};
-
-exports.pixel = pixel;
-
-var psCanvasRandom = function psCanvasRandom(_ref4) {
-  var width = _ref4.width,
-      height = _ref4.height;
-  return {
-    x: (0, _math.randomNumberBetween)(0, width),
-    y: (0, _math.randomNumberBetween)(0, height)
-  };
-};
-
-exports.psCanvasRandom = psCanvasRandom;
-
 var createRandomParticleValues = function createRandomParticleValues(_ref5) {
   var width = _ref5.width,
       height = _ref5.height;
   var vel = 2;
   var radius = (0, _math.randomNumberBetween)(5, 10);
-  var coords = psCanvasRandom({
-    width: width,
-    height: height
-  });
   return {
     radius: radius,
-    x: coords.x,
-    y: coords.y,
+    x: (0, _math.randomNumberBetween)(0, width),
+    y: (0, _math.randomNumberBetween)(0, height),
     mass: (0, _math.randomNumberBetween)(1, 10),
     velocityX: (0, _math.randomNumberBetween)(-vel, vel),
     velocityY: (0, _math.randomNumberBetween)(-vel, vel),
     accelerationX: 0,
     accelerationY: 0,
     rotation: (0, _math.randomNumberBetween)(-180, 180),
-    // color: { r: randomNumberBetween(100, 255), g: randomNumberBetween(100, 255), b: randomNumberBetween(100, 255) },
     color: {
-      r: (0, _math.lerp)(0, 255, coords.x / width),
+      r: (0, _math.randomNumberBetween)(100, 255),
       g: (0, _math.randomNumberBetween)(100, 255),
-      b: (0, _math.lerp)(0, 255, coords.y / height)
+      b: (0, _math.randomNumberBetween)(100, 255)
     }
   };
 }; //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
-// https://www.youtube.com/watch?v=EpgB3cNhKPM
-// mode 1 is attract, -1 is repel
-// const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
 
 
 exports.createRandomParticleValues = createRandomParticleValues;
 
-var attract = function attract(_ref6, particle) {
-  var x = _ref6.x,
-      y = _ref6.y,
-      mass = _ref6.mass,
-      g = _ref6.g;
-  var mode = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-  var affectDist = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1000;
-
-  if ((0, _math.pointDistance)({
-    x: x,
-    y: y
-  }, {
-    x: particle.x,
-    y: particle.y
-  }) < affectDist) {
-    g = g || 1;
-    var dir = new _Vector.Vector(x, y).sub(new _Vector.Vector(particle.x, particle.y));
-    var distanceSq = (0, _math.clamp)(50, 5000, dir.magSq());
-    var strength = mode * (g * (mass * particle.mass)) / distanceSq;
-    var force = dir.setMag(strength);
-    particle.applyForce(force);
-  }
-}; //----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-
-exports.attract = attract;
-
-var edgeBounce = function edgeBounce(_ref7, particle) {
-  var width = _ref7.width,
-      height = _ref7.height;
+var edgeBounce = function edgeBounce(_ref6, particle) {
+  var width = _ref6.width,
+      height = _ref6.height;
 
   if (particle.x + particle.radius > width) {
     particle.reverseVelocityX();
@@ -4453,9 +4004,9 @@ var edgeBounce = function edgeBounce(_ref7, particle) {
 
 exports.edgeBounce = edgeBounce;
 
-var edgeWrap = function edgeWrap(_ref8, particle) {
-  var width = _ref8.width,
-      height = _ref8.height;
+var edgeWrap = function edgeWrap(_ref7, particle) {
+  var width = _ref7.width,
+      height = _ref7.height;
 
   if (particle.x + particle.radius > width) {
     particle.x = 0 + particle.radius;
@@ -4471,7 +4022,167 @@ var edgeWrap = function edgeWrap(_ref8, particle) {
 };
 
 exports.edgeWrap = edgeWrap;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./Vector":"scripts/lib/Vector.js"}],"scripts/released/variation1.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./Vector":"scripts/lib/Vector.js"}],"scripts/lib/canvas-particles.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.drawAttractor = exports.drawMouse = exports.drawParticleVectors = exports.drawPointTrail = exports.connectParticles = exports.drawRotatedParticle = exports.drawParticlePoint = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("./math");
+
+var _canvas = require("./canvas");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var drawParticlePoint = function drawParticlePoint(context) {
+  return function (_ref) {
+    var x = _ref.x,
+        y = _ref.y,
+        radius = _ref.radius,
+        color = _ref.color;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = color.toRgbString();
+    context.fill();
+  };
+};
+
+exports.drawParticlePoint = drawParticlePoint;
+
+var drawRotatedParticle = function drawRotatedParticle(ctx, drawFn, particle) {
+  var pSaveX = particle.x;
+  var pSaveY = particle.y;
+  particle.x = 0;
+  particle.y = 0;
+  ctx.save();
+  ctx.translate(pSaveX, pSaveY);
+  ctx.rotate(particle.heading);
+
+  for (var _len = arguments.length, args = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+    args[_key - 3] = arguments[_key];
+  }
+
+  drawFn(ctx)(particle, args);
+  ctx.restore();
+  particle.x = pSaveX;
+  particle.y = pSaveY;
+};
+
+exports.drawRotatedParticle = drawRotatedParticle;
+
+var connectParticles = function connectParticles(context) {
+  return function (pArray, proximity) {
+    var useAlpha = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    var len = pArray.length;
+
+    for (var a = 0; a < len; a++) {
+      // all consecutive particles
+      for (var b = a; b < len; b++) {
+        var pA = pArray[a];
+        var pB = pArray[b];
+        var distance = (0, _math.pointDistance)(pA, pB);
+
+        if (distance < proximity) {
+          var pColor = pA.color;
+
+          if (useAlpha) {
+            pColor.setAlpha((0, _math.normalizeInverse)(0, proximity, distance));
+          }
+
+          context.strokeStyle = pColor.toHslString();
+          (0, _canvas.drawLine)(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
+        }
+      }
+    }
+
+    (0, _canvas.resetStyles)(context);
+  };
+};
+
+exports.connectParticles = connectParticles;
+
+var drawPointTrail = function drawPointTrail(context) {
+  return function (particle) {
+    var trailLen = particle.xHistory.length;
+    context.lineWidth = particle.radius;
+    var pColor = particle.color;
+    var aFade = 100 / trailLen * 0.01;
+    var alpha = 1;
+    var sFade = particle.radius * 2 / trailLen;
+    var stroke = particle.radius * 2;
+
+    for (var i = 0; i < trailLen; i++) {
+      var startX = i === 0 ? particle.x : particle.xHistory[i - 1];
+      var startY = i === 0 ? particle.y : particle.yHistory[i - 1];
+      (0, _canvas.drawLine)(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
+      pColor.setAlpha(alpha);
+      context.strokeStyle = pColor.toRgbString();
+      alpha -= aFade;
+      stroke -= sFade;
+    }
+  };
+};
+
+exports.drawPointTrail = drawPointTrail;
+
+var drawParticleVectors = function drawParticleVectors(context) {
+  return function (particle) {
+    var vmult = 5;
+    var amult = 100;
+    var vel = 'green';
+    var acc = 'yellow';
+    var velocity = particle.velocity;
+    var acceleration = particle.acceleration;
+    context.strokeStyle = (0, _tinycolor.default)(vel).toRgbString();
+    (0, _canvas.drawLine)(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
+    context.strokeStyle = (0, _tinycolor.default)(acc).toRgbString();
+    (0, _canvas.drawLine)(context)(particle.x, particle.y, particle.x + acceleration.x * amult, particle.y + acceleration.y * amult, 1);
+  };
+};
+
+exports.drawParticleVectors = drawParticleVectors;
+
+var drawMouse = function drawMouse(context) {
+  return function (_ref2) {
+    var x = _ref2.x,
+        y = _ref2.y,
+        radius = _ref2.radius;
+    if (x === undefined || y === undefined) return;
+    context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+  };
+};
+
+exports.drawMouse = drawMouse;
+
+var drawAttractor = function drawAttractor(context) {
+  return function (_ref3, mode, radius) {
+    var x = _ref3.x,
+        y = _ref3.y,
+        mass = _ref3.mass,
+        g = _ref3.g;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(0,0,0,.1)';
+    context.fill();
+    context.beginPath();
+    context.arc(x, y, Math.sqrt(mass) * g, 0, Math.PI * 2, false);
+    context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
+    context.fill();
+  };
+};
+
+exports.drawAttractor = drawAttractor;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js"}],"scripts/released/variation1.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4484,6 +4195,8 @@ var _Particle = require("../lib/Particle");
 var _canvas = require("../lib/canvas");
 
 var _math = require("../lib/math");
+
+var _canvasParticles = require("../lib/canvas-particles");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -4557,12 +4270,12 @@ var variation1 = function variation1() {
         y: canvasCenterY
       }, particlesArray[i], 4);
       attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
-      (0, _canvas.drawPointTrail)(context)(particlesArray[i]);
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]);
+      (0, _canvasParticles.drawPointTrail)(context)(particlesArray[i]);
     }
 
-    (0, _canvas.connectParticles)(context)(particlesArray, 200);
-    (0, _canvas.drawMouse)(context)(mouse);
+    (0, _canvasParticles.connectParticles)(context)(particlesArray, 200);
+    (0, _canvasParticles.drawMouse)(context)(mouse);
   };
 
   return {
@@ -4572,7 +4285,7 @@ var variation1 = function variation1() {
 };
 
 exports.variation1 = variation1;
-},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/variation2.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js"}],"scripts/released/variation2.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4585,6 +4298,8 @@ var _Particle = require("../lib/Particle");
 var _canvas = require("../lib/canvas");
 
 var _math = require("../lib/math");
+
+var _canvasParticles = require("../lib/canvas-particles");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -4647,11 +4362,10 @@ var variation2 = function variation2() {
       particlesArray[i].radius -= config.decay;
 
       if (particlesArray[i].radius <= 0) {
-        var newValues = (0, _Particle.createRandomParticleValues)(canvas);
-        var newCoords = mouse;
-        newValues.x = newCoords.x + (0, _math.randomNumberBetween)(-10, 10);
-        newValues.y = newCoords.y + (0, _math.randomNumberBetween)(-10, 10);
-        particlesArray[i].initValues(newValues);
+        var props = (0, _Particle.createRandomParticleValues)(canvas);
+        props.x = mouse.x + (0, _math.randomNumberBetween)(-10, 10);
+        props.y = mouse.y + (0, _math.randomNumberBetween)(-10, 10);
+        particlesArray[i].initValues(props);
       }
 
       particlesArray[i].y += particlesArray[i].mass * (mouse.isDown ? 1 : 0.2);
@@ -4663,11 +4377,11 @@ var variation2 = function variation2() {
 
       avoidPoint(mouse, particlesArray[i]); // attractPoint(psMouseCoords(), particlesArray[i]);
 
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]); // drawPointTrail(context)(particlesArray[i]);
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]); // drawPointTrail(context)(particlesArray[i]);
     }
 
-    (0, _canvas.connectParticles)(context)(particlesArray, 100);
-    (0, _canvas.drawMouse)(context)(mouse);
+    (0, _canvasParticles.connectParticles)(context)(particlesArray, 100);
+    (0, _canvasParticles.drawMouse)(context)(mouse);
     return 1;
   };
 
@@ -4679,7 +4393,7 @@ var variation2 = function variation2() {
 };
 
 exports.variation2 = variation2;
-},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"media/images/domokun.png":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js"}],"media/images/domokun.png":[function(require,module,exports) {
 module.exports = "/domokun.32ba95a1.png";
 },{}],"scripts/released/domokun.js":[function(require,module,exports) {
 "use strict";
@@ -4696,6 +4410,8 @@ var _canvas = require("../lib/canvas");
 var _math = require("../lib/math");
 
 var _Particle = require("../lib/Particle");
+
+var _canvasParticles = require("../lib/canvas-particles");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4808,7 +4524,7 @@ var domokun = function domokun(_) {
 };
 
 exports.domokun = domokun;
-},{"../../media/images/domokun.png":"media/images/domokun.png","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js"}],"scripts/released/variation4.js":[function(require,module,exports) {
+},{"../../media/images/domokun.png":"media/images/domokun.png","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js"}],"scripts/released/variation4.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4821,6 +4537,8 @@ var _Particle = require("../lib/Particle");
 var _canvas = require("../lib/canvas");
 
 var _math = require("../lib/math");
+
+var _canvasParticles = require("../lib/canvas-particles");
 
 var pointPush = function pointPush(point, particle) {
   var f = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
@@ -4894,7 +4612,7 @@ var variation4 = function variation4() {
 
     for (var i = 0; i < config.numParticles; i++) {
       pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]); // let index = particlesArray[i].index + 1;
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]); // let index = particlesArray[i].index + 1;
       // if(index === circles.length) {
       //     index = 0;
       // }
@@ -4903,7 +4621,7 @@ var variation4 = function variation4() {
       // particlesArray.index = index;
     }
 
-    (0, _canvas.connectParticles)(context)(particlesArray, 200);
+    (0, _canvasParticles.connectParticles)(context)(particlesArray, 200);
     return 1; // -1 to exit animation loop
   };
 
@@ -4915,7 +4633,7 @@ var variation4 = function variation4() {
 };
 
 exports.variation4 = variation4;
-},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/variation5.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js"}],"scripts/released/variation5.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4928,6 +4646,8 @@ var _Particle = require("../lib/Particle");
 var _canvas = require("../lib/canvas");
 
 var _math = require("../lib/math");
+
+var _canvasParticles = require("../lib/canvas-particles");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -5015,10 +4735,10 @@ var variation5 = function variation5() {
         }, particlesArray[i], 4);
       }
 
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]);
     }
 
-    (0, _canvas.connectParticles)(context)(particlesArray, 50);
+    (0, _canvasParticles.connectParticles)(context)(particlesArray, 50);
   };
 
   return {
@@ -5029,7 +4749,7 @@ var variation5 = function variation5() {
 };
 
 exports.variation5 = variation5;
-},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/variation6.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js"}],"scripts/released/variation6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5041,7 +4761,34 @@ var _Particle = require("../lib/Particle");
 
 var _canvas = require("../lib/canvas");
 
-// Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
+var _canvasParticles = require("../lib/canvas-particles");
+
+var _math = require("../lib/math");
+
+var gravityPoint = function gravityPoint() {
+  var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
+  var f = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+  return function (x, y, radius, particle) {
+    var distance = (0, _math.pointDistance)({
+      x: x,
+      y: y
+    }, particle);
+
+    if (distance < radius) {
+      var dx = x - particle.x;
+      var dy = y - particle.y;
+      var forceDirectionX = dx / distance;
+      var forceDirectionY = dy / distance;
+      var force = (0, _math.normalizeInverse)(0, radius, distance) * f * mult;
+      var tempX = forceDirectionX * force * particle.radius * 2;
+      var tempY = forceDirectionY * force * particle.radius * 2;
+      particle.x += tempX;
+      particle.y += tempY;
+    }
+  };
+}; // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
+
+
 var variation6 = function variation6() {
   var numParticles = 200;
   var particlesArray = [];
@@ -5052,13 +4799,13 @@ var variation6 = function variation6() {
         context = _ref.context;
 
     for (var i = 0; i < numParticles; i++) {
-      var initValues = (0, _Particle.createRandomParticleValues)(canvas);
-      initValues.color = {
+      var props = (0, _Particle.createRandomParticleValues)(canvas);
+      props.color = {
         r: 255,
         g: 255,
         b: 255
       };
-      particlesArray.push(new _Particle.Particle(initValues));
+      particlesArray.push(new _Particle.Particle(props));
     }
   };
 
@@ -5077,17 +4824,17 @@ var variation6 = function variation6() {
         initValues.x = mouse.x ? mouse.x : canvas.width / 2;
         initValues.y = mouse.y ? mouse.y : canvas.height / 2; // let h = lerpRange(0,canvas.width,100,200,initValues.x);
 
-        var s = mapRange(0, 10, 0, 100, initValues.radius);
-        var l = mapRange(0, 10, 25, 75, initValues.radius);
+        var s = (0, _math.mapRange)(0, 10, 0, 100, initValues.radius);
+        var l = (0, _math.mapRange)(0, 10, 25, 75, initValues.radius);
         initValues.color = "hsl(".concat(hue, ",").concat(s, "%,").concat(l, "%)");
         particlesArray[i].initValues(initValues);
       }
 
       particlesArray[i].updatePosWithVelocity();
       (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
-      (0, _Particle.gravityPoint)()(canvas.width / 2, canvas.height, 2000, particlesArray[i]); // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
+      gravityPoint()(canvas.width / 2, canvas.height, 2000, particlesArray[i]); // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
 
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]);
     } // connectParticles(context)(particlesArray, 100);
 
 
@@ -5101,7 +4848,7 @@ var variation6 = function variation6() {
 };
 
 exports.variation6 = variation6;
-},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/released/rainbow-rake-orbit-mouse.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/rainbow-rake-orbit-mouse.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5113,6 +4860,8 @@ var _Particle = require("../lib/Particle");
 
 var _canvas = require("../lib/canvas");
 
+var _canvasParticles = require("../lib/canvas-particles");
+
 var drawRake = function drawRake(context) {
   return function (_ref, spacing) {
     var x = _ref.x,
@@ -5123,7 +4872,7 @@ var drawRake = function drawRake(context) {
     spacing |= radius * 3;
 
     for (var i = 0; i < points; i++) {
-      (0, _canvas.drawParticlePoint)(context)({
+      (0, _canvasParticles.drawParticlePoint)(context)({
         x: x + spacing * i,
         y: y,
         radius: radius,
@@ -5200,11 +4949,11 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
         mode = 1;
       }
 
-      (0, _Particle.attract)(attractor, particlesArray[i], mode, 2000);
+      particlesArray[i].attract(attractor, mode, 2000);
       particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
       particlesArray[i].updatePosWithVelocity();
       (0, _Particle.edgeBounce)(canvas, particlesArray[i]);
-      (0, _canvas.drawRotatedParticle)(context, drawRake, particlesArray[i]);
+      (0, _canvasParticles.drawRotatedParticle)(context, drawRake, particlesArray[i]);
       particlesArray[i].acceleration = {
         x: 0,
         y: 0
@@ -5220,7 +4969,109 @@ var rainbowRakeOrbit = function rainbowRakeOrbit() {
 };
 
 exports.rainbowRakeOrbit = rainbowRakeOrbit;
-},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"scripts/released/threeAttractors.js":[function(require,module,exports) {
+},{"../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js"}],"scripts/lib/grids.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createGridPointsUV = exports.createGridCellsXY = exports.createGridPointsXY = exports.createCirclePoints = void 0;
+
+var _math = require("./math");
+
+// [[x,y], ...]
+var createCirclePoints = function createCirclePoints(offsetX, offsetY, diameter, steps) {
+  var sx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+  var sy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
+  var points = [];
+
+  for (var theta = 0; theta < 360; theta += steps) {
+    var radius = theta * (Math.PI / 180);
+    var x = Math.cos(radius) * diameter + sx + offsetX;
+    var y = Math.sin(radius) * diameter + sy + offsetY;
+    points.push([x, y]);
+  }
+
+  return points;
+};
+
+exports.createCirclePoints = createCirclePoints;
+
+var createGridPointsXY = function createGridPointsXY(width, height, xMargin, yMargin, columns, rows) {
+  var gridPoints = [];
+  var colStep = Math.round((width - xMargin * 2) / (columns - 1));
+  var rowStep = Math.round((height - yMargin * 2) / (rows - 1));
+
+  for (var col = 0; col < columns; col++) {
+    var x = xMargin + col * colStep;
+
+    for (var row = 0; row < rows; row++) {
+      var y = yMargin + row * rowStep;
+      gridPoints.push([x, y]);
+    }
+  }
+
+  return {
+    points: gridPoints,
+    columnWidth: colStep,
+    rowHeight: rowStep
+  };
+};
+
+exports.createGridPointsXY = createGridPointsXY;
+
+var createGridCellsXY = function createGridCellsXY(width, height, columns, rows) {
+  var margin = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+  var gutter = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+  var points = [];
+  var colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
+  var rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
+
+  for (var row = 0; row < rows; row++) {
+    var y = margin + row * rowStep + gutter * row;
+
+    for (var col = 0; col < columns; col++) {
+      var x = margin + col * colStep + gutter * col;
+      points.push([x, y]);
+    }
+  }
+
+  return {
+    points: points,
+    columnWidth: colStep,
+    rowHeight: rowStep
+  };
+}; // -> [{radius, rotation, position:[u,v]}, ...]
+
+
+exports.createGridCellsXY = createGridCellsXY;
+
+var createGridPointsUV = function createGridPointsUV(columns, rows) {
+  rows = rows || columns;
+  var points = [];
+  var amplitude = 0.1;
+  var frequency = 1;
+
+  for (var x = 0; x < columns; x++) {
+    for (var y = 0; y < rows; y++) {
+      var u = columns <= 1 ? 0.5 : x / (columns - 1);
+      var v = columns <= 1 ? 0.5 : y / (rows - 1); // const radius = Math.abs(random.gaussian() * 0.02);
+
+      var radius = (0, _math.create2dNoiseAbs)(u, v);
+      var rotation = (0, _math.create2dNoiseAbs)(u, v);
+      points.push({
+        radius: radius,
+        rotation: rotation,
+        position: [u, v]
+      });
+    }
+  }
+
+  return points;
+};
+
+exports.createGridPointsUV = createGridPointsUV;
+},{"./math":"scripts/lib/math.js"}],"scripts/released/threeAttractors.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5233,6 +5084,10 @@ var _math = require("../lib/math");
 var _Particle = require("../lib/Particle");
 
 var _canvas = require("../lib/canvas");
+
+var _canvasParticles = require("../lib/canvas-particles");
+
+var _grids = require("../lib/grids");
 
 var threeAttractors = function threeAttractors() {
   var config = {// width: 500,
@@ -5276,7 +5131,7 @@ var threeAttractors = function threeAttractors() {
       mass: 10,
       g: 3
     };
-    gridPoints = (0, _math.createGridPointsXY)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50).points;
+    gridPoints = (0, _grids.createGridPointsXY)(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50).points;
     numParticles = gridPoints.length;
 
     for (var i = 0; i < numParticles; i++) {
@@ -5309,16 +5164,16 @@ var threeAttractors = function threeAttractors() {
 
     // background(canvas, context)({ r: 255, g: 255, b: 255, a: 0.001 });
     for (var i = 0; i < numParticles; i++) {
-      (0, _Particle.attract)(leftattractor, particlesArray[i], -1, attractorDist);
-      (0, _Particle.attract)(midattractor, particlesArray[i], 1, attractorDist);
-      (0, _Particle.attract)(rightattractor, particlesArray[i], -1, attractorDist);
+      particlesArray[i].attract(leftattractor, -1, attractorDist);
+      particlesArray[i].attract(midattractor, 1, attractorDist);
+      particlesArray[i].attract(rightattractor, -1, attractorDist);
       particlesArray[i].velocity = particlesArray[i].velocity.limit(10);
       particlesArray[i].updatePosWithVelocity(); // edgeBounce(canvas, particlesArray[i]);
 
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]);
     }
 
-    (0, _canvas.connectParticles)(context)(particlesArray, 50, false);
+    (0, _canvasParticles.connectParticles)(context)(particlesArray, 50, false);
   };
 
   return {
@@ -5329,7 +5184,7 @@ var threeAttractors = function threeAttractors() {
 };
 
 exports.threeAttractors = threeAttractors;
-},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js"}],"media/images/hi1.png":[function(require,module,exports) {
+},{"../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js","../lib/grids":"scripts/lib/grids.js"}],"media/images/hi1.png":[function(require,module,exports) {
 module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAIAAAD2HxkiAAAACXBIWXMAAAsTAAALEwEAmpwYAAALImlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDYgNzkuMTY0NjQ4LCAyMDIxLzAxLzEyLTE1OjUyOjI5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjIuMiAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjEtMDItMThUMDg6MzY6NDEtMDU6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIxLTAyLTE4VDE1OjM4OjUwLTA1OjAwIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjIwYjRjZTFjLWNkNjgtNDY0Mi05MDEzLWRmODI4MDkxZDgzMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmUxMjY0ODcyLThjYjMtYjY0MS1hODcxLWQyZmVjNzM5ZmMwMiIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmYyODI4NWFlLTMwNmItNDkwYy1iOTg3LTg1NDg3NDRiYmFiNCIgdGlmZjpPcmllbnRhdGlvbj0iMSIgdGlmZjpYUmVzb2x1dGlvbj0iNzIwMDAwLzEwMDAwIiB0aWZmOllSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiIGV4aWY6Q29sb3JTcGFjZT0iMSIgZXhpZjpQaXhlbFhEaW1lbnNpb249IjEwMCIgZXhpZjpQaXhlbFlEaW1lbnNpb249IjEwMCI+IDxwaG90b3Nob3A6VGV4dExheWVycz4gPHJkZjpCYWc+IDxyZGY6bGkgcGhvdG9zaG9wOkxheWVyTmFtZT0iSGkiIHBob3Rvc2hvcDpMYXllclRleHQ9IkhpIi8+IDwvcmRmOkJhZz4gPC9waG90b3Nob3A6VGV4dExheWVycz4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpmMjgyODVhZS0zMDZiLTQ5MGMtYjk4Ny04NTQ4NzQ0YmJhYjQiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMDg6MzY6NDEtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpkMDFhMjJkOC1mNGVlLTQ5YzEtYTFhZC1jYzA4MTU4NTM3MDUiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6MjYtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpiMjAyYTRkZC0yYjk5LTQxMDQtOGVkNC03MDUxZTE0MjgwMWIiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vdm5kLmFkb2JlLnBob3Rvc2hvcCB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImRlcml2ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImNvbnZlcnRlZCBmcm9tIGFwcGxpY2F0aW9uL3ZuZC5hZG9iZS5waG90b3Nob3AgdG8gaW1hZ2UvcG5nIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyMGI0Y2UxYy1jZDY4LTQ2NDItOTAxMy1kZjgyODA5MWQ4MzAiIHN0RXZ0OndoZW49IjIwMjEtMDItMThUMTU6Mzg6NTAtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMi4yIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpiMjAyYTRkZC0yYjk5LTQxMDQtOGVkNC03MDUxZTE0MjgwMWIiIHN0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";
 },{}],"scripts/released/hiImage01.js":[function(require,module,exports) {
 "use strict";
@@ -5346,6 +5201,10 @@ var _canvas = require("../lib/canvas");
 var _Particle = require("../lib/Particle");
 
 var _math = require("../lib/math");
+
+var _canvasParticles = require("../lib/canvas-particles");
+
+var _grids = require("../lib/grids");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5437,7 +5296,7 @@ var hiImage01 = function hiImage01(_) {
         particlesArray[i].color = particleColor;
       }
 
-      (0, _canvas.drawParticlePoint)(context)(particlesArray[i]);
+      (0, _canvasParticles.drawParticlePoint)(context)(particlesArray[i]);
     }
   };
 
@@ -5449,7 +5308,7 @@ var hiImage01 = function hiImage01(_) {
 };
 
 exports.hiImage01 = hiImage01;
-},{"../../media/images/hi1.png":"media/images/hi1.png","../lib/canvas":"scripts/lib/canvas.js","../lib/Particle":"scripts/lib/Particle.js","../lib/math":"scripts/lib/math.js"}],"node_modules/nice-color-palettes/100.json":[function(require,module,exports) {
+},{"../../media/images/hi1.png":"media/images/hi1.png","../lib/canvas":"scripts/lib/canvas.js","../lib/Particle":"scripts/lib/Particle.js","../lib/math":"scripts/lib/math.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js","../lib/grids":"scripts/lib/grids.js"}],"node_modules/nice-color-palettes/100.json":[function(require,module,exports) {
 module.exports = [["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#300030","#480048","#601848","#c04848","#f07241"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#73c8a9","#dee1b6","#e1b866","#bd5532","#373b44"],["#805841","#dcf7f3","#fffcdd","#ffd8d8","#f5a2a2"]];
 },{}],"scripts/lib/palettes.js":[function(require,module,exports) {
 "use strict";
@@ -5661,6 +5520,8 @@ var _math = require("../lib/math");
 
 var _Timeline = require("../lib/Timeline");
 
+var _grids = require("../lib/grids");
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -5680,7 +5541,7 @@ var windLines = function windLines() {
     fps: 60
   };
   var counter = 0;
-  var grid = (0, _math.createGridPointsUV)(15, 15);
+  var grid = (0, _grids.createGridPointsUV)(15, 15);
   var timeline = new _Timeline.Timeline(config.fps, 0, 5);
 
   var setup = function setup(_ref) {
@@ -5736,7 +5597,7 @@ var windLines = function windLines() {
 };
 
 exports.windLines = windLines;
-},{"../lib/canvas":"scripts/lib/canvas.js","../lib/palettes":"scripts/lib/palettes.js","../lib/math":"scripts/lib/math.js","../lib/Timeline":"scripts/lib/Timeline.js"}],"scripts/released/waves01.js":[function(require,module,exports) {
+},{"../lib/canvas":"scripts/lib/canvas.js","../lib/palettes":"scripts/lib/palettes.js","../lib/math":"scripts/lib/math.js","../lib/Timeline":"scripts/lib/Timeline.js","../lib/grids":"scripts/lib/grids.js"}],"scripts/released/waves01.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5930,7 +5791,68 @@ var waves01 = function waves01() {
 };
 
 exports.waves01 = waves01;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/math":"scripts/lib/math.js"}],"scripts/released/lissajous01.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/math":"scripts/lib/math.js"}],"scripts/lib/canvas-text.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.setTextAlignAllCenter = exports.setTextAlignLeftTop = exports.drawTextFilled = exports.textStyles = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _canvas = require("./canvas");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// https://www.cssfontstack.com/
+var textStyles = {
+  size: function size(s) {
+    return "".concat(s * _canvas.contextScale, "px \"Helvetica Neue\",Helvetica,Arial,sans-serif");
+  },
+  sansHelvetica: function sansHelvetica(s) {
+    return "".concat(s * _canvas.contextScale, "px \"Helvetica Neue\",Helvetica,Arial,sans-serif");
+  },
+  monoCourier: function monoCourier(s) {
+    return "".concat(s * _canvas.contextScale, "px \"Courier New\", Courier, \"Lucida Sans Typewriter\", \"Lucida Typewriter\", monospace");
+  },
+  monoLucidia: function monoLucidia(s) {
+    return "".concat(s * _canvas.contextScale, "px \"Lucida Sans Typewriter\", \"Lucida Console\", monaco, \"Bitstream Vera Sans Mono\", monospace");
+  },
+  serifGeorgia: function serifGeorgia(s) {
+    return "".concat(s * _canvas.contextScale, "px Georgia, Times, \"Times New Roman\", serif");
+  },
+  default: '16px "Helvetica Neue",Helvetica,Arial,sans-serif',
+  small: '12px "Helvetica Neue",Helvetica,Arial,sans-serif'
+};
+exports.textStyles = textStyles;
+
+var drawTextFilled = function drawTextFilled(context) {
+  return function (text, x, y, color, style) {
+    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.font = style || textStyles.sansHelvetica(16);
+    context.fillText(text, x, y); // https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics
+
+    return context.measureText(text);
+  };
+};
+
+exports.drawTextFilled = drawTextFilled;
+
+var setTextAlignLeftTop = function setTextAlignLeftTop(context) {
+  context.textAlign = 'left';
+  context.textBaseline = 'top';
+};
+
+exports.setTextAlignLeftTop = setTextAlignLeftTop;
+
+var setTextAlignAllCenter = function setTextAlignAllCenter(context) {
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+};
+
+exports.setTextAlignAllCenter = setTextAlignAllCenter;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./canvas":"scripts/lib/canvas.js"}],"scripts/released/lissajous01.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5945,6 +5867,10 @@ var _math = require("../lib/math");
 var _palettes = require("../lib/palettes");
 
 var _sketch = require("../lib/sketch");
+
+var _canvasText = require("../lib/canvas-text");
+
+var _grids = require("../lib/grids");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6033,7 +5959,7 @@ var lissajous01 = function lissajous01() {
     if (columns === 1) {
       curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
     } else {
-      grid = (0, _math.createGridCellsXY)(canvas.width, canvas.width, columns, columns, margin, margin / 2);
+      grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.width, columns, columns, margin, margin / 2);
       grid.points.forEach(function (point) {
         var x = point[0];
         var y = point[1];
@@ -6106,8 +6032,8 @@ var lissajous01 = function lissajous01() {
         // const color = `hsla(${h},${s}%,${l}%,${a})`;
 
         (0, _canvas.pixel)(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
-        (0, _canvas.setTextAlignLeftTop)(context);
-        (0, _canvas.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb, ", ").concat(ya, ", ").concat(yb), c.originX, c.originY + c.size + 10, colorText, _canvas.textStyles.size(10));
+        (0, _canvasText.setTextAlignLeftTop)(context);
+        (0, _canvasText.drawTextFilled)(context)("k=".concat(k, ", ").concat(xa, ", ").concat(xb, ", ").concat(ya, ", ").concat(yb), c.originX, c.originY + c.size + 10, colorText, _canvasText.textStyles.size(10));
       }
 
       tick++;
@@ -6122,15 +6048,19 @@ var lissajous01 = function lissajous01() {
 };
 
 exports.lissajous01 = lissajous01;
-},{"../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/palettes":"scripts/lib/palettes.js","../lib/sketch":"scripts/lib/sketch.js"}],"scripts/lib/attractors.js":[function(require,module,exports) {
+},{"../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/palettes":"scripts/lib/palettes.js","../lib/sketch":"scripts/lib/sketch.js","../lib/canvas-text":"scripts/lib/canvas-text.js","../lib/grids":"scripts/lib/grids.js"}],"scripts/lib/attractors.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.jongAttractor = exports.cliffordAttractor = exports.sinField = exports.diagLines = exports.simplexNoise3d = exports.simplexNoise2d = void 0;
+exports.renderField = exports.jongAttractor = exports.cliffordAttractor = exports.sinField = exports.diagLines = exports.simplexNoise3d = exports.simplexNoise2d = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _math = require("./math");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var TAU = Math.PI * 2;
 
@@ -6215,7 +6145,35 @@ var flowAtPoint = function flowAtPoint(x, y) {
 
   return theta * TAU;
 };
-},{"./math":"scripts/lib/math.js"}],"scripts/released/flow-field-particles.js":[function(require,module,exports) {
+
+var renderField = function renderField(_ref, context, fn) {
+  var width = _ref.width,
+      height = _ref.height;
+  var color = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'black';
+  var cell = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '50';
+  var length = arguments.length > 5 ? arguments[5] : undefined;
+  var mid = cell / 2;
+
+  for (var x = 0; x < width; x += cell) {
+    for (var y = 0; y < height; y += cell) {
+      var theta = fn(x, y);
+      var vect = (0, _math.uvFromAngle)(theta).setMag(length || mid);
+      var x1 = x + mid;
+      var y1 = y + mid;
+      var x2 = x1 + vect.x;
+      var y2 = y1 + vect.y;
+      context.strokeStyle = (0, _tinycolor.default)(color);
+      context.lineWidth = 1;
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.stroke();
+    }
+  }
+};
+
+exports.renderField = renderField;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/released/flow-field-particles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6608,7 +6566,43 @@ const renderImage = () => {
 exports.Bitmap = Bitmap;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./canvas":"scripts/lib/canvas.js","./math":"scripts/lib/math.js"}],"media/images/kristijan-arsov-woman-400.png":[function(require,module,exports) {
 module.exports = "/kristijan-arsov-woman-400.1e47e7ce.png";
-},{}],"scripts/released/flow-field-image.js":[function(require,module,exports) {
+},{}],"scripts/lib/canvas-paint.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.splatter = void 0;
+
+var _math = require("./math");
+
+var _canvas = require("./canvas");
+
+// "paint splatters" around center point
+var TAU = Math.PI * 2;
+
+var splatter = function splatter(context) {
+  return function (x, y, color, size) {
+    var amount = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 3;
+    var range = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 20;
+
+    for (var i = 0; i < amount; i++) {
+      var s = (0, _math.randomWholeBetween)(size * 0.25, size * 3); // circle dist
+
+      var radius = (0, _math.randomWholeBetween)(0, range);
+      var angle = (0, _math.randomNumberBetween)(0, TAU);
+      var xoff = radius * Math.cos(angle);
+      var yoff = radius * Math.sin(angle); // square dist
+      // const xoff = randomWholeBetween(-range, range);
+      // const yoff = randomWholeBetween(-range, range);
+
+      (0, _canvas.drawCircleFilled)(context)(x + xoff, y + yoff, s, color);
+    }
+  };
+};
+
+exports.splatter = splatter;
+},{"./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js"}],"scripts/released/flow-field-image.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6635,6 +6629,8 @@ var _palettes = require("../lib/palettes");
 var _Bitmap = require("../lib/Bitmap");
 
 var _kristijanArsovWoman = _interopRequireDefault(require("../../media/images/kristijan-arsov-woman-400.png"));
+
+var _canvasPaint = require("../lib/canvas-paint");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -6673,7 +6669,7 @@ var flowFieldImage = function flowFieldImage() {
         context = _ref.context;
     image.init(canvas, context);
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _canvas.renderField)(canvas, context, imageFlow, 'rgba(0,0,0,.15)', 50, 10);
+    (0, _attractors.renderField)(canvas, context, imageFlow, 'rgba(0,0,0,.15)', 50, 10);
   };
 
   var drawPixel = function drawPixel(canvas, context, particle, color) {
@@ -6709,7 +6705,7 @@ var flowFieldImage = function flowFieldImage() {
     drawPixel(canvas, context, particle, particleColor, size * sizeMult);
 
     if (Math.abs(theta) >= 5.7) {
-      (0, _canvas.splatter)(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
+      (0, _canvasPaint.splatter)(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
     }
 
     particle.acceleration = new _Vector.Vector(0, 0);
@@ -6747,7 +6743,7 @@ var flowFieldImage = function flowFieldImage() {
 };
 
 exports.flowFieldImage = flowFieldImage;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/kristijan-arsov-woman-400.png":"media/images/kristijan-arsov-woman-400.png"}],"scripts/released/radial-noise.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/kristijan-arsov-woman-400.png":"media/images/kristijan-arsov-woman-400.png","../lib/canvas-paint":"scripts/lib/canvas-paint.js"}],"scripts/released/radial-noise.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7037,7 +7033,7 @@ var flowFieldRibbons = function flowFieldRibbons() {
     canvasMidY = canvas.height / 2;
     maxRadius = canvas.width * 0.4;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _canvas.renderField)(canvas, context, noise, 'rgba(0,0,0,.15)', canvas.width / 10, 5);
+    (0, _attractors.renderField)(canvas, context, noise, 'rgba(0,0,0,.15)', canvas.width / 10, 5);
   };
 
   var ribbonLen = (0, _math.randomWholeBetween)(50, 1000);
@@ -7586,7 +7582,108 @@ var Box = /*#__PURE__*/function () {
 }();
 
 exports.Box = Box;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./utils":"scripts/lib/utils.js","./canvas":"scripts/lib/canvas.js","./Point":"scripts/lib/Point.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./utils":"scripts/lib/utils.js","./canvas":"scripts/lib/canvas.js","./Point":"scripts/lib/Point.js"}],"scripts/lib/canvas-textures.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.texturizeRect = exports.stippleRect = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("./math");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
+var stippleRect = function stippleRect(context) {
+  return function (x, y, width, height) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
+    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'ticks';
+    if (amount <= 0) return;
+    amount = Math.min(amount, 10);
+    context.save();
+    var region = new Path2D();
+    region.rect(x, y, width, height);
+    context.clip(region);
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var size = 3;
+    var colStep = (0, _math.mapRange)(1, 10, 20, 3, amount);
+    var rowStep = (0, _math.mapRange)(1, 10, 20, 3, amount);
+    context.strokeStyle = strokeColor;
+    context.lineWidth = 2;
+    context.lineCap = 'round';
+
+    for (var i = 0; i < width; i += colStep) {
+      for (var j = 0; j < height; j += rowStep) {
+        var tx = x + (0, _math.randomNormalWholeBetween)(i, i + colStep);
+        var ty = y + (0, _math.randomNormalWholeBetween)(j, j + rowStep);
+        var tx2 = tx + size;
+        var ty2 = ty + size * -1;
+        context.beginPath();
+        context.moveTo(tx, ty);
+        context.lineTo(tx2, ty2);
+        context.stroke();
+      }
+    }
+
+    context.restore();
+  };
+};
+
+exports.stippleRect = stippleRect;
+
+var texturizeRect = function texturizeRect(context) {
+  return function (x, y, width, height) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
+    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'circles';
+    if (amount <= 0) return;
+    context.save();
+    var region = new Path2D();
+    region.rect(x, y, width, height);
+    context.clip(region);
+    var half = width / 4;
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var lineWidth = 1;
+    var fillamount = amount * 100;
+
+    for (var i = 0; i < fillamount; i++) {
+      var tx = (0, _math.randomWholeBetween)(x, x + width);
+      var ty = (0, _math.randomWholeBetween)(y, y + height);
+      var size = (0, _math.randomWholeBetween)(half, width);
+      context.strokeStyle = strokeColor;
+      context.lineWidth = lineWidth;
+      context.beginPath();
+
+      if (mode === 'circles') {
+        context.arc(tx, ty, size, 0, Math.PI * 2, false);
+      } else if (mode === 'circles2') {
+        var _tx = (0, _math.randomNormalWholeBetween)(x, x + width);
+
+        var _ty = (0, _math.randomNormalWholeBetween)(y, y + height);
+
+        var _size = (0, _math.randomWholeBetween)(1, width);
+
+        context.arc(_tx, _ty, _size, 0, Math.PI * 2, false);
+      } else if (mode === 'xhatch') {
+        var tx2 = tx + size * (0, _math.randomSign)();
+        var ty2 = ty + size * (0, _math.randomSign)();
+        context.moveTo(tx, ty);
+        context.lineTo(tx2, ty2);
+      }
+
+      context.stroke();
+    }
+
+    context.restore();
+  };
+};
+
+exports.texturizeRect = texturizeRect;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7611,6 +7708,12 @@ var _Box = require("../lib/Box");
 var _attractors = require("../lib/attractors");
 
 var _Vector = require("../lib/Vector");
+
+var _canvasTextures = require("../lib/canvas-textures");
+
+var _canvasParticles = require("../lib/canvas-particles");
+
+var _grids = require("../lib/grids");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7643,7 +7746,7 @@ var shadedBoxes = function shadedBoxes() {
     var boxfg = [_palettes.bicPenBlue, boxwhite];
     var gridMargin = Math.round(canvas.width / 10);
     var gridGutter = Math.round(gridMargin / 4);
-    grid = (0, _math.createGridCellsXY)(canvas.width, canvas.height, 1, 10, gridMargin, gridGutter);
+    grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, 1, 10, gridMargin, gridGutter);
     grid.points.forEach(function (p, i) {
       boxes.push(new _Box.Box({
         canvas: canvas,
@@ -7681,7 +7784,7 @@ var shadedBoxes = function shadedBoxes() {
 
       b.children = particles; // texturizeRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx * 3 + 1, 'circles2');
 
-      (0, _canvas.stippleRect)(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
+      (0, _canvasTextures.stippleRect)(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
     }); // boxes.forEach((b) => {
     //     b.fill();
     // });
@@ -7717,15 +7820,15 @@ var shadedBoxes = function shadedBoxes() {
 };
 
 exports.shadedBoxes = shadedBoxes;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Box":"scripts/lib/Box.js","../lib/attractors":"scripts/lib/attractors.js","../lib/Vector":"scripts/lib/Vector.js"}],"media/images/rafaella-mendes-diniz-400.png":[function(require,module,exports) {
-module.exports = "/rafaella-mendes-diniz-400.03a9db22.png";
-},{}],"scripts/released/larrycarlson01.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/math":"scripts/lib/math.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Box":"scripts/lib/Box.js","../lib/attractors":"scripts/lib/attractors.js","../lib/Vector":"scripts/lib/Vector.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../lib/canvas-particles":"scripts/lib/canvas-particles.js","../lib/grids":"scripts/lib/grids.js"}],"media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":[function(require,module,exports) {
+module.exports = "/alexander-krivitskiy-2wOEPBkaH7o-unsplash.ebdb1070.png";
+},{}],"scripts/released/larrycarlson02.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.larrycarlson01 = void 0;
+exports.larrycarlson02 = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -7739,16 +7842,16 @@ var _palettes = require("../lib/palettes");
 
 var _Bitmap = require("../lib/Bitmap");
 
-var _rafaellaMendesDiniz = _interopRequireDefault(require("../../media/images/rafaella-mendes-diniz-400.png"));
+var _alexanderKrivitskiy2wOEPBkaH7oUnsplash = _interopRequireDefault(require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
 https://larrycarlson.com/collections/wavy-art-prints
  */
-var larrycarlson01 = function larrycarlson01() {
+var larrycarlson02 = function larrycarlson02() {
   var config = {
-    name: 'larrycarlson',
+    name: 'larrycarlson2',
     ratio: _sketch.ratio.square,
     // ratio: ratio.poster,
     // orientation: orientation.portrait,
@@ -7767,10 +7870,11 @@ var larrycarlson01 = function larrycarlson01() {
   var startY;
   var maxY;
   var margin = 50;
+  var ribbonThickness = 10;
 
   var backgroundColor = _palettes.paperWhite.clone();
 
-  var image = new _Bitmap.Bitmap(_rafaellaMendesDiniz.default);
+  var image = new _Bitmap.Bitmap(_alexanderKrivitskiy2wOEPBkaH7oUnsplash.default);
   var colorImageTop = (0, _tinycolor.default)('#ffeb00');
   var colorImageBottom = (0, _tinycolor.default)('#01ff4f');
   var colorLinesTop = (0, _tinycolor.default)('#ff01d7');
@@ -7793,138 +7897,71 @@ var larrycarlson01 = function larrycarlson01() {
     startY = margin;
     maxY = canvas.height - margin;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-  };
+  }; // const circleX = (theta, amp, freq) => Math.cos(theta / freq) * amp;
+  // const circleY = (theta, amp, freq) => Math.sin(theta / freq) * amp;
 
-  var circleX = function circleX(theta, amp, freq) {
-    return Math.cos(theta / freq) * amp;
-  };
-
-  var circleY = function circleY(theta, amp, freq) {
-    return Math.sin(theta / freq) * amp;
-  };
-
-  var horizontalSinWave = function horizontalSinWave(yoffset) {
-    var freq = 5;
-    var amp = 15;
-    var step = 2;
-    var theta = 0;
-
-    for (var x = startX; x < maxX; x += step) {
-      var y = circleY(theta, amp, freq) + yoffset;
-      (0, _canvas.pixel)(ctx)(x, y, pixelColor, 'circle', 2);
-      theta++;
-    }
-  };
-
-  var verticalSinWave = function verticalSinWave(xoffset) {
-    var freq = 5;
-    var amp = 15;
-    var step = 2;
-    var theta = 0;
-
-    for (var y = startY; y < maxY; y += step) {
-      var x = circleY(theta, amp, freq) + xoffset;
-      (0, _canvas.pixel)(ctx)(x, y, pixelColor, 'circle', 2);
-      theta++;
-    }
-  };
-
-  var fullScreenSin = function fullScreenSin(xoffset, yoffset) {
-    var freq = 30;
-    var amp = 5;
-    var step = 5;
-    var theta = 0;
-
-    for (var sx = startX; sx < maxX; sx += step) {
-      for (var sy = startY; sy < maxY; sy += step) {
-        var x = circleX(theta, amp, freq) + xoffset + sx;
-        var y = circleY(theta, amp, freq) + yoffset + sy;
-        plot(x + xoffset, y + yoffset);
-        theta++;
-      }
-    }
-  };
 
   var renderImage = function renderImage() {
-    var resolution = 10;
-    var border = margin / -2;
-    var freq = 15;
-    var amp = 3;
-    var theta = 0;
+    var resolution = ribbonThickness / 2;
+    var border = margin / -2; // const freq = 30;
+    // const amp = 1;
+    // let theta = 0;
 
     for (var x = startX + border; x < maxX - border; x += resolution) {
       for (var y = startY + border; y < maxY - border; y += resolution) {
         var pxcolor = image.pixelColorFromCanvas(x, y);
         var pxbrightness = pxcolor.getBrightness();
+        var bright = (0, _math.mapRange)(128, 255, 0, 50, pxbrightness);
 
         var color = _tinycolor.default.mix(colorImageTop, colorImageBottom, (0, _math.mapRange)(startY, maxY, 0, 100, y));
 
         var size = resolution;
+        if (pxbrightness > 128) color.brighten(bright);
 
         if (pxbrightness >= 70 && pxbrightness <= 100) {
           color.spin(30);
         }
 
-        if (pxbrightness >= 120 && pxbrightness <= 220) {
-          color.spin(-30);
-        }
+        if (pxbrightness >= 120 && pxbrightness <= 220) {// color.spin(-30);
+        } // const ox = circleX(theta, amp, freq) + x;
+        // const oy = circleY(theta, amp, freq) + y;
 
-        var ox = circleX(theta, amp, freq) + x;
-        var oy = circleY(theta, amp, freq) + y;
-        (0, _canvas.pixel)(ctx)(ox, oy, color, 'circle', size);
-        theta += 0.25;
+
+        (0, _canvas.pixel)(ctx)(x, y, color, 'circle', size); // theta += 0.25;
       }
     }
   };
 
-  var plot = function plot(x, y) {
-    if (x > startX && x < maxX && y > startY && y < maxY) {
-      var size = image.sizeFromPixelBrightness(x, y, 3, 128, 256);
-
-      var color = _tinycolor.default.mix(colorLinesTop, colorLinesBottom, (0, _math.mapRange)(startY, maxY, 0, 100, y));
-
-      (0, _canvas.pixel)(ctx)(x + 1, y, color.clone().darken(20), 'circle', size);
-      (0, _canvas.pixel)(ctx)(x, y, color, 'circle', size);
-    }
-  };
-
-  var drawRibbonPoint = function drawRibbonPoint(point, sideB) {
+  var drawRibbonPoint = function drawRibbonPoint(point, isOtherSide) {
     var x = point[0];
-    var y = point[1];
-    var size = image.sizeFromPixelBrightness(x, y, 10, 128, 255);
-    var jitterX = size;
-    var jitterY = 0;
+    var y = point[1]; // -2 +1 to keep from overlapping other ribbons and give it a min thickness of 1
 
-    if (false && sideB) {
-      jitterX = size * -1;
-      jitterY = size * -0.5;
+    var size = image.sizeFromPixelBrightness(x, y, ribbonThickness - 2, 128, 255) + 0.75;
+    var jitterX = 0; // size;
+    // let jitterY = 0;
+
+    if (isOtherSide) {
+      jitterX = size * -1; // jitterY = size * -0.25;
     }
 
-    ctx.lineTo(x + jitterX, y + jitterY);
+    ctx.lineTo(x + jitterX, y);
   };
 
   var drawRibbon = function drawRibbon(sideA, color) {
     var stroke = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var thickness = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-    var sideB = sideA.slice(); // .reverse();
-
-    var startx = sideA[0][0];
-    var starty = sideA[0][1];
-    var endx = sideB[0][0];
-    var endy = sideB[0][1];
     var rColor = (0, _tinycolor.default)(color).clone();
     var gradient = ctx.createLinearGradient(0, startY, 0, maxY);
     gradient.addColorStop(0, colorLinesTop.toRgbString());
     gradient.addColorStop(1, colorLinesBottom.toRgbString());
     ctx.beginPath();
-    ctx.moveTo(startx, starty);
-    sideA.forEach(function (w, i) {
+    ctx.moveTo(sideA[0], sideA[0]);
+    sideA.forEach(function (w) {
       drawRibbonPoint(w, false);
     });
-    sideB.forEach(function (w, i) {
+    sideA.reverse().forEach(function (w) {
       drawRibbonPoint(w, true);
     });
-    ctx.lineTo(startx, starty);
+    ctx.closePath();
 
     if (stroke) {
       ctx.strokeStyle = rColor.darken(70).toRgbString();
@@ -7949,35 +7986,21 @@ var larrycarlson01 = function larrycarlson01() {
    */
 
 
-  var plotDiagSinWave = function plotDiagSinWave(xoffset, yoffset) {
-    var freq = 30; // 30
-
-    var amp = 5; // 5
-
-    var y = 0;
-    var a = Math.PI / 3; // angle of the wave, 1 is 45
-
-    for (var x = 0; x < canvasWidth + 10; x++) {
-      var b = Math.sin(x / Math.PI) * 5; // x = y - Math.sin(y+x)
-
-      y = amp * Math.sin((y + b) / freq) + x * a;
-      plot(x + xoffset, y + yoffset);
-    }
-  };
-
   var getPointsDiagSinWave = function getPointsDiagSinWave(xoffset, yoffset) {
-    var freq = 30; // 30
+    var freq = 40; // 30
 
-    var amp = 5; // 5
+    var amp = 15; // 5
 
     var y = 0;
     var a = Math.PI / 3; // angle of the wave, 1 is 45
 
     var points = [];
 
-    for (var x = 0; x < canvasWidth + 10; x++) {
-      var b = x / Math.PI;
-      y = amp * Math.sin((y + b) / freq) + x * a;
+    for (var x = 0; x < canvasWidth; x++) {
+      var b = x; // Math.sin(x / Math.PI) * 2;
+      // y = amp * Math.sin((y + b) / freq) + x * a;
+
+      y = amp * Math.sin((y * a + b) / freq) + x * a;
       var px = x + xoffset;
       var py = y + yoffset;
 
@@ -7992,17 +8015,14 @@ var larrycarlson01 = function larrycarlson01() {
   var draw = function draw(_ref2) {
     var canvas = _ref2.canvas,
         context = _ref2.context;
-    // horizontalSinWave(startY);
-    // verticalSinWave(startX);
-    // fullScreenSin(0, 0);
     var points = [];
     renderImage();
 
-    for (var x = (imageWidth + 100) * -1; x < imageWidth * 2; x += 15) {
-      plotDiagSinWave(x, 0); // points.push(getPointsDiagSinWave(x, 0));
-    } // renderPoints(points);
+    for (var x = (imageWidth + 100) * -1; x < imageWidth * 2; x += ribbonThickness) {
+      points.push(getPointsDiagSinWave(x, 0));
+    }
 
-
+    renderPoints(points);
     return -1;
   };
 
@@ -8013,8 +8033,8 @@ var larrycarlson01 = function larrycarlson01() {
   };
 };
 
-exports.larrycarlson01 = larrycarlson01;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/rafaella-mendes-diniz-400.png":"media/images/rafaella-mendes-diniz-400.png"}],"scripts/variationsIndex.js":[function(require,module,exports) {
+exports.larrycarlson02 = larrycarlson02;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"}],"scripts/variationsIndex.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8060,7 +8080,7 @@ var _flowFieldRibbons2 = require("./released/flow-field-ribbons-2");
 
 var _shadedBoxes = require("./released/shaded-boxes");
 
-var _larrycarlson = require("./released/larrycarlson01");
+var _larrycarlson = require("./released/larrycarlson02");
 
 var variationsIndex = {
   1: {
@@ -8141,11 +8161,11 @@ var variationsIndex = {
   },
   20: {
     note: 'Render an image in the wavy art style of Larry Carlson',
-    sketch: _larrycarlson.larrycarlson01
+    sketch: _larrycarlson.larrycarlson02
   }
 };
 exports.variationsIndex = variationsIndex;
-},{"./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/windLines":"scripts/released/windLines.js","./released/waves01":"scripts/released/waves01.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/flow-field-particles":"scripts/released/flow-field-particles.js","./released/flow-field-arcs":"scripts/released/flow-field-arcs.js","./released/flow-field-image":"scripts/released/flow-field-image.js","./released/radial-noise":"scripts/released/radial-noise.js","./released/flow-field-ribbons":"scripts/released/flow-field-ribbons.js","./released/flow-field-ribbons-2":"scripts/released/flow-field-ribbons-2.js","./released/shaded-boxes":"scripts/released/shaded-boxes.js","./released/larrycarlson01":"scripts/released/larrycarlson01.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"./released/variation1":"scripts/released/variation1.js","./released/variation2":"scripts/released/variation2.js","./released/domokun":"scripts/released/domokun.js","./released/variation4":"scripts/released/variation4.js","./released/variation5":"scripts/released/variation5.js","./released/variation6":"scripts/released/variation6.js","./released/rainbow-rake-orbit-mouse":"scripts/released/rainbow-rake-orbit-mouse.js","./released/threeAttractors":"scripts/released/threeAttractors.js","./released/hiImage01":"scripts/released/hiImage01.js","./released/windLines":"scripts/released/windLines.js","./released/waves01":"scripts/released/waves01.js","./released/lissajous01":"scripts/released/lissajous01.js","./released/flow-field-particles":"scripts/released/flow-field-particles.js","./released/flow-field-arcs":"scripts/released/flow-field-arcs.js","./released/flow-field-image":"scripts/released/flow-field-image.js","./released/radial-noise":"scripts/released/radial-noise.js","./released/flow-field-ribbons":"scripts/released/flow-field-ribbons.js","./released/flow-field-ribbons-2":"scripts/released/flow-field-ribbons-2.js","./released/shaded-boxes":"scripts/released/shaded-boxes.js","./released/larrycarlson02":"scripts/released/larrycarlson02.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -8156,14 +8176,14 @@ var _variationsIndex = require("./variationsIndex");
 
 var _shadedBoxes = require("./released/shaded-boxes");
 
-var _larrycarlson = require("./released/larrycarlson01");
+var _larrycarlson = require("./released/larrycarlson02");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
 Explorations with generative code
 */
-var experimentalVariation = undefined; // const experimentalVariation = larrycarlson01;
+var experimentalVariation = undefined; // const experimentalVariation = larrycarlson02;
 
 var s = (0, _sketch.sketch)();
 
@@ -8215,7 +8235,7 @@ if (_variationsIndex.variationsIndex.hasOwnProperty(variationKey) && experimenta
 if (experimentalVariation) {
   s.run(experimentalVariation);
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variationsIndex":"scripts/variationsIndex.js","./released/shaded-boxes":"scripts/released/shaded-boxes.js","./released/larrycarlson01":"scripts/released/larrycarlson01.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variationsIndex":"scripts/variationsIndex.js","./released/shaded-boxes":"scripts/released/shaded-boxes.js","./released/larrycarlson02":"scripts/released/larrycarlson02.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -8243,7 +8263,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55835" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61955" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

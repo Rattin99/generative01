@@ -1,5 +1,6 @@
-import { edgeBounce, Particle, createRandomParticleValues, attract } from '../lib/Particle';
-import { drawRotatedParticle, background, drawParticlePoint } from '../lib/canvas';
+import { edgeBounce, Particle, createRandomParticleValues } from '../lib/Particle';
+import { background } from '../lib/canvas';
+import { drawParticlePoint, drawRotatedParticle } from '../lib/canvas-particles';
 
 const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
     const points = 5;
@@ -66,7 +67,7 @@ export const rainbowRakeOrbit = () => {
             } else {
                 mode = 1;
             }
-            attract(attractor, particlesArray[i], mode, 2000);
+            particlesArray[i].attract(attractor, mode, 2000);
             particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
             particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);

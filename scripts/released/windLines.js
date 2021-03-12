@@ -1,7 +1,8 @@
 import { background, drawLineAngle, setStokeColor } from '../lib/canvas';
 import { nicePalette } from '../lib/palettes';
-import { create3dNoiseAbs, createGridPointsUV, marginify, oneOf, toSinValue, uvFromAngle } from '../lib/math';
+import { create3dNoiseAbs, marginify, oneOf, toSinValue, uvFromAngle } from '../lib/math';
 import { Timeline } from '../lib/Timeline';
+import { createGridPointsUV } from '../lib/grids';
 
 export const windLines = () => {
     const config = {

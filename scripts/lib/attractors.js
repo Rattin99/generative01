@@ -1,4 +1,5 @@
-import { create2dNoise, create3dNoise, pointDistance, randomNumberBetween } from './math';
+import tinycolor from 'tinycolor2';
+import { create2dNoise, create3dNoise, pointDistance, randomNumberBetween, uvFromAngle } from './math';
 
 const TAU = Math.PI * 2;
 
@@ -54,4 +55,23 @@ const flowAtPoint = (x, y) => {
     // const theta = x * Math.sin(y) * scale; // scribble
     // const theta = Math.sin(x * scale) + Math.sin(y * scale); // diamonds
     return theta * TAU;
+};
+export const renderField = ({ width, height }, context, fn, color = 'black', cell = '50', length) => {
+    const mid = cell / 2;
+    for (let x = 0; x < width; x += cell) {
+        for (let y = 0; y < height; y += cell) {
+            const theta = fn(x, y);
+            const vect = uvFromAngle(theta).setMag(length || mid);
+            const x1 = x + mid;
+            const y1 = y + mid;
+            const x2 = x1 + vect.x;
+            const y2 = y1 + vect.y;
+            context.strokeStyle = tinycolor(color);
+            context.lineWidth = 1;
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+        }
+    }
 };

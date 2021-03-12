@@ -17,7 +17,7 @@ import { radialNoise } from './released/radial-noise';
 import { flowFieldRibbons } from './released/flow-field-ribbons';
 import { flowFieldRibbons2 } from './released/flow-field-ribbons-2';
 import { shadedBoxes } from './released/shaded-boxes';
-import { larrycarlson01 } from './released/larrycarlson01';
+import { larrycarlson02 } from './released/larrycarlson02';
 
 export const variationsIndex = {
     1: {
@@ -98,6 +98,6 @@ export const variationsIndex = {
     },
     20: {
         note: 'Render an image in the wavy art style of Larry Carlson',
-        sketch: larrycarlson01,
+        sketch: larrycarlson02,
     },
 };

@@ -2,11 +2,11 @@ import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
 import { randomWholeBetween, uvFromAngle, oneOf, randomPointAround, randomBoolean } from '../lib/math';
 import { Particle } from '../lib/Particle';
-import { background, renderField } from '../lib/canvas';
+import { background } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { palettes } from '../lib/palettes';
 import { Vector } from '../lib/Vector';
-import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/attractors';
+import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor, renderField } from '../lib/attractors';
 
 /*
 Based on

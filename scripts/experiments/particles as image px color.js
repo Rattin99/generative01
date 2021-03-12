@@ -1,7 +1,8 @@
 import sourcePng from '../../media/images/hi1.png';
-import { clearCanvas, drawMouse, drawSquareFilled, background, connectParticles } from '../lib/canvas';
+import { clearCanvas, drawSquareFilled, background } from '../lib/canvas';
 import { mapRange, randomNumberBetween, scalePointToCanvas } from '../lib/math';
 import { createRandomParticleValues, edgeBounce, Particle } from '../lib/Particle';
+import { connectParticles, drawMouse } from '../lib/canvas-particles';
 
 const getImageDataFromImage = (context) => (image) => {
     context.drawImage(image, 0, 0);

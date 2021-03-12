@@ -4,14 +4,6 @@ import { Vector } from './Vector';
 
 const MAX_COORD_HISTORY = 30;
 
-const limitArrayLen = (arr) => {
-    const arrLength = arr.length;
-    if (arrLength > MAX_COORD_HISTORY) {
-        arr.splice(0, arrLength - MAX_COORD_HISTORY);
-    }
-    return arr;
-};
-
 export class Particle {
     #x;
 
@@ -175,6 +167,20 @@ export class Particle {
         this.applyForce(vdrag);
     }
 
+    // https://www.youtube.com/watch?v=EpgB3cNhKPM
+    // mode 1 is attract, -1 is repel
+    // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
+    attract({ x, y, mass, g }, mode = 1, affectDist = 1000) {
+        if (pointDistance({ x, y }, { x: this.x, y: this.y }) < affectDist) {
+            g = g || 1;
+            const dir = new Vector(x, y).sub(new Vector(this.x, this.y));
+            const distanceSq = clamp(50, 5000, dir.magSq());
+            const strength = (mode * (g * (mass * this.mass))) / distanceSq;
+            const force = dir.setMag(strength);
+            this.applyForce(force);
+        }
+    }
+
     // draw() {
     //     this.drawFn(this);
     // }
@@ -188,51 +194,21 @@ export class Particle {
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
-export const pixel = (x, y, color, radius) => new Particle({ x, y, color, radius });
-
-export const psCanvasRandom = ({ width, height }) => ({
-    x: randomNumberBetween(0, width),
-    y: randomNumberBetween(0, height),
-});
-
 export const createRandomParticleValues = ({ width, height }) => {
     const vel = 2;
     const radius = randomNumberBetween(5, 10);
-    const coords = psCanvasRandom({ width, height });
     return {
         radius,
-        x: coords.x,
-        y: coords.y,
+        x: randomNumberBetween(0, width),
+        y: randomNumberBetween(0, height),
         mass: randomNumberBetween(1, 10),
         velocityX: randomNumberBetween(-vel, vel),
         velocityY: randomNumberBetween(-vel, vel),
         accelerationX: 0,
         accelerationY: 0,
         rotation: randomNumberBetween(-180, 180),
-        // color: { r: randomNumberBetween(100, 255), g: randomNumberBetween(100, 255), b: randomNumberBetween(100, 255) },
-        color: {
-            r: lerp(0, 255, coords.x / width),
-            g: randomNumberBetween(100, 255),
-            b: lerp(0, 255, coords.y / height),
-        },
+        color: { r: randomNumberBetween(100, 255), g: randomNumberBetween(100, 255), b: randomNumberBetween(100, 255) },
     };
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-// https://www.youtube.com/watch?v=EpgB3cNhKPM
-// mode 1 is attract, -1 is repel
-// const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
-export const attract = ({ x, y, mass, g }, particle, mode = 1, affectDist = 1000) => {
-    if (pointDistance({ x, y }, { x: particle.x, y: particle.y }) < affectDist) {
-        g = g || 1;
-        const dir = new Vector(x, y).sub(new Vector(particle.x, particle.y));
-        const distanceSq = clamp(50, 5000, dir.magSq());
-        const strength = (mode * (g * (mass * particle.mass))) / distanceSq;
-        const force = dir.setMag(strength);
-        particle.applyForce(force);
-    }
 };
 
 //----------------------------------------------------------------------------------------------------------------------

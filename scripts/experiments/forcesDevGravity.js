@@ -1,5 +1,6 @@
-import { edgeBounce, Particle, createRandomParticleValues, attract } from '../lib/Particle';
-import { drawRotatedParticle, background, drawRake } from '../lib/canvas';
+import { edgeBounce, Particle, createRandomParticleValues } from '../lib/Particle';
+import { background, drawRake } from '../lib/canvas';
+import { drawRotatedParticle } from '../lib/canvas-particles';
 
 export const forcesDevGravity = () => {
     const config = {
@@ -58,7 +59,7 @@ export const forcesDevGravity = () => {
             } else {
                 mode = 1;
             }
-            attract(attractor, particlesArray[i], mode, 2000);
+            particlesArray[i].attract(attractor, mode, 2000);
             particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
             particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);

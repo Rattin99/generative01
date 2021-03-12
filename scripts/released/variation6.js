@@ -1,5 +1,22 @@
-import { Particle, createRandomParticleValues, edgeBounce, gravityPoint } from '../lib/Particle';
-import { fillCanvas, drawParticlePoint } from '../lib/canvas';
+import { Particle, createRandomParticleValues, edgeBounce } from '../lib/Particle';
+import { fillCanvas } from '../lib/canvas';
+import { drawParticlePoint } from '../lib/canvas-particles';
+import { normalizeInverse, pointDistance, mapRange } from '../lib/math';
+
+const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
+    const distance = pointDistance({ x, y }, particle);
+    if (distance < radius) {
+        const dx = x - particle.x;
+        const dy = y - particle.y;
+        const forceDirectionX = dx / distance;
+        const forceDirectionY = dy / distance;
+        const force = normalizeInverse(0, radius, distance) * f * mult;
+        const tempX = forceDirectionX * force * particle.radius * 2;
+        const tempY = forceDirectionY * force * particle.radius * 2;
+        particle.x += tempX;
+        particle.y += tempY;
+    }
+};
 
 // Based on https://www.youtube.com/watch?v=j_BgnpMPxzM
 export const variation6 = () => {
@@ -9,9 +26,9 @@ export const variation6 = () => {
 
     const setup = ({ canvas, context }) => {
         for (let i = 0; i < numParticles; i++) {
-            const initValues = createRandomParticleValues(canvas);
-            initValues.color = { r: 255, g: 255, b: 255 };
-            particlesArray.push(new Particle(initValues));
+            const props = createRandomParticleValues(canvas);
+            props.color = { r: 255, g: 255, b: 255 };
+            particlesArray.push(new Particle(props));
         }
     };
 

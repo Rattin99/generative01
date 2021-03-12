@@ -1,6 +1,7 @@
 import { Particle, createRandomParticleValues } from '../lib/Particle';
-import { clearCanvas, connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas';
+import { clearCanvas } from '../lib/canvas';
 import { normalizeInverse, pointDistance, randomNumberBetween } from '../lib/math';
+import { connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas-particles';
 
 const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
     const distance = pointDistance({ x, y }, particle);
@@ -48,11 +49,10 @@ export const variation2 = () => {
         for (let i = 0; i < config.numParticles; i++) {
             particlesArray[i].radius -= config.decay;
             if (particlesArray[i].radius <= 0) {
-                const newValues = createRandomParticleValues(canvas);
-                const newCoords = mouse;
-                newValues.x = newCoords.x + randomNumberBetween(-10, 10);
-                newValues.y = newCoords.y + randomNumberBetween(-10, 10);
-                particlesArray[i].initValues(newValues);
+                const props = createRandomParticleValues(canvas);
+                props.x = mouse.x + randomNumberBetween(-10, 10);
+                props.y = mouse.y + randomNumberBetween(-10, 10);
+                particlesArray[i].initValues(props);
             }
             particlesArray[i].y += particlesArray[i].mass * (mouse.isDown ? 1 : 0.2);
             particlesArray[i].mass += 0.2 * config.gravity;

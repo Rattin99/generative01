@@ -1,6 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { background, connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas';
+import { background } from '../lib/canvas';
 import { create2dNoiseAbs, mapRange, pointDistance, randomNumberBetween } from '../lib/math';
+import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas-particles';
 
 /*
 Based on Coding Challenge #116​: Lissajous Curve Table https://www.youtube.com/watch?v=--6eyLO78CY

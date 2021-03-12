@@ -1,13 +1,14 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize, pointDistance } from '../lib/math';
 import { Particle, createRandomParticleValues } from '../lib/Particle';
-import { background, drawCircleFilled, splatter, renderField } from '../lib/canvas';
+import { background, drawCircleFilled } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { Vector } from '../lib/Vector';
-import { diagLines, simplexNoise2d, simplexNoise3d } from '../lib/attractors';
+import { diagLines, renderField, simplexNoise2d, simplexNoise3d } from '../lib/attractors';
 import { hslFromRange, warmWhite } from '../lib/palettes';
 import { Bitmap } from '../lib/Bitmap';
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
+import { splatter } from '../lib/canvas-paint';
 
 /*
 https://marcteyssier.com/projects/flowfield/

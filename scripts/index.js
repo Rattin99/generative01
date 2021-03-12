@@ -7,10 +7,10 @@ import { sketch } from './lib/sketch';
 import { variationsIndex } from './variationsIndex';
 
 import { shadedBoxes } from './released/shaded-boxes';
-import { larrycarlson01 } from './released/larrycarlson01';
+import { larrycarlson02 } from './released/larrycarlson02';
 
 const experimentalVariation = undefined;
-// const experimentalVariation = larrycarlson01;
+// const experimentalVariation = larrycarlson02;
 
 const s = sketch();
 

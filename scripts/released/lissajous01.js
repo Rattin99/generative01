@@ -1,15 +1,9 @@
-import {
-    background,
-    drawTextFilled,
-    textStyles,
-    pixel,
-    drawRect,
-    contextScale,
-    setTextAlignLeftTop,
-} from '../lib/canvas';
-import { create2dNoiseAbs, oneOf, pointDistance, randomWholeBetween, round2, createGridCellsXY } from '../lib/math';
+import { background, pixel, drawRect, contextScale } from '../lib/canvas';
+import { create2dNoiseAbs, oneOf, pointDistance, randomWholeBetween, round2 } from '../lib/math';
 import { brightest, darkest, nicePalette } from '../lib/palettes';
 import { ratio, scale } from '../lib/sketch';
+import { drawTextFilled, setTextAlignLeftTop, textStyles } from '../lib/canvas-text';
+import { createGridCellsXY } from '../lib/grids';
 
 class Curve {
     constructor(x, y, radius, angle, speed, noise) {

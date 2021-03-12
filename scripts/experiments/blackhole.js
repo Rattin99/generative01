@@ -1,7 +1,8 @@
 import { Particle, createRandomParticleValues } from '../lib/Particle';
-import { drawParticlePoint, background, drawPointTrail, drawCircleFilled } from '../lib/canvas';
+import { background, drawCircleFilled } from '../lib/canvas';
 import { clamp, mapRange, pointDistance, randomNumberBetween } from '../lib/math';
 import { Vector } from '../lib/Vector';
+import { drawParticlePoint, drawPointTrail } from '../lib/canvas-particles';
 
 // Based on Coding Train https://www.youtube.com/watch?v=Iaz9TqYWUmA
 // But it didn't work like his, idk the error - just making it "pretty"

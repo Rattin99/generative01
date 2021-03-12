@@ -1,6 +1,8 @@
-import { createRandomNumberArray, createGridPointsXY, mapRange } from '../lib/math';
-import { Particle, createRandomParticleValues, attract } from '../lib/Particle';
-import { background, connectParticles, drawParticlePoint } from '../lib/canvas';
+import { createRandomNumberArray, mapRange } from '../lib/math';
+import { Particle, createRandomParticleValues } from '../lib/Particle';
+import { background } from '../lib/canvas';
+import { connectParticles, drawParticlePoint } from '../lib/canvas-particles';
+import { createGridPointsXY } from '../lib/grids';
 
 export const testGrid = () => {
     const config = {
@@ -76,9 +78,9 @@ export const testGrid = () => {
             // } else {
             //     mode = 1;
             // }
-            attract(leftattractor, particlesArray[i], -1, attractorDist);
-            attract(midattractor, particlesArray[i], 1, attractorDist);
-            attract(rightattractor, particlesArray[i], -1, attractorDist);
+            particlesArray[i].attract(leftattractor, -1, attractorDist);
+            particlesArray[i].attract(midattractor, 1, attractorDist);
+            particlesArray[i].attract(rightattractor, -1, attractorDist);
 
             particlesArray[i].velocity = particlesArray[i].velocity.limit(10);
 
