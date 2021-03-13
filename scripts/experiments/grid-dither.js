@@ -17,6 +17,7 @@ export const gridDither = () => {
         // ratio: ratio.poster,
         // orientation: orientation.portrait,
         scale: scale.standard,
+        fps: 1,
     };
 
     let ctx;
@@ -59,9 +60,10 @@ export const gridDither = () => {
         startY = margin;
         maxY = canvas.height - margin;
 
-        numCells = canvas.width / 30;
+        numCells = 20; // Math.ceil(canvas.width / 40);
 
         grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells);
+        background(canvas, context)(backgroundColor);
     };
 
     const draw = ({ canvas, context }) => {

@@ -6503,7 +6503,7 @@ var Bitmap = /*#__PURE__*/function () {
     key: "pixelAverageGrey",
     value: function pixelAverageGrey(x, y) {
       var color = this.pixelColorRaw(x, y);
-      return 255 - Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
+      return Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
     }
   }, {
     key: "pixelTheta",
@@ -7713,15 +7713,13 @@ var spiralRect = function spiralRect(context) {
     var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
     var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
     if (amount <= 0) return;
-    amount = 11 - Math.min(amount, 10);
-    var ox = (0, _math.randomNormalWholeBetween)(x, x + width);
-    var oy = (0, _math.randomNormalWholeBetween)(y, y + height);
-    var numIttr = width * 5;
-    var radius = 0;
-    var maxRadius = width * 0.7;
+    var amountInv = 11 - Math.min(amount, 10);
+    var maxDim = Math.max(width, height);
+    var maxRadius = maxDim * 0.7;
+    var numIttr = maxDim * (amountInv * 0.8);
     var radIncr = maxRadius / numIttr;
-    var theta = (0, _math.randomNumberBetween)(0, TAU);
-    var thetaIncr = TAU / (amount * 10);
+    var thetaIncr = TAU / 50; // Math.floor(amount) * 0.05; // TAU / (Math.floor(amount) * 0.05);
+
     context.save();
     var strokeColor = (0, _tinycolor.default)(color).toRgbString();
     var lineWidth = 1;
@@ -7730,18 +7728,28 @@ var spiralRect = function spiralRect(context) {
     context.clip(region);
     context.strokeStyle = strokeColor;
     context.lineWidth = lineWidth;
-    context.beginPath();
-    context.moveTo(ox, oy);
+    var spirals = Math.ceil(amountInv);
 
-    for (var i = 0; i < numIttr; i++) {
-      radius += radIncr;
-      theta += thetaIncr;
-      var px = ox + radius * Math.cos(theta);
-      var py = oy + radius * Math.sin(theta);
-      context.lineTo(px, py);
+    for (var s = 0; s < spirals; s++) {
+      var ox = (0, _math.randomNormalWholeBetween)(x, x + width);
+      var oy = (0, _math.randomNormalWholeBetween)(y, y + height);
+      var theta = (0, _math.randomNumberBetween)(0, TAU);
+      var radius = 0;
+      context.beginPath();
+      context.moveTo(ox, oy);
+
+      for (var i = 0; i < numIttr; i++) {
+        radius += radIncr; // + Math.sin(i / 2);
+
+        theta += thetaIncr;
+        var px = ox + radius * Math.cos(theta);
+        var py = oy + radius * Math.sin(theta);
+        context.lineTo(px, py);
+      }
+
+      context.stroke();
     }
 
-    context.stroke();
     context.restore();
   };
 };
@@ -8435,7 +8443,8 @@ var gridDither = function gridDither() {
     ratio: _sketch.ratio.square,
     // ratio: ratio.poster,
     // orientation: orientation.portrait,
-    scale: _sketch.scale.standard
+    scale: _sketch.scale.standard,
+    fps: 1
   };
   var ctx;
   var canvasWidth;
@@ -8478,8 +8487,10 @@ var gridDither = function gridDither() {
     maxX = canvas.width - margin;
     startY = margin;
     maxY = canvas.height - margin;
-    numCells = canvas.width / 30;
+    numCells = 20; // Math.ceil(canvas.width / 40);
+
     grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells);
+    (0, _canvas.background)(canvas, context)(backgroundColor);
   };
 
   var draw = function draw(_ref2) {
@@ -8602,7 +8613,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61770" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53002" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

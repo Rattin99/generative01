@@ -87,18 +87,15 @@ export const texturizeRect = (context) => (
 
 export const spiralRect = (context) => (x, y, width, height, color = 'black', amount = 5) => {
     if (amount <= 0) return;
-    amount = 11 - Math.min(amount, 10);
-    const ox = randomNormalWholeBetween(x, x + width);
-    const oy = randomNormalWholeBetween(y, y + height);
+    const amountInv = 11 - Math.min(amount, 10);
 
-    const numIttr = width * 5;
+    const maxDim = Math.max(width, height);
+    const maxRadius = maxDim * 0.7;
 
-    let radius = 0;
-    const maxRadius = width * 0.7;
+    const numIttr = maxDim * (amountInv * 0.8);
     const radIncr = maxRadius / numIttr;
 
-    let theta = randomNumberBetween(0, TAU);
-    const thetaIncr = TAU / (amount * 10);
+    const thetaIncr = TAU / 50; // Math.floor(amount) * 0.05; // TAU / (Math.floor(amount) * 0.05);
 
     context.save();
 
@@ -109,18 +106,26 @@ export const spiralRect = (context) => (x, y, width, height, color = 'black', am
     context.clip(region);
     context.strokeStyle = strokeColor;
     context.lineWidth = lineWidth;
-    context.beginPath();
-    context.moveTo(ox, oy);
 
-    for (let i = 0; i < numIttr; i++) {
-        radius += radIncr;
-        theta += thetaIncr;
-        const px = ox + radius * Math.cos(theta);
-        const py = oy + radius * Math.sin(theta);
-        context.lineTo(px, py);
+    const spirals = Math.ceil(amountInv);
+    for (let s = 0; s < spirals; s++) {
+        const ox = randomNormalWholeBetween(x, x + width);
+        const oy = randomNormalWholeBetween(y, y + height);
+        let theta = randomNumberBetween(0, TAU);
+        let radius = 0;
+
+        context.beginPath();
+        context.moveTo(ox, oy);
+
+        for (let i = 0; i < numIttr; i++) {
+            radius += radIncr; // + Math.sin(i / 2);
+            theta += thetaIncr;
+            const px = ox + radius * Math.cos(theta);
+            const py = oy + radius * Math.sin(theta);
+            context.lineTo(px, py);
+        }
+
+        context.stroke();
     }
-
-    context.stroke();
-
     context.restore();
 };

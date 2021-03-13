@@ -69,7 +69,7 @@ export class Bitmap {
     // https://sighack.com/post/averaging-rgb-colors-the-right-way
     pixelAverageGrey(x, y) {
         const color = this.pixelColorRaw(x, y);
-        return 255 - Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
+        return Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
     }
 
     pixelTheta(x, y) {
