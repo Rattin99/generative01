@@ -7610,7 +7610,7 @@ exports.Box = Box;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.texturizeRect = exports.stippleRect = void 0;
+exports.spiralRect = exports.texturizeRect = exports.stippleRect = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -7619,6 +7619,8 @@ var _math = require("./math");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
+var TAU = Math.PI * 2;
+
 var stippleRect = function stippleRect(context) {
   return function (x, y, width, height) {
     var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
@@ -7686,13 +7688,10 @@ var texturizeRect = function texturizeRect(context) {
       if (mode === 'circles') {
         context.arc(tx, ty, size, 0, Math.PI * 2, false);
       } else if (mode === 'circles2') {
-        var _tx = (0, _math.randomNormalWholeBetween)(x, x + width);
-
-        var _ty = (0, _math.randomNormalWholeBetween)(y, y + height);
-
-        var _size = (0, _math.randomWholeBetween)(1, width);
-
-        context.arc(_tx, _ty, _size, 0, Math.PI * 2, false);
+        tx = (0, _math.randomNormalWholeBetween)(x, x + width);
+        ty = (0, _math.randomNormalWholeBetween)(y, y + height);
+        size = (0, _math.randomWholeBetween)(1, width);
+        context.arc(tx, ty, size, 0, Math.PI * 2, false);
       } else if (mode === 'xhatch') {
         var tx2 = tx + size * (0, _math.randomSign)();
         var ty2 = ty + size * (0, _math.randomSign)();
@@ -7708,6 +7707,46 @@ var texturizeRect = function texturizeRect(context) {
 };
 
 exports.texturizeRect = texturizeRect;
+
+var spiralRect = function spiralRect(context) {
+  return function (x, y, width, height) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
+    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    if (amount <= 0) return;
+    amount = 11 - Math.min(amount, 10);
+    var ox = (0, _math.randomNormalWholeBetween)(x, x + width);
+    var oy = (0, _math.randomNormalWholeBetween)(y, y + height);
+    var numIttr = width * 5;
+    var radius = 0;
+    var maxRadius = width * 0.7;
+    var radIncr = maxRadius / numIttr;
+    var theta = (0, _math.randomNumberBetween)(0, TAU);
+    var thetaIncr = TAU / (amount * 10);
+    context.save();
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var lineWidth = 1;
+    var region = new Path2D();
+    region.rect(x, y, width, height);
+    context.clip(region);
+    context.strokeStyle = strokeColor;
+    context.lineWidth = lineWidth;
+    context.beginPath();
+    context.moveTo(ox, oy);
+
+    for (var i = 0; i < numIttr; i++) {
+      radius += radIncr;
+      theta += thetaIncr;
+      var px = ox + radius * Math.cos(theta);
+      var py = oy + radius * Math.sin(theta);
+      context.lineTo(px, py);
+    }
+
+    context.stroke();
+    context.restore();
+  };
+};
+
+exports.spiralRect = spiralRect;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
 "use strict";
 
@@ -8359,7 +8398,9 @@ var larrycarlson03 = function larrycarlson03() {
 };
 
 exports.larrycarlson03 = larrycarlson03;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"}],"scripts/experiments/grid-dither.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"}],"media/images/hayley-catherine-CRporLYp750-unsplash.png":[function(require,module,exports) {
+module.exports = "/hayley-catherine-CRporLYp750-unsplash.9b232a0c.png";
+},{}],"scripts/experiments/grid-dither.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8383,10 +8424,11 @@ var _grids = require("../lib/grids");
 
 var _canvasTextures = require("../lib/canvas-textures");
 
-var _hi = _interopRequireDefault(require("../../media/images/hi1.png"));
+var _hayleyCatherineCRporLYp750Unsplash = _interopRequireDefault(require("../../media/images/hayley-catherine-CRporLYp750-unsplash.png"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import sourcePng from '../../media/images/hi1.png';
 var gridDither = function gridDither() {
   var config = {
     name: 'gridDither',
@@ -8408,11 +8450,10 @@ var gridDither = function gridDither() {
   var startY;
   var maxY;
   var margin = 50;
-  var ribbonThickness = 10;
 
   var backgroundColor = _palettes.paperWhite.clone();
 
-  var image = new _Bitmap.Bitmap(_hi.default);
+  var image = new _Bitmap.Bitmap(_hayleyCatherineCRporLYp750Unsplash.default);
 
   var foreColor = _palettes.bicPenBlue.clone();
 
@@ -8437,22 +8478,21 @@ var gridDither = function gridDither() {
     maxX = canvas.width - margin;
     startY = margin;
     maxY = canvas.height - margin;
-    numCells = canvas.width / 50;
-    var gridMargin = Math.round(canvas.width / 10);
-    var gridGutter = 0;
-    grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells, gridMargin, gridGutter);
-    (0, _canvas.background)(canvas, context)(backgroundColor);
-    grid.points.forEach(function (p, i) {
-      // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
-      var grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
-      var amount = (0, _math.mapRange)(0, 255, 1, 10, grey);
-      (0, _canvasTextures.stippleRect)(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount); // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
-    });
+    numCells = canvas.width / 30;
+    grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells);
   };
 
   var draw = function draw(_ref2) {
     var canvas = _ref2.canvas,
         context = _ref2.context;
+    (0, _canvas.background)(canvas, context)(backgroundColor);
+    grid.points.forEach(function (p, i) {
+      // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
+      var grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
+      var amount = (0, _math.mapRange)(0, 255, 1, 10, grey);
+      (0, _canvasTextures.spiralRect)(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount); // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
+      // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
+    });
     return -1;
   };
 
@@ -8464,7 +8504,7 @@ var gridDither = function gridDither() {
 };
 
 exports.gridDither = gridDither;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hi1.png":"media/images/hi1.png"}],"scripts/index.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"media/images/hayley-catherine-CRporLYp750-unsplash.png"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -8562,7 +8602,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51677" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61770" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

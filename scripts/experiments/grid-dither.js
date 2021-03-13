@@ -5,9 +5,10 @@ import { ratio, scale, orientation } from '../lib/sketch';
 import { bicPenBlue, paperWhite } from '../lib/palettes';
 import { Bitmap } from '../lib/Bitmap';
 import { createGridCellsXY } from '../lib/grids';
-import { stippleRect, texturizeRect } from '../lib/canvas-textures';
+import { spiralRect, stippleRect, texturizeRect } from '../lib/canvas-textures';
 
-import sourcePng from '../../media/images/hi1.png';
+// import sourcePng from '../../media/images/hi1.png';
+import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
 
 export const gridDither = () => {
     const config = {
@@ -31,7 +32,6 @@ export const gridDither = () => {
     let startY;
     let maxY;
     const margin = 50;
-    const ribbonThickness = 10;
 
     const backgroundColor = paperWhite.clone();
     const image = new Bitmap(sourcePng);
@@ -59,13 +59,12 @@ export const gridDither = () => {
         startY = margin;
         maxY = canvas.height - margin;
 
-        numCells = canvas.width / 50;
+        numCells = canvas.width / 30;
 
-        const gridMargin = Math.round(canvas.width / 10);
-        const gridGutter = 0;
+        grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells);
+    };
 
-        grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells, gridMargin, gridGutter);
-
+    const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor);
 
         grid.points.forEach((p, i) => {
@@ -74,12 +73,13 @@ export const gridDither = () => {
             const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
 
             const amount = mapRange(0, 255, 1, 10, grey);
-            stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
+            spiralRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
+            // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
             // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
         });
-    };
 
-    const draw = ({ canvas, context }) => -1;
+        return -1;
+    };
 
     return {
         config,

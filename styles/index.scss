@@ -2,7 +2,8 @@ body {
   position: relative;
   overflow: hidden;
   user-select: none;
-  background: radial-gradient(#999, #666);
+  //background: radial-gradient(#999, #666);
+  background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
 }
 
 #wrapper {
@@ -23,24 +24,23 @@ body {
   #canvas {
     position: relative;
     background: #000;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 0 8px 8px rgba(0, 0, 0, 0.1),
-    0 16px 16px rgba(0, 0, 0, 0.1), 4px 32px 32px rgba(0, 0, 0, 0.05),
-    8px 50px 64px rgba(0, 0, 0, 0.15);
+    //box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 0 8px 8px rgba(0, 0, 0, 0.1), 0 16px 16px rgba(0, 0, 0, 0.1), 4px 32px 32px rgba(0, 0, 0, 0.05), 8px 50px 64px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 4px 32px 32px rgba(0, 0, 0, 0.05), 8px 50px 64px rgba(0, 0, 0, 0.15);
   }
 }
 
 #notes {
   display: grid;
   grid-template-columns: 1fr auto;
-  background: rgba(black, 0.4);
+  background: white;//rgba(black, 0.9);
   padding: 0.75rem 1rem;
   margin-top: 1rem;
   user-select: text;
   font-size: 0.75rem;
   line-height: 1.3rem;
   font-family: sans-serif;
-  color: #eee !important;
-
+  color: #333 !important;
+  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.05), -4px -16px 16px rgba(0, 0, 0, 0.05), -8px -25px 32px rgba(0, 0, 0, 0.15);
   #note {
     margin: 0;
   }
@@ -48,7 +48,6 @@ body {
   #download {
     margin: 0;
     text-decoration: none;
-    color: #eee !important;
   }
 }
 

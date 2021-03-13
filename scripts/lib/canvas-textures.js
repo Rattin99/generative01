@@ -1,6 +1,8 @@
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
 import tinycolor from 'tinycolor2';
-import { mapRange, randomNormalWholeBetween, randomSign, randomWholeBetween } from './math';
+import { mapRange, randomNormalWholeBetween, randomNumberBetween, randomSign, randomWholeBetween } from './math';
+
+const TAU = Math.PI * 2;
 
 export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = 'ticks') => {
     if (amount <= 0) return;
@@ -33,6 +35,7 @@ export const stippleRect = (context) => (x, y, width, height, color = 'black', a
 
     context.restore();
 };
+
 export const texturizeRect = (context) => (
     x,
     y,
@@ -55,9 +58,9 @@ export const texturizeRect = (context) => (
     const fillamount = amount * mult;
 
     for (let i = 0; i < fillamount; i++) {
-        const tx = randomWholeBetween(x, x + width);
-        const ty = randomWholeBetween(y, y + height);
-        const size = randomWholeBetween(half, width);
+        let tx = randomWholeBetween(x, x + width);
+        let ty = randomWholeBetween(y, y + height);
+        let size = randomWholeBetween(half, width);
 
         context.strokeStyle = strokeColor;
         context.lineWidth = lineWidth;
@@ -66,9 +69,9 @@ export const texturizeRect = (context) => (
         if (mode === 'circles') {
             context.arc(tx, ty, size, 0, Math.PI * 2, false);
         } else if (mode === 'circles2') {
-            const tx = randomNormalWholeBetween(x, x + width);
-            const ty = randomNormalWholeBetween(y, y + height);
-            const size = randomWholeBetween(1, width);
+            tx = randomNormalWholeBetween(x, x + width);
+            ty = randomNormalWholeBetween(y, y + height);
+            size = randomWholeBetween(1, width);
             context.arc(tx, ty, size, 0, Math.PI * 2, false);
         } else if (mode === 'xhatch') {
             const tx2 = tx + size * randomSign();
@@ -79,5 +82,45 @@ export const texturizeRect = (context) => (
 
         context.stroke();
     }
+    context.restore();
+};
+
+export const spiralRect = (context) => (x, y, width, height, color = 'black', amount = 5) => {
+    if (amount <= 0) return;
+    amount = 11 - Math.min(amount, 10);
+    const ox = randomNormalWholeBetween(x, x + width);
+    const oy = randomNormalWholeBetween(y, y + height);
+
+    const numIttr = width * 5;
+
+    let radius = 0;
+    const maxRadius = width * 0.7;
+    const radIncr = maxRadius / numIttr;
+
+    let theta = randomNumberBetween(0, TAU);
+    const thetaIncr = TAU / (amount * 10);
+
+    context.save();
+
+    const strokeColor = tinycolor(color).toRgbString();
+    const lineWidth = 1;
+    const region = new Path2D();
+    region.rect(x, y, width, height);
+    context.clip(region);
+    context.strokeStyle = strokeColor;
+    context.lineWidth = lineWidth;
+    context.beginPath();
+    context.moveTo(ox, oy);
+
+    for (let i = 0; i < numIttr; i++) {
+        radius += radIncr;
+        theta += thetaIncr;
+        const px = ox + radius * Math.cos(theta);
+        const py = oy + radius * Math.sin(theta);
+        context.lineTo(px, py);
+    }
+
+    context.stroke();
+
     context.restore();
 };
