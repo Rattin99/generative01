@@ -2645,7 +2645,7 @@ var angleBetween = function angleBetween(a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.chaikin = exports.randomPointAround = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.mapToTau = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.averageNumArray = exports.randomChance = exports.randomBoolean = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.randomNormalWholeBetween = exports.randomNormalNumberBetween = exports.randomNormalBM2 = exports.randomNormalBM = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
+exports.chaikin = exports.randomPointAround = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.logInterval = exports.mapToTau = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.averageNumArray = exports.randomChance = exports.randomBoolean = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.randomNormalWholeBetween = exports.randomNormalNumberBetween = exports.randomNormalBM2 = exports.randomNormalBM = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -2962,6 +2962,24 @@ var mapToTau = function mapToTau(start, end, value) {
 
 exports.mapToTau = mapToTau;
 
+var logInterval = function logInterval(total_intervals, start, end) {
+  var startInterVal = 1;
+  var endInterval = total_intervals;
+  var minLog = Math.log(start);
+  var maxLog = Math.log(end);
+  var scale = (maxLog - minLog) / (endInterval - startInterVal);
+  var result = [];
+
+  for (var i = 1; i < total_intervals; i++) {
+    result.push(Math.exp(minLog + scale * (i - startInterVal)));
+  }
+
+  result.push(end);
+  return result;
+};
+
+exports.logInterval = logInterval;
+
 var marginify = function marginify(_ref) {
   var margin = _ref.margin,
       u = _ref.u,
@@ -3250,12 +3268,18 @@ exports.drawLine = drawLine;
 
 var drawLineAngle = function drawLineAngle(context) {
   return function (x1, y1, angle, length, strokeWidth, linecap) {
-    var vect = (0, _math.uvFromAngle)(angle).setMag(length);
-    var x2 = x1 + vect.x;
-    var y2 = y1 + vect.y;
+    var theta = Math.PI * angle / 180.0;
+    var x2 = x1 + length * Math.cos(theta);
+    var y2 = y1 + length * Math.sin(theta);
     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
   };
-};
+}; // export const drawLineAngleV = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
+//     const vect = uvFromAngle(angle).setMag(length);
+//     const x2 = x1 + vect.x;
+//     const y2 = y1 + vect.y;
+//     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
+// };
+
 
 exports.drawLineAngle = drawLineAngle;
 
@@ -7610,7 +7634,7 @@ exports.Box = Box;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.spiralRect = exports.texturizeRect = exports.stippleRect = void 0;
+exports.spiralRect = exports.texturizeRect = exports.stippleRect = exports.setTextureClippingMask = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -7620,24 +7644,34 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
 var TAU = Math.PI * 2;
+var intervals = (0, _math.logInterval)(10, 1, 10);
+var clipping = true;
+
+var setTextureClippingMask = function setTextureClippingMask() {
+  var v = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+  clipping = v;
+};
+
+exports.setTextureClippingMask = setTextureClippingMask;
 
 var stippleRect = function stippleRect(context) {
   return function (x, y, width, height) {
     var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
     var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
-    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'ticks';
+    var mult = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 1;
     if (amount <= 0) return; // amount = Math.min(amount, 10);
 
-    context.save();
-    var region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
+    if (clipping) {
+      context.save();
+      var region = new Path2D();
+      region.rect(x, y, width, height);
+      context.clip(region);
+    }
+
     var strokeColor = (0, _tinycolor.default)(color).toRgbString();
     var size = 3;
-    var colStep = width / amount; // mapRange(1, 10, 20, 3, amount);
-
-    var rowStep = height / amount; // mapRange(1, 10, 20, 3, amount);
-
+    var colStep = width / (0, _math.mapRange)(1, 10, 3, width / 3, amount) * mult;
+    var rowStep = height / (0, _math.mapRange)(1, 10, 3, height / 3, amount) * mult;
     context.strokeStyle = strokeColor;
     context.lineWidth = 2;
     context.lineCap = 'round';
@@ -7655,7 +7689,9 @@ var stippleRect = function stippleRect(context) {
       }
     }
 
-    context.restore();
+    if (clipping) {
+      context.restore();
+    }
   };
 };
 
@@ -7665,22 +7701,30 @@ var texturizeRect = function texturizeRect(context) {
   return function (x, y, width, height) {
     var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
     var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
-    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'circles';
-    var mult = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 100;
+    var mode = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'circles2';
+    var mult = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 1;
     if (amount <= 0) return;
-    context.save();
-    var region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
-    var half = width / 4;
-    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
-    var lineWidth = 1;
-    var fillamount = amount * mult;
 
-    for (var i = 0; i < fillamount; i++) {
+    if (clipping) {
+      context.save();
+      var region = new Path2D();
+      region.rect(x, y, width, height);
+      context.clip(region);
+    }
+
+    var quarter = width / 4;
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var lineWidth = 1; // const numIttr = mapRange(1, 10, 2, 200, amount) * mult;
+
+    var endValue = mode === 'xhatch' ? 100 : 25;
+    var numIttr = intervals[Math.round(amount) - 1] * (0, _math.mapRange)(1, 10, 1, endValue, amount) * mult;
+    var maxDim = Math.max(width, height);
+    var maxRadius = maxDim * 0.7;
+
+    for (var i = 0; i < numIttr; i++) {
       var tx = (0, _math.randomWholeBetween)(x, x + width);
       var ty = (0, _math.randomWholeBetween)(y, y + height);
-      var size = (0, _math.randomWholeBetween)(half, width);
+      var size = (0, _math.randomWholeBetween)(quarter, width);
       context.strokeStyle = strokeColor;
       context.lineWidth = lineWidth;
       context.beginPath();
@@ -7690,7 +7734,7 @@ var texturizeRect = function texturizeRect(context) {
       } else if (mode === 'circles2') {
         tx = (0, _math.randomNormalWholeBetween)(x, x + width);
         ty = (0, _math.randomNormalWholeBetween)(y, y + height);
-        size = (0, _math.randomWholeBetween)(1, width);
+        size = (0, _math.randomWholeBetween)(1, maxRadius);
         context.arc(tx, ty, size, 0, Math.PI * 2, false);
       } else if (mode === 'xhatch') {
         var tx2 = tx + size * (0, _math.randomSign)();
@@ -7702,7 +7746,9 @@ var texturizeRect = function texturizeRect(context) {
       context.stroke();
     }
 
-    context.restore();
+    if (clipping) {
+      context.restore();
+    }
   };
 };
 
@@ -7712,23 +7758,28 @@ var spiralRect = function spiralRect(context) {
   return function (x, y, width, height) {
     var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
     var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    var mult = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 1;
     if (amount <= 0) return;
-    var amountInv = 11 - Math.min(amount, 10);
     var maxDim = Math.max(width, height);
     var maxRadius = maxDim * 0.7;
-    var numIttr = maxDim * (amountInv * 0.8);
+    var fillamount = (0, _math.mapRange)(1, 10, 30, 150, amount) * mult;
+    var numIttr = fillamount; // maxDim * (amount * 0.8);
+
     var radIncr = maxRadius / numIttr;
     var thetaIncr = TAU / 50; // Math.floor(amount) * 0.05; // TAU / (Math.floor(amount) * 0.05);
 
-    context.save();
+    if (clipping) {
+      context.save();
+      var region = new Path2D();
+      region.rect(x, y, width, height);
+      context.clip(region);
+    }
+
     var strokeColor = (0, _tinycolor.default)(color).toRgbString();
     var lineWidth = 1;
-    var region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
     context.strokeStyle = strokeColor;
     context.lineWidth = lineWidth;
-    var spirals = Math.ceil(amountInv);
+    var spirals = intervals[Math.round(amount) - 1] * (0, _math.mapRange)(1, 10, 1, 15, amount) * mult;
 
     for (var s = 0; s < spirals; s++) {
       var ox = (0, _math.randomNormalWholeBetween)(x, x + width);
@@ -7750,7 +7801,9 @@ var spiralRect = function spiralRect(context) {
       context.stroke();
     }
 
-    context.restore();
+    if (clipping) {
+      context.restore();
+    }
   };
 };
 
@@ -8406,9 +8459,7 @@ var larrycarlson03 = function larrycarlson03() {
 };
 
 exports.larrycarlson03 = larrycarlson03;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"}],"media/images/hayley-catherine-CRporLYp750-unsplash.png":[function(require,module,exports) {
-module.exports = "/hayley-catherine-CRporLYp750-unsplash.9b232a0c.png";
-},{}],"scripts/experiments/grid-dither.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"}],"scripts/experiments/grid-dither.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8432,14 +8483,146 @@ var _grids = require("../lib/grids");
 
 var _canvasTextures = require("../lib/canvas-textures");
 
+var _hi = _interopRequireDefault(require("../../media/images/hi1.png"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
+var gridDither = function gridDither() {
+  var config = {
+    name: 'gridDither',
+    // ratio: ratio.square,
+    ratio: _sketch.ratio.golden,
+    orientation: _sketch.orientation.landscape,
+    scale: _sketch.scale.standard,
+    fps: 1
+  };
+  var ctx;
+  var canvasWidth;
+  var canvasHeight;
+  var canvasCenterX;
+  var canvasCenterY;
+  var centerRadius;
+  var imageWidth;
+  var imageHeight;
+  var startX;
+  var maxX;
+  var startY;
+  var maxY;
+  var margin = 50;
+
+  var backgroundColor = _palettes.paperWhite.clone();
+
+  var image = new _Bitmap.Bitmap(_hi.default);
+
+  var foreColor = _palettes.bicPenBlue.clone();
+
+  var rows;
+  var columns = [];
+
+  var setup = function setup(_ref) {
+    var canvas = _ref.canvas,
+        context = _ref.context;
+    image.init(canvas, context);
+    ctx = context; // canvasWidth = canvas.width;
+    // canvasHeight = canvas.height;
+    // canvasCenterX = canvas.width / 2;
+    // canvasCenterY = canvas.height / 2;
+    // centerRadius = canvas.height / 4;
+    //
+    // imageWidth = canvas.width - margin * 2;
+    // imageHeight = canvas.height - margin * 2;
+    //
+
+    startX = margin;
+    maxX = canvas.width - margin;
+    startY = margin;
+    maxY = canvas.height - margin;
+    rows = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, 1, 5);
+    rows.points.forEach(function (p, i) {
+      var c = (0, _grids.createGridCellsXY)(canvas.width, rows.rowHeight, 10, 1);
+      columns.push(c);
+    });
+    console.log(columns);
+    (0, _canvas.background)(canvas, context)(backgroundColor);
+  };
+
+  var draw = function draw(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context;
+    (0, _canvas.background)(canvas, context)(backgroundColor);
+    (0, _canvasTextures.setTextureClippingMask)(true);
+    columns.forEach(function (c, i) {
+      c.points.forEach(function (p, cell) {
+        // console.log(i, cell + 1);
+        var amount = cell + 1;
+
+        if (i === 0) {
+          (0, _canvasTextures.texturizeRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, 'circles');
+        }
+
+        if (i === 1) {
+          (0, _canvasTextures.texturizeRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, 'circles2');
+        }
+
+        if (i === 2) {
+          (0, _canvasTextures.texturizeRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, 'xhatch');
+        }
+
+        if (i === 3) {
+          (0, _canvasTextures.spiralRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
+        }
+
+        if (i === 4) {
+          (0, _canvasTextures.stippleRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
+        }
+      });
+    });
+    return -1;
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
+};
+
+exports.gridDither = gridDither;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hi1.png":"media/images/hi1.png"}],"media/images/hayley-catherine-CRporLYp750-unsplash.png":[function(require,module,exports) {
+module.exports = "/hayley-catherine-CRporLYp750-unsplash.9b232a0c.png";
+},{}],"scripts/experiments/grid-dither-image.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.gridDitherImage = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _math = require("../lib/math");
+
+var _canvas = require("../lib/canvas");
+
+var _sketch = require("../lib/sketch");
+
+var _palettes = require("../lib/palettes");
+
+var _Bitmap = require("../lib/Bitmap");
+
+var _grids = require("../lib/grids");
+
+var _canvasTextures = require("../lib/canvas-textures");
+
 var _hayleyCatherineCRporLYp750Unsplash = _interopRequireDefault(require("../../media/images/hayley-catherine-CRporLYp750-unsplash.png"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // import sourcePng from '../../media/images/hi1.png';
-var gridDither = function gridDither() {
+var gridDitherImage = function gridDitherImage() {
   var config = {
-    name: 'gridDither',
+    name: 'gridDitherImage',
     ratio: _sketch.ratio.square,
     // ratio: ratio.poster,
     // orientation: orientation.portrait,
@@ -8487,7 +8670,7 @@ var gridDither = function gridDither() {
     maxX = canvas.width - margin;
     startY = margin;
     maxY = canvas.height - margin;
-    numCells = 20; // Math.ceil(canvas.width / 40);
+    numCells = 10; // Math.ceil(canvas.width / 40);
 
     grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells);
     (0, _canvas.background)(canvas, context)(backgroundColor);
@@ -8497,10 +8680,11 @@ var gridDither = function gridDither() {
     var canvas = _ref2.canvas,
         context = _ref2.context;
     (0, _canvas.background)(canvas, context)(backgroundColor);
+    (0, _canvasTextures.setTextureClippingMask)(true);
     grid.points.forEach(function (p, i) {
       // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
-      var grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
-      var amount = (0, _math.mapRange)(0, 255, 1, 10, grey);
+      var grey = 255 - image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
+      var amount = (0, _math.mapRange)(50, 255, 1, 8, grey);
       (0, _canvasTextures.spiralRect)(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount); // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
       // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
     });
@@ -8514,7 +8698,7 @@ var gridDither = function gridDither() {
   };
 };
 
-exports.gridDither = gridDither;
+exports.gridDitherImage = gridDitherImage;
 },{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"media/images/hayley-catherine-CRporLYp750-unsplash.png"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -8528,13 +8712,15 @@ var _larrycarlson = require("./experiments/larrycarlson03");
 
 var _gridDither = require("./experiments/grid-dither");
 
+var _gridDitherImage = require("./experiments/grid-dither-image");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
 Explorations with generative code
 */
 // const experimentalVariation = undefined;
-var experimentalVariation = _gridDither.gridDither;
+var experimentalVariation = _gridDitherImage.gridDitherImage;
 var s = (0, _sketch.sketch)();
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
@@ -8585,7 +8771,7 @@ if (_variationsIndex.variationsIndex.hasOwnProperty(variationKey) && experimenta
 if (experimentalVariation) {
   s.run(experimentalVariation);
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variationsIndex":"scripts/variationsIndex.js","./experiments/larrycarlson03":"scripts/experiments/larrycarlson03.js","./experiments/grid-dither":"scripts/experiments/grid-dither.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variationsIndex":"scripts/variationsIndex.js","./experiments/larrycarlson03":"scripts/experiments/larrycarlson03.js","./experiments/grid-dither":"scripts/experiments/grid-dither.js","./experiments/grid-dither-image":"scripts/experiments/grid-dither-image.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -8613,7 +8799,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53002" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59535" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

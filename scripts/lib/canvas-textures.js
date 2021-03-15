@@ -1,20 +1,37 @@
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
 import tinycolor from 'tinycolor2';
-import { mapRange, randomNormalWholeBetween, randomNumberBetween, randomSign, randomWholeBetween } from './math';
+import {
+    logInterval,
+    mapRange,
+    randomNormalWholeBetween,
+    randomNumberBetween,
+    randomSign,
+    randomWholeBetween,
+} from './math';
 
 const TAU = Math.PI * 2;
+const intervals = logInterval(10, 1, 10);
+let clipping = true;
 
-export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mode = 'ticks') => {
+export const setTextureClippingMask = (v = true) => {
+    clipping = v;
+};
+
+export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mult = 1) => {
     if (amount <= 0) return;
     // amount = Math.min(amount, 10);
-    context.save();
-    const region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
+    if (clipping) {
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, width, height);
+        context.clip(region);
+    }
+
     const strokeColor = tinycolor(color).toRgbString();
     const size = 3;
-    const colStep = width / amount; // mapRange(1, 10, 20, 3, amount);
-    const rowStep = height / amount; // mapRange(1, 10, 20, 3, amount);
+
+    const colStep = (width / mapRange(1, 10, 3, width / 3, amount)) * mult;
+    const rowStep = (height / mapRange(1, 10, 3, height / 3, amount)) * mult;
 
     context.strokeStyle = strokeColor;
     context.lineWidth = 2;
@@ -33,7 +50,9 @@ export const stippleRect = (context) => (x, y, width, height, color = 'black', a
         }
     }
 
-    context.restore();
+    if (clipping) {
+        context.restore();
+    }
 };
 
 export const texturizeRect = (context) => (
@@ -43,24 +62,32 @@ export const texturizeRect = (context) => (
     height,
     color = 'black',
     amount = 5,
-    mode = 'circles',
-    mult = 100
+    mode = 'circles2',
+    mult = 1
 ) => {
     if (amount <= 0) return;
 
-    context.save();
-    const region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
-    const half = width / 4;
+    if (clipping) {
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, width, height);
+        context.clip(region);
+    }
+
+    const quarter = width / 4;
     const strokeColor = tinycolor(color).toRgbString();
     const lineWidth = 1;
-    const fillamount = amount * mult;
+    // const numIttr = mapRange(1, 10, 2, 200, amount) * mult;
+    const endValue = mode === 'xhatch' ? 100 : 25;
+    const numIttr = intervals[Math.round(amount) - 1] * mapRange(1, 10, 1, endValue, amount) * mult;
 
-    for (let i = 0; i < fillamount; i++) {
+    const maxDim = Math.max(width, height);
+    const maxRadius = maxDim * 0.7;
+
+    for (let i = 0; i < numIttr; i++) {
         let tx = randomWholeBetween(x, x + width);
         let ty = randomWholeBetween(y, y + height);
-        let size = randomWholeBetween(half, width);
+        let size = randomWholeBetween(quarter, width);
 
         context.strokeStyle = strokeColor;
         context.lineWidth = lineWidth;
@@ -71,7 +98,7 @@ export const texturizeRect = (context) => (
         } else if (mode === 'circles2') {
             tx = randomNormalWholeBetween(x, x + width);
             ty = randomNormalWholeBetween(y, y + height);
-            size = randomWholeBetween(1, width);
+            size = randomWholeBetween(1, maxRadius);
             context.arc(tx, ty, size, 0, Math.PI * 2, false);
         } else if (mode === 'xhatch') {
             const tx2 = tx + size * randomSign();
@@ -82,32 +109,38 @@ export const texturizeRect = (context) => (
 
         context.stroke();
     }
-    context.restore();
+    if (clipping) {
+        context.restore();
+    }
 };
 
-export const spiralRect = (context) => (x, y, width, height, color = 'black', amount = 5) => {
+export const spiralRect = (context) => (x, y, width, height, color = 'black', amount = 5, mult = 1) => {
     if (amount <= 0) return;
-    const amountInv = 11 - Math.min(amount, 10);
 
     const maxDim = Math.max(width, height);
     const maxRadius = maxDim * 0.7;
 
-    const numIttr = maxDim * (amountInv * 0.8);
+    const fillamount = mapRange(1, 10, 30, 150, amount) * mult;
+
+    const numIttr = fillamount; // maxDim * (amount * 0.8);
     const radIncr = maxRadius / numIttr;
 
     const thetaIncr = TAU / 50; // Math.floor(amount) * 0.05; // TAU / (Math.floor(amount) * 0.05);
 
-    context.save();
+    if (clipping) {
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, width, height);
+        context.clip(region);
+    }
 
     const strokeColor = tinycolor(color).toRgbString();
     const lineWidth = 1;
-    const region = new Path2D();
-    region.rect(x, y, width, height);
-    context.clip(region);
+
     context.strokeStyle = strokeColor;
     context.lineWidth = lineWidth;
 
-    const spirals = Math.ceil(amountInv);
+    const spirals = intervals[Math.round(amount) - 1] * mapRange(1, 10, 1, 15, amount) * mult;
     for (let s = 0; s < spirals; s++) {
         const ox = randomNormalWholeBetween(x, x + width);
         const oy = randomNormalWholeBetween(y, y + height);
@@ -127,5 +160,7 @@ export const spiralRect = (context) => (x, y, width, height, color = 'black', am
 
         context.stroke();
     }
-    context.restore();
+    if (clipping) {
+        context.restore();
+    }
 };

@@ -5,17 +5,17 @@ import { ratio, scale, orientation } from '../lib/sketch';
 import { bicPenBlue, paperWhite } from '../lib/palettes';
 import { Bitmap } from '../lib/Bitmap';
 import { createGridCellsXY } from '../lib/grids';
-import { spiralRect, stippleRect, texturizeRect } from '../lib/canvas-textures';
+import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect } from '../lib/canvas-textures';
 
-// import sourcePng from '../../media/images/hi1.png';
-import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
+import sourcePng from '../../media/images/hi1.png';
+// import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
 
 export const gridDither = () => {
     const config = {
         name: 'gridDither',
-        ratio: ratio.square,
-        // ratio: ratio.poster,
-        // orientation: orientation.portrait,
+        // ratio: ratio.square,
+        ratio: ratio.golden,
+        orientation: orientation.landscape,
         scale: scale.standard,
         fps: 1,
     };
@@ -39,8 +39,8 @@ export const gridDither = () => {
 
     const foreColor = bicPenBlue.clone();
 
-    let numCells;
-    let grid;
+    let rows;
+    const columns = [];
 
     const setup = ({ canvas, context }) => {
         image.init(canvas, context);
@@ -60,24 +60,65 @@ export const gridDither = () => {
         startY = margin;
         maxY = canvas.height - margin;
 
-        numCells = 20; // Math.ceil(canvas.width / 40);
+        rows = createGridCellsXY(canvas.width, canvas.height, 1, 5);
+        rows.points.forEach((p, i) => {
+            const c = createGridCellsXY(canvas.width, rows.rowHeight, 10, 1);
+            columns.push(c);
+        });
+        console.log(columns);
 
-        grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells);
         background(canvas, context)(backgroundColor);
     };
 
     const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor);
 
-        grid.points.forEach((p, i) => {
-            // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
+        setTextureClippingMask(true);
 
-            const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
-
-            const amount = mapRange(0, 255, 1, 10, grey);
-            spiralRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
-            // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
-            // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
+        columns.forEach((c, i) => {
+            c.points.forEach((p, cell) => {
+                // console.log(i, cell + 1);
+                const amount = cell + 1;
+                if (i === 0) {
+                    texturizeRect(context)(
+                        p[0],
+                        p[1] + c.rowHeight * i,
+                        c.columnWidth,
+                        c.rowHeight,
+                        foreColor,
+                        amount,
+                        'circles'
+                    );
+                }
+                if (i === 1) {
+                    texturizeRect(context)(
+                        p[0],
+                        p[1] + c.rowHeight * i,
+                        c.columnWidth,
+                        c.rowHeight,
+                        foreColor,
+                        amount,
+                        'circles2'
+                    );
+                }
+                if (i === 2) {
+                    texturizeRect(context)(
+                        p[0],
+                        p[1] + c.rowHeight * i,
+                        c.columnWidth,
+                        c.rowHeight,
+                        foreColor,
+                        amount,
+                        'xhatch'
+                    );
+                }
+                if (i === 3) {
+                    spiralRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
+                }
+                if (i === 4) {
+                    stippleRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
+                }
+            });
         });
 
         return -1;

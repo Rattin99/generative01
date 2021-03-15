@@ -83,11 +83,18 @@ export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth = 1, linecap =
 };
 
 export const drawLineAngle = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
-    const vect = uvFromAngle(angle).setMag(length);
-    const x2 = x1 + vect.x;
-    const y2 = y1 + vect.y;
+    const theta = (Math.PI * angle) / 180.0;
+    const x2 = x1 + length * Math.cos(theta);
+    const y2 = y1 + length * Math.sin(theta);
     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
 };
+
+// export const drawLineAngleV = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
+//     const vect = uvFromAngle(angle).setMag(length);
+//     const x2 = x1 + vect.x;
+//     const y2 = y1 + vect.y;
+//     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
+// };
 
 export const drawCircle = (context) => (strokeWidth, x, y, radius, color) => {
     if (color) {

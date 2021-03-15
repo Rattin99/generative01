@@ -176,6 +176,21 @@ export const toSinValue = (value) => Math.abs(Math.sin(value * TAU));
 
 export const mapToTau = (start, end, value) => mapRange(start, end, 0, TAU, value);
 
+export const logInterval = (total_intervals, start, end) => {
+    const startInterVal = 1;
+    const endInterval = total_intervals;
+    const minLog = Math.log(start);
+    const maxLog = Math.log(end);
+    const scale = (maxLog - minLog) / (endInterval - startInterVal);
+    const result = [];
+
+    for (let i = 1; i < total_intervals; i++) {
+        result.push(Math.exp(minLog + scale * (i - startInterVal)));
+    }
+    result.push(end);
+    return result;
+};
+
 export const marginify = ({ margin, u, v, width, height }) => ({
     x: lerp(margin, width - margin, u),
     y: lerp(margin, height - margin, v),
