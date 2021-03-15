@@ -5,7 +5,7 @@ import { ratio, scale, orientation } from '../lib/sketch';
 import { bicPenBlue, paperWhite } from '../lib/palettes';
 import { Bitmap } from '../lib/Bitmap';
 import { createGridCellsXY } from '../lib/grids';
-import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect } from '../lib/canvas-textures';
+import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect, linesRect } from '../lib/canvas-textures';
 
 import sourcePng from '../../media/images/hi1.png';
 // import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
@@ -13,9 +13,9 @@ import sourcePng from '../../media/images/hi1.png';
 export const gridDither = () => {
     const config = {
         name: 'gridDither',
-        // ratio: ratio.square,
-        ratio: ratio.golden,
-        orientation: orientation.landscape,
+        ratio: ratio.square,
+        // ratio: ratio.golden,
+        // orientation: orientation.landscape,
         scale: scale.standard,
         fps: 1,
     };
@@ -62,10 +62,9 @@ export const gridDither = () => {
 
         rows = createGridCellsXY(canvas.width, canvas.height, 1, 5);
         rows.points.forEach((p, i) => {
-            const c = createGridCellsXY(canvas.width, rows.rowHeight, 10, 1);
+            const c = createGridCellsXY(canvas.width, rows.rowHeight, 10, 1, 0, 10);
             columns.push(c);
         });
-        console.log(columns);
 
         background(canvas, context)(backgroundColor);
     };
@@ -73,13 +72,25 @@ export const gridDither = () => {
     const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor);
 
-        setTextureClippingMask(true);
+        setTextureClippingMask(false);
 
         columns.forEach((c, i) => {
             c.points.forEach((p, cell) => {
                 // console.log(i, cell + 1);
                 const amount = cell + 1;
-                if (i === 0) {
+                if (i === 2) {
+                    const theta = randomWholeBetween(0, Math.PI * 2);
+                    linesRect(context)(
+                        p[0],
+                        p[1] + c.rowHeight * i,
+                        c.columnWidth,
+                        c.rowHeight,
+                        foreColor,
+                        amount,
+                        theta
+                    );
+                }
+                /* if (i === 0) {
                     texturizeRect(context)(
                         p[0],
                         p[1] + c.rowHeight * i,
@@ -117,7 +128,7 @@ export const gridDither = () => {
                 }
                 if (i === 4) {
                     stippleRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
-                }
+                } */
             });
         });
 

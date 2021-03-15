@@ -5,7 +5,7 @@ import { ratio, scale, orientation } from '../lib/sketch';
 import { bicPenBlue, paperWhite } from '../lib/palettes';
 import { Bitmap } from '../lib/Bitmap';
 import { createGridCellsXY } from '../lib/grids';
-import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect } from '../lib/canvas-textures';
+import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect, linesRect } from '../lib/canvas-textures';
 
 // import sourcePng from '../../media/images/hi1.png';
 import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
@@ -62,24 +62,26 @@ export const gridDitherImage = () => {
 
         numCells = 10; // Math.ceil(canvas.width / 40);
 
-        grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells);
+        grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells, 0);
         background(canvas, context)(backgroundColor);
     };
 
     const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor);
 
-        setTextureClippingMask(true);
+        setTextureClippingMask(false);
 
         grid.points.forEach((p, i) => {
             // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
 
-            const grey = 255 - image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
+            const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
+            const theta = grey / 256;
 
-            const amount = mapRange(50, 255, 1, 8, grey);
-            spiralRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
+            const amount = mapRange(50, 255, 1, 8, 255 - grey);
+            // spiralRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
             // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
             // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
+            linesRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, theta);
         });
 
         return -1;

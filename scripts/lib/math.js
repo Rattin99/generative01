@@ -176,6 +176,7 @@ export const toSinValue = (value) => Math.abs(Math.sin(value * TAU));
 
 export const mapToTau = (start, end, value) => mapRange(start, end, 0, TAU, value);
 
+// https://stackoverflow.com/questions/38457053/find-n-logarithmic-intervals-between-two-end-points
 export const logInterval = (total_intervals, start, end) => {
     const startInterVal = 1;
     const endInterval = total_intervals;

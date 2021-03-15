@@ -2958,7 +2958,8 @@ exports.toSinValue = toSinValue;
 
 var mapToTau = function mapToTau(start, end, value) {
   return mapRange(start, end, 0, TAU, value);
-};
+}; // https://stackoverflow.com/questions/38457053/find-n-logarithmic-intervals-between-two-end-points
+
 
 exports.mapToTau = mapToTau;
 
@@ -3566,7 +3567,6 @@ var sketch = function sketch() {
       newWidth = bSide;
       newHeight = aSide;
     } else if (cfgOrientation === orientation.landscape && cfgRatio !== ratio.auto) {
-      console.log('land');
       newWidth = aSide;
       newHeight = bSide;
     }
@@ -7628,17 +7628,54 @@ var Box = /*#__PURE__*/function () {
 }();
 
 exports.Box = Box;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./utils":"scripts/lib/utils.js","./canvas":"scripts/lib/canvas.js","./Point":"scripts/lib/Point.js"}],"scripts/lib/canvas-textures.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./utils":"scripts/lib/utils.js","./canvas":"scripts/lib/canvas.js","./Point":"scripts/lib/Point.js"}],"scripts/lib/turtle.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.spiralRect = exports.texturizeRect = exports.stippleRect = exports.setTextureClippingMask = void 0;
+exports.plotLines = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var plotLines = function plotLines(context) {
+  return function (points) {
+    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'black';
+    var width = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+    context.beginPath();
+    context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
+    context.lineWidth = width;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+    points.forEach(function (coords, i) {
+      if (i === 0) {
+        context.moveTo(coords[0], coords[1]);
+      } else {
+        context.lineTo(coords[0], coords[1]);
+      }
+    });
+    context.stroke();
+  };
+};
+
+exports.plotLines = plotLines;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js"}],"scripts/lib/canvas-textures.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.linesRect = exports.spiralRect = exports.texturizeRect = exports.stippleRect = exports.setTextureClippingMask = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _math = require("./math");
+
+var _canvas = require("./canvas");
+
+var _turtle = require("./turtle");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7808,7 +7845,224 @@ var spiralRect = function spiralRect(context) {
 };
 
 exports.spiralRect = spiralRect;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
+
+var linesRect = function linesRect(context) {
+  return function (x, y, width, height) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
+    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    var theta = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
+    var mult = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 1;
+    if (amount <= 0) return;
+
+    if (clipping) {
+      context.save();
+      var region = new Path2D();
+      region.rect(x, y, width, height);
+      context.clip(region);
+    }
+
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var lineWidth = 1;
+    var yDelta = width * Math.sin(theta); // height of angle line
+
+    var steps = height / amount / 2; // keep centered
+
+    var yOff = steps / 2 - yDelta / 2;
+    var connectSide = 1;
+    var coords = {
+      x1: x,
+      y1: y,
+      x2: x,
+      y2: y
+    };
+    var lastCoords = {
+      x1: x,
+      y1: Math.min(y, y + yOff),
+      x2: x,
+      y2: Math.min(y, y + yOff)
+    };
+    (0, _canvas.drawRectFilled)(context)(x, y, width, height, '#ddd');
+    var points = [];
+
+    for (var i = 0; i < height; i += steps) {
+      coords = getLineCoords(x, yOff + y + i, width, theta); // draw bar
+
+      if (i === 0) {
+        points.push([coords.x1, coords.y1]);
+      }
+
+      if (connectSide === 1) {
+        // right
+        points.push([coords.x2, coords.y2]);
+        points.push([coords.x2, coords.y2 + steps]);
+      } else {
+        // left
+        points.push([coords.x1, coords.y1]);
+        points.push([coords.x1, coords.y1 + steps]);
+      }
+
+      connectSide *= -1;
+      lastCoords = coords;
+    }
+
+    (0, _turtle.plotLines)(context)(points, strokeColor, 5);
+
+    if (clipping) {
+      context.restore();
+    }
+  };
+};
+/*
+export const linesRect = (context) => (x, y, width, height, color = 'black', amount = 5, theta = 0, mult = 1) => {
+    if (amount <= 0) return;
+
+    if (clipping) {
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, width, height);
+        context.clip(region);
+    }
+
+    // theta = 0.5;
+
+    const centerH = Math.round(width / 2);
+    const centerV = Math.round(height / 2);
+    const quarter = width / 4;
+    const strokeColor = tinycolor(color).toRgbString();
+    const lineWidth = 1;
+    // const numIttr = mapRange(1, 10, 1, height / 2, amount);
+    const numIttr = (intervals[Math.round(amount) - 1] * mapRange(1, 10, 1, 15, amount) * mult) / 1;
+
+    const yDelta = width * Math.sin(theta); // height of angle line
+    const steps = height / amount / 2;
+    // keep centered
+    const yOff = steps / 2 - yDelta / 2;
+    let connectSide = -1;
+    let coords = { x1: x, y1: y, x2: x, y2: y };
+    let lastCoords = { x1: x, y1: Math.min(y, y + yOff), x2: x, y2: Math.min(y, y + yOff) };
+
+    drawRectFilled(context)(x, y, width, height, '#ddd');
+
+    // const maxx = x + width;
+    // const maxy = y + height;
+
+    const points = [];
+
+    for (let i = 0; i < height; i += steps) {
+        coords = getLineCoords(x, yOff + y + i, width, theta);
+
+        // if (coords.y1 < y) {
+        //     const a = coords.y1 - y;
+        //     const b = a / Math.atan(round2(theta));
+        //
+        //     context.beginPath();
+        //     context.strokeStyle = 'red';
+        //     // context.moveTo(x, y);
+        //     // context.lineTo(x, y + a);
+        //     context.moveTo(coords.x1, y);
+        //     context.lineTo(coords.x1 - b, y);
+        //     context.stroke();
+        // }
+        //
+        // if (coords.y2 > maxy) {
+        //     const a = coords.y2 - maxy;
+        //     const b = a / Math.atan(round2(theta));
+        //
+        //     context.beginPath();
+        //     context.strokeStyle = 'green';
+        //     // context.moveTo(maxx, maxy);
+        //     // context.lineTo(maxx, maxy + a);
+        //     context.moveTo(maxx, maxy);
+        //     context.lineTo(maxx - b, maxy);
+        //     context.stroke();
+        // }
+
+        // draw bar
+        context.beginPath();
+        context.strokeStyle = strokeColor;
+        context.lineWidth = lineWidth;
+        if(i === 0) {
+            context.moveTo(coords.x1, coords.y1);
+        } else {
+            context.moveTo(coords.x1, coords.y1);
+        }
+        context.moveTo(coords.x1, coords.y1);
+        context.lineTo(coords.x2, coords.y2);
+        points.push([coords.x1, coords.y1]);
+        points.push([coords.x2, coords.y2]);
+        context.stroke();
+
+        context.beginPath();
+        if (connectSide === -1) {
+            // left
+            context.moveTo(lastCoords.x1, lastCoords.y1);
+            context.lineTo(coords.x1, coords.y1);
+            points.push([lastCoords.x1, lastCoords.y1]);
+            points.push([coords.x1, coords.y1]);
+        } else {
+            // right
+            context.moveTo(lastCoords.x2, lastCoords.y2);
+            context.lineTo(coords.x2, coords.y2);
+            points.push([lastCoords.x2, lastCoords.y2]);
+            points.push([coords.x2, coords.y2]);
+        }
+        context.stroke();
+
+        connectSide *= -1;
+        lastCoords = coords;
+    }
+
+    context.beginPath();
+    if (connectSide === -1) {
+        // left
+        context.moveTo(lastCoords.x1, lastCoords.y1);
+        context.lineTo(x, y + height);
+        points.push([lastCoords.x1, lastCoords.y1]);
+        points.push([x, y + height]);
+    } else {
+        // right
+        context.moveTo(lastCoords.x2, lastCoords.y2);
+        context.lineTo(x + width, Math.max(coords.y2, y + height));
+        points.push([lastCoords.x2, lastCoords.y2]);
+        points.push([x + width, Math.max(coords.y2, y + height)]);
+    }
+    context.stroke();
+
+    // plotPoints(context)(points);
+
+    if (clipping) {
+        context.restore();
+    }
+};
+ */
+
+/*
+const theta = (Math.PI * angle) / 180.0;
+const x2 = x1 + length * Math.cos(theta);
+const y2 = y1 + length * Math.sin(theta);
+ */
+
+
+exports.linesRect = linesRect;
+
+var getLineCoords = function getLineCoords(x, y, length, theta) {
+  return {
+    x1: x,
+    y1: y,
+    x2: x + length,
+    // * Math.cos(theta),
+    y2: y + length * Math.sin(theta)
+  };
+};
+
+var checkBoundsLeft = function checkBoundsLeft(b, v) {
+  return v < b ? b : v;
+};
+
+var checkBoundsRight = function checkBoundsRight(b, v) {
+  return v > b ? b : v;
+};
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js","./turtle":"scripts/lib/turtle.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8491,9 +8745,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var gridDither = function gridDither() {
   var config = {
     name: 'gridDither',
-    // ratio: ratio.square,
-    ratio: _sketch.ratio.golden,
-    orientation: _sketch.orientation.landscape,
+    ratio: _sketch.ratio.square,
+    // ratio: ratio.golden,
+    // orientation: orientation.landscape,
     scale: _sketch.scale.standard,
     fps: 1
   };
@@ -8540,10 +8794,9 @@ var gridDither = function gridDither() {
     maxY = canvas.height - margin;
     rows = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, 1, 5);
     rows.points.forEach(function (p, i) {
-      var c = (0, _grids.createGridCellsXY)(canvas.width, rows.rowHeight, 10, 1);
+      var c = (0, _grids.createGridCellsXY)(canvas.width, rows.rowHeight, 10, 1, 0, 10);
       columns.push(c);
     });
-    console.log(columns);
     (0, _canvas.background)(canvas, context)(backgroundColor);
   };
 
@@ -8551,31 +8804,56 @@ var gridDither = function gridDither() {
     var canvas = _ref2.canvas,
         context = _ref2.context;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _canvasTextures.setTextureClippingMask)(true);
+    (0, _canvasTextures.setTextureClippingMask)(false);
     columns.forEach(function (c, i) {
       c.points.forEach(function (p, cell) {
         // console.log(i, cell + 1);
         var amount = cell + 1;
 
-        if (i === 0) {
-          (0, _canvasTextures.texturizeRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, 'circles');
-        }
-
-        if (i === 1) {
-          (0, _canvasTextures.texturizeRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, 'circles2');
-        }
-
         if (i === 2) {
-          (0, _canvasTextures.texturizeRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, 'xhatch');
+          var theta = (0, _math.randomWholeBetween)(0, Math.PI * 2);
+          (0, _canvasTextures.linesRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, theta);
         }
-
+        /* if (i === 0) {
+            texturizeRect(context)(
+                p[0],
+                p[1] + c.rowHeight * i,
+                c.columnWidth,
+                c.rowHeight,
+                foreColor,
+                amount,
+                'circles'
+            );
+        }
+        if (i === 1) {
+            texturizeRect(context)(
+                p[0],
+                p[1] + c.rowHeight * i,
+                c.columnWidth,
+                c.rowHeight,
+                foreColor,
+                amount,
+                'circles2'
+            );
+        }
+        if (i === 2) {
+            texturizeRect(context)(
+                p[0],
+                p[1] + c.rowHeight * i,
+                c.columnWidth,
+                c.rowHeight,
+                foreColor,
+                amount,
+                'xhatch'
+            );
+        }
         if (i === 3) {
-          (0, _canvasTextures.spiralRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
+            spiralRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
         }
-
         if (i === 4) {
-          (0, _canvasTextures.stippleRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
-        }
+            stippleRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
+        } */
+
       });
     });
     return -1;
@@ -8672,7 +8950,7 @@ var gridDitherImage = function gridDitherImage() {
     maxY = canvas.height - margin;
     numCells = 10; // Math.ceil(canvas.width / 40);
 
-    grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells);
+    grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells, 0);
     (0, _canvas.background)(canvas, context)(backgroundColor);
   };
 
@@ -8680,13 +8958,16 @@ var gridDitherImage = function gridDitherImage() {
     var canvas = _ref2.canvas,
         context = _ref2.context;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _canvasTextures.setTextureClippingMask)(true);
+    (0, _canvasTextures.setTextureClippingMask)(false);
     grid.points.forEach(function (p, i) {
       // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
-      var grey = 255 - image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
-      var amount = (0, _math.mapRange)(50, 255, 1, 8, grey);
-      (0, _canvasTextures.spiralRect)(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount); // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
+      var grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
+      var theta = grey / 256;
+      var amount = (0, _math.mapRange)(50, 255, 1, 8, 255 - grey); // spiralRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
+      // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
       // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
+
+      (0, _canvasTextures.linesRect)(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, theta);
     });
     return -1;
   };
@@ -8720,7 +9001,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Explorations with generative code
 */
 // const experimentalVariation = undefined;
-var experimentalVariation = _gridDitherImage.gridDitherImage;
+var experimentalVariation = _gridDither.gridDither;
 var s = (0, _sketch.sketch)();
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
@@ -8799,7 +9080,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59535" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53369" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

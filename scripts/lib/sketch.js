@@ -130,7 +130,6 @@ export const sketch = () => {
             newWidth = bSide;
             newHeight = aSide;
         } else if (cfgOrientation === orientation.landscape && cfgRatio !== ratio.auto) {
-            console.log('land');
             newWidth = aSide;
             newHeight = bSide;
         }

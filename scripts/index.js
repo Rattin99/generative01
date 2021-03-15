@@ -11,7 +11,7 @@ import { gridDither } from './experiments/grid-dither';
 import { gridDitherImage } from './experiments/grid-dither-image';
 
 // const experimentalVariation = undefined;
-const experimentalVariation = gridDitherImage;
+const experimentalVariation = gridDither;
 
 const s = sketch();
 
