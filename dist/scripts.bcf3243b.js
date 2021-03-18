@@ -2395,6 +2395,34 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 // Edited and expanded to match p5's vectors
 // ref - p5 vector https://p5js.org/reference/#/p5.Vector
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
+var fromAngles = function fromAngles(theta, phi) {
+  return new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi));
+};
+
+var randomDirection = function randomDirection() {
+  return fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
+};
+
+var min = function min(a, b) {
+  return new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
+};
+
+var max = function max(a, b) {
+  return new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
+};
+
+var lerp = function lerp(a, b, fraction) {
+  return b.sub(a).mult(fraction).add(a);
+};
+
+var fromArray = function fromArray(a) {
+  return new Vector(a[0], a[1], a[2]);
+};
+
+var angleBetween = function angleBetween(a, b) {
+  return a.angleTo(b);
+};
+
 var Vector = /*#__PURE__*/function () {
   function Vector(x, y, z) {
     _classCallCheck(this, Vector);
@@ -2426,13 +2454,13 @@ var Vector = /*#__PURE__*/function () {
     value: function mult(v) {
       if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
       return new Vector(this.x * v, this.y * v, this.z * v);
-    } // For Meander clone
-    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
+    } // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
 
   }, {
     key: "mix",
-    value: function mix(o, _mix) {
-      return this.mult(1 - _mix).add(o.mult(_mix));
+    value: function mix(b, fraction) {
+      // return this.mult(1 - mix).add(o.mult(mix));
+      return lerp(this, b, fraction);
     }
   }, {
     key: "div",
@@ -2459,12 +2487,6 @@ var Vector = /*#__PURE__*/function () {
     key: "length",
     value: function length() {
       return Math.sqrt(this.dot(this));
-    } // ? https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt#L36
-
-  }, {
-    key: "nLength",
-    value: function nLength() {
-      return this.length() > 0 ? this.length() : 0;
     }
   }, {
     key: "mag",
@@ -2628,34 +2650,6 @@ var unit = function unit(a, b) {
   b.y = a.y / length;
   b.z = a.z / length;
   return b;
-};
-
-var fromAngles = function fromAngles(theta, phi) {
-  return new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi));
-};
-
-var randomDirection = function randomDirection() {
-  return fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
-};
-
-var min = function min(a, b) {
-  return new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
-};
-
-var max = function max(a, b) {
-  return new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
-};
-
-var lerp = function lerp(a, b, fraction) {
-  return b.subtract(a).multiply(fraction).add(a);
-};
-
-var fromArray = function fromArray(a) {
-  return new Vector(a[0], a[1], a[2]);
-};
-
-var angleBetween = function angleBetween(a, b) {
-  return a.angleTo(b);
 };
 },{}],"scripts/lib/math.js":[function(require,module,exports) {
 "use strict";
@@ -3127,18 +3121,30 @@ var randomPointAround = function randomPointAround() {
     x: radius * Math.cos(angle),
     y: radius * Math.sin(angle)
   };
-}; // https://observablehq.com/@pamacha/chaikins-algorithm
+}; // https://github.com/Jam3/chaikin-smooth/blob/master/index.js
 
 
 exports.randomPointAround = randomPointAround;
 
-var chaikin = function chaikin(arr, num) {
-  if (num === 0) return arr;
-  var l = arr.length;
-  var smooth = arr.map(function (c, i) {
-    return [[0.75 * c[0] + 0.25 * arr[(i + 1) % l][0], 0.75 * c[1] + 0.25 * arr[(i + 1) % l][1]], [0.25 * c[0] + 0.75 * arr[(i + 1) % l][0], 0.25 * c[1] + 0.75 * arr[(i + 1) % l][1]]];
-  }).flat();
-  return num === 1 ? smooth : chaikin(smooth, num - 1);
+var chaikin = function chaikin(input) {
+  var itr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+  if (itr === 0) return input;
+  var output = [];
+
+  for (var i = 0; i < input.length - 1; i++) {
+    var p0 = input[i];
+    var p1 = input[i + 1];
+    var p0x = p0[0];
+    var p0y = p0[1];
+    var p1x = p1[0];
+    var p1y = p1[1];
+    var Q = [0.75 * p0x + 0.25 * p1x, 0.75 * p0y + 0.25 * p1y];
+    var R = [0.25 * p0x + 0.75 * p1x, 0.25 * p0y + 0.75 * p1y];
+    output.push(Q);
+    output.push(R);
+  }
+
+  return itr === 1 ? output : chaikin(output, itr - 1);
 }; // line intercept math by Paul Bourke http://paulbourke.net/geometry/pointlineplane/
 // Determine the intersection point of two line segments
 // Return FALSE if the lines don't intersect
@@ -9143,17 +9149,18 @@ var river = function river() {
   var canvasMidX;
   var canvasMidY;
   var backgroundColor = _palettes.warmWhite;
-  var riverColor = (0, _tinycolor.default)('rgba(0,0,0,.3'); // The length of the meander influence vector
+  var riverColor = _palettes.bicPenBlue; // The length of the meander influence vector
 
   var meanderStrength = 50; // The number of adjacent segments to evaluate when determining the curvature at a point in a contour
 
   var curvatureScale = 10; // Should always return in range [0.0, 1.0], where 1.0 is full bitangent influence, 0.0 is full tangent influence, and 0.5 is a perfect mix
 
-  var tangentBitangentRatio = 0.55; // chaikin smoothness itterations
+  var tangentBitangentRatio = 0.5; // chaikin smoothness itterations
 
   var smoothness = 1; // Larger curveMagnitude will make the meanders larger
 
-  var curveMagnitude = 2.5;
+  var curveMagnitude = 3; // 2.5
+
   var oxbowShrinkRate = 10;
   var indexNearnessMetric = Math.ceil(curvatureScale * 1.5);
   var oxbowNearnessMetric = 20;
@@ -9169,7 +9176,7 @@ var river = function river() {
 
     for (var i = startX; i < width; i += incr) {
       // Add a bulge in the middle
-      var midDist = Math.round((midx - Math.abs(i - midx)) * 0.5);
+      var midDist = Math.round((midx - Math.abs(i - midx)) * 3);
       var y = (0, _math.randomNormalWholeBetween)(startY - midDist, startY + midDist);
       coords.push([i, y]);
     }
@@ -9178,31 +9185,53 @@ var river = function river() {
     return coords;
   };
 
-  var drawChannel = function drawChannel(path, color) {
-    ctx.beginPath();
-    path.forEach(function (point, i) {
-      if (i === 0) {
-        ctx.moveTo(point[0], point[1]);
-      } else {
-        ctx.lineTo(point[0], point[1]);
+  var debugDrawVectors = function debugDrawVectors(segments) {
+    var tmult = 50;
+    var bmult = 50;
+    var mmult = 50;
+    var tan = 'red';
+    var bitan = 'blue';
+    var mx = 'purple';
+    segments.forEach(function (seg, i) {
+      if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
+        var x = seg.start.x;
+        var y = seg.start.y;
+        var tangent = seg.tangent,
+            bitangent = seg.bitangent,
+            mix = seg.mix;
+        var utan = tangent.setMag(1);
+        var ubitan = bitangent.setMag(1);
+        var umix = bitangent.setMag(1);
+        ctx.strokeStyle = (0, _tinycolor.default)(tan).toRgbString();
+        (0, _canvas.drawLine)(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
+        ctx.strokeStyle = (0, _tinycolor.default)(bitan).toRgbString();
+        (0, _canvas.drawLine)(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
+        ctx.strokeStyle = (0, _tinycolor.default)(mx).toRgbString();
+        (0, _canvas.drawLine)(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 1);
       }
     });
+  };
+
+  var drawChannelSegments = function drawChannelSegments(segments, color) {
+    ctx.beginPath();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    segments.forEach(function (seg, i) {
+      if (i === 0) {
+        ctx.moveTo(seg.start.x, seg.start.y);
+      } else {
+        ctx.lineTo(seg.start.x, seg.start.y);
+      }
+
+      ctx.lineTo(seg.end.x, seg.end.y);
+    });
     ctx.strokeStyle = color.toRgbString();
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 20;
     ctx.stroke();
   };
 
-  var setup = function setup(_ref3) {
-    var canvas = _ref3.canvas,
-        context = _ref3.context;
-    ctx = context;
-    canvasMidX = canvas.width / 2;
-    canvasMidY = canvas.height / 2;
-    (0, _canvas.background)(canvas, context)(backgroundColor); // create a line and distort points on a flow field
-    // steps need to produce an even number of points
-
-    var points = createSimplePath(canvas, 0, canvasMidY, 60);
-    channelSegments = segmentFromPoints(points);
+  var smooth = function smooth(points) {
+    return (0, _math.chaikin)(points, smoothness);
   };
 
   var averageCurvature = function averageCurvature(segments) {
@@ -9212,7 +9241,7 @@ var river = function river() {
       if (next < segments.length) {
         var o = segmentOrientation(seg);
         var nextO = segmentOrientation(segments[next]);
-        var cdiff = seg.orientation - nextO;
+        var cdiff = o - nextO;
 
         if (Math.abs(cdiff) > Math.PI && nextO > 0) {
           diffs += nextO - (o + 2 * Math.PI);
@@ -9228,36 +9257,9 @@ var river = function river() {
     return sum / segments.length;
   };
 
-  var debugDrawVectors = function debugDrawVectors(segments) {
-    var tmult = 30;
-    var bmult = 50;
-    var mmult = 50;
-    var tan = 'purple';
-    var bitan = 'green';
-    var mx = 'red';
-    segments.forEach(function (seg, i) {
-      if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
-        var x = seg.start.x;
-        var y = seg.start.y;
-        var tangent = seg.tangent,
-            bitangent = seg.bitangent,
-            mix = seg.mix;
-        var utan = tangent.setMag(1);
-        var ubitan = bitangent.setMag(1);
-        var umix = bitangent.setMag(1);
-        ctx.strokeStyle = (0, _tinycolor.default)(tan).toRgbString();
-        (0, _canvas.drawLine)(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 1);
-        ctx.strokeStyle = (0, _tinycolor.default)(bitan).toRgbString();
-        (0, _canvas.drawLine)(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 1);
-        ctx.strokeStyle = (0, _tinycolor.default)(mx).toRgbString();
-        (0, _canvas.drawLine)(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 1);
-      }
-    });
-  };
-
-  var influence = function influence(segment, i, all) {
-    var start = segment.start,
-        end = segment.end;
+  var influence = function influence(seg, i, all) {
+    var start = seg.start,
+        end = seg.end;
     var min = i < curvatureScale ? 0 : i - curvatureScale;
     var max = i > all.length - curvatureScale ? all.length : i + curvatureScale;
     var curvature = averageCurvature(all.slice(min, max));
@@ -9265,82 +9267,166 @@ var river = function river() {
     var tangent = end.sub(start);
     var biangle = tangent.angle() + 1.5708 * polarity; // 90 deg in rad
 
-    var bitangent = (0, _math.uvFromAngle)(biangle).setMag(tangent.mag());
-    segment.tangent = tangent;
-    segment.bitangent = bitangent; // console.log(tangent.angle(), bitangent.angle());
+    var bitangent = (0, _math.uvFromAngle)(biangle).setMag(Math.abs(curvature) * meanderStrength);
+    var a = tangent.normalize();
+    var b = bitangent.normalize();
+    var m = a.mix(b, tangentBitangentRatio); // .setMag(Math.abs(curvature) * meanderStrength);
 
-    /*
-    tangent.normalized.mix(bitan.normalized, tangentBitangentRatio(segment.start))
-    * abs(curvature)
-    * meanderStrength(segment.start)
-     */
-    // what does Vector2 return when you call it? getter? x,y, or length?
-    // console.log(
-    //     tangent.normalize().mix(bitangent.normalize(), segment.start.x).length()) *
-    //         Math.abs(curvature) *
-    //         segment.start.x
-    // );
-
-    return segment;
-  };
-
-  var smooth = function smooth(points) {
-    return (0, _math.chaikin)(points, smoothness);
+    return {
+      tangent: a,
+      bitangent: b,
+      mix: m
+    };
   };
 
   var meander = function meander(seg) {
     var firstFixedIndex = Math.round(seg.length * 0.05);
-    var lastFixedIndex = Math.round(seg.length * 0.85);
+    var lastFixedIndex = Math.round(seg.length * 0.95);
     var firstFixedPoints = seg.slice(0, firstFixedIndex);
-    var lastFixedPoints = seg.slice(lastFixedIndex, seg.length);
+    var lastFixedPoints = seg.slice(lastFixedIndex, seg.length); // .map { it.start } + segments.last().end
+
     var middleSegments = seg.slice(firstFixedIndex, lastFixedIndex);
-    middleSegments = middleSegments.map(influence);
-    return firstFixedPoints.concat(middleSegments).concat(lastFixedPoints);
-  };
+    var adjustedMiddleSegments = middleSegments.map(function (seg, i) {
+      var values = influence(seg, i + firstFixedIndex, middleSegments);
+      seg.start = seg.start.add(values.mix); // seg.end = seg.start.add(values.mix);
 
-  var updateChannel = function updateChannel(points) {
-    return points.map(function (point, i) {// let { x, y, tangent, bitangent } = point;
-      //
-      // // How should these be merged? Not just added
-      // const merged = tangent.add(tangent).add(bitangent);
-      //
-      // if (i !== 0 && i !== points.length - 1) {
-      //     x += merged.x;
-      //     y += merged.y;
-      // }
-      // return tPoint(x, y, merged);
+      return seg;
     });
+    return firstFixedPoints.concat(adjustedMiddleSegments).concat(lastFixedPoints);
   };
-  /*
-  Using the tangent and modified bitangent, we create a new vector that is a blend of the two. This new vector is
-  added to the position of each point on the curve. With this basic logic, the bends in the channel form organically.
-  The style of the bends can be influenced by adjusting the overall influence of these two vectors individually, and
-  the intensity of the bends can be adjusted by increasing the scale of the final blended vector.
-   */
 
-  /*
-  var polyline = meander(channel.segments)
-  polyline = smooth(polyline)
-  polyline = joinMeanders(polyline)
-  polyline = adjustSpacing(polyline)
-  polyline = smooth(polyline)
-  channel = ShapeContour.fromPoints(polyline, closed = false)
-  shrinkOxbows()
-  */
+  var potentialOxbow = function potentialOxbow(a, b, min) {
+    return (0, _math.pointDistance)({
+      x: a[0],
+      y: a[1]
+    }, {
+      x: b[0],
+      y: b[1]
+    }) < min;
+  };
 
+  var indicesAreNear = function indicesAreNear(a, b, min) {
+    return Math.abs(a - b) < indexNearnessMetric;
+  };
+
+  var addOxbow = function addOxbow(i, j) {// cut segments corresponding to points at i to j
+    // oxbows.push()
+  };
+
+  var joinMeanders = function joinMeanders(points) {
+    var line = [];
+
+    for (var i = 0; i < points.length; i++) {
+      var point = points[i];
+      line.push(point); // We only need to compare to the points "in front of" our current point -- we'll never join backwards
+
+      for (var j = i; j < points.length; j++) {
+        var other = points[j]; // check for proximity:
+        // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
+        // if (potentialOxbow(point, other) && !indicesAreNear(i, j)) {
+
+        if (potentialOxbow(point, other, oxbowNearnessMetric) && !indicesAreNear(i, j)) {
+          line.push(other);
+          addOxbow(i, j); // i will be incremented again below, but that's OK since we already added `points[j]` (a.k.a. `other`)
+
+          i = j;
+        }
+      }
+    }
+
+    return line;
+  };
+
+  var adjustSpacing = function adjustSpacing(points) {
+    return points.reduce(function (acc, point, i) {
+      if (i === 0 || i === points.length - 1) {
+        acc.push(point);
+        return acc;
+      }
+
+      var next = points[i + 1];
+      var targetDist = curveMagnitude;
+      var distance = (0, _math.pointDistance)({
+        x: point[0],
+        y: point[1]
+      }, {
+        x: next[0],
+        y: next[1]
+      }); // If too far apart, add a midpoint
+      // If too close, skip current point
+      // If neither too close nor too far, add the point normally
+
+      if (distance > targetDist) {
+        // ensure that for points with large distances between, an appropriate number of midpoints are added
+        var nMidpointsNeeded = Math.round(distance / targetDist) + 1;
+
+        for (var _i = 0; _i < nMidpointsNeeded; _i++) {
+          var _ratio = 1 / nMidpointsNeeded * _i;
+
+          var nx = (0, _math.lerp)(point[0], next[0], _ratio);
+          var ny = (0, _math.lerp)(point[1], next[1], _ratio);
+          acc.push([nx, ny]);
+        }
+      } else if (distance < targetDist * 0.3) {// remove it
+      } else {
+        acc.push(point);
+      }
+
+      return acc;
+    }, []);
+  };
+
+  var shrinkOxbows = function shrinkOxbows() {
+    return false;
+  };
+
+  var influenceVectors = function influenceVectors(segments) {
+    var showEvery = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    return segments.reduce(function (acc, seg, i) {
+      if (i % showEvery === 0) {
+        var values = influence(seg, i, segments);
+        seg.end = seg.start.add(values.mix);
+        acc.push(seg);
+      }
+
+      return acc;
+    }, []);
+  };
+
+  var setup = function setup(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
+    ctx = context;
+    canvasMidX = canvas.width / 2;
+    canvasMidY = canvas.height / 2;
+    (0, _canvas.background)(canvas, context)(backgroundColor);
+    var points = createSimplePath(canvas, 0, canvasMidY, 20);
+    points = (0, _math.chaikin)(points, 2);
+    channelSegments = segmentFromPoints(points);
+  };
 
   var draw = function draw(_ref4) {
     var canvas = _ref4.canvas,
         context = _ref4.context;
-    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(0.75));
-    channelSegments = meander(channelSegments);
-    var points = pointsFromSegment(channelSegments); // points = smooth(points);
+    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(0.01));
+    channelSegments = meander(channelSegments); // debugDrawVectors(channelSegments);
 
-    drawChannel(points, riverColor);
-    debugDrawVectors(channelSegments);
-    channelSegments = segmentFromPoints(points);
+    var points = pointsFromSegment(channelSegments); // points = chaikin(points, 1);
 
-    if (time === 0) {
+    points = joinMeanders(points);
+    points = adjustSpacing(points); // points = chaikin(points, 1);
+
+    channelSegments = segmentFromPoints(points); // channelSegments = influenceVectors(channelSegments, 2).map(
+    //     (seg) =>
+    //         // seg.start = seg.start.mult(1.5);
+    //         // seg.end = seg.end.mult(1.5);
+    //         seg
+    // );
+
+    drawChannelSegments(channelSegments, riverColor);
+
+    if (time === 500) {
+      console.log('DONE');
       return -1;
     }
 
@@ -9457,7 +9543,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53926" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58256" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

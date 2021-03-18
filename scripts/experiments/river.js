@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
-import { uvFromAngle, chaikin, randomNormalWholeBetween } from '../lib/math';
+import { uvFromAngle, randomNormalWholeBetween, chaikin, pointDistance, lerp } from '../lib/math';
 import { background, drawLine } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { bicPenBlue, palettes, warmWhite } from '../lib/palettes';
@@ -69,19 +69,18 @@ export const river = () => {
     let canvasMidX;
     let canvasMidY;
     const backgroundColor = warmWhite;
-    const riverColor = tinycolor('rgba(0,0,0,.3');
+    const riverColor = bicPenBlue;
 
     // The length of the meander influence vector
     const meanderStrength = 50;
     // The number of adjacent segments to evaluate when determining the curvature at a point in a contour
     const curvatureScale = 10;
     // Should always return in range [0.0, 1.0], where 1.0 is full bitangent influence, 0.0 is full tangent influence, and 0.5 is a perfect mix
-    const tangentBitangentRatio = 0.55;
+    const tangentBitangentRatio = 0.5;
     // chaikin smoothness itterations
     const smoothness = 1;
-
     // Larger curveMagnitude will make the meanders larger
-    const curveMagnitude = 2.5;
+    const curveMagnitude = 3; // 2.5
 
     const oxbowShrinkRate = 10;
     const indexNearnessMetric = Math.ceil(curvatureScale * 1.5);
@@ -95,42 +94,65 @@ export const river = () => {
         const midx = width / 2;
         for (let i = startX; i < width; i += incr) {
             // Add a bulge in the middle
-            const midDist = Math.round((midx - Math.abs(i - midx)) * 0.5);
+            const midDist = Math.round((midx - Math.abs(i - midx)) * 3);
             const y = randomNormalWholeBetween(startY - midDist, startY + midDist);
+
             coords.push([i, y]);
         }
         coords.push([width, startY]);
         return coords;
     };
 
-    const drawChannel = (path, color) => {
+    const debugDrawVectors = (segments) => {
+        const tmult = 50;
+        const bmult = 50;
+        const mmult = 50;
+        const tan = 'red';
+        const bitan = 'blue';
+        const mx = 'purple';
+
+        segments.forEach((seg, i) => {
+            if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
+                const { x } = seg.start;
+                const { y } = seg.start;
+                const { tangent, bitangent, mix } = seg;
+
+                const utan = tangent.setMag(1);
+                const ubitan = bitangent.setMag(1);
+                const umix = bitangent.setMag(1);
+
+                ctx.strokeStyle = tinycolor(tan).toRgbString();
+                drawLine(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
+
+                ctx.strokeStyle = tinycolor(bitan).toRgbString();
+                drawLine(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
+
+                ctx.strokeStyle = tinycolor(mx).toRgbString();
+                drawLine(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 1);
+            }
+        });
+    };
+
+    const drawChannelSegments = (segments, color) => {
         ctx.beginPath();
 
-        path.forEach((point, i) => {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        segments.forEach((seg, i) => {
             if (i === 0) {
-                ctx.moveTo(point[0], point[1]);
+                ctx.moveTo(seg.start.x, seg.start.y);
             } else {
-                ctx.lineTo(point[0], point[1]);
+                ctx.lineTo(seg.start.x, seg.start.y);
             }
+            ctx.lineTo(seg.end.x, seg.end.y);
         });
 
         ctx.strokeStyle = color.toRgbString();
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 20;
         ctx.stroke();
     };
 
-    const setup = ({ canvas, context }) => {
-        ctx = context;
-        canvasMidX = canvas.width / 2;
-        canvasMidY = canvas.height / 2;
-
-        background(canvas, context)(backgroundColor);
-
-        // create a line and distort points on a flow field
-        // steps need to produce an even number of points
-        const points = createSimplePath(canvas, 0, canvasMidY, 60);
-        channelSegments = segmentFromPoints(points);
-    };
+    const smooth = (points) => chaikin(points, smoothness);
 
     const averageCurvature = (segments) => {
         const sum = segments.reduce((diffs, seg, i) => {
@@ -138,7 +160,7 @@ export const river = () => {
             if (next < segments.length) {
                 const o = segmentOrientation(seg);
                 const nextO = segmentOrientation(segments[next]);
-                const cdiff = seg.orientation - nextO;
+                const cdiff = o - nextO;
                 if (Math.abs(cdiff) > Math.PI && nextO > 0) {
                     diffs += nextO - (o + 2 * Math.PI);
                 } else if (Math.abs(cdiff) > Math.PI && o > 0) {
@@ -152,38 +174,8 @@ export const river = () => {
         return sum / segments.length;
     };
 
-    const debugDrawVectors = (segments) => {
-        const tmult = 30;
-        const bmult = 50;
-        const mmult = 50;
-        const tan = 'purple';
-        const bitan = 'green';
-        const mx = 'red';
-
-        segments.forEach((seg, i) => {
-            if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
-                const { x } = seg.start;
-                const { y } = seg.start;
-                const { tangent, bitangent, mix } = seg;
-
-                const utan = tangent.setMag(1);
-                const ubitan = bitangent.setMag(1);
-                const umix = bitangent.setMag(1);
-
-                ctx.strokeStyle = tinycolor(tan).toRgbString();
-                drawLine(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 1);
-
-                ctx.strokeStyle = tinycolor(bitan).toRgbString();
-                drawLine(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 1);
-
-                ctx.strokeStyle = tinycolor(mx).toRgbString();
-                drawLine(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 1);
-            }
-        });
-    };
-
-    const influence = (segment, i, all) => {
-        const { start, end } = segment;
+    const influence = (seg, i, all) => {
+        const { start, end } = seg;
 
         const min = i < curvatureScale ? 0 : i - curvatureScale;
         const max = i > all.length - curvatureScale ? all.length : i + curvatureScale;
@@ -193,88 +185,147 @@ export const river = () => {
         const tangent = end.sub(start);
 
         const biangle = tangent.angle() + 1.5708 * polarity; // 90 deg in rad
-        const bitangent = uvFromAngle(biangle).setMag(tangent.mag());
+        const bitangent = uvFromAngle(biangle).setMag(Math.abs(curvature) * meanderStrength);
 
-        segment.tangent = tangent;
-        segment.bitangent = bitangent;
+        const a = tangent.normalize();
+        const b = bitangent.normalize();
+        const m = a.mix(b, tangentBitangentRatio); // .setMag(Math.abs(curvature) * meanderStrength);
 
-        // console.log(tangent.angle(), bitangent.angle());
-
-        /*
-        tangent.normalized.mix(bitan.normalized, tangentBitangentRatio(segment.start))
-        * abs(curvature)
-        * meanderStrength(segment.start)
-         */
-
-        // what does Vector2 return when you call it? getter? x,y, or length?
-
-        // console.log(
-        //     tangent.normalize().mix(bitangent.normalize(), segment.start.x).length()) *
-        //         Math.abs(curvature) *
-        //         segment.start.x
-        // );
-
-        return segment;
+        return {
+            tangent: a,
+            bitangent: b,
+            mix: m,
+        };
     };
-
-    const smooth = (points) => chaikin(points, smoothness);
 
     const meander = (seg) => {
         const firstFixedIndex = Math.round(seg.length * 0.05);
-        const lastFixedIndex = Math.round(seg.length * 0.85);
+        const lastFixedIndex = Math.round(seg.length * 0.95);
         const firstFixedPoints = seg.slice(0, firstFixedIndex);
-        const lastFixedPoints = seg.slice(lastFixedIndex, seg.length);
-        let middleSegments = seg.slice(firstFixedIndex, lastFixedIndex);
+        const lastFixedPoints = seg.slice(lastFixedIndex, seg.length); // .map { it.start } + segments.last().end
+        const middleSegments = seg.slice(firstFixedIndex, lastFixedIndex);
 
-        middleSegments = middleSegments.map(influence);
-
-        return firstFixedPoints.concat(middleSegments).concat(lastFixedPoints);
-    };
-
-    const updateChannel = (points) =>
-        points.map((point, i) => {
-            // let { x, y, tangent, bitangent } = point;
-            //
-            // // How should these be merged? Not just added
-            // const merged = tangent.add(tangent).add(bitangent);
-            //
-            // if (i !== 0 && i !== points.length - 1) {
-            //     x += merged.x;
-            //     y += merged.y;
-            // }
-            // return tPoint(x, y, merged);
+        const adjustedMiddleSegments = middleSegments.map((seg, i) => {
+            const values = influence(seg, i + firstFixedIndex, middleSegments);
+            seg.start = seg.start.add(values.mix);
+            // seg.end = seg.start.add(values.mix);
+            return seg;
         });
 
-    /*
-    Using the tangent and modified bitangent, we create a new vector that is a blend of the two. This new vector is
-    added to the position of each point on the curve. With this basic logic, the bends in the channel form organically.
-    The style of the bends can be influenced by adjusting the overall influence of these two vectors individually, and
-    the intensity of the bends can be adjusted by increasing the scale of the final blended vector.
-     */
-    /*
-   var polyline = meander(channel.segments)
-   polyline = smooth(polyline)
-   polyline = joinMeanders(polyline)
-   polyline = adjustSpacing(polyline)
-   polyline = smooth(polyline)
-   channel = ShapeContour.fromPoints(polyline, closed = false)
-   shrinkOxbows()
-    */
+        return firstFixedPoints.concat(adjustedMiddleSegments).concat(lastFixedPoints);
+    };
+
+    const potentialOxbow = (a, b, min) => pointDistance({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }) < min;
+    const indicesAreNear = (a, b, min) => Math.abs(a - b) < indexNearnessMetric;
+    const addOxbow = (i, j) => {
+        // cut segments corresponding to points at i to j
+        // oxbows.push()
+    };
+
+    const joinMeanders = (points) => {
+        const line = [];
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            line.push(point);
+
+            // We only need to compare to the points "in front of" our current point -- we'll never join backwards
+            for (let j = i; j < points.length; j++) {
+                const other = points[j];
+
+                // check for proximity:
+                // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
+                // if (potentialOxbow(point, other) && !indicesAreNear(i, j)) {
+                if (potentialOxbow(point, other, oxbowNearnessMetric) && !indicesAreNear(i, j)) {
+                    line.push(other);
+                    addOxbow(i, j);
+                    // i will be incremented again below, but that's OK since we already added `points[j]` (a.k.a. `other`)
+                    i = j;
+                }
+            }
+        }
+
+        return line;
+    };
+
+    const adjustSpacing = (points) =>
+        points.reduce((acc, point, i) => {
+            if (i === 0 || i === points.length - 1) {
+                acc.push(point);
+                return acc;
+            }
+
+            const next = points[i + 1];
+            const targetDist = curveMagnitude;
+            const distance = pointDistance({ x: point[0], y: point[1] }, { x: next[0], y: next[1] });
+
+            // If too far apart, add a midpoint
+            // If too close, skip current point
+            // If neither too close nor too far, add the point normally
+            if (distance > targetDist) {
+                // ensure that for points with large distances between, an appropriate number of midpoints are added
+                const nMidpointsNeeded = Math.round(distance / targetDist) + 1;
+                for (let i = 0; i < nMidpointsNeeded; i++) {
+                    const ratio = (1 / nMidpointsNeeded) * i;
+                    const nx = lerp(point[0], next[0], ratio);
+                    const ny = lerp(point[1], next[1], ratio);
+                    acc.push([nx, ny]);
+                }
+            } else if (distance < targetDist * 0.3) {
+                // remove it
+            } else {
+                acc.push(point);
+            }
+            return acc;
+        }, []);
+
+    const shrinkOxbows = () => false;
+
+    const influenceVectors = (segments, showEvery = 1) =>
+        segments.reduce((acc, seg, i) => {
+            if (i % showEvery === 0) {
+                const values = influence(seg, i, segments);
+                seg.end = seg.start.add(values.mix);
+                acc.push(seg);
+            }
+            return acc;
+        }, []);
+
+    const setup = ({ canvas, context }) => {
+        ctx = context;
+        canvasMidX = canvas.width / 2;
+        canvasMidY = canvas.height / 2;
+
+        background(canvas, context)(backgroundColor);
+
+        let points = createSimplePath(canvas, 0, canvasMidY, 20);
+        points = chaikin(points, 2);
+        channelSegments = segmentFromPoints(points);
+    };
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)(backgroundColor.clone().setAlpha(0.75));
+        background(canvas, context)(backgroundColor.clone().setAlpha(0.01));
 
         channelSegments = meander(channelSegments);
+        // debugDrawVectors(channelSegments);
 
-        const points = pointsFromSegment(channelSegments);
-        // points = smooth(points);
-
-        drawChannel(points, riverColor);
-        debugDrawVectors(channelSegments);
+        let points = pointsFromSegment(channelSegments);
+        // points = chaikin(points, 1);
+        points = joinMeanders(points);
+        points = adjustSpacing(points);
+        // points = chaikin(points, 1);
 
         channelSegments = segmentFromPoints(points);
 
-        if (time === 0) {
+        // channelSegments = influenceVectors(channelSegments, 2).map(
+        //     (seg) =>
+        //         // seg.start = seg.start.mult(1.5);
+        //         // seg.end = seg.end.mult(1.5);
+        //         seg
+        // );
+
+        drawChannelSegments(channelSegments, riverColor);
+        if (time === 500) {
+            console.log('DONE');
             return -1;
         }
 

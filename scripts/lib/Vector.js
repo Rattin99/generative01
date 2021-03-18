@@ -3,6 +3,15 @@
 // ref - p5 vector https://p5js.org/reference/#/p5.Vector
 // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
 
+const fromAngles = (theta, phi) =>
+    new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi));
+const randomDirection = () => fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
+const min = (a, b) => new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
+const max = (a, b) => new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
+const lerp = (a, b, fraction) => b.sub(a).mult(fraction).add(a);
+const fromArray = (a) => new Vector(a[0], a[1], a[2]);
+const angleBetween = (a, b) => a.angleTo(b);
+
 export class Vector {
     constructor(x, y, z) {
         this.x = x || 0;
@@ -29,10 +38,10 @@ export class Vector {
         return new Vector(this.x * v, this.y * v, this.z * v);
     }
 
-    // For Meander clone
     // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
-    mix(o, mix) {
-        return this.mult(1 - mix).add(o.mult(mix));
+    mix(b, fraction) {
+        // return this.mult(1 - mix).add(o.mult(mix));
+        return lerp(this, b, fraction);
     }
 
     div(v) {
@@ -54,11 +63,6 @@ export class Vector {
 
     length() {
         return Math.sqrt(this.dot(this));
-    }
-
-    // ? https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt#L36
-    nLength() {
-        return this.length() > 0 ? this.length() : 0;
     }
 
     mag() {
@@ -193,11 +197,3 @@ const unit = (a, b) => {
     b.z = a.z / length;
     return b;
 };
-const fromAngles = (theta, phi) =>
-    new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi));
-const randomDirection = () => fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
-const min = (a, b) => new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
-const max = (a, b) => new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
-const lerp = (a, b, fraction) => b.subtract(a).multiply(fraction).add(a);
-const fromArray = (a) => new Vector(a[0], a[1], a[2]);
-const angleBetween = (a, b) => a.angleTo(b);

@@ -216,17 +216,26 @@ export const randomPointAround = (range = 20) => {
     return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
 };
 
-// https://observablehq.com/@pamacha/chaikins-algorithm
-export const chaikin = (arr, num) => {
-    if (num === 0) return arr;
-    const l = arr.length;
-    const smooth = arr
-        .map((c, i) => [
-            [0.75 * c[0] + 0.25 * arr[(i + 1) % l][0], 0.75 * c[1] + 0.25 * arr[(i + 1) % l][1]],
-            [0.25 * c[0] + 0.75 * arr[(i + 1) % l][0], 0.25 * c[1] + 0.75 * arr[(i + 1) % l][1]],
-        ])
-        .flat();
-    return num === 1 ? smooth : chaikin(smooth, num - 1);
+// https://github.com/Jam3/chaikin-smooth/blob/master/index.js
+export const chaikin = (input, itr = 1) => {
+    if (itr === 0) return input;
+    const output = [];
+
+    for (let i = 0; i < input.length - 1; i++) {
+        const p0 = input[i];
+        const p1 = input[i + 1];
+        const p0x = p0[0];
+        const p0y = p0[1];
+        const p1x = p1[0];
+        const p1y = p1[1];
+
+        const Q = [0.75 * p0x + 0.25 * p1x, 0.75 * p0y + 0.25 * p1y];
+        const R = [0.25 * p0x + 0.75 * p1x, 0.25 * p0y + 0.75 * p1y];
+        output.push(Q);
+        output.push(R);
+    }
+
+    return itr === 1 ? output : chaikin(output, itr - 1);
 };
 
 // line intercept math by Paul Bourke http://paulbourke.net/geometry/pointlineplane/
