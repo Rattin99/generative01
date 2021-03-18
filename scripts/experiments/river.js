@@ -34,6 +34,8 @@ const segment = (x1, y1, x2, y2) => {
     return { start, end };
 };
 
+const segmentOrientation = ({ start, end }) => Math.atan2(end.y - start.y, end.x - start.x);
+
 const segmentFromPoints = (points) => {
     const seg = [];
     for (let i = 0; i < points.length; i += 2) {
@@ -67,7 +69,7 @@ export const river = () => {
     let canvasMidX;
     let canvasMidY;
     const backgroundColor = warmWhite;
-    const riverColor = bicPenBlue;
+    const riverColor = tinycolor('rgba(0,0,0,.3');
 
     // The length of the meander influence vector
     const meanderStrength = 50;
@@ -101,23 +103,6 @@ export const river = () => {
         return coords;
     };
 
-    const debugDrawPointVectors = (path, color) => {
-        const tmult = 30;
-        const bmult = 30;
-        const tan = 'purple';
-        const bitan = 'green';
-
-        path.forEach((point, i) => {
-            const { x, y, tangent, bitangent } = point;
-
-            ctx.strokeStyle = tinycolor(tan).toRgbString();
-            drawLine(ctx)(x, y, x + tangent.x * tmult, y + tangent.y * tmult, 1);
-
-            ctx.strokeStyle = tinycolor(bitan).toRgbString();
-            drawLine(ctx)(x, y, x + bitangent.x * bmult, y + bitangent.y * bmult, 1);
-        });
-    };
-
     const drawChannel = (path, color) => {
         ctx.beginPath();
 
@@ -130,7 +115,7 @@ export const river = () => {
         });
 
         ctx.strokeStyle = color.toRgbString();
-        ctx.lineWidth = 10;
+        ctx.lineWidth = 5;
         ctx.stroke();
     };
 
@@ -151,10 +136,8 @@ export const river = () => {
         const sum = segments.reduce((diffs, seg, i) => {
             const next = i + 1;
             if (next < segments.length) {
-                const { start, end } = seg;
-                const orientation = Math.atan2(end.y - start.y, end.x - start.x);
-                const o = seg.orientation;
-                const nextO = segments[next].orientation;
+                const o = segmentOrientation(seg);
+                const nextO = segmentOrientation(segments[next]);
                 const cdiff = seg.orientation - nextO;
                 if (Math.abs(cdiff) > Math.PI && nextO > 0) {
                     diffs += nextO - (o + 2 * Math.PI);
@@ -167,6 +150,36 @@ export const river = () => {
             return diffs;
         }, 0);
         return sum / segments.length;
+    };
+
+    const debugDrawVectors = (segments) => {
+        const tmult = 30;
+        const bmult = 50;
+        const mmult = 50;
+        const tan = 'purple';
+        const bitan = 'green';
+        const mx = 'red';
+
+        segments.forEach((seg, i) => {
+            if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
+                const { x } = seg.start;
+                const { y } = seg.start;
+                const { tangent, bitangent, mix } = seg;
+
+                const utan = tangent.setMag(1);
+                const ubitan = bitangent.setMag(1);
+                const umix = bitangent.setMag(1);
+
+                ctx.strokeStyle = tinycolor(tan).toRgbString();
+                drawLine(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 1);
+
+                ctx.strokeStyle = tinycolor(bitan).toRgbString();
+                drawLine(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 1);
+
+                ctx.strokeStyle = tinycolor(mx).toRgbString();
+                drawLine(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 1);
+            }
+        });
     };
 
     const influence = (segment, i, all) => {
@@ -252,15 +265,14 @@ export const river = () => {
         background(canvas, context)(backgroundColor.clone().setAlpha(0.75));
 
         channelSegments = meander(channelSegments);
+
         const points = pointsFromSegment(channelSegments);
         // points = smooth(points);
 
         drawChannel(points, riverColor);
+        debugDrawVectors(channelSegments);
+
         channelSegments = segmentFromPoints(points);
-        // if (time === 0) debugDrawPointVectors(context)(channel);
-        // debugDrawPointVectors(context)(channel);
-        // channel = updateChannel(channel);
-        // segmentFromTPoints(channel);
 
         if (time === 0) {
             return -1;

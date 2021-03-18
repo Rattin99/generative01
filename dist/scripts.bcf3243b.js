@@ -9049,8 +9049,6 @@ var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
 var _math = require("../lib/math");
 
-var _Particle = require("../lib/Particle");
-
 var _canvas = require("../lib/canvas");
 
 var _sketch = require("../lib/sketch");
@@ -9060,8 +9058,6 @@ var _palettes = require("../lib/palettes");
 var _Vector = require("../lib/Vector");
 
 var _attractors = require("../lib/attractors");
-
-var _utils = require("../lib/utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -9106,6 +9102,12 @@ var segment = function segment(x1, y1, x2, y2) {
   };
 };
 
+var segmentOrientation = function segmentOrientation(_ref) {
+  var start = _ref.start,
+      end = _ref.end;
+  return Math.atan2(end.y - start.y, end.x - start.x);
+};
+
 var segmentFromPoints = function segmentFromPoints(points) {
   var seg = [];
 
@@ -9141,7 +9143,7 @@ var river = function river() {
   var canvasMidX;
   var canvasMidY;
   var backgroundColor = _palettes.warmWhite;
-  var riverColor = _palettes.bicPenBlue; // The length of the meander influence vector
+  var riverColor = (0, _tinycolor.default)('rgba(0,0,0,.3'); // The length of the meander influence vector
 
   var meanderStrength = 50; // The number of adjacent segments to evaluate when determining the curvature at a point in a contour
 
@@ -9157,9 +9159,9 @@ var river = function river() {
   var oxbowNearnessMetric = 20;
   var time = 0;
 
-  var createSimplePath = function createSimplePath(_ref, startX, startY) {
-    var width = _ref.width,
-        height = _ref.height;
+  var createSimplePath = function createSimplePath(_ref2, startX, startY) {
+    var width = _ref2.width,
+        height = _ref2.height;
     var steps = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 20;
     var coords = [];
     var incr = Math.round(width / steps);
@@ -9176,23 +9178,6 @@ var river = function river() {
     return coords;
   };
 
-  var debugDrawPointVectors = function debugDrawPointVectors(path, color) {
-    var tmult = 30;
-    var bmult = 30;
-    var tan = 'purple';
-    var bitan = 'green';
-    path.forEach(function (point, i) {
-      var x = point.x,
-          y = point.y,
-          tangent = point.tangent,
-          bitangent = point.bitangent;
-      ctx.strokeStyle = (0, _tinycolor.default)(tan).toRgbString();
-      (0, _canvas.drawLine)(ctx)(x, y, x + tangent.x * tmult, y + tangent.y * tmult, 1);
-      ctx.strokeStyle = (0, _tinycolor.default)(bitan).toRgbString();
-      (0, _canvas.drawLine)(ctx)(x, y, x + bitangent.x * bmult, y + bitangent.y * bmult, 1);
-    });
-  };
-
   var drawChannel = function drawChannel(path, color) {
     ctx.beginPath();
     path.forEach(function (point, i) {
@@ -9203,31 +9188,13 @@ var river = function river() {
       }
     });
     ctx.strokeStyle = color.toRgbString();
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 5;
     ctx.stroke();
   };
-  /*
-  Using the tangent and modified bitangent, we create a new vector that is a blend of the two. This new vector is
-  added to the position of each point on the curve. With this basic logic, the bends in the channel form organically.
-  The style of the bends can be influenced by adjusting the overall influence of these two vectors individually, and
-  the intensity of the bends can be adjusted by increasing the scale of the final blended vector.
-   */
 
-  /*
-  var polyline = meander(channel.segments)
-  polyline = smooth(polyline)
-  polyline = joinMeanders(polyline)
-  polyline = adjustSpacing(polyline)
-  polyline = smooth(polyline)
-  channel = ShapeContour.fromPoints(polyline, closed = false)
-   // shrinking oxbows doesn't matter w.r.t. smoothing or state mutation because it doesn't affect the channel, only the oxbows
-  shrinkOxbows()
-   */
-
-
-  var setup = function setup(_ref2) {
-    var canvas = _ref2.canvas,
-        context = _ref2.context;
+  var setup = function setup(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
     ctx = context;
     canvasMidX = canvas.width / 2;
     canvasMidY = canvas.height / 2;
@@ -9243,11 +9210,8 @@ var river = function river() {
       var next = i + 1;
 
       if (next < segments.length) {
-        var start = seg.start,
-            end = seg.end;
-        var orientation = Math.atan2(end.y - start.y, end.x - start.x);
-        var o = seg.orientation;
-        var nextO = segments[next].orientation;
+        var o = segmentOrientation(seg);
+        var nextO = segmentOrientation(segments[next]);
         var cdiff = seg.orientation - nextO;
 
         if (Math.abs(cdiff) > Math.PI && nextO > 0) {
@@ -9262,6 +9226,33 @@ var river = function river() {
       return diffs;
     }, 0);
     return sum / segments.length;
+  };
+
+  var debugDrawVectors = function debugDrawVectors(segments) {
+    var tmult = 30;
+    var bmult = 50;
+    var mmult = 50;
+    var tan = 'purple';
+    var bitan = 'green';
+    var mx = 'red';
+    segments.forEach(function (seg, i) {
+      if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
+        var x = seg.start.x;
+        var y = seg.start.y;
+        var tangent = seg.tangent,
+            bitangent = seg.bitangent,
+            mix = seg.mix;
+        var utan = tangent.setMag(1);
+        var ubitan = bitangent.setMag(1);
+        var umix = bitangent.setMag(1);
+        ctx.strokeStyle = (0, _tinycolor.default)(tan).toRgbString();
+        (0, _canvas.drawLine)(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 1);
+        ctx.strokeStyle = (0, _tinycolor.default)(bitan).toRgbString();
+        (0, _canvas.drawLine)(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 1);
+        ctx.strokeStyle = (0, _tinycolor.default)(mx).toRgbString();
+        (0, _canvas.drawLine)(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 1);
+      }
+    });
   };
 
   var influence = function influence(segment, i, all) {
@@ -9321,6 +9312,13 @@ var river = function river() {
     });
   };
   /*
+  Using the tangent and modified bitangent, we create a new vector that is a blend of the two. This new vector is
+  added to the position of each point on the curve. With this basic logic, the bends in the channel form organically.
+  The style of the bends can be influenced by adjusting the overall influence of these two vectors individually, and
+  the intensity of the bends can be adjusted by increasing the scale of the final blended vector.
+   */
+
+  /*
   var polyline = meander(channel.segments)
   polyline = smooth(polyline)
   polyline = joinMeanders(polyline)
@@ -9331,18 +9329,16 @@ var river = function river() {
   */
 
 
-  var draw = function draw(_ref3) {
-    var canvas = _ref3.canvas,
-        context = _ref3.context;
+  var draw = function draw(_ref4) {
+    var canvas = _ref4.canvas,
+        context = _ref4.context;
     (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(0.75));
     channelSegments = meander(channelSegments);
     var points = pointsFromSegment(channelSegments); // points = smooth(points);
 
     drawChannel(points, riverColor);
-    channelSegments = segmentFromPoints(points); // if (time === 0) debugDrawPointVectors(context)(channel);
-    // debugDrawPointVectors(context)(channel);
-    // channel = updateChannel(channel);
-    // segmentFromTPoints(channel);
+    debugDrawVectors(channelSegments);
+    channelSegments = segmentFromPoints(points);
 
     if (time === 0) {
       return -1;
@@ -9359,7 +9355,7 @@ var river = function river() {
 };
 
 exports.river = river;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js","../lib/utils":"scripts/lib/utils.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -9461,7 +9457,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54825" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53926" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
