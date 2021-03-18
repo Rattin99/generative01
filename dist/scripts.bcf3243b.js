@@ -2426,6 +2426,13 @@ var Vector = /*#__PURE__*/function () {
     value: function mult(v) {
       if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
       return new Vector(this.x * v, this.y * v, this.z * v);
+    } // For Meander clone
+    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
+
+  }, {
+    key: "mix",
+    value: function mix(o, _mix) {
+      return this.mult(1 - _mix).add(o.mult(_mix));
     }
   }, {
     key: "div",
@@ -2452,6 +2459,12 @@ var Vector = /*#__PURE__*/function () {
     key: "length",
     value: function length() {
       return Math.sqrt(this.dot(this));
+    } // ? https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt#L36
+
+  }, {
+    key: "nLength",
+    value: function nLength() {
+      return this.length() > 0 ? this.length() : 0;
     }
   }, {
     key: "mag",
@@ -2481,7 +2494,7 @@ var Vector = /*#__PURE__*/function () {
   }, {
     key: "unit",
     value: function unit() {
-      return this.divide(this.length());
+      return this.div(this.length());
     }
   }, {
     key: "min",
@@ -2503,6 +2516,11 @@ var Vector = /*#__PURE__*/function () {
       }
 
       return this;
+    }
+  }, {
+    key: "angle",
+    value: function angle() {
+      return Math.atan2(this.y, this.x);
     }
   }, {
     key: "toAngles",
@@ -2645,7 +2663,7 @@ var angleBetween = function angleBetween(a, b) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.chaikin = exports.randomPointAround = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.logInterval = exports.mapToTau = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.averageNumArray = exports.randomChance = exports.randomBoolean = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.randomNormalWholeBetween = exports.randomNormalNumberBetween = exports.randomNormalBM2 = exports.randomNormalBM = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.fibonacci = exports.golden = void 0;
+exports.intersect = exports.chaikin = exports.randomPointAround = exports.create3dNoiseAbs = exports.create3dNoise = exports.create2dNoiseAbs = exports.create2dNoise = exports.scalePointToCanvas = exports.degreesToRadians = exports.radiansToDegrees = exports.uvFromAngle = exports.aFromVector = exports.pointAngleFromVelocity = exports.pointRotateCoord = exports.pointDistance = exports.marginify = exports.logInterval = exports.mapToTau = exports.toSinValue = exports.mapRange = exports.invlerp = exports.clamp = exports.lerp = exports.normalizeInverse = exports.normalize = exports.pointOnCircle = exports.pingPontValue = exports.loopingValue = exports.createRandomNumberArray = exports.highest = exports.lowest = exports.oneOf = exports.averageNumArray = exports.randomChance = exports.randomBoolean = exports.randomSign = exports.randomNumberBetweenMid = exports.randomWholeBetween = exports.randomNumberBetween = exports.randomNormalWholeBetween = exports.randomNormalNumberBetween = exports.randomNormalBM2 = exports.randomNormalBM = exports.setRandomSeed = exports.getRandomSeed = exports.round2 = exports.quantize = exports.houghQuantize = exports.snapNumber = exports.checkBoundsRight = exports.checkBoundsLeft = exports.golden = void 0;
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
@@ -2674,11 +2692,20 @@ _random.default.setSeed(_random.default.getRandomSeed());
 console.log("Using seed ".concat(_random.default.getSeed())); // φ phi
 
 var golden = 1.6180339887498948482; // g angles: 222.5, 137.5
-// https://www.mathsisfun.com/numbers/fibonacci-sequence.html
 
 exports.golden = golden;
-var fibonacci = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657, 46368, 75025, 121393, 196418, 317811];
-exports.fibonacci = fibonacci;
+
+var checkBoundsLeft = function checkBoundsLeft(b, v) {
+  return v < b ? b : v;
+};
+
+exports.checkBoundsLeft = checkBoundsLeft;
+
+var checkBoundsRight = function checkBoundsRight(b, v) {
+  return v > b ? b : v;
+};
+
+exports.checkBoundsRight = checkBoundsRight;
 
 var snapNumber = function snapNumber(snap, n) {
   return Math.floor(n / snap) * snap;
@@ -3112,9 +3139,42 @@ var chaikin = function chaikin(arr, num) {
     return [[0.75 * c[0] + 0.25 * arr[(i + 1) % l][0], 0.75 * c[1] + 0.25 * arr[(i + 1) % l][1]], [0.25 * c[0] + 0.75 * arr[(i + 1) % l][0], 0.25 * c[1] + 0.75 * arr[(i + 1) % l][1]]];
   }).flat();
   return num === 1 ? smooth : chaikin(smooth, num - 1);
-};
+}; // line intercept math by Paul Bourke http://paulbourke.net/geometry/pointlineplane/
+// Determine the intersection point of two line segments
+// Return FALSE if the lines don't intersect
+
 
 exports.chaikin = chaikin;
+
+var intersect = function intersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+  // Check if none of the lines are of length 0
+  if (x1 === x2 && y1 === y2 || x3 === x4 && y3 === y4) {
+    return false;
+  }
+
+  var denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1); // Lines are parallel
+
+  if (denominator === 0) {
+    return false;
+  }
+
+  var ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
+  var ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator; // is the intersection along the segments
+
+  if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
+    return false;
+  } // Return a object with the x and y coordinates of the intersection
+
+
+  var x = x1 + ua * (x2 - x1);
+  var y = y1 + ua * (y2 - y1);
+  return {
+    x: x,
+    y: y
+  };
+};
+
+exports.intersect = intersect;
 },{"canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","./Vector":"scripts/lib/Vector.js"}],"scripts/lib/canvas.js":[function(require,module,exports) {
 "use strict";
 
@@ -3437,13 +3497,31 @@ exports.drawTestPoint = drawTestPoint;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.defaultValue = void 0;
+exports.limitArrayLen = exports.last = exports.middle = exports.first = exports.defaultValue = void 0;
 
 var defaultValue = function defaultValue(obj, key, value) {
   return obj.hasOwnProperty(key) ? obj[key] : value;
 };
 
 exports.defaultValue = defaultValue;
+
+var first = function first(arry) {
+  return arry[0];
+};
+
+exports.first = first;
+
+var middle = function middle(arry) {
+  return arry.slice(1, arry.length - 2);
+};
+
+exports.middle = middle;
+
+var last = function last(arry) {
+  return arry[arry.length - 1];
+};
+
+exports.last = last;
 
 var limitArrayLen = function limitArrayLen(arr) {
   var arrLength = arr.length;
@@ -3454,6 +3532,8 @@ var limitArrayLen = function limitArrayLen(arr) {
 
   return arr;
 };
+
+exports.limitArrayLen = limitArrayLen;
 },{}],"scripts/lib/sketch.js":[function(require,module,exports) {
 "use strict";
 
@@ -7634,11 +7714,28 @@ exports.Box = Box;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.plotLines = void 0;
+exports.plotLines = exports.turtleLineMode = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var lineCap = 'butt';
+var lineJoin = 'miter';
+
+var turtleLineMode = function turtleLineMode() {
+  var m = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'butt';
+
+  if (m === 'butt') {
+    lineCap = 'butt';
+    lineJoin = 'miter';
+  } else if (m === 'round') {
+    lineCap = 'round';
+    lineJoin = 'round';
+  }
+};
+
+exports.turtleLineMode = turtleLineMode;
 
 var plotLines = function plotLines(context) {
   return function (points) {
@@ -7647,8 +7744,8 @@ var plotLines = function plotLines(context) {
     context.beginPath();
     context.strokeStyle = (0, _tinycolor.default)(color).toRgbString();
     context.lineWidth = width;
-    context.lineCap = 'round';
-    context.lineJoin = 'round';
+    context.lineCap = lineCap;
+    context.lineJoin = lineJoin;
     points.forEach(function (coords, i) {
       if (i === 0) {
         context.moveTo(coords[0], coords[1]);
@@ -7667,7 +7764,7 @@ exports.plotLines = plotLines;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.linesRect = exports.spiralRect = exports.texturizeRect = exports.stippleRect = exports.setTextureClippingMask = void 0;
+exports.linesRect = exports.stippleRect = exports.spiralRect = exports.texturizeRect = exports.setTextureClippingMask = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -7676,6 +7773,8 @@ var _math = require("./math");
 var _canvas = require("./canvas");
 
 var _turtle = require("./turtle");
+
+var _utils = require("./utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7691,48 +7790,24 @@ var setTextureClippingMask = function setTextureClippingMask() {
 
 exports.setTextureClippingMask = setTextureClippingMask;
 
-var stippleRect = function stippleRect(context) {
-  return function (x, y, width, height) {
-    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
-    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
-    var mult = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 1;
-    if (amount <= 0) return; // amount = Math.min(amount, 10);
-
-    if (clipping) {
-      context.save();
-      var region = new Path2D();
-      region.rect(x, y, width, height);
-      context.clip(region);
-    }
-
-    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
-    var size = 3;
-    var colStep = width / (0, _math.mapRange)(1, 10, 3, width / 3, amount) * mult;
-    var rowStep = height / (0, _math.mapRange)(1, 10, 3, height / 3, amount) * mult;
-    context.strokeStyle = strokeColor;
-    context.lineWidth = 2;
-    context.lineCap = 'round';
-
-    for (var i = 0; i < width; i += colStep) {
-      for (var j = 0; j < height; j += rowStep) {
-        var tx = x + (0, _math.randomNormalWholeBetween)(i, i + colStep);
-        var ty = y + (0, _math.randomNormalWholeBetween)(j, j + rowStep);
-        var tx2 = tx + size;
-        var ty2 = ty + size * -1;
-        context.beginPath();
-        context.moveTo(tx, ty);
-        context.lineTo(tx2, ty2);
-        context.stroke();
-      }
-    }
-
-    if (clipping) {
-      context.restore();
-    }
+var getRotatedXYCoords = function getRotatedXYCoords(x, y, length, theta) {
+  return {
+    x1: x,
+    y1: y,
+    x2: x + length * Math.cos(theta),
+    y2: y + length * Math.sin(theta)
   };
 };
 
-exports.stippleRect = stippleRect;
+var getRotatedYCoords = function getRotatedYCoords(x, y, length, theta) {
+  return {
+    x1: x,
+    y1: y,
+    x2: x + length,
+    // * Math.cos(theta),
+    y2: y + length * Math.sin(theta)
+  };
+};
 
 var texturizeRect = function texturizeRect(context) {
   return function (x, y, width, height) {
@@ -7846,6 +7921,55 @@ var spiralRect = function spiralRect(context) {
 
 exports.spiralRect = spiralRect;
 
+var stippleRect = function stippleRect(context) {
+  return function (x, y, width, height) {
+    var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
+    var amount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 5;
+    var theta = arguments.length > 6 ? arguments[6] : undefined;
+    if (amount <= 0) return; // amount = Math.min(amount, 10);
+
+    if (clipping) {
+      context.save();
+      var region = new Path2D();
+      region.rect(x, y, width, height);
+      context.clip(region);
+    }
+
+    var strokeColor = (0, _tinycolor.default)(color).toRgbString();
+    var size = 3;
+    var colStep = width / (0, _math.mapRange)(1, 10, 3, width / 3, amount);
+    var rowStep = height / (0, _math.mapRange)(1, 10, 3, height / 3, amount);
+    context.strokeStyle = strokeColor;
+    context.lineWidth = 2;
+    context.lineCap = 'round';
+    theta = theta === undefined ? Math.PI / 3 : theta;
+
+    for (var i = 0; i < width; i += colStep) {
+      for (var j = 0; j < height; j += rowStep) {
+        // about the middle of the cell
+        var tx = x + (0, _math.randomNormalWholeBetween)(i, i + colStep);
+        var ty = y + (0, _math.randomNormalWholeBetween)(j, j + rowStep);
+        var coords = getRotatedYCoords(tx, ty, size, theta);
+        var tx2 = coords.x2; // tx + size;
+
+        var ty2 = coords.y2; // ty + size * -1;
+
+        context.beginPath();
+        context.moveTo(tx, ty);
+        context.lineTo(tx2, ty2);
+        context.stroke();
+      }
+    }
+
+    if (clipping) {
+      context.restore();
+    }
+  };
+}; // TODO needs to intersect "nicely" at the rect area boundaries
+
+
+exports.stippleRect = stippleRect;
+
 var linesRect = function linesRect(context) {
   return function (x, y, width, height) {
     var color = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'black';
@@ -7861,13 +7985,16 @@ var linesRect = function linesRect(context) {
       context.clip(region);
     }
 
+    var points = [];
     var strokeColor = (0, _tinycolor.default)(color).toRgbString();
     var lineWidth = 1;
     var yDelta = width * Math.sin(theta); // height of angle line
 
-    var steps = height / amount / 2; // keep centered
+    var yIncrement = height / amount / 2;
+    var yincr = 0;
+    var loops = height / yIncrement; // keep centered
 
-    var yOff = steps / 2 - yDelta / 2;
+    var yOff = yIncrement / 2 - yDelta / 2;
     var connectSide = 1;
     var coords = {
       x1: x,
@@ -7880,32 +8007,41 @@ var linesRect = function linesRect(context) {
       y1: Math.min(y, y + yOff),
       x2: x,
       y2: Math.min(y, y + yOff)
-    };
-    (0, _canvas.drawRectFilled)(context)(x, y, width, height, '#ddd');
-    var points = [];
+    }; // drawRectFilled(context)(x, y, width, height, '#ddd');
 
-    for (var i = 0; i < height; i += steps) {
-      coords = getLineCoords(x, yOff + y + i, width, theta); // draw bar
+    for (var i = 0; i < loops; i++) {
+      coords = getRotatedYCoords(x, yOff + y + yincr, width, theta); // draw bar
 
-      if (i === 0) {
+      if (yincr === 0) {
+        // line to the top
+        if (coords.y1 > y) {
+          points.push([coords.x1, y]);
+        }
+
         points.push([coords.x1, coords.y1]);
       }
 
       if (connectSide === 1) {
         // right
         points.push([coords.x2, coords.y2]);
-        points.push([coords.x2, coords.y2 + steps]);
+        points.push([coords.x2, coords.y2 + yIncrement]);
       } else {
         // left
         points.push([coords.x1, coords.y1]);
-        points.push([coords.x1, coords.y1 + steps]);
+        points.push([coords.x1, coords.y1 + yIncrement]);
       }
 
+      yincr += yIncrement;
       connectSide *= -1;
       lastCoords = coords;
+    } // line to the bottom
+
+
+    if ((0, _utils.last)(points)[1] < y + height) {
+      (0, _utils.last)(points)[1] = y + height;
     }
 
-    (0, _turtle.plotLines)(context)(points, strokeColor, 5);
+    (0, _turtle.plotLines)(context)(points, strokeColor, lineWidth);
 
     if (clipping) {
       context.restore();
@@ -7949,7 +8085,7 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
     const points = [];
 
     for (let i = 0; i < height; i += steps) {
-        coords = getLineCoords(x, yOff + y + i, width, theta);
+        coords = getRotatedYCoords(x, yOff + y + i, width, theta);
 
         // if (coords.y1 < y) {
         //     const a = coords.y1 - y;
@@ -8044,25 +8180,7 @@ const y2 = y1 + length * Math.sin(theta);
 
 
 exports.linesRect = linesRect;
-
-var getLineCoords = function getLineCoords(x, y, length, theta) {
-  return {
-    x1: x,
-    y1: y,
-    x2: x + length,
-    // * Math.cos(theta),
-    y2: y + length * Math.sin(theta)
-  };
-};
-
-var checkBoundsLeft = function checkBoundsLeft(b, v) {
-  return v < b ? b : v;
-};
-
-var checkBoundsRight = function checkBoundsRight(b, v) {
-  return v > b ? b : v;
-};
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js","./turtle":"scripts/lib/turtle.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js","./turtle":"scripts/lib/turtle.js","./utils":"scripts/lib/utils.js"}],"scripts/released/shaded-boxes.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8748,8 +8866,7 @@ var gridDither = function gridDither() {
     ratio: _sketch.ratio.square,
     // ratio: ratio.golden,
     // orientation: orientation.landscape,
-    scale: _sketch.scale.standard,
-    fps: 1
+    scale: _sketch.scale.standard
   };
   var ctx;
   var canvasWidth;
@@ -8767,8 +8884,6 @@ var gridDither = function gridDither() {
 
   var backgroundColor = _palettes.paperWhite.clone();
 
-  var image = new _Bitmap.Bitmap(_hi.default);
-
   var foreColor = _palettes.bicPenBlue.clone();
 
   var rows;
@@ -8777,26 +8892,18 @@ var gridDither = function gridDither() {
   var setup = function setup(_ref) {
     var canvas = _ref.canvas,
         context = _ref.context;
-    image.init(canvas, context);
-    ctx = context; // canvasWidth = canvas.width;
-    // canvasHeight = canvas.height;
-    // canvasCenterX = canvas.width / 2;
-    // canvasCenterY = canvas.height / 2;
-    // centerRadius = canvas.height / 4;
-    //
-    // imageWidth = canvas.width - margin * 2;
-    // imageHeight = canvas.height - margin * 2;
-    //
-
+    ctx = context;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
+    canvasCenterX = canvas.width / 2;
+    canvasCenterY = canvas.height / 2;
+    centerRadius = canvas.height / 4;
+    imageWidth = canvas.width - margin * 2;
+    imageHeight = canvas.height - margin * 2;
     startX = margin;
     maxX = canvas.width - margin;
     startY = margin;
     maxY = canvas.height - margin;
-    rows = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, 1, 5);
-    rows.points.forEach(function (p, i) {
-      var c = (0, _grids.createGridCellsXY)(canvas.width, rows.rowHeight, 10, 1, 0, 10);
-      columns.push(c);
-    });
     (0, _canvas.background)(canvas, context)(backgroundColor);
   };
 
@@ -8804,58 +8911,6 @@ var gridDither = function gridDither() {
     var canvas = _ref2.canvas,
         context = _ref2.context;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _canvasTextures.setTextureClippingMask)(false);
-    columns.forEach(function (c, i) {
-      c.points.forEach(function (p, cell) {
-        // console.log(i, cell + 1);
-        var amount = cell + 1;
-
-        if (i === 2) {
-          var theta = (0, _math.randomWholeBetween)(0, Math.PI * 2);
-          (0, _canvasTextures.linesRect)(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount, theta);
-        }
-        /* if (i === 0) {
-            texturizeRect(context)(
-                p[0],
-                p[1] + c.rowHeight * i,
-                c.columnWidth,
-                c.rowHeight,
-                foreColor,
-                amount,
-                'circles'
-            );
-        }
-        if (i === 1) {
-            texturizeRect(context)(
-                p[0],
-                p[1] + c.rowHeight * i,
-                c.columnWidth,
-                c.rowHeight,
-                foreColor,
-                amount,
-                'circles2'
-            );
-        }
-        if (i === 2) {
-            texturizeRect(context)(
-                p[0],
-                p[1] + c.rowHeight * i,
-                c.columnWidth,
-                c.rowHeight,
-                foreColor,
-                amount,
-                'xhatch'
-            );
-        }
-        if (i === 3) {
-            spiralRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
-        }
-        if (i === 4) {
-            stippleRect(context)(p[0], p[1] + c.rowHeight * i, c.columnWidth, c.rowHeight, foreColor, amount);
-        } */
-
-      });
-    });
     return -1;
   };
 
@@ -8948,7 +9003,7 @@ var gridDitherImage = function gridDitherImage() {
     maxX = canvas.width - margin;
     startY = margin;
     maxY = canvas.height - margin;
-    numCells = 10; // Math.ceil(canvas.width / 40);
+    numCells = 30; // Math.ceil(canvas.width / 40);
 
     grid = (0, _grids.createGridCellsXY)(canvas.width, canvas.height, numCells, numCells, 0);
     (0, _canvas.background)(canvas, context)(backgroundColor);
@@ -8980,7 +9035,331 @@ var gridDitherImage = function gridDitherImage() {
 };
 
 exports.gridDitherImage = gridDitherImage;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"media/images/hayley-catherine-CRporLYp750-unsplash.png"}],"scripts/index.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"media/images/hayley-catherine-CRporLYp750-unsplash.png"}],"scripts/experiments/river.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.river = void 0;
+
+var _tinycolor = _interopRequireDefault(require("tinycolor2"));
+
+var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
+
+var _math = require("../lib/math");
+
+var _Particle = require("../lib/Particle");
+
+var _canvas = require("../lib/canvas");
+
+var _sketch = require("../lib/sketch");
+
+var _palettes = require("../lib/palettes");
+
+var _Vector = require("../lib/Vector");
+
+var _attractors = require("../lib/attractors");
+
+var _utils = require("../lib/utils");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+Based on
+http://roberthodgin.com/project/meander
+
+And Eric's copies - https://www.reddit.com/r/generative/comments/lfsl8t/pop_art_meandering_river/
+
+
+Ref
+https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/shape/MeanderingRiver.kt
+https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/sketch/S23_MeanderClone.kt
+
+Here's how he did it ...
+https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/shape/MeanderingRiver.kt#L102
+ */
+var simplex2d = function simplex2d(x, y) {
+  return (0, _attractors.simplexNoise2d)(x, y, 0.001);
+};
+
+var simplex3d = function simplex3d(x, y) {
+  return (0, _attractors.simplexNoise3d)(x, y, time, 0.0005);
+};
+
+var clifford = function clifford(x, y) {
+  return (0, _attractors.cliffordAttractor)(canvas.width, canvas.height, x, y);
+};
+
+var jong = function jong(x, y) {
+  return (0, _attractors.jongAttractor)(canvas.width, canvas.height, x, y);
+};
+
+var noise = simplex2d;
+
+var segment = function segment(x1, y1, x2, y2) {
+  var start = new _Vector.Vector(x1, y1);
+  var end = new _Vector.Vector(x2, y2);
+  return {
+    start: start,
+    end: end
+  };
+};
+
+var segmentFromPoints = function segmentFromPoints(points) {
+  var seg = [];
+
+  for (var i = 0; i < points.length; i += 2) {
+    // if it's an uneven number, dupe the last point
+    var next = i + 1 === points.length ? i : i + 1;
+    seg.push(segment(points[i][0], points[i][1], points[next][0], points[next][1]));
+  }
+
+  return seg;
+};
+
+var pointsFromSegment = function pointsFromSegment(seg) {
+  var points = [];
+
+  for (var i = 0; i < seg.length; i++) {
+    points.push([seg[i].start.x, seg[i].start.y]);
+    points.push([seg[i].end.x, seg[i].end.y]);
+  }
+
+  return points;
+};
+
+var river = function river() {
+  var config = {
+    name: 'river',
+    ratio: _sketch.ratio.square,
+    scale: _sketch.scale.standard
+  };
+  var channelSegments = [];
+  var oxbows = [];
+  var ctx;
+  var canvasMidX;
+  var canvasMidY;
+  var backgroundColor = _palettes.warmWhite;
+  var riverColor = _palettes.bicPenBlue; // The length of the meander influence vector
+
+  var meanderStrength = 50; // The number of adjacent segments to evaluate when determining the curvature at a point in a contour
+
+  var curvatureScale = 10; // Should always return in range [0.0, 1.0], where 1.0 is full bitangent influence, 0.0 is full tangent influence, and 0.5 is a perfect mix
+
+  var tangentBitangentRatio = 0.55; // chaikin smoothness itterations
+
+  var smoothness = 1; // Larger curveMagnitude will make the meanders larger
+
+  var curveMagnitude = 2.5;
+  var oxbowShrinkRate = 10;
+  var indexNearnessMetric = Math.ceil(curvatureScale * 1.5);
+  var oxbowNearnessMetric = 20;
+  var time = 0;
+
+  var createSimplePath = function createSimplePath(_ref, startX, startY) {
+    var width = _ref.width,
+        height = _ref.height;
+    var steps = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 20;
+    var coords = [];
+    var incr = Math.round(width / steps);
+    var midx = width / 2;
+
+    for (var i = startX; i < width; i += incr) {
+      // Add a bulge in the middle
+      var midDist = Math.round((midx - Math.abs(i - midx)) * 0.5);
+      var y = (0, _math.randomNormalWholeBetween)(startY - midDist, startY + midDist);
+      coords.push([i, y]);
+    }
+
+    coords.push([width, startY]);
+    return coords;
+  };
+
+  var debugDrawPointVectors = function debugDrawPointVectors(path, color) {
+    var tmult = 30;
+    var bmult = 30;
+    var tan = 'purple';
+    var bitan = 'green';
+    path.forEach(function (point, i) {
+      var x = point.x,
+          y = point.y,
+          tangent = point.tangent,
+          bitangent = point.bitangent;
+      ctx.strokeStyle = (0, _tinycolor.default)(tan).toRgbString();
+      (0, _canvas.drawLine)(ctx)(x, y, x + tangent.x * tmult, y + tangent.y * tmult, 1);
+      ctx.strokeStyle = (0, _tinycolor.default)(bitan).toRgbString();
+      (0, _canvas.drawLine)(ctx)(x, y, x + bitangent.x * bmult, y + bitangent.y * bmult, 1);
+    });
+  };
+
+  var drawChannel = function drawChannel(path, color) {
+    ctx.beginPath();
+    path.forEach(function (point, i) {
+      if (i === 0) {
+        ctx.moveTo(point[0], point[1]);
+      } else {
+        ctx.lineTo(point[0], point[1]);
+      }
+    });
+    ctx.strokeStyle = color.toRgbString();
+    ctx.lineWidth = 10;
+    ctx.stroke();
+  };
+  /*
+  Using the tangent and modified bitangent, we create a new vector that is a blend of the two. This new vector is
+  added to the position of each point on the curve. With this basic logic, the bends in the channel form organically.
+  The style of the bends can be influenced by adjusting the overall influence of these two vectors individually, and
+  the intensity of the bends can be adjusted by increasing the scale of the final blended vector.
+   */
+
+  /*
+  var polyline = meander(channel.segments)
+  polyline = smooth(polyline)
+  polyline = joinMeanders(polyline)
+  polyline = adjustSpacing(polyline)
+  polyline = smooth(polyline)
+  channel = ShapeContour.fromPoints(polyline, closed = false)
+   // shrinking oxbows doesn't matter w.r.t. smoothing or state mutation because it doesn't affect the channel, only the oxbows
+  shrinkOxbows()
+   */
+
+
+  var setup = function setup(_ref2) {
+    var canvas = _ref2.canvas,
+        context = _ref2.context;
+    ctx = context;
+    canvasMidX = canvas.width / 2;
+    canvasMidY = canvas.height / 2;
+    (0, _canvas.background)(canvas, context)(backgroundColor); // create a line and distort points on a flow field
+    // steps need to produce an even number of points
+
+    var points = createSimplePath(canvas, 0, canvasMidY, 60);
+    channelSegments = segmentFromPoints(points);
+  };
+
+  var averageCurvature = function averageCurvature(segments) {
+    var sum = segments.reduce(function (diffs, seg, i) {
+      var next = i + 1;
+
+      if (next < segments.length) {
+        var start = seg.start,
+            end = seg.end;
+        var orientation = Math.atan2(end.y - start.y, end.x - start.x);
+        var o = seg.orientation;
+        var nextO = segments[next].orientation;
+        var cdiff = seg.orientation - nextO;
+
+        if (Math.abs(cdiff) > Math.PI && nextO > 0) {
+          diffs += nextO - (o + 2 * Math.PI);
+        } else if (Math.abs(cdiff) > Math.PI && o > 0) {
+          diffs += nextO + 2 * Math.PI - o;
+        } else {
+          diffs += cdiff;
+        }
+      }
+
+      return diffs;
+    }, 0);
+    return sum / segments.length;
+  };
+
+  var influence = function influence(segment, i, all) {
+    var start = segment.start,
+        end = segment.end;
+    var min = i < curvatureScale ? 0 : i - curvatureScale;
+    var max = i > all.length - curvatureScale ? all.length : i + curvatureScale;
+    var curvature = averageCurvature(all.slice(min, max));
+    var polarity = curvature < 0 ? 1 : -1;
+    var tangent = end.sub(start);
+    var biangle = tangent.angle() + 1.5708 * polarity; // 90 deg in rad
+
+    var bitangent = (0, _math.uvFromAngle)(biangle).setMag(tangent.mag());
+    segment.tangent = tangent;
+    segment.bitangent = bitangent; // console.log(tangent.angle(), bitangent.angle());
+
+    /*
+    tangent.normalized.mix(bitan.normalized, tangentBitangentRatio(segment.start))
+    * abs(curvature)
+    * meanderStrength(segment.start)
+     */
+    // what does Vector2 return when you call it? getter? x,y, or length?
+    // console.log(
+    //     tangent.normalize().mix(bitangent.normalize(), segment.start.x).length()) *
+    //         Math.abs(curvature) *
+    //         segment.start.x
+    // );
+
+    return segment;
+  };
+
+  var smooth = function smooth(points) {
+    return (0, _math.chaikin)(points, smoothness);
+  };
+
+  var meander = function meander(seg) {
+    var firstFixedIndex = Math.round(seg.length * 0.05);
+    var lastFixedIndex = Math.round(seg.length * 0.85);
+    var firstFixedPoints = seg.slice(0, firstFixedIndex);
+    var lastFixedPoints = seg.slice(lastFixedIndex, seg.length);
+    var middleSegments = seg.slice(firstFixedIndex, lastFixedIndex);
+    middleSegments = middleSegments.map(influence);
+    return firstFixedPoints.concat(middleSegments).concat(lastFixedPoints);
+  };
+
+  var updateChannel = function updateChannel(points) {
+    return points.map(function (point, i) {// let { x, y, tangent, bitangent } = point;
+      //
+      // // How should these be merged? Not just added
+      // const merged = tangent.add(tangent).add(bitangent);
+      //
+      // if (i !== 0 && i !== points.length - 1) {
+      //     x += merged.x;
+      //     y += merged.y;
+      // }
+      // return tPoint(x, y, merged);
+    });
+  };
+  /*
+  var polyline = meander(channel.segments)
+  polyline = smooth(polyline)
+  polyline = joinMeanders(polyline)
+  polyline = adjustSpacing(polyline)
+  polyline = smooth(polyline)
+  channel = ShapeContour.fromPoints(polyline, closed = false)
+  shrinkOxbows()
+  */
+
+
+  var draw = function draw(_ref3) {
+    var canvas = _ref3.canvas,
+        context = _ref3.context;
+    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(0.75));
+    channelSegments = meander(channelSegments);
+    var points = pointsFromSegment(channelSegments); // points = smooth(points);
+
+    drawChannel(points, riverColor);
+    channelSegments = segmentFromPoints(points); // if (time === 0) debugDrawPointVectors(context)(channel);
+    // debugDrawPointVectors(context)(channel);
+    // channel = updateChannel(channel);
+    // segmentFromTPoints(channel);
+
+    if (time === 0) {
+      return -1;
+    }
+
+    time += 1;
+  };
+
+  return {
+    config: config,
+    setup: setup,
+    draw: draw
+  };
+};
+
+exports.river = river;
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","canvas-sketch-util/random":"node_modules/canvas-sketch-util/random.js","../lib/math":"scripts/lib/math.js","../lib/Particle":"scripts/lib/Particle.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/attractors":"scripts/lib/attractors.js","../lib/utils":"scripts/lib/utils.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -8995,13 +9374,15 @@ var _gridDither = require("./experiments/grid-dither");
 
 var _gridDitherImage = require("./experiments/grid-dither-image");
 
+var _river = require("./experiments/river");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
 Explorations with generative code
 */
 // const experimentalVariation = undefined;
-var experimentalVariation = _gridDither.gridDither;
+var experimentalVariation = _river.river;
 var s = (0, _sketch.sketch)();
 
 var saveCanvasCapture = function saveCanvasCapture(_) {
@@ -9052,7 +9433,7 @@ if (_variationsIndex.variationsIndex.hasOwnProperty(variationKey) && experimenta
 if (experimentalVariation) {
   s.run(experimentalVariation);
 }
-},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variationsIndex":"scripts/variationsIndex.js","./experiments/larrycarlson03":"scripts/experiments/larrycarlson03.js","./experiments/grid-dither":"scripts/experiments/grid-dither.js","./experiments/grid-dither-image":"scripts/experiments/grid-dither-image.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"normalize.css":"node_modules/normalize.css/normalize.css","./lib/sketch":"scripts/lib/sketch.js","./variationsIndex":"scripts/variationsIndex.js","./experiments/larrycarlson03":"scripts/experiments/larrycarlson03.js","./experiments/grid-dither":"scripts/experiments/grid-dither.js","./experiments/grid-dither-image":"scripts/experiments/grid-dither-image.js","./experiments/river":"scripts/experiments/river.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -9080,7 +9461,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53369" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54825" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

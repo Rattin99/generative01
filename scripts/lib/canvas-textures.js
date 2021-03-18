@@ -11,6 +11,7 @@ import {
 } from './math';
 import { drawRectFilled } from './canvas';
 import { plotLines } from './turtle';
+import { last } from './utils';
 
 const TAU = Math.PI * 2;
 const intervals = logInterval(10, 1, 10);
@@ -20,43 +21,19 @@ export const setTextureClippingMask = (v = true) => {
     clipping = v;
 };
 
-export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, mult = 1) => {
-    if (amount <= 0) return;
-    // amount = Math.min(amount, 10);
-    if (clipping) {
-        context.save();
-        const region = new Path2D();
-        region.rect(x, y, width, height);
-        context.clip(region);
-    }
+const getRotatedXYCoords = (x, y, length, theta) => ({
+    x1: x,
+    y1: y,
+    x2: x + length * Math.cos(theta),
+    y2: y + length * Math.sin(theta),
+});
 
-    const strokeColor = tinycolor(color).toRgbString();
-    const size = 3;
-
-    const colStep = (width / mapRange(1, 10, 3, width / 3, amount)) * mult;
-    const rowStep = (height / mapRange(1, 10, 3, height / 3, amount)) * mult;
-
-    context.strokeStyle = strokeColor;
-    context.lineWidth = 2;
-    context.lineCap = 'round';
-
-    for (let i = 0; i < width; i += colStep) {
-        for (let j = 0; j < height; j += rowStep) {
-            const tx = x + randomNormalWholeBetween(i, i + colStep);
-            const ty = y + randomNormalWholeBetween(j, j + rowStep);
-            const tx2 = tx + size;
-            const ty2 = ty + size * -1;
-            context.beginPath();
-            context.moveTo(tx, ty);
-            context.lineTo(tx2, ty2);
-            context.stroke();
-        }
-    }
-
-    if (clipping) {
-        context.restore();
-    }
-};
+const getRotatedYCoords = (x, y, length, theta) => ({
+    x1: x,
+    y1: y,
+    x2: x + length, // * Math.cos(theta),
+    y2: y + length * Math.sin(theta),
+});
 
 export const texturizeRect = (context) => (
     x,
@@ -168,6 +145,51 @@ export const spiralRect = (context) => (x, y, width, height, color = 'black', am
     }
 };
 
+export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, theta) => {
+    if (amount <= 0) return;
+    // amount = Math.min(amount, 10);
+    if (clipping) {
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, width, height);
+        context.clip(region);
+    }
+
+    const strokeColor = tinycolor(color).toRgbString();
+    const size = 3;
+
+    const colStep = width / mapRange(1, 10, 3, width / 3, amount);
+    const rowStep = height / mapRange(1, 10, 3, height / 3, amount);
+
+    context.strokeStyle = strokeColor;
+    context.lineWidth = 2;
+    context.lineCap = 'round';
+
+    theta = theta === undefined ? Math.PI / 3 : theta;
+
+    for (let i = 0; i < width; i += colStep) {
+        for (let j = 0; j < height; j += rowStep) {
+            // about the middle of the cell
+            const tx = x + randomNormalWholeBetween(i, i + colStep);
+            const ty = y + randomNormalWholeBetween(j, j + rowStep);
+
+            const coords = getRotatedYCoords(tx, ty, size, theta);
+
+            const tx2 = coords.x2; // tx + size;
+            const ty2 = coords.y2; // ty + size * -1;
+            context.beginPath();
+            context.moveTo(tx, ty);
+            context.lineTo(tx2, ty2);
+            context.stroke();
+        }
+    }
+
+    if (clipping) {
+        context.restore();
+    }
+};
+
+// TODO needs to intersect "nicely" at the rect area boundaries
 export const linesRect = (context) => (x, y, width, height, color = 'black', amount = 5, theta = 0, mult = 1) => {
     if (amount <= 0) return;
 
@@ -178,42 +200,59 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
         context.clip(region);
     }
 
+    const points = [];
+
     const strokeColor = tinycolor(color).toRgbString();
     const lineWidth = 1;
 
     const yDelta = width * Math.sin(theta); // height of angle line
-    const steps = height / amount / 2;
+    const yIncrement = height / amount / 2;
+
+    let yincr = 0;
+    const loops = height / yIncrement;
+
     // keep centered
-    const yOff = steps / 2 - yDelta / 2;
+    const yOff = yIncrement / 2 - yDelta / 2;
     let connectSide = 1;
     let coords = { x1: x, y1: y, x2: x, y2: y };
     let lastCoords = { x1: x, y1: Math.min(y, y + yOff), x2: x, y2: Math.min(y, y + yOff) };
 
-    drawRectFilled(context)(x, y, width, height, '#ddd');
-    const points = [];
-    for (let i = 0; i < height; i += steps) {
-        coords = getLineCoords(x, yOff + y + i, width, theta);
+    // drawRectFilled(context)(x, y, width, height, '#ddd');
+
+    for (let i = 0; i < loops; i++) {
+        coords = getRotatedYCoords(x, yOff + y + yincr, width, theta);
 
         // draw bar
 
-        if (i === 0) {
+        if (yincr === 0) {
+            // line to the top
+            if (coords.y1 > y) {
+                points.push([coords.x1, y]);
+            }
             points.push([coords.x1, coords.y1]);
         }
 
         if (connectSide === 1) {
             // right
             points.push([coords.x2, coords.y2]);
-            points.push([coords.x2, coords.y2 + steps]);
+            points.push([coords.x2, coords.y2 + yIncrement]);
         } else {
             // left
             points.push([coords.x1, coords.y1]);
-            points.push([coords.x1, coords.y1 + steps]);
+            points.push([coords.x1, coords.y1 + yIncrement]);
         }
 
+        yincr += yIncrement;
         connectSide *= -1;
         lastCoords = coords;
     }
-    plotLines(context)(points, strokeColor, 5);
+
+    // line to the bottom
+    if (last(points)[1] < y + height) {
+        last(points)[1] = y + height;
+    }
+
+    plotLines(context)(points, strokeColor, lineWidth);
 
     if (clipping) {
         context.restore();
@@ -257,7 +296,7 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
     const points = [];
 
     for (let i = 0; i < height; i += steps) {
-        coords = getLineCoords(x, yOff + y + i, width, theta);
+        coords = getRotatedYCoords(x, yOff + y + i, width, theta);
 
         // if (coords.y1 < y) {
         //     const a = coords.y1 - y;
@@ -349,13 +388,3 @@ const theta = (Math.PI * angle) / 180.0;
 const x2 = x1 + length * Math.cos(theta);
 const y2 = y1 + length * Math.sin(theta);
  */
-
-const getLineCoords = (x, y, length, theta) => ({
-    x1: x,
-    y1: y,
-    x2: x + length, // * Math.cos(theta),
-    y2: y + length * Math.sin(theta),
-});
-
-const checkBoundsLeft = (b, v) => (v < b ? b : v);
-const checkBoundsRight = (b, v) => (v > b ? b : v);

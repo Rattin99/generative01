@@ -60,7 +60,7 @@ export const gridDitherImage = () => {
         startY = margin;
         maxY = canvas.height - margin;
 
-        numCells = 10; // Math.ceil(canvas.width / 40);
+        numCells = 30; // Math.ceil(canvas.width / 40);
 
         grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells, 0);
         background(canvas, context)(backgroundColor);

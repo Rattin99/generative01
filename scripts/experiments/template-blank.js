@@ -10,12 +10,10 @@ import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect, linesRe
 import sourcePng from '../../media/images/hi1.png';
 // import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
 
-export const gridDither = () => {
+export const templateBlank = () => {
     const config = {
-        name: 'gridDither',
+        name: 'blankTemplate',
         ratio: ratio.square,
-        // ratio: ratio.golden,
-        // orientation: orientation.landscape,
         scale: scale.standard,
     };
 
@@ -34,11 +32,7 @@ export const gridDither = () => {
     const margin = 50;
 
     const backgroundColor = paperWhite.clone();
-
     const foreColor = bicPenBlue.clone();
-
-    let rows;
-    const columns = [];
 
     const setup = ({ canvas, context }) => {
         ctx = context;

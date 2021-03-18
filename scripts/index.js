@@ -9,9 +9,10 @@ import { variationsIndex } from './variationsIndex';
 import { larrycarlson03 } from './experiments/larrycarlson03';
 import { gridDither } from './experiments/grid-dither';
 import { gridDitherImage } from './experiments/grid-dither-image';
+import { river } from './experiments/river';
 
 // const experimentalVariation = undefined;
-const experimentalVariation = gridDither;
+const experimentalVariation = river;
 
 const s = sketch();
 

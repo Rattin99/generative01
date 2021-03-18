@@ -29,6 +29,12 @@ export class Vector {
         return new Vector(this.x * v, this.y * v, this.z * v);
     }
 
+    // For Meander clone
+    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
+    mix(o, mix) {
+        return this.mult(1 - mix).add(o.mult(mix));
+    }
+
     div(v) {
         if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
         return new Vector(this.x / v, this.y / v, this.z / v);
@@ -48,6 +54,11 @@ export class Vector {
 
     length() {
         return Math.sqrt(this.dot(this));
+    }
+
+    // ? https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt#L36
+    nLength() {
+        return this.length() > 0 ? this.length() : 0;
     }
 
     mag() {
@@ -72,7 +83,7 @@ export class Vector {
     }
 
     unit() {
-        return this.divide(this.length());
+        return this.div(this.length());
     }
 
     min() {
@@ -89,6 +100,10 @@ export class Vector {
             return this.setMag(v);
         }
         return this;
+    }
+
+    angle() {
+        return Math.atan2(this.y, this.x);
     }
 
     toAngles() {
