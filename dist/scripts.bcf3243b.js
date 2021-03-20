@@ -9747,7 +9747,7 @@ var River = /*#__PURE__*/function () {
 var river = function river() {
   var config = {
     name: 'river',
-    ratio: _sketch.ratio.square,
+    ratio: _sketch.ratio.poster,
     scale: _sketch.scale.standard
   };
   var ctx;
@@ -9763,8 +9763,8 @@ var river = function river() {
 
   var drawSegment = function drawSegment(segments, color, weight) {
     var points = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round'; // ctx.lineJoin = 'round';
+
     ctx.strokeStyle = (0, _tinycolor.default)(color).clone().toRgbString();
     ctx.lineWidth = weight;
     ctx.beginPath();
@@ -9837,7 +9837,7 @@ var river = function river() {
     return (0, _attractors.jongAttractor)(canvas.width, canvas.height, x, y);
   };
 
-  var noise = jong; // simplex2d;
+  var noise = simplex2d;
 
   var segmentFromSplinedPoints = function segmentFromSplinedPoints(points) {
     return (0, _lineSegments.segmentFromPoints)((0, _lineSegments.createSplinePoints)(points));
@@ -9869,11 +9869,25 @@ var river = function river() {
     canvasMidY = canvas.height / 2;
     (0, _canvas.background)(canvas, context)(backgroundColor);
     var points = (0, _math.chaikin)(createHorizontalPath(canvas, 0, canvasMidY, 50), 1);
-    var channelSegments = (0, _lineSegments.segmentFromPoints)(points);
+    var channelSegments = (0, _lineSegments.segmentFromPoints)(points); // rivers.push(
+    //     new River(channelSegments, {
+    //         mixTangentRatio: 0.5,
+    //         maxHistory: 5,
+    //         storeHistoryEvery: 20,
+    //         noiseFn: noise,
+    //         mixNoiseRatio: 0.2,
+    //     })
+    // );
+
     rivers.push(new River(channelSegments, {
-      mixTangentRatio: 0.5,
+      fixedEndPoints: 5,
+      curveAdjacentSegments: 10,
+      curveMagnitude: 15,
+      insertionFactor: 5,
+      mixMagnitude: 2,
+      mixTangentRatio: 0.55,
       maxHistory: 5,
-      storeHistoryEvery: 20,
+      storeHistoryEvery: 10,
       noiseFn: noise,
       mixNoiseRatio: 0.2
     })); // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
@@ -9892,7 +9906,7 @@ var river = function river() {
     (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(1));
     (0, _attractors.renderField)(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
     var riverColor = _palettes.bicPenBlue;
-    var riverWeight = 30;
+    var riverWeight = 10;
 
     var oxbowColor = _palettes.warmGreyDark.clone().brighten(30).setAlpha(0.1);
 
@@ -9906,10 +9920,10 @@ var river = function river() {
         var ccolor = i === 0 ? tintingColor : getHistoricalColor(i);
         var ocolor = oxbowColor; // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
 
-        drawMainChannel((0, _lineSegments.pointsFromSegment)(r.history[i].channel), ccolor, riverWeight * 1.25);
-      } // drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
+        drawMainChannel((0, _lineSegments.pointsFromSegment)(r.history[i].channel), ccolor, riverWeight * 2);
+      }
 
-
+      drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
       var points = r.channelPoints;
       drawMainChannel(points, _palettes.warmWhite, riverWeight, 2);
     });
@@ -10026,7 +10040,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49674" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58548" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -297,7 +297,7 @@ class River {
 export const river = () => {
     const config = {
         name: 'river',
-        ratio: ratio.square,
+        ratio: ratio.poster,
         scale: scale.standard,
     };
 
@@ -320,7 +320,7 @@ export const river = () => {
 
     const drawSegment = (segments, color, weight, points = false) => {
         ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        // ctx.lineJoin = 'round';
         ctx.strokeStyle = tinycolor(color).clone().toRgbString();
         ctx.lineWidth = weight;
         ctx.beginPath();
@@ -378,7 +378,7 @@ export const river = () => {
     const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
     const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
     const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
-    const noise = jong; // simplex2d;
+    const noise = simplex2d;
 
     const segmentFromSplinedPoints = (points) => segmentFromPoints(createSplinePoints(points));
 
@@ -407,11 +407,25 @@ export const river = () => {
         background(canvas, context)(backgroundColor);
         const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 50), 1);
         const channelSegments = segmentFromPoints(points);
+        // rivers.push(
+        //     new River(channelSegments, {
+        //         mixTangentRatio: 0.5,
+        //         maxHistory: 5,
+        //         storeHistoryEvery: 20,
+        //         noiseFn: noise,
+        //         mixNoiseRatio: 0.2,
+        //     })
+        // );
         rivers.push(
             new River(channelSegments, {
-                mixTangentRatio: 0.5,
+                fixedEndPoints: 5,
+                curveAdjacentSegments: 10,
+                curveMagnitude: 15,
+                insertionFactor: 5,
+                mixMagnitude: 2,
+                mixTangentRatio: 0.55,
                 maxHistory: 5,
-                storeHistoryEvery: 20,
+                storeHistoryEvery: 10,
                 noiseFn: noise,
                 mixNoiseRatio: 0.2,
             })
@@ -432,7 +446,7 @@ export const river = () => {
         renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
 
         const riverColor = bicPenBlue;
-        const riverWeight = 30;
+        const riverWeight = 10;
         const oxbowColor = warmGreyDark.clone().brighten(30).setAlpha(0.1);
         const oxbowWeight = 20;
 
@@ -448,10 +462,10 @@ export const river = () => {
 
                 // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
 
-                drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight * 1.25);
+                drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight * 2);
             }
 
-            // drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
+            drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
             const points = r.channelPoints;
             drawMainChannel(points, warmWhite, riverWeight, 2);
         });
