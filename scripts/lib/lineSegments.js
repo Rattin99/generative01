@@ -1,5 +1,6 @@
 import { Vector } from './Vector';
 import { pointDistance } from './math';
+import { getCurvePoints } from './curve-calc';
 
 export const lineSlope = (a, b) => (b.y - a.y) / (b.x - a.x);
 
@@ -71,7 +72,32 @@ export const pointsFromSegment = (seg) => {
 
 // [x,y] => {x:x,y:y}
 export const a2p = (a) => ({ x: a[0], y: a[1] });
+// [[x,y]] => [{x:x,y:y}]
 export const a2pA = (arry) => arry.map((a) => a2p(a));
+
+// [[x,y]] => [x1, y1,  x2, y2, ... xn, yn]
+export const flattenPointArray = (arry) =>
+    arry.reduce((acc, p) => {
+        acc.push(p[0]);
+        acc.push(p[1]);
+        return acc;
+    }, []);
+
+// [x1, y1,  x2, y2, ... xn, yn] => [[x,y]]
+export const unflattenPointArray = (arry) => {
+    const points = [];
+    for (let i = 0; i < arry.length; i += 2) {
+        points.push([arry[i], arry[i + 1]]);
+    }
+    return points;
+};
+
+// Using https://github.com/gdenisov/cardinal-spline-js
+export const createSplinePoints = (points) => {
+    const fpoints = flattenPointArray(points);
+    const curve = getCurvePoints(fpoints);
+    return unflattenPointArray(curve);
+};
 
 // https://www.xarg.org/2010/02/reduce-the-length-of-a-line-segment-by-a-certain-amount/
 export const reduceLineFromStart = (p1, p2, r) => {

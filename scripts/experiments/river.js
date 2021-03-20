@@ -10,46 +10,44 @@ import {
     pointsFromSegment,
     reduceLineFromStart,
     reduceLineFromEnd,
-    a2pA,
     reduceLineEqually,
     trimSegments,
     segmentsIntersect,
     connectSegments,
+    createSplinePoints,
 } from '../lib/lineSegments';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor, renderField } from '../lib/attractors';
-import { bezierCurveFromPoints } from '../lib/canvas-shapes-complex';
 import { defaultValue } from '../lib/utils';
 import { createCirclePoints } from '../lib/grids';
 
 /*
-Based on
+Based on Meander by Roger Hodgin
 http://roberthodgin.com/project/meander
 
-And Eric's copies - https://www.reddit.com/r/generative/comments/lfsl8t/pop_art_meandering_river/
-
-
-Ref
+And Eric's recreations
+https://www.reddit.com/r/generative/comments/lfsl8t/pop_art_meandering_river/
 https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/shape/MeanderingRiver.kt
 https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/sketch/S23_MeanderClone.kt
-
-Here's how he did it ...
-https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/shape/MeanderingRiver.kt#L102
 
 Kotlin/Openrndr Vector 2
 https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
 https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/org/openrndr/shape/Segment.kt
 https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/org/openrndr/shape/LineSegment.kt
- */
 
-// const simplex2d = (x, y) => simplexNoise2d(x, y, 0.001);
-// const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
-// const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
-// const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
-// const noise = simplex2d;
+TODO
+- [ ] BUG - chaikin smooth points causes line to
+- [ ] Jitter!
+- [ ] reduce all oxbow segments not just ends
+        > reduction closer to end
+- [ ]  Better use noise function to simulate spread in certain areas?
+        Roger's is straight on flat, and meanders > on hilly
+- [ ] Random starting line on a noise path
+
+ */
 
 const TAU = Math.PI * 2;
 
-const createSimplePath = ({ width, height }, startX, startY, steps = 20) => {
+const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => {
     const coords = [];
     const incr = Math.round(width / steps);
     const midx = width / 2;
@@ -66,9 +64,12 @@ const createSimplePath = ({ width, height }, startX, startY, steps = 20) => {
 
 class River {
     constructor(starting, props) {
-        this.maxHistory = 50;
+        this.steps = 0;
+        this.maxHistory = defaultValue(props, 'maxHistory', 10);
+        this.storeHistoryEvery = defaultValue(props, 'storeHistoryEvery', 2);
         this.history = [];
         this.channelSegments = starting;
+        this.channelPoints = undefined;
         this.oxbows = [];
 
         this.curveAdjacentSegments = defaultValue(props, 'curveAdjacentSegments', 10);
@@ -82,12 +83,17 @@ class River {
         this.oxbowProx = this.curveMagnitude; // 25;
         this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 4);
         this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 1);
+
+        this.noiseFn = defaultValue(props, 'noiseFn', undefined);
+        this.mixNoiseRatio = defaultValue(props, 'mixNoiseRatio', 0.1);
     }
 
     addToHistory(ox, channel) {
-        this.history.unshift({ oxbows: ox, channel });
-        if (this.history.length > this.maxHistory) {
-            this.history = this.history.slice(0, this.maxHistory);
+        if (this.steps % this.storeHistoryEvery === 0) {
+            this.history.unshift({ oxbows: ox, channel });
+            if (this.history.length > this.maxHistory) {
+                this.history = this.history.slice(0, this.maxHistory);
+            }
         }
     }
 
@@ -99,7 +105,6 @@ class River {
                 const segO = segmentOrientation(seg);
                 const nextO = segmentOrientation(segments[next]);
                 const oDifference = segO - nextO;
-                // diffs += oDifference;
 
                 // when crossing the π/-π threshold, the difference will be large even though the angular difference is small.
                 // We can adjust for this special case by adding 2π to the negative value
@@ -119,7 +124,8 @@ class River {
     curvatureInfluence(seg, i, all) {
         const { start, end } = seg;
 
-        const distToMid = Math.abs(all.length / 2 - i);
+        // testing increasing mag if closer to center
+        // const distToMid = Math.abs(all.length / 2 - i);
         const mag = this.mixMagnitude; // mapRange(0, all.length / 2, 1, this.mixMagnitude, distToMid);
 
         const min = i < this.curveAdjacentSegments ? 0 : i - this.curveAdjacentSegments;
@@ -129,54 +135,40 @@ class River {
 
         const tangent = end.sub(start);
         const biangle = tangent.angle() + 1.5708 * polarity;
-        // const bitangent = uvFromAngle(biangle).setMag(tangent);
         const bitangent = uvFromAngle(biangle).setMag(Math.abs(curvature) * this.segCurveMultiplier);
 
-        // tangent.normalized.mix(bitan.normalized, this.mixTangentRatio(segment.start)) * abs(curvature) * this.segCurveMultiplier(segment.start)
-        // const mixed = tangent.normalize().mix(bitangent.normalize(), this.mixTangentRatio * seg.start.x).mag() * Math.abs(curvature) * this.segCurveMultiplier * seg.start.mag();
-
         const a = tangent.normalize();
-        const b = bitangent.normalize(); // .setMag(Math.abs(curvature) * this.segCurveMultiplier);
-        const m = a.mix(b, this.mixTangentRatio).setMag(mag);
+        const b = bitangent.normalize();
+        let mVector = a.mix(b, this.mixTangentRatio);
 
-        return {
-            tangent: a,
-            bitangent: b,
-            mix: m,
-            curvature,
-        };
+        if (this.noiseFn) {
+            const n = uvFromAngle(this.noiseFn(start.x, start.y));
+            mVector = mVector.mix(n, this.mixNoiseRatio);
+        }
+
+        mVector = mVector.setMag(mag);
+
+        return mVector;
     }
 
     meander(segs) {
-        // fix first and end so they don't move
+        // lock first and end segments so they aren't affected
         const firstFixedIndex = this.fixedEndPoints;
         const firstFixedPoints = segs.slice(0, firstFixedIndex);
-
         const lastFixedIndex = segs.length - this.fixedEndPoints - 1;
         const lastFixedPoints = segs.slice(lastFixedIndex, segs.length);
 
         const middleSegments = segs.slice(firstFixedIndex, lastFixedIndex);
 
         const adjustedMiddleSegments = middleSegments.map((seg, i) => {
-            const values = this.curvatureInfluence(seg, i + firstFixedIndex, segs);
-            seg.start = seg.start.add(values.mix);
-            // for debug display
-            seg.tangent = values.tangent;
-            seg.bitangent = values.bitangent;
-            seg.mix = values.mix;
-            seg.curvature = values.curvature;
+            const mVector = this.curvatureInfluence(seg, i + firstFixedIndex, segs);
+            seg.start = seg.start.add(mVector);
+            // trying to smooth out the jitter by moving end point as well
+            // seg.end = seg.end.add(mVector.div(4));
             return seg;
         });
 
         return firstFixedPoints.concat(adjustedMiddleSegments).concat(lastFixedPoints);
-    }
-
-    potentialOxbow(a, b, min) {
-        return pointDistance({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }) < min;
-    }
-
-    indicesAreNear(a, b, min) {
-        return Math.abs(a - b) < min;
     }
 
     addOxbow(i, j) {
@@ -187,7 +179,10 @@ class River {
         this.oxbows.push(segs);
     }
 
-    joinMeanders(points) {
+    closeCloseSegments(points) {
+        const potentialOxbow = (a, b, min) => pointDistance({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }) < min;
+        const indicesAreNear = (a, b, min) => Math.abs(a - b) < min;
+
         const line = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
@@ -195,10 +190,7 @@ class River {
             for (let j = i; j < points.length; j++) {
                 const next = points[j];
                 // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
-                if (
-                    this.potentialOxbow(point, next, this.oxbowProx) &&
-                    !this.indicesAreNear(i, j, this.indexNearnessMetric)
-                ) {
+                if (potentialOxbow(point, next, this.oxbowProx) && !indicesAreNear(i, j, this.indexNearnessMetric)) {
                     line.push(next);
                     this.addOxbow(i, j);
                     i = j;
@@ -210,7 +202,7 @@ class River {
 
     // As points move (and others do not), the relative spacing of segments may become unbalanced.
     // On each iteration, check all segments and remove if they are too close together, or add if they are too far apart
-    adjustSpacing(points) {
+    adjustPointsSpacing(points) {
         return points.reduce((acc, point, i) => {
             if (i === 0 || i === points.length - 1) {
                 acc.push(point);
@@ -238,7 +230,7 @@ class River {
         }, []);
     }
 
-    shrinkOxbows(oxarry) {
+    shrinkOxbowSegments(oxarry) {
         return oxarry.reduce((oxacc, oseg) => {
             if (oseg.length > 1) {
                 const shrinkPct = this.oxbowShrinkRate / oseg.length;
@@ -281,16 +273,24 @@ class River {
         }, []);
     }
 
-    // this.channelSegments and oxbow are global
-    run(debug = false) {
+    step() {
+        // influence segments to sim flow
         this.channelSegments = this.meander(this.channelSegments);
+        // convert to array of points
         let points = pointsFromSegment(this.channelSegments);
-        points = this.joinMeanders(points);
-        points = this.adjustSpacing(points);
-        this.channelSegments = segmentFromPoints(points);
-        this.oxbows = this.shrinkOxbows(this.oxbows);
+        // cut off portions that are close and create and oxbow
+        points = this.closeCloseSegments(points);
+        // cut points that are close and add new points where they are far apart
+        points = this.adjustPointsSpacing(points);
+        this.channelPoints = points;
+        // back to a segment to
+        this.channelSegments = segmentFromPoints(this.channelPoints);
+        // reduce the size of the oxbows
+        this.oxbows = this.shrinkOxbowSegments(this.oxbows);
+        // record for a "historical" record
         this.addToHistory(this.oxbows, this.channelSegments);
-        return points;
+
+        this.steps++;
     }
 }
 
@@ -304,48 +304,19 @@ export const river = () => {
     let ctx;
     let canvasMidX;
     let canvasMidY;
-
-    const backgroundColor = warmWhite;
-
-    const river = [];
-
+    // const backgroundColor = warmWhite;
+    const rivers = [];
     let time = 0;
 
-    const debugDrawVectors = (segments) => {
-        const tmult = 50;
-        const bmult = 50;
-        const mmult = 20;
-        const cmult = 50;
-        const tan = 'red';
-        const bitan = 'blue';
-        const mx = 'purple';
-
-        segments.forEach((seg, i) => {
-            if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
-                const { x } = seg.start;
-                const { y } = seg.start;
-                const { tangent, bitangent, mix, curvature } = seg;
-
-                const utan = tangent.setMag(1);
-                const ubitan = bitangent.setMag(1);
-                const umix = bitangent.setMag(1);
-                const ucurve = uvFromAngle(curvature);
-                console.log(ucurve);
-
-                // ctx.strokeStyle = tinycolor(tan).toRgbString();
-                // drawLine(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
-                //
-                // ctx.strokeStyle = tinycolor(bitan).toRgbString();
-                // drawLine(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
-                //
-                ctx.strokeStyle = tinycolor(mx).toRgbString();
-                drawLine(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 0.5);
-
-                // ctx.strokeStyle = tinycolor(mx).toRgbString();
-                // drawLine(ctx)(x, y, x + ucurve.x * cmult, y + ucurve.y * cmult, 0.5);
-            }
-        });
-    };
+    // colors sampled from http://roberthodgin.com/project/meander
+    const backgroundColor = tinycolor('hsl(42, 43%, 76%)');
+    const tintingColor = tinycolor('hsl(38, 38%, 64%)');
+    const historicalColors = [
+        tinycolor('hsl(97, 9%, 73%)'),
+        tinycolor('hsl(51, 7%, 38%)'),
+        tinycolor('hsl(19, 39%, 47%)'),
+        tinycolor('hsl(166, 39%, 59%)'),
+    ];
 
     const drawSegment = (segments, color, weight, points = false) => {
         ctx.lineCap = 'round';
@@ -402,57 +373,87 @@ export const river = () => {
         }
     };
 
-    const setup = ({ canvas, context }) => {
-        ctx = context;
-        canvasMidX = canvas.width / 2;
-        canvasMidY = canvas.height / 2;
-        background(canvas, context)(backgroundColor);
-        const channelSegments = segmentFromPoints(createSimplePath(canvas, 0, canvasMidY, 30));
-        river.push(new River(channelSegments, { mixTangentRatio: 0.5 }));
+    // Various noise fns to test
+    const simplex2d = (x, y) => simplexNoise2d(x, y, 0.001);
+    const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
+    const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
+    const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
+    const noise = jong; // simplex2d;
 
-        // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
-        // river.push(new River(circleSegments, { mixTangentRatio: 0.5, fixedEndPoints: 0 }));
-    };
+    const segmentFromSplinedPoints = (points) => segmentFromPoints(createSplinePoints(points));
 
     const drawOxbows = (bows, color, weight, smooth = 2) => {
         bows.forEach((o) => {
             const a = mapRange(0, 10, 0, 1, o.length);
             const w = mapRange(0, 10, 1, weight, o.length);
-            const oxpoints = chaikin(pointsFromSegment(o), smooth);
-            const oxsegments = segmentFromPoints(oxpoints);
-            // drawSegment(segmentFromPoints(oxpoints), color.setAlpha(a), w, false);
-            drawSegmentTaper(connectSegments(oxsegments), color, w);
+            // connectSegments(oxsegments) // connect ends and starts
+            // BUG here, can cause invalid float32array len, trapped in code
+            const seg = segmentFromSplinedPoints(pointsFromSegment(o));
+            drawSegment(seg, color, w);
+            // drawSegmentTaper(seg, color, w);
         });
     };
 
     const drawMainChannel = (points, color, weight, smooth = 2) => {
-        const seg = segmentFromPoints(chaikin(points, smooth));
-        drawSegmentTaper(trimSegments(seg, 5), color, weight, weight * 0.5);
+        const seg = trimSegments(segmentFromSplinedPoints(chaikin(points, smooth)), 1);
+        drawSegment(seg, color, weight);
+        // drawSegmentTaper(seg, color, weight, weight * 0.5);
     };
+
+    const setup = ({ canvas, context }) => {
+        ctx = context;
+        canvasMidX = canvas.width / 2;
+        canvasMidY = canvas.height / 2;
+        background(canvas, context)(backgroundColor);
+        const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 50), 1);
+        const channelSegments = segmentFromPoints(points);
+        rivers.push(
+            new River(channelSegments, {
+                mixTangentRatio: 0.5,
+                maxHistory: 5,
+                storeHistoryEvery: 20,
+                noiseFn: noise,
+                mixNoiseRatio: 0.2,
+            })
+        );
+
+        // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
+        // rivers.push(new River(circleSegments, { mixTangentRatio: 0.5, fixedEndPoints: 0 }));
+    };
+
+    // i-1 assuming current is a different color
+    // need to create tints for differt mult of i based on # of colors: 4
+
+    const getHistoricalColor = (i) => historicalColors[i - 1];
 
     const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor.clone().setAlpha(1));
 
+        renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
+
         const riverColor = bicPenBlue;
         const riverWeight = 30;
-        const oxbowColor = warmGreyDark.clone().brighten(50);
-        const oxbowWeight = 30;
+        const oxbowColor = warmGreyDark.clone().brighten(30).setAlpha(0.1);
+        const oxbowWeight = 20;
 
-        river.forEach((r) => {
-            const points = r.run();
-            drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
-            // drawMainChannel(points, backgroundColor, riverWeight * 2);
-            drawMainChannel(points, riverColor, riverWeight, 5);
+        rivers.forEach((r) => {
+            r.step();
 
-            // for (let i = r.history.length - 1; i >= 0; i--) {
-            //     const b = mapRange(r.history.length, 0, 50, 10, i);
-            //     const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
-            //     const ocolor = i == 0 ? oxbowColor : warmGreyDark.clone().brighten(b / 2);
-            //
-            //     drawOxbows(r.history[i].oxbows, ccolor, oxbowWeight);
-            //
-            //     drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight);
-            // }
+            for (let i = r.history.length - 1; i >= 0; i--) {
+                const b = mapRange(r.history.length, 0, 50, 10, i);
+                // const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
+
+                const ccolor = i === 0 ? tintingColor : getHistoricalColor(i);
+                const ocolor = oxbowColor;
+
+                // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
+
+                drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight * 1.25);
+            }
+
+            // drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
+            const points = r.channelPoints;
+            drawMainChannel(points, warmWhite, riverWeight, 2);
         });
 
         time += 1;

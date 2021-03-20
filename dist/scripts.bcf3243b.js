@@ -9041,17 +9041,144 @@ var gridDitherImage = function gridDitherImage() {
 };
 
 exports.gridDitherImage = gridDitherImage;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"media/images/hayley-catherine-CRporLYp750-unsplash.png"}],"scripts/lib/lineSegments.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Bitmap":"scripts/lib/Bitmap.js","../lib/grids":"scripts/lib/grids.js","../lib/canvas-textures":"scripts/lib/canvas-textures.js","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"media/images/hayley-catherine-CRporLYp750-unsplash.png"}],"scripts/lib/curve-calc.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.reduceLineEqually = exports.reduceLineFromEnd = exports.reduceLineFromStart = exports.a2pA = exports.a2p = exports.pointsFromSegment = exports.segmentFromPoints = exports.segmentOrientation = exports.trimSegments = exports.connectSegments = exports.segment = exports.segmentsIntersect = exports.linesIntersect = exports.lineSlope = void 0;
+exports.getCurvePoints = void 0;
+
+// https://github.com/gdenisov/cardinal-spline-js
+// https://github.com/gdenisov/cardinal-spline-js/blob/master/src/curve_calc.js
+
+/*!	Curve calc function for canvas 2.3.1
+ *	Epistemex (c) 2013-2014
+ *	License: MIT
+ */
+
+/**
+ * Calculates an array containing points representing a cardinal spline through given point array.
+ * Points must be arranged as: [x1, y1, x2, y2, ..., xn, yn].
+ *
+ * The points for the cardinal spline are returned as a new array.
+ *
+ * @param {Array} points - point array
+ * @param {Number} [tension=0.5] - tension. Typically between [0.0, 1.0] but can be exceeded
+ * @param {Number} [numOfSeg=20] - number of segments between two points (line resolution)
+ * @param {Boolean} [close=false] - Close the ends making the line continuous
+ * @returns {Float32Array} New array with the calculated points that was added to the path
+ */
+var getCurvePoints = function getCurvePoints(points, tension, numOfSeg, close) {
+  // options or defaults
+  tension = typeof tension === 'number' ? tension : 0.5;
+  numOfSeg = numOfSeg || 25;
+  var pts; // for cloning point array
+
+  var i = 1;
+  var l = points.length;
+  var rPos = 0;
+  var rLen = (l - 2) * numOfSeg + 2 + (close ? 2 * numOfSeg : 0);
+
+  if (rLen < 0) {
+    return [];
+  }
+
+  var res = new Float32Array(rLen);
+  var cache = new Float32Array((numOfSeg + 2) * 4);
+  var cachePtr = 4;
+  pts = points.slice(0);
+
+  if (close) {
+    pts.unshift(points[l - 1]); // insert end point as first point
+
+    pts.unshift(points[l - 2]);
+    pts.push(points[0], points[1]); // first point as last point
+  } else {
+    pts.unshift(points[1]); // copy 1. point and insert at beginning
+
+    pts.unshift(points[0]);
+    pts.push(points[l - 2], points[l - 1]); // duplicate end-points
+  } // cache inner-loop calculations as they are based on t alone
+
+
+  cache[0] = 1; // 1,0,0,0
+
+  for (; i < numOfSeg; i++) {
+    var st = i / numOfSeg;
+    var st2 = st * st;
+    var st3 = st2 * st;
+    var st23 = st3 * 2;
+    var st32 = st2 * 3;
+    cache[cachePtr++] = st23 - st32 + 1; // c1
+
+    cache[cachePtr++] = st32 - st23; // c2
+
+    cache[cachePtr++] = st3 - 2 * st2 + st; // c3
+
+    cache[cachePtr++] = st3 - st2; // c4
+  }
+
+  cache[++cachePtr] = 1; // 0,1,0,0
+  // calc. points
+
+  parse(pts, cache, l);
+
+  if (close) {
+    // l = points.length;
+    pts = [];
+    pts.push(points[l - 4], points[l - 3], points[l - 2], points[l - 1]); // second last and last
+
+    pts.push(points[0], points[1], points[2], points[3]); // first and second
+
+    parse(pts, cache, 4);
+  }
+
+  function parse(pts, cache, l) {
+    for (var i = 2, t; i < l; i += 2) {
+      var pt1 = pts[i];
+      var pt2 = pts[i + 1];
+      var pt3 = pts[i + 2];
+      var pt4 = pts[i + 3];
+      var t1x = (pt3 - pts[i - 2]) * tension;
+      var t1y = (pt4 - pts[i - 1]) * tension;
+      var t2x = (pts[i + 4] - pt1) * tension;
+      var t2y = (pts[i + 5] - pt2) * tension;
+
+      for (t = 0; t < numOfSeg; t++) {
+        var c = t << 2; // t * 4;
+
+        var c1 = cache[c];
+        var c2 = cache[c + 1];
+        var c3 = cache[c + 2];
+        var c4 = cache[c + 3];
+        res[rPos++] = c1 * pt1 + c2 * pt3 + c3 * t1x + c4 * t2x;
+        res[rPos++] = c1 * pt2 + c2 * pt4 + c3 * t1y + c4 * t2y;
+      }
+    }
+  } // add last point
+
+
+  l = close ? 0 : points.length - 2;
+  res[rPos++] = points[l];
+  res[rPos] = points[l + 1];
+  return res;
+};
+
+exports.getCurvePoints = getCurvePoints;
+},{}],"scripts/lib/lineSegments.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.reduceLineEqually = exports.reduceLineFromEnd = exports.reduceLineFromStart = exports.createSplinePoints = exports.unflattenPointArray = exports.flattenPointArray = exports.a2pA = exports.a2p = exports.pointsFromSegment = exports.segmentFromPoints = exports.segmentOrientation = exports.trimSegments = exports.connectSegments = exports.segment = exports.segmentsIntersect = exports.linesIntersect = exports.lineSlope = void 0;
 
 var _Vector = require("./Vector");
 
 var _math = require("./math");
+
+var _curveCalc = require("./curve-calc");
 
 var lineSlope = function lineSlope(a, b) {
   return (b.y - a.y) / (b.x - a.x);
@@ -9173,7 +9300,8 @@ var a2p = function a2p(a) {
     x: a[0],
     y: a[1]
   };
-};
+}; // [[x,y]] => [{x:x,y:y}]
+
 
 exports.a2p = a2p;
 
@@ -9181,10 +9309,43 @@ var a2pA = function a2pA(arry) {
   return arry.map(function (a) {
     return a2p(a);
   });
-}; // https://www.xarg.org/2010/02/reduce-the-length-of-a-line-segment-by-a-certain-amount/
+}; // [[x,y]] => [x1, y1,  x2, y2, ... xn, yn]
 
 
 exports.a2pA = a2pA;
+
+var flattenPointArray = function flattenPointArray(arry) {
+  return arry.reduce(function (acc, p) {
+    acc.push(p[0]);
+    acc.push(p[1]);
+    return acc;
+  }, []);
+}; // [x1, y1,  x2, y2, ... xn, yn] => [[x,y]]
+
+
+exports.flattenPointArray = flattenPointArray;
+
+var unflattenPointArray = function unflattenPointArray(arry) {
+  var points = [];
+
+  for (var i = 0; i < arry.length; i += 2) {
+    points.push([arry[i], arry[i + 1]]);
+  }
+
+  return points;
+}; // Using https://github.com/gdenisov/cardinal-spline-js
+
+
+exports.unflattenPointArray = unflattenPointArray;
+
+var createSplinePoints = function createSplinePoints(points) {
+  var fpoints = flattenPointArray(points);
+  var curve = (0, _curveCalc.getCurvePoints)(fpoints);
+  return unflattenPointArray(curve);
+}; // https://www.xarg.org/2010/02/reduce-the-length-of-a-line-segment-by-a-certain-amount/
+
+
+exports.createSplinePoints = createSplinePoints;
 
 var reduceLineFromStart = function reduceLineFromStart(p1, p2, r) {
   var dx = p2.x - p1.x;
@@ -9225,134 +9386,7 @@ var reduceLineEqually = function reduceLineEqually(p1, p2, r) {
 };
 
 exports.reduceLineEqually = reduceLineEqually;
-},{"./Vector":"scripts/lib/Vector.js","./math":"scripts/lib/math.js"}],"scripts/lib/canvas-shapes-complex.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.drawPathRibbon = exports.drawSpikeCircle = exports.bezierCurveFromPoints = void 0;
-
-var _tinycolor = _interopRequireDefault(require("tinycolor2"));
-
-var _math = require("./math");
-
-var _canvas = require("./canvas");
-
-var _lineSegments = require("./lineSegments");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*
-ctx.lineWidth = oxbowWeight;
-ctx.strokeStyle = oxbowColor.toRgbString();
-bezierCurveFromPoints(ctx)(a2pA(oxpoints));
- */
-// There's BUG where it spikes Y pos
-// https://www.geeksforgeeks.org/how-to-draw-smooth-curve-through-multiple-points-using-javascript/
-var bezierCurveFromPoints = function bezierCurveFromPoints(context) {
-  return function (points, f, t) {
-    if (typeof f === 'undefined') f = 0.3;
-    if (typeof t === 'undefined') t = 0.6;
-    context.beginPath();
-    context.moveTo(points[0].x, points[0].y);
-    var m = 0;
-    var dx1 = 0;
-    var dy1 = 0;
-    var preP = points[0];
-
-    for (var i = 1; i < points.length; i++) {
-      var curP = points[i];
-      var nexP = points[i + 1];
-      var dx2 = void 0;
-      var dy2 = void 0;
-
-      if (nexP) {
-        m = (0, _lineSegments.lineSlope)(preP, nexP);
-        dx2 = (nexP.x - curP.x) * -f;
-        dy2 = dx2 * m * t;
-      } else {
-        dx2 = 0;
-        dy2 = 0;
-      }
-
-      context.bezierCurveTo(preP.x - dx1, preP.y - dy1, curP.x + dx2, curP.y + dy2, curP.x, curP.y);
-      dx1 = dx2;
-      dy1 = dy2;
-      preP = curP;
-    }
-
-    context.stroke();
-  };
-}; // Spikes is an array of angles
-
-
-exports.bezierCurveFromPoints = bezierCurveFromPoints;
-
-var drawSpikeCircle = function drawSpikeCircle(context) {
-  return function (_ref, spikes) {
-    var x = _ref.x,
-        y = _ref.y,
-        radius = _ref.radius,
-        color = _ref.color;
-    var spikeLength = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
-    var circleStroke = 1;
-    var spikeStroke = 2;
-    context.strokeStyle = color.toRgbString();
-    context.lineWidth = circleStroke;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2, false); // context.fillStyle = 'rgba(255,255,255,.1)';
-    // context.fill();
-
-    context.stroke();
-
-    for (var s = 0; s < spikes.length; s++) {
-      var pointA = (0, _math.pointOnCircle)(x, y, radius, spikes[s]);
-      var pointB = (0, _math.pointOnCircle)(x, y, radius + spikeLength, spikes[s]);
-      context.strokeStyle = color.toRgbString();
-      (0, _canvas.drawLine)(context)(pointA.x, pointA.y, pointB.x, pointB.y, spikeStroke);
-    }
-  };
-};
-
-exports.drawSpikeCircle = drawSpikeCircle;
-
-var drawPathRibbon = function drawPathRibbon(context) {
-  return function (path, color) {
-    var thickness = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-    var stroke = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    // const rColor = tinycolor(color).clone();
-    // const gradient = context.createLinearGradient(0, startY, 0, maxY);
-    // gradient.addColorStop(0, colorLinesTop.toRgbString());
-    // gradient.addColorStop(1, colorLinesBottom.toRgbString());
-    context.beginPath();
-    context.moveTo(path[0], path[0]);
-    path.forEach(function (point, i) {
-      var x = point[0];
-      var y = point[1];
-      context.lineTo(x, y);
-    });
-    path.reverse().forEach(function (point, i) {
-      var x = point[0];
-      var y = point[1];
-      var distFromCenter = Math.abs(path.length / 2 - i);
-      var size = (0, _math.mapRange)(0, path.length / 2, 1, thickness, distFromCenter);
-      context.lineTo(x + size, y + size);
-    });
-    context.closePath(); // if (stroke) {
-    //     context.strokeStyle = rColor.darken(70).toRgbString();
-    //     context.lineWidth = 0.75;
-    //     context.stroke();
-    // }
-    // context.fillStyle = gradient;
-
-    context.fillStyle = (0, _tinycolor.default)(color).toRgbString();
-    context.fill();
-  };
-};
-
-exports.drawPathRibbon = drawPathRibbon;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js","./lineSegments":"scripts/lib/lineSegments.js"}],"scripts/experiments/river.js":[function(require,module,exports) {
+},{"./Vector":"scripts/lib/Vector.js","./math":"scripts/lib/math.js","./curve-calc":"scripts/lib/curve-calc.js"}],"scripts/experiments/river.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9376,8 +9410,6 @@ var _lineSegments = require("../lib/lineSegments");
 
 var _attractors = require("../lib/attractors");
 
-var _canvasShapesComplex = require("../lib/canvas-shapes-complex");
-
 var _utils = require("../lib/utils");
 
 var _grids = require("../lib/grids");
@@ -9391,32 +9423,32 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /*
-Based on
+Based on Meander by Roger Hodgin
 http://roberthodgin.com/project/meander
 
-And Eric's copies - https://www.reddit.com/r/generative/comments/lfsl8t/pop_art_meandering_river/
-
-
-Ref
+And Eric's recreations
+https://www.reddit.com/r/generative/comments/lfsl8t/pop_art_meandering_river/
 https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/shape/MeanderingRiver.kt
 https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/sketch/S23_MeanderClone.kt
-
-Here's how he did it ...
-https://github.com/ericyd/generative-art/blob/738d93c5e0de69539ceaca7a6e096fa93bad9cfd/openrndr/src/main/kotlin/shape/MeanderingRiver.kt#L102
 
 Kotlin/Openrndr Vector 2
 https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
 https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/org/openrndr/shape/Segment.kt
 https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/org/openrndr/shape/LineSegment.kt
+
+TODO
+- [ ] BUG - chaikin smooth points causes line to
+- [ ] Jitter!
+- [ ] reduce all oxbow segments not just ends
+        > reduction closer to end
+- [ ]  Better use noise function to simulate spread in certain areas?
+        Roger's is straight on flat, and meanders > on hilly
+- [ ] Random starting line on a noise path
+
  */
-// const simplex2d = (x, y) => simplexNoise2d(x, y, 0.001);
-// const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
-// const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
-// const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
-// const noise = simplex2d;
 var TAU = Math.PI * 2;
 
-var createSimplePath = function createSimplePath(_ref, startX, startY) {
+var createHorizontalPath = function createHorizontalPath(_ref, startX, startY) {
   var width = _ref.width,
       height = _ref.height;
   var steps = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 20;
@@ -9439,9 +9471,12 @@ var River = /*#__PURE__*/function () {
   function River(starting, props) {
     _classCallCheck(this, River);
 
-    this.maxHistory = 50;
+    this.steps = 0;
+    this.maxHistory = (0, _utils.defaultValue)(props, 'maxHistory', 10);
+    this.storeHistoryEvery = (0, _utils.defaultValue)(props, 'storeHistoryEvery', 2);
     this.history = [];
     this.channelSegments = starting;
+    this.channelPoints = undefined;
     this.oxbows = [];
     this.curveAdjacentSegments = (0, _utils.defaultValue)(props, 'curveAdjacentSegments', 10);
     this.segCurveMultiplier = (0, _utils.defaultValue)(props, 'segCurveMultiplier', 20);
@@ -9457,18 +9492,22 @@ var River = /*#__PURE__*/function () {
 
     this.oxbowShrinkRate = (0, _utils.defaultValue)(props, 'oxbowShrinkRate', 4);
     this.fixedEndPoints = (0, _utils.defaultValue)(props, 'fixedEndPoints', 1);
+    this.noiseFn = (0, _utils.defaultValue)(props, 'noiseFn', undefined);
+    this.mixNoiseRatio = (0, _utils.defaultValue)(props, 'mixNoiseRatio', 0.1);
   }
 
   _createClass(River, [{
     key: "addToHistory",
     value: function addToHistory(ox, channel) {
-      this.history.unshift({
-        oxbows: ox,
-        channel: channel
-      });
+      if (this.steps % this.storeHistoryEvery === 0) {
+        this.history.unshift({
+          oxbows: ox,
+          channel: channel
+        });
 
-      if (this.history.length > this.maxHistory) {
-        this.history = this.history.slice(0, this.maxHistory);
+        if (this.history.length > this.maxHistory) {
+          this.history = this.history.slice(0, this.maxHistory);
+        }
       }
     } // get the difference in orientation between the segment and the next segment
 
@@ -9481,8 +9520,7 @@ var River = /*#__PURE__*/function () {
         if (next < segments.length) {
           var segO = (0, _lineSegments.segmentOrientation)(seg);
           var nextO = (0, _lineSegments.segmentOrientation)(segments[next]);
-          var oDifference = segO - nextO; // diffs += oDifference;
-          // when crossing the π/-π threshold, the difference will be large even though the angular difference is small.
+          var oDifference = segO - nextO; // when crossing the π/-π threshold, the difference will be large even though the angular difference is small.
           // We can adjust for this special case by adding 2π to the negative value
 
           if (Math.abs(oDifference) > Math.PI && nextO > 0) {
@@ -9502,8 +9540,9 @@ var River = /*#__PURE__*/function () {
     key: "curvatureInfluence",
     value: function curvatureInfluence(seg, i, all) {
       var start = seg.start,
-          end = seg.end;
-      var distToMid = Math.abs(all.length / 2 - i);
+          end = seg.end; // testing increasing mag if closer to center
+      // const distToMid = Math.abs(all.length / 2 - i);
+
       var mag = this.mixMagnitude; // mapRange(0, all.length / 2, 1, this.mixMagnitude, distToMid);
 
       var min = i < this.curveAdjacentSegments ? 0 : i - this.curveAdjacentSegments;
@@ -9511,61 +9550,40 @@ var River = /*#__PURE__*/function () {
       var curvature = this.averageCurvature(all.slice(min, max));
       var polarity = curvature < 0 ? 1 : -1;
       var tangent = end.sub(start);
-      var biangle = tangent.angle() + 1.5708 * polarity; // const bitangent = uvFromAngle(biangle).setMag(tangent);
-
-      var bitangent = (0, _math.uvFromAngle)(biangle).setMag(Math.abs(curvature) * this.segCurveMultiplier); // tangent.normalized.mix(bitan.normalized, this.mixTangentRatio(segment.start)) * abs(curvature) * this.segCurveMultiplier(segment.start)
-      // const mixed = tangent.normalize().mix(bitangent.normalize(), this.mixTangentRatio * seg.start.x).mag() * Math.abs(curvature) * this.segCurveMultiplier * seg.start.mag();
-
+      var biangle = tangent.angle() + 1.5708 * polarity;
+      var bitangent = (0, _math.uvFromAngle)(biangle).setMag(Math.abs(curvature) * this.segCurveMultiplier);
       var a = tangent.normalize();
-      var b = bitangent.normalize(); // .setMag(Math.abs(curvature) * this.segCurveMultiplier);
+      var b = bitangent.normalize();
+      var mVector = a.mix(b, this.mixTangentRatio);
 
-      var m = a.mix(b, this.mixTangentRatio).setMag(mag);
-      return {
-        tangent: a,
-        bitangent: b,
-        mix: m,
-        curvature: curvature
-      };
+      if (this.noiseFn) {
+        var n = (0, _math.uvFromAngle)(this.noiseFn(start.x, start.y));
+        mVector = mVector.mix(n, this.mixNoiseRatio);
+      }
+
+      mVector = mVector.setMag(mag);
+      return mVector;
     }
   }, {
     key: "meander",
     value: function meander(segs) {
       var _this = this;
 
-      // fix first and end so they don't move
+      // lock first and end segments so they aren't affected
       var firstFixedIndex = this.fixedEndPoints;
       var firstFixedPoints = segs.slice(0, firstFixedIndex);
       var lastFixedIndex = segs.length - this.fixedEndPoints - 1;
       var lastFixedPoints = segs.slice(lastFixedIndex, segs.length);
       var middleSegments = segs.slice(firstFixedIndex, lastFixedIndex);
       var adjustedMiddleSegments = middleSegments.map(function (seg, i) {
-        var values = _this.curvatureInfluence(seg, i + firstFixedIndex, segs);
+        var mVector = _this.curvatureInfluence(seg, i + firstFixedIndex, segs);
 
-        seg.start = seg.start.add(values.mix); // for debug display
+        seg.start = seg.start.add(mVector); // trying to smooth out the jitter by moving end point as well
+        // seg.end = seg.end.add(mVector.div(4));
 
-        seg.tangent = values.tangent;
-        seg.bitangent = values.bitangent;
-        seg.mix = values.mix;
-        seg.curvature = values.curvature;
         return seg;
       });
       return firstFixedPoints.concat(adjustedMiddleSegments).concat(lastFixedPoints);
-    }
-  }, {
-    key: "potentialOxbow",
-    value: function potentialOxbow(a, b, min) {
-      return (0, _math.pointDistance)({
-        x: a[0],
-        y: a[1]
-      }, {
-        x: b[0],
-        y: b[1]
-      }) < min;
-    }
-  }, {
-    key: "indicesAreNear",
-    value: function indicesAreNear(a, b, min) {
-      return Math.abs(a - b) < min;
     }
   }, {
     key: "addOxbow",
@@ -9577,8 +9595,22 @@ var River = /*#__PURE__*/function () {
       this.oxbows.push(segs);
     }
   }, {
-    key: "joinMeanders",
-    value: function joinMeanders(points) {
+    key: "closeCloseSegments",
+    value: function closeCloseSegments(points) {
+      var potentialOxbow = function potentialOxbow(a, b, min) {
+        return (0, _math.pointDistance)({
+          x: a[0],
+          y: a[1]
+        }, {
+          x: b[0],
+          y: b[1]
+        }) < min;
+      };
+
+      var indicesAreNear = function indicesAreNear(a, b, min) {
+        return Math.abs(a - b) < min;
+      };
+
       var line = [];
 
       for (var i = 0; i < points.length; i++) {
@@ -9588,7 +9620,7 @@ var River = /*#__PURE__*/function () {
         for (var j = i; j < points.length; j++) {
           var next = points[j]; // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
 
-          if (this.potentialOxbow(point, next, this.oxbowProx) && !this.indicesAreNear(i, j, this.indexNearnessMetric)) {
+          if (potentialOxbow(point, next, this.oxbowProx) && !indicesAreNear(i, j, this.indexNearnessMetric)) {
             line.push(next);
             this.addOxbow(i, j);
             i = j;
@@ -9601,8 +9633,8 @@ var River = /*#__PURE__*/function () {
     // On each iteration, check all segments and remove if they are too close together, or add if they are too far apart
 
   }, {
-    key: "adjustSpacing",
-    value: function adjustSpacing(points) {
+    key: "adjustPointsSpacing",
+    value: function adjustPointsSpacing(points) {
       var _this2 = this;
 
       return points.reduce(function (acc, point, i) {
@@ -9640,8 +9672,8 @@ var River = /*#__PURE__*/function () {
       }, []);
     }
   }, {
-    key: "shrinkOxbows",
-    value: function shrinkOxbows(oxarry) {
+    key: "shrinkOxbowSegments",
+    value: function shrinkOxbowSegments(oxarry) {
       var _this3 = this;
 
       return oxarry.reduce(function (oxacc, oseg) {
@@ -9686,20 +9718,26 @@ var River = /*#__PURE__*/function () {
 
         return oxacc;
       }, []);
-    } // this.channelSegments and oxbow are global
-
+    }
   }, {
-    key: "run",
-    value: function run() {
-      var debug = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      this.channelSegments = this.meander(this.channelSegments);
-      var points = (0, _lineSegments.pointsFromSegment)(this.channelSegments);
-      points = this.joinMeanders(points);
-      points = this.adjustSpacing(points);
-      this.channelSegments = (0, _lineSegments.segmentFromPoints)(points);
-      this.oxbows = this.shrinkOxbows(this.oxbows);
+    key: "step",
+    value: function step() {
+      // influence segments to sim flow
+      this.channelSegments = this.meander(this.channelSegments); // convert to array of points
+
+      var points = (0, _lineSegments.pointsFromSegment)(this.channelSegments); // cut off portions that are close and create and oxbow
+
+      points = this.closeCloseSegments(points); // cut points that are close and add new points where they are far apart
+
+      points = this.adjustPointsSpacing(points);
+      this.channelPoints = points; // back to a segment to
+
+      this.channelSegments = (0, _lineSegments.segmentFromPoints)(this.channelPoints); // reduce the size of the oxbows
+
+      this.oxbows = this.shrinkOxbowSegments(this.oxbows); // record for a "historical" record
+
       this.addToHistory(this.oxbows, this.channelSegments);
-      return points;
+      this.steps++;
     }
   }]);
 
@@ -9714,44 +9752,14 @@ var river = function river() {
   };
   var ctx;
   var canvasMidX;
-  var canvasMidY;
-  var backgroundColor = _palettes.warmWhite;
-  var river = [];
-  var time = 0;
+  var canvasMidY; // const backgroundColor = warmWhite;
 
-  var debugDrawVectors = function debugDrawVectors(segments) {
-    var tmult = 50;
-    var bmult = 50;
-    var mmult = 20;
-    var cmult = 50;
-    var tan = 'red';
-    var bitan = 'blue';
-    var mx = 'purple';
-    segments.forEach(function (seg, i) {
-      if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
-        var x = seg.start.x;
-        var y = seg.start.y;
-        var tangent = seg.tangent,
-            bitangent = seg.bitangent,
-            mix = seg.mix,
-            curvature = seg.curvature;
-        var utan = tangent.setMag(1);
-        var ubitan = bitangent.setMag(1);
-        var umix = bitangent.setMag(1);
-        var ucurve = (0, _math.uvFromAngle)(curvature);
-        console.log(ucurve); // ctx.strokeStyle = tinycolor(tan).toRgbString();
-        // drawLine(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
-        //
-        // ctx.strokeStyle = tinycolor(bitan).toRgbString();
-        // drawLine(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
-        //
+  var rivers = [];
+  var time = 0; // colors sampled from http://roberthodgin.com/project/meander
 
-        ctx.strokeStyle = (0, _tinycolor.default)(mx).toRgbString();
-        (0, _canvas.drawLine)(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 0.5); // ctx.strokeStyle = tinycolor(mx).toRgbString();
-        // drawLine(ctx)(x, y, x + ucurve.x * cmult, y + ucurve.y * cmult, 0.5);
-      }
-    });
-  };
+  var backgroundColor = (0, _tinycolor.default)('hsl(42, 43%, 76%)');
+  var tintingColor = (0, _tinycolor.default)('hsl(38, 38%, 64%)');
+  var historicalColors = [(0, _tinycolor.default)('hsl(97, 9%, 73%)'), (0, _tinycolor.default)('hsl(51, 7%, 38%)'), (0, _tinycolor.default)('hsl(19, 39%, 47%)'), (0, _tinycolor.default)('hsl(166, 39%, 59%)')];
 
   var drawSegment = function drawSegment(segments, color, weight) {
     var points = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
@@ -9810,6 +9818,47 @@ var river = function river() {
         (0, _canvas.drawCircleFilled)(ctx)(seg.end.x, seg.end.y, rad, 'red');
       });
     }
+  }; // Various noise fns to test
+
+
+  var simplex2d = function simplex2d(x, y) {
+    return (0, _attractors.simplexNoise2d)(x, y, 0.001);
+  };
+
+  var simplex3d = function simplex3d(x, y) {
+    return (0, _attractors.simplexNoise3d)(x, y, time, 0.0005);
+  };
+
+  var clifford = function clifford(x, y) {
+    return (0, _attractors.cliffordAttractor)(canvas.width, canvas.height, x, y);
+  };
+
+  var jong = function jong(x, y) {
+    return (0, _attractors.jongAttractor)(canvas.width, canvas.height, x, y);
+  };
+
+  var noise = jong; // simplex2d;
+
+  var segmentFromSplinedPoints = function segmentFromSplinedPoints(points) {
+    return (0, _lineSegments.segmentFromPoints)((0, _lineSegments.createSplinePoints)(points));
+  };
+
+  var drawOxbows = function drawOxbows(bows, color, weight) {
+    var smooth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
+    bows.forEach(function (o) {
+      var a = (0, _math.mapRange)(0, 10, 0, 1, o.length);
+      var w = (0, _math.mapRange)(0, 10, 1, weight, o.length); // connectSegments(oxsegments) // connect ends and starts
+      // BUG here, can cause invalid float32array len, trapped in code
+
+      var seg = segmentFromSplinedPoints((0, _lineSegments.pointsFromSegment)(o));
+      drawSegment(seg, color, w); // drawSegmentTaper(seg, color, w);
+    });
+  };
+
+  var drawMainChannel = function drawMainChannel(points, color, weight) {
+    var smooth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
+    var seg = (0, _lineSegments.trimSegments)(segmentFromSplinedPoints((0, _math.chaikin)(points, smooth)), 1);
+    drawSegment(seg, color, weight); // drawSegmentTaper(seg, color, weight, weight * 0.5);
   };
 
   var setup = function setup(_ref2) {
@@ -9819,54 +9868,50 @@ var river = function river() {
     canvasMidX = canvas.width / 2;
     canvasMidY = canvas.height / 2;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    var channelSegments = (0, _lineSegments.segmentFromPoints)(createSimplePath(canvas, 0, canvasMidY, 30));
-    river.push(new River(channelSegments, {
-      mixTangentRatio: 0.5
+    var points = (0, _math.chaikin)(createHorizontalPath(canvas, 0, canvasMidY, 50), 1);
+    var channelSegments = (0, _lineSegments.segmentFromPoints)(points);
+    rivers.push(new River(channelSegments, {
+      mixTangentRatio: 0.5,
+      maxHistory: 5,
+      storeHistoryEvery: 20,
+      noiseFn: noise,
+      mixNoiseRatio: 0.2
     })); // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
-    // river.push(new River(circleSegments, { mixTangentRatio: 0.5, fixedEndPoints: 0 }));
-  };
+    // rivers.push(new River(circleSegments, { mixTangentRatio: 0.5, fixedEndPoints: 0 }));
+  }; // i-1 assuming current is a different color
+  // need to create tints for differt mult of i based on # of colors: 4
 
-  var drawOxbows = function drawOxbows(bows, color, weight) {
-    var smooth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
-    bows.forEach(function (o) {
-      var a = (0, _math.mapRange)(0, 10, 0, 1, o.length);
-      var w = (0, _math.mapRange)(0, 10, 1, weight, o.length);
-      var oxpoints = (0, _math.chaikin)((0, _lineSegments.pointsFromSegment)(o), smooth);
-      var oxsegments = (0, _lineSegments.segmentFromPoints)(oxpoints); // drawSegment(segmentFromPoints(oxpoints), color.setAlpha(a), w, false);
 
-      drawSegmentTaper((0, _lineSegments.connectSegments)(oxsegments), color, w);
-    });
-  };
-
-  var drawMainChannel = function drawMainChannel(points, color, weight) {
-    var smooth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
-    var seg = (0, _lineSegments.segmentFromPoints)((0, _math.chaikin)(points, smooth));
-    drawSegmentTaper((0, _lineSegments.trimSegments)(seg, 5), color, weight, weight * 0.5);
+  var getHistoricalColor = function getHistoricalColor(i) {
+    return historicalColors[i - 1];
   };
 
   var draw = function draw(_ref3) {
     var canvas = _ref3.canvas,
         context = _ref3.context;
     (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(1));
+    (0, _attractors.renderField)(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
     var riverColor = _palettes.bicPenBlue;
     var riverWeight = 30;
 
-    var oxbowColor = _palettes.warmGreyDark.clone().brighten(50);
+    var oxbowColor = _palettes.warmGreyDark.clone().brighten(30).setAlpha(0.1);
 
-    var oxbowWeight = 30;
-    river.forEach(function (r) {
-      var points = r.run();
-      drawOxbows(r.oxbows, oxbowColor, oxbowWeight); // drawMainChannel(points, backgroundColor, riverWeight * 2);
+    var oxbowWeight = 20;
+    rivers.forEach(function (r) {
+      r.step();
 
-      drawMainChannel(points, riverColor, riverWeight, 5); // for (let i = r.history.length - 1; i >= 0; i--) {
-      //     const b = mapRange(r.history.length, 0, 50, 10, i);
-      //     const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
-      //     const ocolor = i == 0 ? oxbowColor : warmGreyDark.clone().brighten(b / 2);
-      //
-      //     drawOxbows(r.history[i].oxbows, ccolor, oxbowWeight);
-      //
-      //     drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight);
-      // }
+      for (var i = r.history.length - 1; i >= 0; i--) {
+        var b = (0, _math.mapRange)(r.history.length, 0, 50, 10, i); // const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
+
+        var ccolor = i === 0 ? tintingColor : getHistoricalColor(i);
+        var ocolor = oxbowColor; // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
+
+        drawMainChannel((0, _lineSegments.pointsFromSegment)(r.history[i].channel), ccolor, riverWeight * 1.25);
+      } // drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
+
+
+      var points = r.channelPoints;
+      drawMainChannel(points, _palettes.warmWhite, riverWeight, 2);
     });
     time += 1;
   };
@@ -9879,7 +9924,7 @@ var river = function river() {
 };
 
 exports.river = river;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/lineSegments":"scripts/lib/lineSegments.js","../lib/attractors":"scripts/lib/attractors.js","../lib/canvas-shapes-complex":"scripts/lib/canvas-shapes-complex.js","../lib/utils":"scripts/lib/utils.js","../lib/grids":"scripts/lib/grids.js"}],"scripts/index.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","../lib/math":"scripts/lib/math.js","../lib/canvas":"scripts/lib/canvas.js","../lib/sketch":"scripts/lib/sketch.js","../lib/palettes":"scripts/lib/palettes.js","../lib/Vector":"scripts/lib/Vector.js","../lib/lineSegments":"scripts/lib/lineSegments.js","../lib/attractors":"scripts/lib/attractors.js","../lib/utils":"scripts/lib/utils.js","../lib/grids":"scripts/lib/grids.js"}],"scripts/index.js":[function(require,module,exports) {
 "use strict";
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
@@ -9981,7 +10026,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64996" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49674" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
