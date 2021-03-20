@@ -1,6 +1,7 @@
 import { Vector } from './Vector';
 import { pointDistance } from './math';
 import { getCurvePoints } from './curve-calc';
+import { last } from './utils';
 
 export const lineSlope = (a, b) => (b.y - a.y) / (b.x - a.x);
 
@@ -49,6 +50,46 @@ export const trimSegments = (segs, skip = 2) =>
         return acc;
     }, []);
 
+// For array of points from segments, take only the first start
+export const startPointsOnly = (points) => {
+    const p = [];
+    for (let i = 0; i < points.length; i += 2) {
+        p.push(points[i]);
+    }
+    // last end point
+    p.push(last(points));
+    return p;
+};
+
+// For array of points from segments, return the mid point of the segment
+export const getSegPointsMid = (points) => {
+    const p = [];
+    for (let i = 0; i < points.length; i += 2) {
+        const s = points[i];
+        const e = points[i + 1];
+        if (e) {
+            const midX = s[0] + (e[0] - s[0]) * 0.5;
+            const midY = s[1] + (e[1] - s[1]) * 0.5;
+            p.push([midX, midY]);
+        } else {
+            p.push(s);
+        }
+    }
+    // last end point
+    p.push(last(points));
+    return p;
+};
+
+export const trimPoints = (points, skip = 2) =>
+    points.reduce((acc, s, i) => {
+        if (i === 0 || i === points.length - 1) {
+            acc.push(s);
+        } else if (i % skip === 0) {
+            acc.push(s);
+        }
+        return acc;
+    }, []);
+
 export const segmentOrientation = ({ start, end }) => Math.atan2(end.y - start.y, end.x - start.x);
 
 export const segmentFromPoints = (points) => {
@@ -78,8 +119,11 @@ export const a2pA = (arry) => arry.map((a) => a2p(a));
 // [[x,y]] => [x1, y1,  x2, y2, ... xn, yn]
 export const flattenPointArray = (arry) =>
     arry.reduce((acc, p) => {
-        acc.push(p[0]);
-        acc.push(p[1]);
+        if (p) {
+            acc.push(p[0]);
+            acc.push(p[1]);
+        }
+
         return acc;
     }, []);
 

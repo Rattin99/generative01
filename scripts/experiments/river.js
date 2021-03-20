@@ -2,7 +2,7 @@ import tinycolor from 'tinycolor2';
 import { uvFromAngle, randomNormalWholeBetween, chaikin, pointDistance, lerp, mapRange } from '../lib/math';
 import { background, drawCircleFilled, drawLine } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { bicPenBlue, palettes, warmGreyDark, warmWhite } from '../lib/palettes';
+import { bicPenBlue, warmGreyDark, warmWhite } from '../lib/palettes';
 import { Vector } from '../lib/Vector';
 import {
     segmentFromPoints,
@@ -11,14 +11,12 @@ import {
     reduceLineFromStart,
     reduceLineFromEnd,
     reduceLineEqually,
-    trimSegments,
     segmentsIntersect,
-    connectSegments,
     createSplinePoints,
+    getSegPointsMid,
 } from '../lib/lineSegments';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor, renderField } from '../lib/attractors';
 import { defaultValue } from '../lib/utils';
-import { createCirclePoints } from '../lib/grids';
 
 /*
 Based on Meander by Roger Hodgin
@@ -35,7 +33,7 @@ https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/o
 https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/org/openrndr/shape/LineSegment.kt
 
 TODO
-- [ ] BUG - chaikin smooth points causes line to
+- [ ] BUG - chaikin smooth points causes line to be all removed
 - [ ] Jitter!
 - [ ] reduce all oxbow segments not just ends
         > reduction closer to end
@@ -46,21 +44,6 @@ TODO
  */
 
 const TAU = Math.PI * 2;
-
-const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => {
-    const coords = [];
-    const incr = Math.round(width / steps);
-    const midx = width / 2;
-    for (let i = startX; i < width; i += incr) {
-        // greater variation in the middle
-        const midDist = Math.round(midx - Math.abs(i - midx));
-        const y = randomNormalWholeBetween(startY - midDist, startY + midDist);
-
-        coords.push([i, y]);
-    }
-    coords.push([width, startY]);
-    return coords;
-};
 
 class River {
     constructor(starting, props) {
@@ -80,11 +63,12 @@ class River {
         this.insertionFactor = defaultValue(props, 'insertionFactor', 2); // insert more proints
         this.indexNearnessMetric = Math.ceil(this.curveAdjacentSegments * 1.5);
         this.pointRemoveProx = defaultValue(props, 'pointRemoveProx', this.curveMagnitude * 0.3);
-        this.oxbowProx = this.curveMagnitude; // 25;
+        this.oxbowProx = defaultValue(props, 'oxbowProx', this.curveMagnitude);
         this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 4);
         this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 1);
 
         this.noiseFn = defaultValue(props, 'noiseFn', undefined);
+        this.noiseStrengthAffect = defaultValue(props, 'noiseStrengthAffect', 0); // only noise theta > will cause drift
         this.mixNoiseRatio = defaultValue(props, 'mixNoiseRatio', 0.1);
     }
 
@@ -105,6 +89,8 @@ class River {
                 const segO = segmentOrientation(seg);
                 const nextO = segmentOrientation(segments[next]);
                 const oDifference = segO - nextO;
+
+                // diffs += oDifference;
 
                 // when crossing the π/-π threshold, the difference will be large even though the angular difference is small.
                 // We can adjust for this special case by adding 2π to the negative value
@@ -142,8 +128,11 @@ class River {
         let mVector = a.mix(b, this.mixTangentRatio);
 
         if (this.noiseFn) {
-            const n = uvFromAngle(this.noiseFn(start.x, start.y));
-            mVector = mVector.mix(n, this.mixNoiseRatio);
+            const t = this.noiseFn(start.x, start.y);
+            if (Math.abs(t) > this.noiseStrengthAffect) {
+                const n = uvFromAngle(t);
+                mVector = mVector.mix(n, this.mixNoiseRatio);
+            }
         }
 
         mVector = mVector.setMag(mag);
@@ -214,14 +203,18 @@ class River {
 
             if (distance > this.curveMagnitude) {
                 // ensure that for points with large distances between, an appropriate number of midpoints are added
-                const numInsertPoints = Math.floor(distance / this.curveMagnitude) * this.insertionFactor + 1;
+                const numInsertPoints = Math.ceil(distance / this.curveMagnitude) * this.insertionFactor + 1;
                 for (let k = 0; k < numInsertPoints; k++) {
                     const ratio = (1 / numInsertPoints) * k;
                     const nx = lerp(point[0], next[0], ratio);
                     const ny = lerp(point[1], next[1], ratio);
                     acc.push([nx, ny]);
                 }
-            } else if (distance < this.pointRemoveProx) {
+            } else if (
+                i > this.fixedEndPoints &&
+                i < points.length - this.fixedEndPoints &&
+                distance < this.pointRemoveProx
+            ) {
                 // If too close, remove it
             } else {
                 acc.push(point);
@@ -294,6 +287,21 @@ class River {
     }
 }
 
+const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => {
+    const coords = [];
+    const incr = Math.round(width / steps);
+    const midx = width / 2;
+    for (let i = startX; i < width; i += incr) {
+        // greater variation in the middle
+        const midDist = Math.round(midx - Math.abs(i - midx));
+        const y = randomNormalWholeBetween(startY - midDist, startY + midDist);
+
+        coords.push([i, y]);
+    }
+    coords.push([width, startY]);
+    return coords;
+};
+
 export const river = () => {
     const config = {
         name: 'river',
@@ -311,12 +319,53 @@ export const river = () => {
     // colors sampled from http://roberthodgin.com/project/meander
     const backgroundColor = tinycolor('hsl(42, 43%, 76%)');
     const tintingColor = tinycolor('hsl(38, 38%, 64%)');
-    const historicalColors = [
+    const palette = [
         tinycolor('hsl(97, 9%, 73%)'),
         tinycolor('hsl(51, 7%, 38%)'),
         tinycolor('hsl(19, 39%, 47%)'),
         tinycolor('hsl(166, 39%, 59%)'),
     ];
+    const historicalColors = [
+        palette[0],
+        palette[1],
+        palette[2],
+        palette[3],
+        tinycolor.mix(palette[0], tintingColor, 25),
+        tinycolor.mix(palette[1], tintingColor, 25),
+        tinycolor.mix(palette[2], tintingColor, 25),
+        tinycolor.mix(palette[4], tintingColor, 25),
+        tinycolor.mix(palette[0], tintingColor, 50),
+        tinycolor.mix(palette[1], tintingColor, 50),
+        tinycolor.mix(palette[2], tintingColor, 50),
+        tinycolor.mix(palette[4], tintingColor, 50),
+        tinycolor.mix(palette[0], tintingColor, 75),
+        tinycolor.mix(palette[1], tintingColor, 75),
+        tinycolor.mix(palette[2], tintingColor, 75),
+        tinycolor.mix(palette[4], tintingColor, 75),
+    ];
+
+    const drawCircleAtPoint = (points, color = 'black', width = 1) => {
+        points.forEach((coords) => {
+            drawCircleFilled(ctx)(coords[0], coords[1], width / 2, color);
+        });
+    };
+
+    const drawPoints = (points, color = 'black', width = 1) => {
+        ctx.beginPath();
+        ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        // ctx.lineJoin = 'round';
+
+        points.forEach((coords, i) => {
+            if (i === 0) {
+                ctx.moveTo(coords[0], coords[1]);
+            } else {
+                ctx.lineTo(coords[0], coords[1]);
+            }
+        });
+        ctx.stroke();
+    };
 
     const drawSegment = (segments, color, weight, points = false) => {
         ctx.lineCap = 'round';
@@ -388,16 +437,24 @@ export const river = () => {
             const w = mapRange(0, 10, 1, weight, o.length);
             // connectSegments(oxsegments) // connect ends and starts
             // BUG here, can cause invalid float32array len, trapped in code
-            const seg = segmentFromSplinedPoints(pointsFromSegment(o));
-            drawSegment(seg, color, w);
+
+            const p = createSplinePoints(getSegPointsMid(pointsFromSegment(o)));
+            drawPoints(p, color, w);
+
+            // const seg = segmentFromSplinedPoints(pointsFromSegment(o));
+            // drawSegment(seg, color, w);
             // drawSegmentTaper(seg, color, w);
         });
     };
 
-    const drawMainChannel = (points, color, weight, smooth = 2) => {
-        const seg = trimSegments(segmentFromSplinedPoints(chaikin(points, smooth)), 1);
-        drawSegment(seg, color, weight);
-        // drawSegmentTaper(seg, color, weight, weight * 0.5);
+    const drawMainChannel = (points, color, weight, smooth = false) => {
+        let p = getSegPointsMid(points);
+        if (smooth) {
+            p = createSplinePoints(p);
+        } else {
+            p = chaikin(p, 2);
+        }
+        drawPoints(p, color, weight);
     };
 
     const setup = ({ canvas, context }) => {
@@ -405,7 +462,7 @@ export const river = () => {
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         background(canvas, context)(backgroundColor);
-        const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 50), 1);
+        const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 20), 1);
         const channelSegments = segmentFromPoints(points);
         // rivers.push(
         //     new River(channelSegments, {
@@ -418,16 +475,19 @@ export const river = () => {
         // );
         rivers.push(
             new River(channelSegments, {
-                fixedEndPoints: 5,
+                fixedEndPoints: 1,
                 curveAdjacentSegments: 10,
-                curveMagnitude: 15,
+                curveMagnitude: 30,
                 insertionFactor: 5,
+                pointRemoveProx: 4, // curveMag * .3
+                oxbowProx: 15, // curveMag
                 mixMagnitude: 2,
                 mixTangentRatio: 0.55,
-                maxHistory: 5,
-                storeHistoryEvery: 10,
+                maxHistory: historicalColors.length / 4,
+                storeHistoryEvery: 20,
                 noiseFn: noise,
-                mixNoiseRatio: 0.2,
+                noiseStrengthAffect: 3,
+                mixNoiseRatio: 0.1,
             })
         );
 
@@ -447,27 +507,26 @@ export const river = () => {
 
         const riverColor = bicPenBlue;
         const riverWeight = 10;
-        const oxbowColor = warmGreyDark.clone().brighten(30).setAlpha(0.1);
-        const oxbowWeight = 20;
+        const oxbowColor = warmGreyDark.clone().brighten(30).setAlpha(0.5);
+        const oxbowWeight = 7;
 
         rivers.forEach((r) => {
             r.step();
 
-            for (let i = r.history.length - 1; i >= 0; i--) {
-                const b = mapRange(r.history.length, 0, 50, 10, i);
-                // const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
-
-                const ccolor = i === 0 ? tintingColor : getHistoricalColor(i);
-                const ocolor = oxbowColor;
-
-                // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
-
-                drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight * 2);
-            }
+            // for (let i = r.history.length - 1; i >= 0; i--) {
+            //     const b = mapRange(r.history.length, 0, 50, 10, i);
+            //     // const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
+            //
+            //     const ccolor = i === 0 ? tintingColor : getHistoricalColor(i);
+            //     const ocolor = oxbowColor;
+            //
+            //     // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
+            //
+            //     drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight * 2);
+            // }
 
             drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
-            const points = r.channelPoints;
-            drawMainChannel(points, warmWhite, riverWeight, 2);
+            drawMainChannel(r.channelPoints, warmWhite, riverWeight, true);
         });
 
         time += 1;
