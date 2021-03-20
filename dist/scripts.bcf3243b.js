@@ -9047,15 +9047,39 @@ exports.gridDitherImage = gridDitherImage;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.reduceLineEqually = exports.reduceLineFromEnd = exports.reduceLineFromStart = exports.a2pA = exports.a2p = exports.pointsFromSegment = exports.segmentFromPoints = exports.segmentOrientation = exports.trimSegments = exports.segment = exports.lineSlope = void 0;
+exports.reduceLineEqually = exports.reduceLineFromEnd = exports.reduceLineFromStart = exports.a2pA = exports.a2p = exports.pointsFromSegment = exports.segmentFromPoints = exports.segmentOrientation = exports.trimSegments = exports.connectSegments = exports.segment = exports.segmentsIntersect = exports.linesIntersect = exports.lineSlope = void 0;
 
 var _Vector = require("./Vector");
 
+var _math = require("./math");
+
 var lineSlope = function lineSlope(a, b) {
   return (b.y - a.y) / (b.x - a.x);
-};
+}; // https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
+// returns true iff the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
+
 
 exports.lineSlope = lineSlope;
+
+var linesIntersect = function linesIntersect(a, b, c, d, p, q, r, s) {
+  var det = (c - a) * (s - q) - (r - p) * (d - b);
+
+  if (det === 0) {
+    return false;
+  }
+
+  var lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+  var gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+  return lambda > 0 && lambda < 1 && gamma > 0 && gamma < 1;
+};
+
+exports.linesIntersect = linesIntersect;
+
+var segmentsIntersect = function segmentsIntersect(a, b) {
+  return linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y);
+};
+
+exports.segmentsIntersect = segmentsIntersect;
 
 var segment = function segment(x1, y1, x2, y2) {
   var start = new _Vector.Vector(x1, y1);
@@ -9067,6 +9091,31 @@ var segment = function segment(x1, y1, x2, y2) {
 };
 
 exports.segment = segment;
+
+var connectSegments = function connectSegments(segs) {
+  return segs.map(function (s, i) {
+    if (i === segs.length - 1) {
+      return s;
+    }
+
+    var next = segs[i + 1];
+    var distance = (0, _math.pointDistance)({
+      x: s.end.x,
+      y: s.end.y
+    }, {
+      x: next.start.x,
+      y: s.start.y
+    });
+
+    if (distance > 1) {
+      s.end = new _Vector.Vector(next.start.x, next.start.y);
+    }
+
+    return s;
+  });
+};
+
+exports.connectSegments = connectSegments;
 
 var trimSegments = function trimSegments(segs) {
   var skip = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
@@ -9176,7 +9225,7 @@ var reduceLineEqually = function reduceLineEqually(p1, p2, r) {
 };
 
 exports.reduceLineEqually = reduceLineEqually;
-},{"./Vector":"scripts/lib/Vector.js"}],"scripts/lib/canvas-shapes-complex.js":[function(require,module,exports) {
+},{"./Vector":"scripts/lib/Vector.js","./math":"scripts/lib/math.js"}],"scripts/lib/canvas-shapes-complex.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9377,7 +9426,7 @@ var createSimplePath = function createSimplePath(_ref, startX, startY) {
 
   for (var i = startX; i < width; i += incr) {
     // greater variation in the middle
-    var midDist = Math.round((midx - Math.abs(i - midx)) * 2);
+    var midDist = Math.round(midx - Math.abs(i - midx));
     var y = (0, _math.randomNormalWholeBetween)(startY - midDist, startY + midDist);
     coords.push([i, y]);
   }
@@ -9390,18 +9439,21 @@ var River = /*#__PURE__*/function () {
   function River(starting, props) {
     _classCallCheck(this, River);
 
-    this.maxHistory = 20;
+    this.maxHistory = 50;
     this.history = [];
     this.channelSegments = starting;
     this.oxbows = [];
     this.curveAdjacentSegments = (0, _utils.defaultValue)(props, 'curveAdjacentSegments', 10);
-    this.mixTangentRatio = (0, _utils.defaultValue)(props, 'mixTangentRatio', 0.5); // 0 tangent ... 1 bitangent
-
     this.segCurveMultiplier = (0, _utils.defaultValue)(props, 'segCurveMultiplier', 20);
-    this.mixMagnitude = (0, _utils.defaultValue)(props, 'mixMagnitude', 4);
+    this.mixTangentRatio = (0, _utils.defaultValue)(props, 'mixTangentRatio', 0.6); // 0 tangent ... 1 bitangent
+
+    this.mixMagnitude = (0, _utils.defaultValue)(props, 'mixMagnitude', 3);
     this.curveMagnitude = (0, _utils.defaultValue)(props, 'curveMagnitude', 40);
+    this.insertionFactor = (0, _utils.defaultValue)(props, 'insertionFactor', 2); // insert more proints
+
     this.indexNearnessMetric = Math.ceil(this.curveAdjacentSegments * 1.5);
-    this.oxbowNearnessMetric = this.curveMagnitude; // 25;
+    this.pointRemoveProx = (0, _utils.defaultValue)(props, 'pointRemoveProx', this.curveMagnitude * 0.3);
+    this.oxbowProx = this.curveMagnitude; // 25;
 
     this.oxbowShrinkRate = (0, _utils.defaultValue)(props, 'oxbowShrinkRate', 4);
     this.fixedEndPoints = (0, _utils.defaultValue)(props, 'fixedEndPoints', 1);
@@ -9536,7 +9588,7 @@ var River = /*#__PURE__*/function () {
         for (var j = i; j < points.length; j++) {
           var next = points[j]; // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
 
-          if (this.potentialOxbow(point, next, this.oxbowNearnessMetric) && !this.indicesAreNear(i, j, this.indexNearnessMetric)) {
+          if (this.potentialOxbow(point, next, this.oxbowProx) && !this.indicesAreNear(i, j, this.indexNearnessMetric)) {
             line.push(next);
             this.addOxbow(i, j);
             i = j;
@@ -9570,7 +9622,7 @@ var River = /*#__PURE__*/function () {
 
         if (distance > _this2.curveMagnitude) {
           // ensure that for points with large distances between, an appropriate number of midpoints are added
-          var numInsertPoints = Math.floor(distance / _this2.curveMagnitude) + 1;
+          var numInsertPoints = Math.floor(distance / _this2.curveMagnitude) * _this2.insertionFactor + 1;
 
           for (var k = 0; k < numInsertPoints; k++) {
             var _ratio = 1 / numInsertPoints * k;
@@ -9579,7 +9631,7 @@ var River = /*#__PURE__*/function () {
             var ny = (0, _math.lerp)(point[1], next[1], _ratio);
             acc.push([nx, ny]);
           }
-        } else if (distance < _this2.curveMagnitude * 0.3) {// If too close, remove it
+        } else if (distance < _this2.pointRemoveProx) {// If too close, remove it
         } else {
           acc.push(point);
         }
@@ -9592,28 +9644,39 @@ var River = /*#__PURE__*/function () {
     value: function shrinkOxbows(oxarry) {
       var _this3 = this;
 
-      return oxarry.reduce(function (oxacc, oseg, i) {
+      return oxarry.reduce(function (oxacc, oseg) {
         if (oseg.length > 1) {
           var shrinkPct = _this3.oxbowShrinkRate / oseg.length;
           oseg = oseg.reduce(function (sacc, s, i) {
-            // shrink the first and last line in the segment
-            if (i === 0) {
-              var r = (0, _lineSegments.reduceLineFromStart)(s.start, s.end, shrinkPct);
-              s.start = new _Vector.Vector(r.x, r.y);
-            } else if (i === oseg.length - 1) {
-              var _r = (0, _lineSegments.reduceLineFromEnd)(s.start, s.end, shrinkPct);
+            // check every channel segment for an intersection with this oxbow segment
+            var intersect = _this3.channelSegments.reduce(function (acc, cs) {
+              if (!acc) {
+                acc = (0, _lineSegments.segmentsIntersect)(cs, s);
+              }
 
-              s.end = new _Vector.Vector(_r.x, _r.y);
-            } else {
-              var _r2 = (0, _lineSegments.reduceLineEqually)(s.start, s.end, 0.01);
+              return acc;
+            }, false);
 
-              s.start = new _Vector.Vector(_r2[0].x, _r2[0].y);
-              s.end = new _Vector.Vector(_r2[1].x, _r2[1].y);
-            } // remove if it's too small
+            if (!intersect) {
+              // shrink the first and last line in the segment
+              if (i === 0) {
+                var r = (0, _lineSegments.reduceLineFromStart)(s.start, s.end, shrinkPct);
+                s.start = new _Vector.Vector(r.x, r.y);
+              } else if (i === oseg.length - 1) {
+                var _r = (0, _lineSegments.reduceLineFromEnd)(s.start, s.end, shrinkPct);
+
+                s.end = new _Vector.Vector(_r.x, _r.y);
+              } else {
+                var _r2 = (0, _lineSegments.reduceLineEqually)(s.start, s.end, 0.01);
+
+                s.start = new _Vector.Vector(_r2[0].x, _r2[0].y);
+                s.end = new _Vector.Vector(_r2[1].x, _r2[1].y);
+              } // remove if it's too small
 
 
-            if ((0, _math.pointDistance)(s.start, s.end) > 1) {
-              sacc.push(s);
+              if ((0, _math.pointDistance)(s.start, s.end) > 1) {
+                sacc.push(s);
+              }
             }
 
             return sacc;
@@ -9653,12 +9716,6 @@ var river = function river() {
   var canvasMidX;
   var canvasMidY;
   var backgroundColor = _palettes.warmWhite;
-  var riverColor = _palettes.bicPenBlue;
-  var riverWeight = 10;
-
-  var oxbowColor = _palettes.warmGreyDark.clone().brighten(50);
-
-  var oxbowWeight = riverWeight * 0.75;
   var river = [];
   var time = 0;
 
@@ -9696,8 +9753,8 @@ var river = function river() {
     });
   };
 
-  var drawSegment = function drawSegment(segments, color, weight, taper) {
-    var points = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+  var drawSegment = function drawSegment(segments, color, weight) {
+    var points = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = (0, _tinycolor.default)(color).clone().toRgbString();
@@ -9723,6 +9780,38 @@ var river = function river() {
     }
   };
 
+  var drawSegmentTaper = function drawSegmentTaper(segments, color, maxWeight) {
+    var minWeight = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+    var points = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = (0, _tinycolor.default)(color).clone().toRgbString();
+    var mid = segments.length / 2;
+    segments.forEach(function (seg, i) {
+      var dist = Math.abs(mid - i);
+      var w = (0, _math.mapRange)(0, mid, maxWeight, minWeight, dist);
+      ctx.beginPath();
+      ctx.lineWidth = w;
+
+      if (i === 0) {
+        ctx.moveTo(seg.start.x, seg.start.y);
+      } else {
+        ctx.lineTo(seg.start.x, seg.start.y);
+      }
+
+      ctx.lineTo(seg.end.x, seg.end.y);
+      ctx.stroke();
+    });
+
+    if (points) {
+      segments.forEach(function (seg, i) {
+        var rad = i === 0 || i === segments.length - 1 ? 3 : 1;
+        (0, _canvas.drawCircleFilled)(ctx)(seg.start.x, seg.start.y, rad, 'green');
+        (0, _canvas.drawCircleFilled)(ctx)(seg.end.x, seg.end.y, rad, 'red');
+      });
+    }
+  };
+
   var setup = function setup(_ref2) {
     var canvas = _ref2.canvas,
         context = _ref2.context;
@@ -9730,7 +9819,7 @@ var river = function river() {
     canvasMidX = canvas.width / 2;
     canvasMidY = canvas.height / 2;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    var channelSegments = (0, _lineSegments.segmentFromPoints)(createSimplePath(canvas, 0, canvasMidY, 40));
+    var channelSegments = (0, _lineSegments.segmentFromPoints)(createSimplePath(canvas, 0, canvasMidY, 30));
     river.push(new River(channelSegments, {
       mixTangentRatio: 0.5
     })); // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
@@ -9743,31 +9832,41 @@ var river = function river() {
       var a = (0, _math.mapRange)(0, 10, 0, 1, o.length);
       var w = (0, _math.mapRange)(0, 10, 1, weight, o.length);
       var oxpoints = (0, _math.chaikin)((0, _lineSegments.pointsFromSegment)(o), smooth);
-      drawSegment((0, _lineSegments.segmentFromPoints)(oxpoints), color.setAlpha(a), w, true, false);
+      var oxsegments = (0, _lineSegments.segmentFromPoints)(oxpoints); // drawSegment(segmentFromPoints(oxpoints), color.setAlpha(a), w, false);
+
+      drawSegmentTaper((0, _lineSegments.connectSegments)(oxsegments), color, w);
     });
   };
 
   var drawMainChannel = function drawMainChannel(points, color, weight) {
     var smooth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
-    drawSegment((0, _lineSegments.segmentFromPoints)((0, _math.chaikin)(points, smooth)), color, weight, false, false);
+    var seg = (0, _lineSegments.segmentFromPoints)((0, _math.chaikin)(points, smooth));
+    drawSegmentTaper((0, _lineSegments.trimSegments)(seg, 5), color, weight, weight * 0.5);
   };
 
   var draw = function draw(_ref3) {
     var canvas = _ref3.canvas,
         context = _ref3.context;
-    // background(canvas, context)(backgroundColor.clone().setAlpha(0.5));
-    river.forEach(function (r) {
-      var points = r.run(); // drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
-      // drawMainChannel(points, backgroundColor, riverWeight * 2);
-      // drawMainChannel(points, riverColor, riverWeight, 5);
+    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(1));
+    var riverColor = _palettes.bicPenBlue;
+    var riverWeight = 30;
 
-      for (var i = r.history.length - 1; i >= 0; i--) {
-        var b = (0, _math.mapRange)(r.history.length, 0, 50, 10, i);
-        var ccolor = i == 0 ? riverColor : _palettes.warmGreyDark.clone().brighten(b);
-        var ocolor = i == 0 ? oxbowColor : _palettes.warmGreyDark.clone().brighten(b / 2);
-        drawOxbows(r.history[i].oxbows, ccolor, oxbowWeight);
-        drawMainChannel((0, _lineSegments.pointsFromSegment)(r.history[i].channel), ccolor, riverWeight);
-      }
+    var oxbowColor = _palettes.warmGreyDark.clone().brighten(50);
+
+    var oxbowWeight = 30;
+    river.forEach(function (r) {
+      var points = r.run();
+      drawOxbows(r.oxbows, oxbowColor, oxbowWeight); // drawMainChannel(points, backgroundColor, riverWeight * 2);
+
+      drawMainChannel(points, riverColor, riverWeight, 5); // for (let i = r.history.length - 1; i >= 0; i--) {
+      //     const b = mapRange(r.history.length, 0, 50, 10, i);
+      //     const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
+      //     const ocolor = i == 0 ? oxbowColor : warmGreyDark.clone().brighten(b / 2);
+      //
+      //     drawOxbows(r.history[i].oxbows, ccolor, oxbowWeight);
+      //
+      //     drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight);
+      // }
     });
     time += 1;
   };
@@ -9882,7 +9981,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57714" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64996" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -12,6 +12,9 @@ import {
     reduceLineFromEnd,
     a2pA,
     reduceLineEqually,
+    trimSegments,
+    segmentsIntersect,
+    connectSegments,
 } from '../lib/lineSegments';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor, renderField } from '../lib/attractors';
 import { bezierCurveFromPoints } from '../lib/canvas-shapes-complex';
@@ -52,7 +55,7 @@ const createSimplePath = ({ width, height }, startX, startY, steps = 20) => {
     const midx = width / 2;
     for (let i = startX; i < width; i += incr) {
         // greater variation in the middle
-        const midDist = Math.round((midx - Math.abs(i - midx)) * 2);
+        const midDist = Math.round(midx - Math.abs(i - midx));
         const y = randomNormalWholeBetween(startY - midDist, startY + midDist);
 
         coords.push([i, y]);
@@ -63,19 +66,20 @@ const createSimplePath = ({ width, height }, startX, startY, steps = 20) => {
 
 class River {
     constructor(starting, props) {
-        this.maxHistory = 20;
+        this.maxHistory = 50;
         this.history = [];
         this.channelSegments = starting;
         this.oxbows = [];
 
         this.curveAdjacentSegments = defaultValue(props, 'curveAdjacentSegments', 10);
-        this.mixTangentRatio = defaultValue(props, 'mixTangentRatio', 0.5); // 0 tangent ... 1 bitangent
         this.segCurveMultiplier = defaultValue(props, 'segCurveMultiplier', 20);
-        this.mixMagnitude = defaultValue(props, 'mixMagnitude', 4);
+        this.mixTangentRatio = defaultValue(props, 'mixTangentRatio', 0.6); // 0 tangent ... 1 bitangent
+        this.mixMagnitude = defaultValue(props, 'mixMagnitude', 3);
         this.curveMagnitude = defaultValue(props, 'curveMagnitude', 40);
-
+        this.insertionFactor = defaultValue(props, 'insertionFactor', 2); // insert more proints
         this.indexNearnessMetric = Math.ceil(this.curveAdjacentSegments * 1.5);
-        this.oxbowNearnessMetric = this.curveMagnitude; // 25;
+        this.pointRemoveProx = defaultValue(props, 'pointRemoveProx', this.curveMagnitude * 0.3);
+        this.oxbowProx = this.curveMagnitude; // 25;
         this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 4);
         this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 1);
     }
@@ -192,7 +196,7 @@ class River {
                 const next = points[j];
                 // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
                 if (
-                    this.potentialOxbow(point, next, this.oxbowNearnessMetric) &&
+                    this.potentialOxbow(point, next, this.oxbowProx) &&
                     !this.indicesAreNear(i, j, this.indexNearnessMetric)
                 ) {
                     line.push(next);
@@ -218,14 +222,14 @@ class River {
 
             if (distance > this.curveMagnitude) {
                 // ensure that for points with large distances between, an appropriate number of midpoints are added
-                const numInsertPoints = Math.floor(distance / this.curveMagnitude) + 1;
+                const numInsertPoints = Math.floor(distance / this.curveMagnitude) * this.insertionFactor + 1;
                 for (let k = 0; k < numInsertPoints; k++) {
                     const ratio = (1 / numInsertPoints) * k;
                     const nx = lerp(point[0], next[0], ratio);
                     const ny = lerp(point[1], next[1], ratio);
                     acc.push([nx, ny]);
                 }
-            } else if (distance < this.curveMagnitude * 0.3) {
+            } else if (distance < this.pointRemoveProx) {
                 // If too close, remove it
             } else {
                 acc.push(point);
@@ -235,28 +239,39 @@ class River {
     }
 
     shrinkOxbows(oxarry) {
-        return oxarry.reduce((oxacc, oseg, i) => {
+        return oxarry.reduce((oxacc, oseg) => {
             if (oseg.length > 1) {
                 const shrinkPct = this.oxbowShrinkRate / oseg.length;
 
                 oseg = oseg.reduce((sacc, s, i) => {
-                    // shrink the first and last line in the segment
-                    if (i === 0) {
-                        const r = reduceLineFromStart(s.start, s.end, shrinkPct);
-                        s.start = new Vector(r.x, r.y);
-                    } else if (i === oseg.length - 1) {
-                        const r = reduceLineFromEnd(s.start, s.end, shrinkPct);
-                        s.end = new Vector(r.x, r.y);
-                    } else {
-                        const r = reduceLineEqually(s.start, s.end, 0.01);
-                        s.start = new Vector(r[0].x, r[0].y);
-                        s.end = new Vector(r[1].x, r[1].y);
+                    // check every channel segment for an intersection with this oxbow segment
+                    const intersect = this.channelSegments.reduce((acc, cs) => {
+                        if (!acc) {
+                            acc = segmentsIntersect(cs, s);
+                        }
+                        return acc;
+                    }, false);
+
+                    if (!intersect) {
+                        // shrink the first and last line in the segment
+                        if (i === 0) {
+                            const r = reduceLineFromStart(s.start, s.end, shrinkPct);
+                            s.start = new Vector(r.x, r.y);
+                        } else if (i === oseg.length - 1) {
+                            const r = reduceLineFromEnd(s.start, s.end, shrinkPct);
+                            s.end = new Vector(r.x, r.y);
+                        } else {
+                            const r = reduceLineEqually(s.start, s.end, 0.01);
+                            s.start = new Vector(r[0].x, r[0].y);
+                            s.end = new Vector(r[1].x, r[1].y);
+                        }
+
+                        // remove if it's too small
+                        if (pointDistance(s.start, s.end) > 1) {
+                            sacc.push(s);
+                        }
                     }
 
-                    // remove if it's too small
-                    if (pointDistance(s.start, s.end) > 1) {
-                        sacc.push(s);
-                    }
                     return sacc;
                 }, []);
 
@@ -291,10 +306,6 @@ export const river = () => {
     let canvasMidY;
 
     const backgroundColor = warmWhite;
-    const riverColor = bicPenBlue;
-    const riverWeight = 10;
-    const oxbowColor = warmGreyDark.clone().brighten(50);
-    const oxbowWeight = riverWeight * 0.75;
 
     const river = [];
 
@@ -336,7 +347,7 @@ export const river = () => {
         });
     };
 
-    const drawSegment = (segments, color, weight, taper, points = false) => {
+    const drawSegment = (segments, color, weight, points = false) => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.strokeStyle = tinycolor(color).clone().toRgbString();
@@ -360,12 +371,43 @@ export const river = () => {
         }
     };
 
+    const drawSegmentTaper = (segments, color, maxWeight, minWeight = 1, points = false) => {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+
+        const mid = segments.length / 2;
+
+        segments.forEach((seg, i) => {
+            const dist = Math.abs(mid - i);
+            const w = mapRange(0, mid, maxWeight, minWeight, dist);
+
+            ctx.beginPath();
+            ctx.lineWidth = w;
+            if (i === 0) {
+                ctx.moveTo(seg.start.x, seg.start.y);
+            } else {
+                ctx.lineTo(seg.start.x, seg.start.y);
+            }
+            ctx.lineTo(seg.end.x, seg.end.y);
+            ctx.stroke();
+        });
+
+        if (points) {
+            segments.forEach((seg, i) => {
+                const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
+                drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
+                drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
+            });
+        }
+    };
+
     const setup = ({ canvas, context }) => {
         ctx = context;
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         background(canvas, context)(backgroundColor);
-        const channelSegments = segmentFromPoints(createSimplePath(canvas, 0, canvasMidY, 40));
+        const channelSegments = segmentFromPoints(createSimplePath(canvas, 0, canvasMidY, 30));
         river.push(new River(channelSegments, { mixTangentRatio: 0.5 }));
 
         // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
@@ -377,32 +419,40 @@ export const river = () => {
             const a = mapRange(0, 10, 0, 1, o.length);
             const w = mapRange(0, 10, 1, weight, o.length);
             const oxpoints = chaikin(pointsFromSegment(o), smooth);
-            drawSegment(segmentFromPoints(oxpoints), color.setAlpha(a), w, true, false);
+            const oxsegments = segmentFromPoints(oxpoints);
+            // drawSegment(segmentFromPoints(oxpoints), color.setAlpha(a), w, false);
+            drawSegmentTaper(connectSegments(oxsegments), color, w);
         });
     };
 
     const drawMainChannel = (points, color, weight, smooth = 2) => {
-        drawSegment(segmentFromPoints(chaikin(points, smooth)), color, weight, false, false);
+        const seg = segmentFromPoints(chaikin(points, smooth));
+        drawSegmentTaper(trimSegments(seg, 5), color, weight, weight * 0.5);
     };
 
     const draw = ({ canvas, context }) => {
-        // background(canvas, context)(backgroundColor.clone().setAlpha(0.5));
+        background(canvas, context)(backgroundColor.clone().setAlpha(1));
+
+        const riverColor = bicPenBlue;
+        const riverWeight = 30;
+        const oxbowColor = warmGreyDark.clone().brighten(50);
+        const oxbowWeight = 30;
 
         river.forEach((r) => {
             const points = r.run();
-            // drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
+            drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
             // drawMainChannel(points, backgroundColor, riverWeight * 2);
-            // drawMainChannel(points, riverColor, riverWeight, 5);
+            drawMainChannel(points, riverColor, riverWeight, 5);
 
-            for (let i = r.history.length - 1; i >= 0; i--) {
-                const b = mapRange(r.history.length, 0, 50, 10, i);
-                const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
-                const ocolor = i == 0 ? oxbowColor : warmGreyDark.clone().brighten(b / 2);
-
-                drawOxbows(r.history[i].oxbows, ccolor, oxbowWeight);
-
-                drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight);
-            }
+            // for (let i = r.history.length - 1; i >= 0; i--) {
+            //     const b = mapRange(r.history.length, 0, 50, 10, i);
+            //     const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
+            //     const ocolor = i == 0 ? oxbowColor : warmGreyDark.clone().brighten(b / 2);
+            //
+            //     drawOxbows(r.history[i].oxbows, ccolor, oxbowWeight);
+            //
+            //     drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight);
+            // }
         });
 
         time += 1;

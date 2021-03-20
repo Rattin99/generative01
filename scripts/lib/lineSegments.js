@@ -1,12 +1,42 @@
 import { Vector } from './Vector';
+import { pointDistance } from './math';
 
 export const lineSlope = (a, b) => (b.y - a.y) / (b.x - a.x);
+
+// https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
+// returns true iff the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
+export const linesIntersect = (a, b, c, d, p, q, r, s) => {
+    const det = (c - a) * (s - q) - (r - p) * (d - b);
+    if (det === 0) {
+        return false;
+    }
+    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    return lambda > 0 && lambda < 1 && gamma > 0 && gamma < 1;
+};
+
+export const segmentsIntersect = (a, b) =>
+    linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y);
 
 export const segment = (x1, y1, x2, y2) => {
     const start = new Vector(x1, y1);
     const end = new Vector(x2, y2);
     return { start, end };
 };
+
+export const connectSegments = (segs) =>
+    segs.map((s, i) => {
+        if (i === segs.length - 1) {
+            return s;
+        }
+        const next = segs[i + 1];
+
+        const distance = pointDistance({ x: s.end.x, y: s.end.y }, { x: next.start.x, y: s.start.y });
+        if (distance > 1) {
+            s.end = new Vector(next.start.x, next.start.y);
+        }
+        return s;
+    });
 
 export const trimSegments = (segs, skip = 2) =>
     segs.reduce((acc, s, i) => {
