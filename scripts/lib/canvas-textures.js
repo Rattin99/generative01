@@ -10,7 +10,7 @@ import {
     round2,
 } from './math';
 import { drawRectFilled } from './canvas';
-import { plotLines } from './turtle';
+import { plotLines } from './canvas-linespoints';
 import { last } from './utils';
 
 const TAU = Math.PI * 2;

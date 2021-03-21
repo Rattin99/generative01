@@ -1,5 +1,13 @@
 import tinycolor from 'tinycolor2';
-import { uvFromAngle, randomNormalWholeBetween, chaikin, pointDistance, lerp, mapRange } from '../lib/math';
+import {
+    uvFromAngle,
+    randomNormalWholeBetween,
+    chaikin,
+    pointDistance,
+    lerp,
+    mapRange,
+    degreesToRadians,
+} from '../lib/math';
 import { background, drawCircleFilled, drawLine } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { bicPenBlue, warmGreyDark, warmWhite } from '../lib/palettes';
@@ -14,8 +22,12 @@ import {
     segmentsIntersect,
     createSplinePoints,
     getSegPointsMid,
+    pa2VA,
+    va2pA,
+    mCurvature,
 } from '../lib/lineSegments';
-import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor, renderField } from '../lib/attractors';
+import { simplexNoise2d, renderField } from '../lib/attractors';
+import { circleAtPoint, drawConnectedPoints, drawPoints } from '../lib/canvas-linespoints';
 import { defaultValue } from '../lib/utils';
 
 /*
@@ -33,6 +45,9 @@ https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/o
 https://github.com/openrndr/openrndr/blob/master/openrndr-core/src/main/kotlin/org/openrndr/shape/LineSegment.kt
 
 TODO
+
+- [ ] ALL POINTS TO VECTORS
+
 - [ ] BUG - chaikin smooth points causes line to be all removed
 - [ ] Jitter!
 - [ ] reduce all oxbow segments not just ends
@@ -46,30 +61,52 @@ TODO
 const TAU = Math.PI * 2;
 
 class River {
-    constructor(starting, props) {
+    constructor(initPoints, props) {
+        this.startingPoints = initPoints;
+        this.pointVectors = pa2VA(initPoints);
+        this.oxbows = [];
+
+        // %age of line length to fix at each end
+        this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 10);
+        // how many adjacent points to use to measure the average curvature
+        this.measureCurveAdjacent = defaultValue(props, 'measureCurveAdjacent', 30);
+        // multiply the measured curvature vector magnitude to enhance effect
+        this.segCurveMultiplier = defaultValue(props, 'segCurveMultiplier', 50);
+
+        // How much to blend tangent and bitangent, 0 = tangent, 1 = bitangent
+        this.mixTangentRatio = defaultValue(props, 'mixTangentRatio', 0.5);
+        // Magnitude of the mixed vector, increase the effect
+        this.mixMagnitude = defaultValue(props, 'mixMagnitude', 1);
+        // Limit the influence vector
+        this.influenceLimit = defaultValue(props, 'influenceLimit', 0.25);
+
+        // Add new points if the distance between is larger
+        this.curveSize = 1;
+        // Multiplier for the amount of new points to add
+        this.insertionFactor = 1;
+        // Remove points closer than this
+        this.pointRemoveProx = this.curveSize * 0.8;
+
+        // Point proximity to create a new oxbow and ...
+        this.oxbowProx = defaultValue(props, 'oxbowProx', this.curveSize);
+        // If points are not this close than create oxbow
+        this.indexNearnessMetric = Math.ceil(this.measureCurveAdjacent * 1.5);
+
+        this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 25);
+
+        this.noiseMode = defaultValue(props, 'noiseMode', 'mix'); // mix or only (mix and exclude less than strength)
+        this.noiseFn = defaultValue(props, 'noiseFn', undefined);
+        this.noiseStrengthAffect = defaultValue(props, 'noiseStrengthAffect', 3); // only noise theta > will cause drift
+        this.mixNoiseRatio = defaultValue(props, 'mixNoiseRatio', 0.1);
+
         this.steps = 0;
         this.maxHistory = defaultValue(props, 'maxHistory', 10);
         this.storeHistoryEvery = defaultValue(props, 'storeHistoryEvery', 2);
         this.history = [];
-        this.channelSegments = starting;
-        this.channelPoints = undefined;
-        this.oxbows = [];
+    }
 
-        this.curveAdjacentSegments = defaultValue(props, 'curveAdjacentSegments', 10);
-        this.segCurveMultiplier = defaultValue(props, 'segCurveMultiplier', 20);
-        this.mixTangentRatio = defaultValue(props, 'mixTangentRatio', 0.6); // 0 tangent ... 1 bitangent
-        this.mixMagnitude = defaultValue(props, 'mixMagnitude', 3);
-        this.curveMagnitude = defaultValue(props, 'curveMagnitude', 40);
-        this.insertionFactor = defaultValue(props, 'insertionFactor', 2); // insert more proints
-        this.indexNearnessMetric = Math.ceil(this.curveAdjacentSegments * 1.5);
-        this.pointRemoveProx = defaultValue(props, 'pointRemoveProx', this.curveMagnitude * 0.3);
-        this.oxbowProx = defaultValue(props, 'oxbowProx', this.curveMagnitude);
-        this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 4);
-        this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 1);
-
-        this.noiseFn = defaultValue(props, 'noiseFn', undefined);
-        this.noiseStrengthAffect = defaultValue(props, 'noiseStrengthAffect', 0); // only noise theta > will cause drift
-        this.mixNoiseRatio = defaultValue(props, 'mixNoiseRatio', 0.1);
+    get points() {
+        return va2pA(this.pointVectors);
     }
 
     addToHistory(ox, channel) {
@@ -82,111 +119,66 @@ class River {
     }
 
     // get the difference in orientation between the segment and the next segment
-    averageCurvature(segments) {
-        const sum = segments.reduce((diffs, seg, i) => {
+    averageCurvature(points) {
+        const sum = points.reduce((diffs, point, i) => {
+            const prev = i - 1;
             const next = i + 1;
-            if (next < segments.length) {
-                const segO = segmentOrientation(seg);
-                const nextO = segmentOrientation(segments[next]);
-                const oDifference = segO - nextO;
-
-                // diffs += oDifference;
-
-                // when crossing the π/-π threshold, the difference will be large even though the angular difference is small.
-                // We can adjust for this special case by adding 2π to the negative value
-                if (Math.abs(oDifference) > Math.PI && nextO > 0) {
-                    diffs += nextO - (segO + TAU);
-                } else if (Math.abs(oDifference) > Math.PI && segO > 0) {
-                    diffs += nextO + TAU - segO;
-                } else {
-                    diffs += oDifference;
-                }
+            if (prev >= 0 && next < points.length) {
+                diffs += mCurvature(points[prev], point, points[next]);
             }
             return diffs;
         }, 0);
-        return sum / segments.length;
+        return degreesToRadians(sum / points.length);
     }
 
-    curvatureInfluence(seg, i, all) {
-        const { start, end } = seg;
-
-        // testing increasing mag if closer to center
-        // const distToMid = Math.abs(all.length / 2 - i);
-        const mag = this.mixMagnitude; // mapRange(0, all.length / 2, 1, this.mixMagnitude, distToMid);
-
-        const min = i < this.curveAdjacentSegments ? 0 : i - this.curveAdjacentSegments;
-        const max = i > all.length - this.curveAdjacentSegments ? all.length : i + this.curveAdjacentSegments;
-        const curvature = this.averageCurvature(all.slice(min, max));
+    curvatureInfluence(point, i, allPoints) {
+        const nextPoint = allPoints[i + 1];
+        const min = i < this.measureCurveAdjacent ? 0 : i - this.measureCurveAdjacent;
+        const max = i > allPoints.length - this.measureCurveAdjacent ? allPoints.length : i + this.measureCurveAdjacent;
+        const curvature = this.averageCurvature(allPoints.slice(min, max)) * this.segCurveMultiplier;
         const polarity = curvature < 0 ? 1 : -1;
 
-        const tangent = end.sub(start);
+        const tangent = nextPoint.sub(point);
         const biangle = tangent.angle() + 1.5708 * polarity;
-        const bitangent = uvFromAngle(biangle).setMag(Math.abs(curvature) * this.segCurveMultiplier);
+        const bitangent = uvFromAngle(biangle).setMag(Math.abs(curvature));
 
         const a = tangent.normalize();
         const b = bitangent.normalize();
         let mVector = a.mix(b, this.mixTangentRatio);
 
         if (this.noiseFn) {
-            const t = this.noiseFn(start.x, start.y);
+            const t = this.noiseFn(point.x, point.y);
+            // add if theta is high enough
             if (Math.abs(t) > this.noiseStrengthAffect) {
                 const n = uvFromAngle(t);
                 mVector = mVector.mix(n, this.mixNoiseRatio);
+            } else if (this.noiseMode === 'only') {
+                mVector = new Vector(0, 0);
             }
         }
 
-        mVector = mVector.setMag(mag);
+        mVector = mVector.setMag(this.mixMagnitude);
+
+        if (this.influenceLimit > 0) {
+            mVector = mVector.limit(this.influenceLimit);
+        }
 
         return mVector;
     }
 
-    meander(segs) {
-        // lock first and end segments so they aren't affected
-        const firstFixedIndex = this.fixedEndPoints;
-        const firstFixedPoints = segs.slice(0, firstFixedIndex);
-        const lastFixedIndex = segs.length - this.fixedEndPoints - 1;
-        const lastFixedPoints = segs.slice(lastFixedIndex, segs.length);
+    meander(points) {
+        const pct = Math.round(this.fixedEndPoints * (points.length / 100)) + 1;
 
-        const middleSegments = segs.slice(firstFixedIndex, lastFixedIndex);
-
-        const adjustedMiddleSegments = middleSegments.map((seg, i) => {
-            const mVector = this.curvatureInfluence(seg, i + firstFixedIndex, segs);
-            seg.start = seg.start.add(mVector);
-            // trying to smooth out the jitter by moving end point as well
-            // seg.end = seg.end.add(mVector.div(4));
-            return seg;
+        const startIndex = pct;
+        const startIndexPoints = points.slice(0, startIndex);
+        const endIndex = points.length - pct;
+        const endIndexPoints = points.slice(endIndex, points.length);
+        const middlePoints = points.slice(startIndex, endIndex);
+        const influencedPoints = middlePoints.map((point, i) => {
+            const mVector = this.curvatureInfluence(point, i + startIndex, points);
+            return point.add(mVector);
         });
-
-        return firstFixedPoints.concat(adjustedMiddleSegments).concat(lastFixedPoints);
-    }
-
-    addOxbow(i, j) {
-        // cut segments corresponding to points at i to j
-        const s = Math.floor(i / 2);
-        const s2 = Math.ceil(j / 2);
-        const segs = this.channelSegments.slice(s, s2);
-        this.oxbows.push(segs);
-    }
-
-    closeCloseSegments(points) {
-        const potentialOxbow = (a, b, min) => pointDistance({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }) < min;
-        const indicesAreNear = (a, b, min) => Math.abs(a - b) < min;
-
-        const line = [];
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            line.push(point);
-            for (let j = i; j < points.length; j++) {
-                const next = points[j];
-                // if points are proximate, we should cut the interim pieces into an oxbow, UNLESS the indices are very close
-                if (potentialOxbow(point, next, this.oxbowProx) && !indicesAreNear(i, j, this.indexNearnessMetric)) {
-                    line.push(next);
-                    this.addOxbow(i, j);
-                    i = j;
-                }
-            }
-        }
-        return line;
+        return startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
     }
 
     // As points move (and others do not), the relative spacing of segments may become unbalanced.
@@ -199,16 +191,15 @@ class River {
             }
 
             const next = points[i + 1];
-            const distance = pointDistance({ x: point[0], y: point[1] }, { x: next[0], y: next[1] });
-
-            if (distance > this.curveMagnitude) {
+            const distance = pointDistance(point, next);
+            if (distance > this.curveSize) {
                 // ensure that for points with large distances between, an appropriate number of midpoints are added
-                const numInsertPoints = Math.ceil(distance / this.curveMagnitude) * this.insertionFactor + 1;
+                const numInsertPoints = Math.ceil(distance / this.curveSize) * this.insertionFactor + 1;
                 for (let k = 0; k < numInsertPoints; k++) {
                     const ratio = (1 / numInsertPoints) * k;
-                    const nx = lerp(point[0], next[0], ratio);
-                    const ny = lerp(point[1], next[1], ratio);
-                    acc.push([nx, ny]);
+                    const nx = lerp(point.x, next.x, ratio);
+                    const ny = lerp(point.y, next.y, ratio);
+                    acc.push(new Vector(nx, ny));
                 }
             } else if (
                 i > this.fixedEndPoints &&
@@ -223,44 +214,70 @@ class River {
         }, []);
     }
 
-    shrinkOxbowSegments(oxarry) {
-        return oxarry.reduce((oxacc, oseg) => {
-            if (oseg.length > 1) {
-                const shrinkPct = this.oxbowShrinkRate / oseg.length;
+    checkForOxbows(points) {
+        const potentialOxbow = (a, b, min) => pointDistance(a, b) < min;
+        const indicesAreNear = (a, b, min) => Math.abs(a - b) < min;
+        const newPoints = [];
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            newPoints.push(point);
+            for (let j = i; j < points.length; j++) {
+                const next = points[j];
+                if (potentialOxbow(point, next, this.oxbowProx) && !indicesAreNear(i, j, this.indexNearnessMetric)) {
+                    newPoints.push(next);
+                    // create oxbow
+                    this.oxbows.push(va2pA(points.slice(i, j)));
+                    i = j;
+                }
+            }
+        }
+        return newPoints;
+    }
 
-                oseg = oseg.reduce((sacc, s, i) => {
+    // array of point arrays points, not vectors
+    shrinkOxbows(oxbowArr) {
+        return oxbowArr.reduce((oxacc, pointArry, i) => {
+            if (pointArry.length > 1) {
+                const shrinkPct = Math.ceil(this.oxbowShrinkRate / pointArry.length);
+                pointArry = pointArry.reduce((ptacc, point, i) => {
                     // check every channel segment for an intersection with this oxbow segment
-                    const intersect = this.channelSegments.reduce((acc, cs) => {
-                        if (!acc) {
-                            acc = segmentsIntersect(cs, s);
-                        }
-                        return acc;
-                    }, false);
+                    // const intersect = this.channelSegments.reduce((acc, cs) => {
+                    //     if (!acc) {
+                    //         acc = segmentsIntersect(cs, point);
+                    //     }
+                    //     return acc;
+                    // }, false);
+
+                    const intersect = false;
 
                     if (!intersect) {
+                        // remove the first and last
+                        if (i > shrinkPct && i < pointArry.length - shrinkPct) {
+                            ptacc.push(point);
+                        }
                         // shrink the first and last line in the segment
-                        if (i === 0) {
-                            const r = reduceLineFromStart(s.start, s.end, shrinkPct);
-                            s.start = new Vector(r.x, r.y);
-                        } else if (i === oseg.length - 1) {
-                            const r = reduceLineFromEnd(s.start, s.end, shrinkPct);
-                            s.end = new Vector(r.x, r.y);
-                        } else {
-                            const r = reduceLineEqually(s.start, s.end, 0.01);
-                            s.start = new Vector(r[0].x, r[0].y);
-                            s.end = new Vector(r[1].x, r[1].y);
-                        }
-
-                        // remove if it's too small
-                        if (pointDistance(s.start, s.end) > 1) {
-                            sacc.push(s);
-                        }
+                        // if (i === 0) {
+                        //     const r = reduceLineFromStart(point.start, point.end, shrinkPct);
+                        //     point.start = new Vector(r.x, r.y);
+                        // } else if (i === oseg.length - 1) {
+                        //     const r = reduceLineFromEnd(point.start, point.end, shrinkPct);
+                        //     point.end = new Vector(r.x, r.y);
+                        // } else {
+                        //     const r = reduceLineEqually(point.start, point.end, 0.01);
+                        //     point.start = new Vector(r[0].x, r[0].y);
+                        //     point.end = new Vector(r[1].x, r[1].y);
+                        // }
+                        //
+                        // // remove if it'point too small
+                        // if (pointDistance(point.start, point.end) > 1) {
+                        //     ptacc.push(point);
+                        // }
                     }
 
-                    return sacc;
+                    return ptacc;
                 }, []);
 
-                oxacc.push(oseg);
+                oxacc.push(pointArry);
             }
             return oxacc;
         }, []);
@@ -268,21 +285,12 @@ class River {
 
     step() {
         // influence segments to sim flow
-        this.channelSegments = this.meander(this.channelSegments);
-        // convert to array of points
-        let points = pointsFromSegment(this.channelSegments);
-        // cut off portions that are close and create and oxbow
-        points = this.closeCloseSegments(points);
-        // cut points that are close and add new points where they are far apart
-        points = this.adjustPointsSpacing(points);
-        this.channelPoints = points;
-        // back to a segment to
-        this.channelSegments = segmentFromPoints(this.channelPoints);
-        // reduce the size of the oxbows
-        this.oxbows = this.shrinkOxbowSegments(this.oxbows);
-        // record for a "historical" record
-        this.addToHistory(this.oxbows, this.channelSegments);
-
+        let newPoints = this.meander(this.pointVectors);
+        newPoints = this.adjustPointsSpacing(newPoints);
+        newPoints = this.checkForOxbows(newPoints);
+        this.pointVectors = newPoints;
+        this.oxbows = this.shrinkOxbows(this.oxbows);
+        this.addToHistory(this.oxbows, this.pointVectors);
         this.steps++;
     }
 }
@@ -344,165 +352,33 @@ export const river = () => {
         tinycolor.mix(palette[4], tintingColor, 75),
     ];
 
-    const drawCircleAtPoint = (points, color = 'black', width = 1) => {
-        points.forEach((coords) => {
-            drawCircleFilled(ctx)(coords[0], coords[1], width / 2, color);
-        });
-    };
-
-    const drawPoints = (points, color = 'black', width = 1) => {
-        ctx.beginPath();
-        ctx.strokeStyle = tinycolor(color).clone().toRgbString();
-        ctx.lineWidth = width;
-        ctx.lineCap = 'round';
-        // ctx.lineJoin = 'round';
-
-        points.forEach((coords, i) => {
-            if (i === 0) {
-                ctx.moveTo(coords[0], coords[1]);
-            } else {
-                ctx.lineTo(coords[0], coords[1]);
-            }
-        });
-        ctx.stroke();
-    };
-
-    const drawSegment = (segments, color, weight, points = false) => {
-        ctx.lineCap = 'round';
-        // ctx.lineJoin = 'round';
-        ctx.strokeStyle = tinycolor(color).clone().toRgbString();
-        ctx.lineWidth = weight;
-        ctx.beginPath();
-        segments.forEach((seg, i) => {
-            if (i === 0) {
-                ctx.moveTo(seg.start.x, seg.start.y);
-            } else {
-                ctx.lineTo(seg.start.x, seg.start.y);
-            }
-            ctx.lineTo(seg.end.x, seg.end.y);
-        });
-        ctx.stroke();
-        if (points) {
-            segments.forEach((seg, i) => {
-                const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
-                drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
-                drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
-            });
-        }
-    };
-
-    const drawSegmentTaper = (segments, color, maxWeight, minWeight = 1, points = false) => {
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = tinycolor(color).clone().toRgbString();
-
-        const mid = segments.length / 2;
-
-        segments.forEach((seg, i) => {
-            const dist = Math.abs(mid - i);
-            const w = mapRange(0, mid, maxWeight, minWeight, dist);
-
-            ctx.beginPath();
-            ctx.lineWidth = w;
-            if (i === 0) {
-                ctx.moveTo(seg.start.x, seg.start.y);
-            } else {
-                ctx.lineTo(seg.start.x, seg.start.y);
-            }
-            ctx.lineTo(seg.end.x, seg.end.y);
-            ctx.stroke();
-        });
-
-        if (points) {
-            segments.forEach((seg, i) => {
-                const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
-                drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
-                drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
-            });
-        }
-    };
-
-    // Various noise fns to test
-    const simplex2d = (x, y) => simplexNoise2d(x, y, 0.001);
-    const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
-    const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
-    const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
-    const noise = simplex2d;
-
-    const segmentFromSplinedPoints = (points) => segmentFromPoints(createSplinePoints(points));
-
-    const drawOxbows = (bows, color, weight, smooth = 2) => {
-        bows.forEach((o) => {
-            const a = mapRange(0, 10, 0, 1, o.length);
-            const w = mapRange(0, 10, 1, weight, o.length);
-            // connectSegments(oxsegments) // connect ends and starts
-            // BUG here, can cause invalid float32array len, trapped in code
-
-            const p = createSplinePoints(getSegPointsMid(pointsFromSegment(o)));
-            drawPoints(p, color, w);
-
-            // const seg = segmentFromSplinedPoints(pointsFromSegment(o));
-            // drawSegment(seg, color, w);
-            // drawSegmentTaper(seg, color, w);
-        });
-    };
-
-    const drawMainChannel = (points, color, weight, smooth = false) => {
-        let p = getSegPointsMid(points);
-        if (smooth) {
-            p = createSplinePoints(p);
-        } else {
-            p = chaikin(p, 2);
-        }
-        drawPoints(p, color, weight);
-    };
+    const noise = (x, y) => simplexNoise2d(x, y, 0.001);
+    const getHistoricalColor = (i) => historicalColors[i - 1];
 
     const setup = ({ canvas, context }) => {
         ctx = context;
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         background(canvas, context)(backgroundColor);
-        const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 20), 1);
-        const channelSegments = segmentFromPoints(points);
-        // rivers.push(
-        //     new River(channelSegments, {
-        //         mixTangentRatio: 0.5,
-        //         maxHistory: 5,
-        //         storeHistoryEvery: 20,
-        //         noiseFn: noise,
-        //         mixNoiseRatio: 0.2,
-        //     })
-        // );
+        const points = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 10));
+        // const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 10), 5);
+
+        circleAtPoint(ctx)(points, tinycolor('white'), 10);
+
         rivers.push(
-            new River(channelSegments, {
-                fixedEndPoints: 1,
-                curveAdjacentSegments: 10,
-                curveMagnitude: 30,
-                insertionFactor: 5,
-                pointRemoveProx: 4, // curveMag * .3
-                oxbowProx: 15, // curveMag
-                mixMagnitude: 2,
-                mixTangentRatio: 0.55,
+            new River(points, {
                 maxHistory: historicalColors.length / 4,
                 storeHistoryEvery: 20,
                 noiseFn: noise,
-                noiseStrengthAffect: 3,
-                mixNoiseRatio: 0.1,
+                noiseMode: 'mix',
+                noiseStrengthAffect: 1.25,
+                mixNoiseRatio: 0.2,
             })
         );
-
-        // const circleSegments = segmentFromPoints(createCirclePoints(canvasMidX, canvasMidY, canvasMidX, 30));
-        // rivers.push(new River(circleSegments, { mixTangentRatio: 0.5, fixedEndPoints: 0 }));
     };
 
-    // i-1 assuming current is a different color
-    // need to create tints for differt mult of i based on # of colors: 4
-
-    const getHistoricalColor = (i) => historicalColors[i - 1];
-
     const draw = ({ canvas, context }) => {
-        background(canvas, context)(backgroundColor.clone().setAlpha(1));
-
+        background(canvas, context)(backgroundColor.clone().setAlpha(0.1));
         renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
 
         const riverColor = bicPenBlue;
@@ -513,23 +389,19 @@ export const river = () => {
         rivers.forEach((r) => {
             r.step();
 
-            // for (let i = r.history.length - 1; i >= 0; i--) {
-            //     const b = mapRange(r.history.length, 0, 50, 10, i);
-            //     // const ccolor = i == 0 ? riverColor : warmGreyDark.clone().brighten(b);
-            //
-            //     const ccolor = i === 0 ? tintingColor : getHistoricalColor(i);
-            //     const ocolor = oxbowColor;
-            //
-            //     // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
-            //
-            //     drawMainChannel(pointsFromSegment(r.history[i].channel), ccolor, riverWeight * 2);
-            // }
+            r.oxbows.forEach((o) => {
+                drawConnectedPoints(ctx)(o, oxbowColor, oxbowWeight);
+            });
 
-            drawOxbows(r.oxbows, oxbowColor, oxbowWeight);
-            drawMainChannel(r.channelPoints, warmWhite, riverWeight, true);
+            drawConnectedPoints(ctx)(r.points, riverColor, riverWeight);
+            // circleAtPoint(ctx)(r.points, riverColor, 3);
         });
 
-        time += 1;
+        // if (time > 1000) {
+        //     return -1;
+        // }
+
+        time++;
     };
 
     return {

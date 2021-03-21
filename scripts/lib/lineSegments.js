@@ -3,6 +3,20 @@ import { pointDistance } from './math';
 import { getCurvePoints } from './curve-calc';
 import { last } from './utils';
 
+// https://stackoverflow.com/questions/41144224/calculate-curvature-for-3-points-x-y
+// possible alternate https://www.mathsisfun.com/geometry/herons-formula.html
+export const triangleArea2 = (a, b, c) => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+
+// Menger curvature of a triple of points in n-dimensional Euclidean space Rn is the reciprocal of
+// the radius of the circle that passes through the three points
+export const mCurvature = (p1, p2, p3) => {
+    const t4 = 2 * triangleArea2(p1, p2, p3);
+    const la = pointDistance(p1, p2);
+    const lb = pointDistance(p2, p3);
+    const lc = pointDistance(p3, p1);
+    return t4 / (la * lb * lc);
+};
+
 export const lineSlope = (a, b) => (b.y - a.y) / (b.x - a.x);
 
 // https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
@@ -90,7 +104,8 @@ export const trimPoints = (points, skip = 2) =>
         return acc;
     }, []);
 
-export const segmentOrientation = ({ start, end }) => Math.atan2(end.y - start.y, end.x - start.x);
+export const pointsOrientation = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
+export const segmentOrientation = ({ start, end }) => pointsOrientation(start, end);
 
 export const segmentFromPoints = (points) => {
     const seg = [];
@@ -113,8 +128,14 @@ export const pointsFromSegment = (seg) => {
 
 // [x,y] => {x:x,y:y}
 export const a2p = (a) => ({ x: a[0], y: a[1] });
+// [x,y] => Vector{x:x,y:y}
+export const a2V = (a) => new Vector(a[0], a[1]);
+export const v2a = (v) => [v.x, v.y];
 // [[x,y]] => [{x:x,y:y}]
 export const a2pA = (arry) => arry.map((a) => a2p(a));
+// [[x,y]] => [Vector{x:x,y:y}]
+export const pa2VA = (arry) => arry.map((a) => a2V(a));
+export const va2pA = (arry) => arry.map((a) => v2a(a));
 
 // [[x,y]] => [x1, y1,  x2, y2, ... xn, yn]
 export const flattenPointArray = (arry) =>
