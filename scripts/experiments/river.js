@@ -7,25 +7,13 @@ import {
     lerp,
     mapRange,
     degreesToRadians,
+    randomNumberBetween,
 } from '../lib/math';
 import { background, drawCircleFilled, drawLine } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
 import { bicPenBlue, warmGreyDark, warmWhite } from '../lib/palettes';
 import { Vector } from '../lib/Vector';
-import {
-    segmentFromPoints,
-    segmentOrientation,
-    pointsFromSegment,
-    reduceLineFromStart,
-    reduceLineFromEnd,
-    reduceLineEqually,
-    segmentsIntersect,
-    createSplinePoints,
-    getSegPointsMid,
-    pa2VA,
-    va2pA,
-    mCurvature,
-} from '../lib/lineSegments';
+import { createSplinePoints, pa2VA, va2pA, mCurvature } from '../lib/lineSegments';
 import { simplexNoise2d, renderField } from '../lib/attractors';
 import { circleAtPoint, drawConnectedPoints, drawPoints } from '../lib/canvas-linespoints';
 import { defaultValue } from '../lib/utils';
@@ -70,27 +58,29 @@ class River {
         this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 10);
         // how many adjacent points to use to measure the average curvature
         this.measureCurveAdjacent = defaultValue(props, 'measureCurveAdjacent', 30);
-        // multiply the measured curvature vector magnitude to enhance effect
-        this.segCurveMultiplier = defaultValue(props, 'segCurveMultiplier', 50);
+        // Ineffective multiply the measured curvature vector magnitude to enhance effect
+        this.segCurveMultiplier = defaultValue(props, 'segCurveMultiplier', 1);
 
         // How much to blend tangent and bitangent, 0 = tangent, 1 = bitangent
         this.mixTangentRatio = defaultValue(props, 'mixTangentRatio', 0.5);
-        // Magnitude of the mixed vector, increase the effect
+        // Magnitude of the mixed vector, increase the effect, < slower
         this.mixMagnitude = defaultValue(props, 'mixMagnitude', 1);
-        // Limit the influence vector
+        // Limit the influence vector,  less than 1, slower. > 1 no affect
         this.influenceLimit = defaultValue(props, 'influenceLimit', 0.25);
 
+        this.pushFlowVector = defaultValue(props, 'pushFlowVector', new Vector(0, 0));
+
         // Add new points if the distance between is larger
-        this.curveSize = 1;
+        this.curveSize = defaultValue(props, 'curveSize', 2);
         // Multiplier for the amount of new points to add
-        this.insertionFactor = 1;
+        this.insertionFactor = defaultValue(props, 'insertionFactor', 1);
         // Remove points closer than this
-        this.pointRemoveProx = this.curveSize * 0.8;
+        this.pointRemoveProx = defaultValue(props, 'pointRemoveProx', this.curveSize * 0.8);
 
         // Point proximity to create a new oxbow and ...
         this.oxbowProx = defaultValue(props, 'oxbowProx', this.curveSize);
         // If points are not this close than create oxbow
-        this.indexNearnessMetric = Math.ceil(this.measureCurveAdjacent * 1.5);
+        this.oxbowPointIndexProx = Math.ceil(this.measureCurveAdjacent * 1.5);
 
         this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 25);
 
@@ -119,7 +109,7 @@ class River {
     }
 
     // get the difference in orientation between the segment and the next segment
-    averageCurvature(points) {
+    averageMCurvature(points) {
         const sum = points.reduce((diffs, point, i) => {
             const prev = i - 1;
             const next = i + 1;
@@ -135,7 +125,7 @@ class River {
         const nextPoint = allPoints[i + 1];
         const min = i < this.measureCurveAdjacent ? 0 : i - this.measureCurveAdjacent;
         const max = i > allPoints.length - this.measureCurveAdjacent ? allPoints.length : i + this.measureCurveAdjacent;
-        const curvature = this.averageCurvature(allPoints.slice(min, max)) * this.segCurveMultiplier;
+        const curvature = this.averageMCurvature(allPoints.slice(min, max)) * this.segCurveMultiplier;
         const polarity = curvature < 0 ? 1 : -1;
 
         const tangent = nextPoint.sub(point);
@@ -166,6 +156,12 @@ class River {
         return mVector;
     }
 
+    isPointIndexInEndsRange(i) {
+        const pvlen = this.pointVectors.length;
+        const pct = Math.round(this.fixedEndPoints * (pvlen / 100)) + 1;
+        return i <= pct || i >= pvlen - pct;
+    }
+
     meander(points) {
         const pct = Math.round(this.fixedEndPoints * (points.length / 100)) + 1;
 
@@ -176,7 +172,7 @@ class River {
         const middlePoints = points.slice(startIndex, endIndex);
         const influencedPoints = middlePoints.map((point, i) => {
             const mVector = this.curvatureInfluence(point, i + startIndex, points);
-            return point.add(mVector);
+            return point.add(mVector).add(this.pushFlowVector);
         });
         return startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
     }
@@ -192,14 +188,16 @@ class River {
 
             const next = points[i + 1];
             const distance = pointDistance(point, next);
+
             if (distance > this.curveSize) {
                 // ensure that for points with large distances between, an appropriate number of midpoints are added
-                const numInsertPoints = Math.ceil(distance / this.curveSize) * this.insertionFactor + 1;
+                const numInsertPoints = Math.round((distance / this.curveSize) * this.insertionFactor) + 1;
                 for (let k = 0; k < numInsertPoints; k++) {
                     const ratio = (1 / numInsertPoints) * k;
                     const nx = lerp(point.x, next.x, ratio);
                     const ny = lerp(point.y, next.y, ratio);
                     acc.push(new Vector(nx, ny));
+                    // console.log('add', nx, ny, distance, point, next);
                 }
             } else if (
                 i > this.fixedEndPoints &&
@@ -207,6 +205,7 @@ class River {
                 distance < this.pointRemoveProx
             ) {
                 // If too close, remove it
+                // console.log(distance, point, next);
             } else {
                 acc.push(point);
             }
@@ -215,15 +214,14 @@ class River {
     }
 
     checkForOxbows(points) {
-        const potentialOxbow = (a, b, min) => pointDistance(a, b) < min;
-        const indicesAreNear = (a, b, min) => Math.abs(a - b) < min;
         const newPoints = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
             newPoints.push(point);
             for (let j = i; j < points.length; j++) {
                 const next = points[j];
-                if (potentialOxbow(point, next, this.oxbowProx) && !indicesAreNear(i, j, this.indexNearnessMetric)) {
+                const dist = pointDistance(point, next);
+                if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
                     // create oxbow
                     this.oxbows.push(va2pA(points.slice(i, j)));
@@ -255,23 +253,6 @@ class River {
                         if (i > shrinkPct && i < pointArry.length - shrinkPct) {
                             ptacc.push(point);
                         }
-                        // shrink the first and last line in the segment
-                        // if (i === 0) {
-                        //     const r = reduceLineFromStart(point.start, point.end, shrinkPct);
-                        //     point.start = new Vector(r.x, r.y);
-                        // } else if (i === oseg.length - 1) {
-                        //     const r = reduceLineFromEnd(point.start, point.end, shrinkPct);
-                        //     point.end = new Vector(r.x, r.y);
-                        // } else {
-                        //     const r = reduceLineEqually(point.start, point.end, 0.01);
-                        //     point.start = new Vector(r[0].x, r[0].y);
-                        //     point.end = new Vector(r[1].x, r[1].y);
-                        // }
-                        //
-                        // // remove if it'point too small
-                        // if (pointDistance(point.start, point.end) > 1) {
-                        //     ptacc.push(point);
-                        // }
                     }
 
                     return ptacc;
@@ -286,6 +267,8 @@ class River {
     step() {
         // influence segments to sim flow
         let newPoints = this.meander(this.pointVectors);
+        // vectors -> points -> smooth -> vectors
+        // newPoints = pa2VA(chaikin(va2pA(newPoints), 1));
         newPoints = this.adjustPointsSpacing(newPoints);
         newPoints = this.checkForOxbows(newPoints);
         this.pointVectors = newPoints;
@@ -365,14 +348,60 @@ export const river = () => {
 
         circleAtPoint(ctx)(points, tinycolor('white'), 10);
 
+        const cs = {
+            curvemeasure: 10,
+            curvesize: 6,
+            pointremove: 6 * 0.25,
+            insertion: 6 * 0.8,
+        };
+        const csB = {
+            curvemeasure: 15,
+            curvesize: 8,
+            pointremove: 0.05,
+            insertion: 1,
+        };
+
+        // red
         rivers.push(
             new River(points, {
                 maxHistory: historicalColors.length / 4,
                 storeHistoryEvery: 20,
-                noiseFn: noise,
-                noiseMode: 'mix',
-                noiseStrengthAffect: 1.25,
-                mixNoiseRatio: 0.2,
+
+                mixTangentRatio: 0.55,
+                mixMagnitude: 0.9,
+                influenceLimit: 0.8,
+                pushFlowVector: new Vector(0.25, 0.1),
+
+                measureCurveAdjacent: cs.curvemeasure,
+                curveSize: cs.curvesize,
+                pointRemoveProx: cs.pointremove,
+                insertionFactor: cs.insertion,
+                // noiseFn: noise,
+                // noiseMode: 'mix',
+                // noiseStrengthAffect: 1.25,
+                // mixNoiseRatio: 0.2,
+            })
+        );
+
+        // blue
+        rivers.push(
+            new River(points, {
+                maxHistory: historicalColors.length / 4,
+                storeHistoryEvery: 20,
+
+                mixTangentRatio: 0.55,
+                mixMagnitude: 0.9,
+                influenceLimit: 0.8,
+
+                measureCurveAdjacent: cs.curvemeasure,
+                curveSize: cs.curvesize,
+                pointRemoveProx: cs.pointremove,
+                insertionFactor: cs.insertion,
+
+                // noiseFn: noise,
+                // noiseMode: 'mix',
+                // noiseStrengthAffect: 1.25,
+                // mixNoiseRatio: 0.2,
             })
         );
     };
@@ -382,24 +411,30 @@ export const river = () => {
         renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
 
         const riverColor = bicPenBlue;
-        const riverWeight = 10;
+        const riverWeight = 1;
         const oxbowColor = warmGreyDark.clone().brighten(30).setAlpha(0.5);
         const oxbowWeight = 7;
 
-        rivers.forEach((r) => {
+        const colors = ['red', 'blue'];
+
+        rivers.forEach((r, i) => {
             r.step();
+
+            const { points } = r;
 
             r.oxbows.forEach((o) => {
                 drawConnectedPoints(ctx)(o, oxbowColor, oxbowWeight);
             });
 
-            drawConnectedPoints(ctx)(r.points, riverColor, riverWeight);
+            drawConnectedPoints(ctx)(points, colors[i], riverWeight);
             // circleAtPoint(ctx)(r.points, riverColor, 3);
+
+            // console.log(i, points.length);
         });
 
-        // if (time > 1000) {
-        //     return -1;
-        // }
+        if (time > 1000) {
+            return -1;
+        }
 
         time++;
     };
