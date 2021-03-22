@@ -11,11 +11,11 @@ import {
 } from '../lib/math';
 import { background, drawCircleFilled, drawLine } from '../lib/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { bicPenBlue, warmGreyDark, warmWhite } from '../lib/palettes';
+import { bicPenBlue, darkest, warmGreyDark, warmWhite } from '../lib/palettes';
 import { Vector } from '../lib/Vector';
-import { createSplinePoints, pa2VA, va2pA, mCurvature } from '../lib/lineSegments';
+import { createSplinePoints, pa2VA, va2pA, mCurvature, trimPoints } from '../lib/lineSegments';
 import { simplexNoise2d, renderField } from '../lib/attractors';
-import { circleAtPoint, drawConnectedPoints, drawPoints } from '../lib/canvas-linespoints';
+import { circleAtPoint, drawConnectedPoints, drawPoints, drawPointsTaper } from '../lib/canvas-linespoints';
 import { defaultValue } from '../lib/utils';
 
 /*
@@ -64,11 +64,11 @@ class River {
         // How much to blend tangent and bitangent, 0 = tangent, 1 = bitangent
         this.mixTangentRatio = defaultValue(props, 'mixTangentRatio', 0.5);
         // Magnitude of the mixed vector, increase the effect, < slower
-        this.mixMagnitude = defaultValue(props, 'mixMagnitude', 1);
+        this.mixMagnitude = defaultValue(props, 'mixMagnitude', 0);
         // Limit the influence vector,  less than 1, slower. > 1 no affect
         this.influenceLimit = defaultValue(props, 'influenceLimit', 0.25);
 
-        this.pushFlowVector = defaultValue(props, 'pushFlowVector', new Vector(0, 0));
+        this.pushFlowVectorFn = defaultValue(props, 'pushFlowVectorFn', undefined);
 
         // Add new points if the distance between is larger
         this.curveSize = defaultValue(props, 'curveSize', 2);
@@ -142,12 +142,17 @@ class River {
             if (Math.abs(t) > this.noiseStrengthAffect) {
                 const n = uvFromAngle(t);
                 mVector = mVector.mix(n, this.mixNoiseRatio);
-            } else if (this.noiseMode === 'only') {
+            } else if (Math.abs(t) < this.noiseStrengthAffect && this.noiseMode === 'only') {
                 mVector = new Vector(0, 0);
+            } else if (this.noiseMode === 'scaleMag') {
+                const nscale = mapRange(0, this.noiseStrengthAffect, 5, 1, 3, Math.abs(t));
+                mVector = mVector.setMag(nscale);
             }
         }
 
-        mVector = mVector.setMag(this.mixMagnitude);
+        if (this.mixMagnitude) {
+            mVector = mVector.setMag(this.mixMagnitude);
+        }
 
         if (this.influenceLimit > 0) {
             mVector = mVector.limit(this.influenceLimit);
@@ -171,8 +176,13 @@ class River {
         const endIndexPoints = points.slice(endIndex, points.length);
         const middlePoints = points.slice(startIndex, endIndex);
         const influencedPoints = middlePoints.map((point, i) => {
-            const mVector = this.curvatureInfluence(point, i + startIndex, points);
-            return point.add(mVector).add(this.pushFlowVector);
+            const mixVector = this.curvatureInfluence(point, i + startIndex, points);
+            let infPoint = point.add(mixVector);
+            if (this.pushFlowVectorFn) {
+                const pushVector = this.pushFlowVectorFn(point, mixVector);
+                infPoint = infPoint.add(pushVector);
+            }
+            return infPoint;
         });
         return startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
     }
@@ -273,7 +283,7 @@ class River {
         newPoints = this.checkForOxbows(newPoints);
         this.pointVectors = newPoints;
         this.oxbows = this.shrinkOxbows(this.oxbows);
-        this.addToHistory(this.oxbows, this.pointVectors);
+        this.addToHistory(this.oxbows, va2pA(this.pointVectors));
         this.steps++;
     }
 }
@@ -336,7 +346,7 @@ export const river = () => {
     ];
 
     const noise = (x, y) => simplexNoise2d(x, y, 0.001);
-    const getHistoricalColor = (i) => historicalColors[i - 1];
+    const getHistoricalColor = (i) => historicalColors[i];
 
     const setup = ({ canvas, context }) => {
         ctx = context;
@@ -348,50 +358,77 @@ export const river = () => {
 
         circleAtPoint(ctx)(points, tinycolor('white'), 10);
 
-        const cs = {
+        const csbak = {
             curvemeasure: 10,
             curvesize: 6,
             pointremove: 6 * 0.25,
             insertion: 6 * 0.8,
         };
-        const csB = {
-            curvemeasure: 15,
-            curvesize: 8,
-            pointremove: 0.05,
+
+        const flowRight = (p, m) => new Vector(0.25, 0);
+
+        // stronger middle pressure the farther away it is
+        const flowRightToMiddle = (p, m) => {
+            const dist = Math.abs(canvasMidY - p.y);
+            let y = mapRange(0, canvasMidY / 2, 0, 0.75, dist);
+            if (p.y > canvasMidY) {
+                y *= -1;
+            }
+            return new Vector(0.25, y);
+        };
+
+        const cs = {
+            mixTangentRatio: 0.5,
+            mixMagnitude: 1.25,
+            curvemeasure: 4,
+            curvesize: 5,
+            pointremove: 5,
             insertion: 1,
         };
 
+        /*
+        Findings
+        Curve measure larger will create larger bubbles
+        Curve size, even larger bubbles
+        If point remove prox is too low line will create mushrooms.
+            Should be curve size or a few decimal points under
+        If insertion is > 1, then the line will just be straight
+        Mix mag should be incr in small sizes
+         */
+
         // red
-        rivers.push(
-            new River(points, {
-                maxHistory: historicalColors.length / 4,
-                storeHistoryEvery: 20,
-
-                mixTangentRatio: 0.55,
-                mixMagnitude: 0.9,
-                influenceLimit: 0.8,
-                pushFlowVector: new Vector(0.25, 0.1),
-
-                measureCurveAdjacent: cs.curvemeasure,
-                curveSize: cs.curvesize,
-                pointRemoveProx: cs.pointremove,
-                insertionFactor: cs.insertion,
-                // noiseFn: noise,
-                // noiseMode: 'mix',
-                // noiseStrengthAffect: 1.25,
-                // mixNoiseRatio: 0.2,
-            })
-        );
+        // rivers.push(
+        //     new River(points, {
+        //         maxHistory: historicalColors.length / 2,
+        //         storeHistoryEvery: 30,
+        //
+        //         influenceLimit: 0,
+        //
+        //         mixTangentRatio: cs.mixTangentRatio,
+        //         mixMagnitude: cs.mixMagnitude,
+        //         pushFlowVectorFn: flowRight,
+        //         oxbowProx: cs.curvesize,
+        //
+        //         measureCurveAdjacent: cs.curvemeasure,
+        //         curveSize: cs.curvesize,
+        //         pointRemoveProx: cs.pointremove,
+        //         insertionFactor: cs.insertion,
+        //     })
+        // );
 
         // blue
         rivers.push(
             new River(points, {
-                maxHistory: historicalColors.length / 4,
-                storeHistoryEvery: 20,
+                maxHistory: historicalColors.length,
+                storeHistoryEvery: 30,
+                fixedEndPoints: 3,
+                influenceLimit: 0,
 
-                mixTangentRatio: 0.55,
-                mixMagnitude: 0.9,
-                influenceLimit: 0.8,
+                mixTangentRatio: cs.mixTangentRatio,
+                mixMagnitude: cs.mixMagnitude + 0.5,
+                pushFlowVectorFn: flowRightToMiddle,
+                oxbowProx: cs.curvesize * 0.5,
+                oxbowPointIndexProx: cs.curvemeasure, // measureCurveAdjacent * 1.5
 
                 measureCurveAdjacent: cs.curvemeasure,
                 curveSize: cs.curvesize,
@@ -399,42 +436,53 @@ export const river = () => {
                 insertionFactor: cs.insertion,
 
                 // noiseFn: noise,
-                // noiseMode: 'mix',
-                // noiseStrengthAffect: 1.25,
-                // mixNoiseRatio: 0.2,
+                // noiseMode: 'scaleMag',
+                // noiseStrengthAffect: 2,
+                // mixNoiseRatio: 0.3,
             })
         );
     };
 
+    const smoothPoints = (points, trim, smooth) => chaikin(trimPoints(points, trim), smooth);
+    // const smoothPoints = (points, trim, smooth) => createSplinePoints(trimPoints(points, trim));
+
     const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor.clone().setAlpha(0.1));
-        renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
+        // renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
 
-        const riverColor = bicPenBlue;
-        const riverWeight = 1;
-        const oxbowColor = warmGreyDark.clone().brighten(30).setAlpha(0.5);
-        const oxbowWeight = 7;
+        const riverColor = warmWhite;
+        const riverWeight = 20;
+        const oxbowColor = warmWhite; // warmGreyDark.clone().brighten(30).setAlpha(0.5);
+        const oxbowWeight = 20;
 
         const colors = ['red', 'blue'];
 
         rivers.forEach((r, i) => {
             r.step();
 
-            const { points } = r;
+            for (let i = r.history.length - 1; i >= 0; i--) {
+                // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
+                drawConnectedPoints(ctx)(
+                    smoothPoints(r.history[i].channel, 5, 2),
+                    getHistoricalColor(i),
+                    riverWeight * 1.25
+                );
+            }
+
+            const points = smoothPoints(r.points, 1, 5);
 
             r.oxbows.forEach((o) => {
-                drawConnectedPoints(ctx)(o, oxbowColor, oxbowWeight);
+                const w = mapRange(1, 200, oxbowWeight * 0.25, oxbowWeight, o.length);
+                drawConnectedPoints(ctx)(o, oxbowColor, w);
             });
 
-            drawConnectedPoints(ctx)(points, colors[i], riverWeight);
-            // circleAtPoint(ctx)(r.points, riverColor, 3);
-
-            // console.log(i, points.length);
+            drawConnectedPoints(ctx)(points, warmGreyDark, riverWeight + 2);
+            drawConnectedPoints(ctx)(points, warmWhite, riverWeight);
         });
 
-        if (time > 1000) {
-            return -1;
-        }
+        // if (time > 1000) {
+        //     return -1;
+        // }
 
         time++;
     };

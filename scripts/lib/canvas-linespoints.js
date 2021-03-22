@@ -35,9 +35,10 @@ export const plotLines = (context) => (points, color = 'black', width = 1) => {
 export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1) => {
     ctx.beginPath();
     ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+
     ctx.lineWidth = width;
     ctx.lineCap = 'round';
-    // ctx.lineJoin = 'round';
+    ctx.lineJoin = 'round';
 
     points.forEach((coords, i) => {
         if (i === 0) {
@@ -47,6 +48,25 @@ export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1)
         }
     });
     ctx.stroke();
+};
+
+export const drawPointsTaper = (ctx) => (points, color = 'black', width = 1) => {
+    ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+
+    const mid = points.length / 2;
+
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    points.forEach((coords, i) => {
+        const dist = Math.abs(mid - i);
+        const w = mapRange(0, mid, width, 1, dist);
+        ctx.lineWidth = w;
+        ctx.beginPath();
+        ctx.moveTo(coords[0], coords[1]);
+        ctx.lineTo(coords[0], coords[1]);
+        ctx.stroke();
+    });
 };
 
 export const circleAtPoint = (context) => (points, color = 'black', radius = 5) => {
