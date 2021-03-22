@@ -7720,7 +7720,7 @@ exports.Box = Box;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.drawSegmentTaper = exports.drawSegment = exports.circleAtPoint = exports.drawPointsTaper = exports.drawConnectedPoints = exports.plotLines = exports.turtleLineMode = void 0;
+exports.drawSegmentTaper = exports.drawSegment = exports.variableCircleAtPoint = exports.circleAtPoint = exports.drawPointsTaper = exports.drawConnectedPoints = exports.plotLines = exports.turtleLineMode = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
@@ -7824,6 +7824,21 @@ var circleAtPoint = function circleAtPoint(context) {
 };
 
 exports.circleAtPoint = circleAtPoint;
+
+var variableCircleAtPoint = function variableCircleAtPoint(context) {
+  return function (points) {
+    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'black';
+    var radius = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+    var freq = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 10;
+    var amp = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 2;
+    points.forEach(function (coords) {
+      var v = Math.sin(coords[0] / freq) * amp;
+      (0, _canvas.drawCircleFilled)(context)(coords[0], coords[1], radius - v, color);
+    });
+  };
+};
+
+exports.variableCircleAtPoint = variableCircleAtPoint;
 
 var drawSegment = function drawSegment(ctx) {
   return function (segments, color, weight) {
@@ -9888,9 +9903,13 @@ var River = /*#__PURE__*/function () {
           var dist = (0, _math.pointDistance)(point, next);
 
           if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
-            newPoints.push(next); // create oxbow
-
-            this.oxbows.push((0, _lineSegments.va2pA)(points.slice(i, j)));
+            newPoints.push(next);
+            var oxpoints = (0, _lineSegments.va2pA)(points.slice(i, j));
+            oxpoints = (0, _math.chaikin)((0, _lineSegments.trimPoints)(oxpoints, 3), 3);
+            this.oxbows.push({
+              points: oxpoints,
+              startLength: oxpoints.length
+            });
             i = j;
           }
         }
@@ -9902,12 +9921,13 @@ var River = /*#__PURE__*/function () {
   }, {
     key: "shrinkOxbows",
     value: function shrinkOxbows(oxbowArr) {
-      var _this3 = this;
+      return oxbowArr.reduce(function (oxacc, oxbow) {
+        var oxpoints = oxbow.points;
 
-      return oxbowArr.reduce(function (oxacc, pointArry, i) {
-        if (pointArry.length > 1) {
-          var shrinkPct = Math.ceil(_this3.oxbowShrinkRate / pointArry.length);
-          pointArry = pointArry.reduce(function (ptacc, point, i) {
+        if (oxpoints.length > 1) {
+          var shrinkPct = 1; // Math.ceil(this.oxbowShrinkRate / oxpoints.length);
+
+          oxbow.points = oxpoints.reduce(function (ptacc, point, i) {
             // check every channel segment for an intersection with this oxbow segment
             // const intersect = this.channelSegments.reduce((acc, cs) => {
             //     if (!acc) {
@@ -9919,14 +9939,14 @@ var River = /*#__PURE__*/function () {
 
             if (!intersect) {
               // remove the first and last
-              if (i > shrinkPct && i < pointArry.length - shrinkPct) {
+              if (i > shrinkPct && i < oxbow.points.length - shrinkPct) {
                 ptacc.push(point);
               }
             }
 
             return ptacc;
           }, []);
-          oxacc.push(pointArry);
+          oxacc.push(oxbow);
         }
 
         return oxacc;
@@ -10001,6 +10021,43 @@ var river = function river() {
     return historicalColors[i];
   };
 
+  var maxHistory = historicalColors.length / 2;
+
+  var flowRight = function flowRight(p, m) {
+    return new _Vector.Vector(0.25, 0);
+  }; // stronger middle pressure the farther away it is
+
+
+  var flowRightToMiddle = function flowRightToMiddle(p, m) {
+    var dist = Math.abs(canvasMidY - p.y);
+    var y = (0, _math.mapRange)(0, canvasMidY / 2, 0, 1, dist);
+
+    if (p.y > canvasMidY) {
+      y *= -1;
+    }
+
+    return new _Vector.Vector(0.25, y);
+  };
+  /*
+  Findings
+  Curve measure larger will create larger bubbles
+  Curve size, even larger bubbles
+  If point remove prox is too low line will create mushrooms.
+      Should be curve size or a few decimal points under
+  If insertion is > 1, then the line will just be straight
+  Mix mag should be incr in small sizes
+   */
+
+
+  var cs = {
+    mixTangentRatio: 0.45,
+    mixMagnitude: 1.25,
+    curvemeasure: 4,
+    curvesize: 5,
+    pointremove: 5,
+    insertion: 1
+  };
+
   var setup = function setup(_ref2) {
     var canvas = _ref2.canvas,
         context = _ref2.context;
@@ -10008,73 +10065,24 @@ var river = function river() {
     canvasMidX = canvas.width / 2;
     canvasMidY = canvas.height / 2;
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    var points = (0, _lineSegments.createSplinePoints)(createHorizontalPath(canvas, 0, canvasMidY, 10)); // const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 10), 5);
-
-    (0, _canvasLinespoints.circleAtPoint)(ctx)(points, (0, _tinycolor.default)('white'), 10);
-    var csbak = {
-      curvemeasure: 10,
-      curvesize: 6,
-      pointremove: 6 * 0.25,
-      insertion: 6 * 0.8
-    };
-
-    var flowRight = function flowRight(p, m) {
-      return new _Vector.Vector(0.25, 0);
-    }; // stronger middle pressure the farther away it is
-
-
-    var flowRightToMiddle = function flowRightToMiddle(p, m) {
-      var dist = Math.abs(canvasMidY - p.y);
-      var y = (0, _math.mapRange)(0, canvasMidY / 2, 0, 0.75, dist);
-
-      if (p.y > canvasMidY) {
-        y *= -1;
-      }
-
-      return new _Vector.Vector(0.25, y);
-    };
-
-    var cs = {
-      mixTangentRatio: 0.5,
-      mixMagnitude: 1.25,
-      curvemeasure: 4,
-      curvesize: 5,
-      pointremove: 5,
-      insertion: 1
-    };
-    /*
-    Findings
-    Curve measure larger will create larger bubbles
-    Curve size, even larger bubbles
-    If point remove prox is too low line will create mushrooms.
-        Should be curve size or a few decimal points under
-    If insertion is > 1, then the line will just be straight
-    Mix mag should be incr in small sizes
-     */
-    // red
-    // rivers.push(
-    //     new River(points, {
-    //         maxHistory: historicalColors.length / 2,
-    //         storeHistoryEvery: 30,
-    //
-    //         influenceLimit: 0,
-    //
-    //         mixTangentRatio: cs.mixTangentRatio,
-    //         mixMagnitude: cs.mixMagnitude,
-    //         pushFlowVectorFn: flowRight,
-    //         oxbowProx: cs.curvesize,
-    //
-    //         measureCurveAdjacent: cs.curvemeasure,
-    //         curveSize: cs.curvesize,
-    //         pointRemoveProx: cs.pointremove,
-    //         insertionFactor: cs.insertion,
-    //     })
-    // );
-    // blue
-
-    rivers.push(new River(points, {
-      maxHistory: historicalColors.length,
+    var points = (0, _lineSegments.createSplinePoints)(createHorizontalPath(canvas, 0, canvasMidY, 15));
+    var baseRiver = new River(points, {
+      maxHistory: maxHistory,
       storeHistoryEvery: 30,
+      influenceLimit: 0,
+      mixTangentRatio: cs.mixTangentRatio,
+      mixMagnitude: cs.mixMagnitude,
+      pushFlowVectorFn: flowRight,
+      oxbowProx: cs.curvesize,
+      measureCurveAdjacent: cs.curvemeasure,
+      curveSize: cs.curvesize,
+      pointRemoveProx: cs.pointremove,
+      insertionFactor: cs.insertion
+    }); // blue
+
+    var mainRiver = new River(points, {
+      maxHistory: maxHistory,
+      storeHistoryEvery: 50,
       fixedEndPoints: 3,
       influenceLimit: 0,
       mixTangentRatio: cs.mixTangentRatio,
@@ -10086,45 +10094,84 @@ var river = function river() {
       measureCurveAdjacent: cs.curvemeasure,
       curveSize: cs.curvesize,
       pointRemoveProx: cs.pointremove,
-      insertionFactor: cs.insertion // noiseFn: noise,
-      // noiseMode: 'scaleMag',
-      // noiseStrengthAffect: 2,
-      // mixNoiseRatio: 0.3,
-
-    }));
+      insertionFactor: cs.insertion,
+      noiseFn: noise,
+      noiseMode: 'mix',
+      noiseStrengthAffect: 0,
+      mixNoiseRatio: 0.1
+    });
+    var mainRiverSideChannel = new River(points, {
+      maxHistory: maxHistory,
+      storeHistoryEvery: 50,
+      fixedEndPoints: 3,
+      influenceLimit: 0,
+      // difference
+      segCurveMultiplier: 0.9999,
+      mixTangentRatio: cs.mixTangentRatio,
+      mixMagnitude: cs.mixMagnitude + 0.5,
+      pushFlowVectorFn: flowRightToMiddle,
+      oxbowProx: cs.curvesize * 0.5,
+      oxbowPointIndexProx: cs.curvemeasure,
+      // measureCurveAdjacent * 1.5
+      measureCurveAdjacent: cs.curvemeasure,
+      curveSize: cs.curvesize,
+      pointRemoveProx: cs.pointremove,
+      insertionFactor: cs.insertion,
+      noiseFn: noise,
+      noiseMode: 'mix',
+      noiseStrengthAffect: 0,
+      mixNoiseRatio: 0.1
+    });
+    rivers.push(mainRiver, mainRiverSideChannel);
   };
 
   var smoothPoints = function smoothPoints(points, trim, smooth) {
     return (0, _math.chaikin)((0, _lineSegments.trimPoints)(points, trim), smooth);
-  }; // const smoothPoints = (points, trim, smooth) => createSplinePoints(trimPoints(points, trim));
-
+  };
 
   var draw = function draw(_ref3) {
     var canvas = _ref3.canvas,
         context = _ref3.context;
-    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(0.1)); // renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
-
+    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(1));
+    (0, _attractors.renderField)(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
     var riverColor = _palettes.warmWhite;
-    var riverWeight = 20;
-    var oxbowColor = _palettes.warmWhite; // warmGreyDark.clone().brighten(30).setAlpha(0.5);
+    var riverWeight = [20, 5];
+    var oxbowColor = _palettes.warmWhite;
+    var outlineColor = _palettes.warmGreyDark; // step
 
-    var oxbowWeight = 20;
-    var colors = ['red', 'blue'];
-    rivers.forEach(function (r, i) {
+    rivers.forEach(function (r) {
       r.step();
+    }); // history
 
-      for (var _i = r.history.length - 1; _i >= 0; _i--) {
-        // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(smoothPoints(r.history[_i].channel, 5, 2), getHistoricalColor(_i), riverWeight * 1.25);
+    rivers.forEach(function (r, i) {
+      for (var h = r.history.length - 1; h >= 0; h--) {
+        var a = (0, _math.mapRange)(0, historicalColors.length / 2, 0.35, 0.1, h);
+
+        var hcolor = _tinycolor.default.mix(riverColor, tintingColor, (0, _math.mapRange)(0, maxHistory, 20, 100, h));
+
+        var hpoints = smoothPoints(r.history[h].channel, 2, 1); // drawConnectedPoints(ctx)(hpoints, getHistoricalColor(h), riverWeight[i] * 2);
+        // warmGreyDark.clone().setAlpha(a)
+
+        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(hpoints, hcolor, riverWeight[i] * 2);
       }
+    }); // outline
 
-      var points = smoothPoints(r.points, 1, 5);
+    rivers.forEach(function (r, i) {
       r.oxbows.forEach(function (o) {
-        var w = (0, _math.mapRange)(1, 200, oxbowWeight * 0.25, oxbowWeight, o.length);
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o, oxbowColor, w);
+        var w = (0, _math.mapRange)(0, o.startLength, 0, riverWeight[i], o.points.length);
+        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, outlineColor, w + 2);
       });
-      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, _palettes.warmGreyDark, riverWeight + 2);
-      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, _palettes.warmWhite, riverWeight);
+      var points = smoothPoints(r.points, 1, 3);
+      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, outlineColor, riverWeight[i] + 2);
+    }); // main
+
+    rivers.forEach(function (r, i) {
+      r.oxbows.forEach(function (o) {
+        var w = (0, _math.mapRange)(0, o.startLength, 0, riverWeight[i], o.points.length);
+        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, oxbowColor, w);
+      });
+      var points = smoothPoints(r.points, 1, 3);
+      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, riverColor, riverWeight[i]);
     }); // if (time > 1000) {
     //     return -1;
     // }
@@ -10242,7 +10289,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53146" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54658" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

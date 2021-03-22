@@ -15,7 +15,13 @@ import { bicPenBlue, darkest, warmGreyDark, warmWhite } from '../lib/palettes';
 import { Vector } from '../lib/Vector';
 import { createSplinePoints, pa2VA, va2pA, mCurvature, trimPoints } from '../lib/lineSegments';
 import { simplexNoise2d, renderField } from '../lib/attractors';
-import { circleAtPoint, drawConnectedPoints, drawPoints, drawPointsTaper } from '../lib/canvas-linespoints';
+import {
+    circleAtPoint,
+    drawConnectedPoints,
+    drawPoints,
+    drawPointsTaper,
+    variableCircleAtPoint,
+} from '../lib/canvas-linespoints';
 import { defaultValue } from '../lib/utils';
 
 /*
@@ -233,8 +239,9 @@ class River {
                 const dist = pointDistance(point, next);
                 if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
-                    // create oxbow
-                    this.oxbows.push(va2pA(points.slice(i, j)));
+                    let oxpoints = va2pA(points.slice(i, j));
+                    oxpoints = chaikin(trimPoints(oxpoints, 3), 3);
+                    this.oxbows.push({ points: oxpoints, startLength: oxpoints.length });
                     i = j;
                 }
             }
@@ -244,10 +251,11 @@ class River {
 
     // array of point arrays points, not vectors
     shrinkOxbows(oxbowArr) {
-        return oxbowArr.reduce((oxacc, pointArry, i) => {
-            if (pointArry.length > 1) {
-                const shrinkPct = Math.ceil(this.oxbowShrinkRate / pointArry.length);
-                pointArry = pointArry.reduce((ptacc, point, i) => {
+        return oxbowArr.reduce((oxacc, oxbow) => {
+            const oxpoints = oxbow.points;
+            if (oxpoints.length > 1) {
+                const shrinkPct = 1; // Math.ceil(this.oxbowShrinkRate / oxpoints.length);
+                oxbow.points = oxpoints.reduce((ptacc, point, i) => {
                     // check every channel segment for an intersection with this oxbow segment
                     // const intersect = this.channelSegments.reduce((acc, cs) => {
                     //     if (!acc) {
@@ -260,15 +268,14 @@ class River {
 
                     if (!intersect) {
                         // remove the first and last
-                        if (i > shrinkPct && i < pointArry.length - shrinkPct) {
+                        if (i > shrinkPct && i < oxbow.points.length - shrinkPct) {
                             ptacc.push(point);
                         }
                     }
 
                     return ptacc;
                 }, []);
-
-                oxacc.push(pointArry);
+                oxacc.push(oxbow);
             }
             return oxacc;
         }, []);
@@ -347,137 +354,161 @@ export const river = () => {
 
     const noise = (x, y) => simplexNoise2d(x, y, 0.001);
     const getHistoricalColor = (i) => historicalColors[i];
+    const maxHistory = historicalColors.length / 2;
+
+    const flowRight = (p, m) => new Vector(0.25, 0);
+
+    // stronger middle pressure the farther away it is
+    const flowRightToMiddle = (p, m) => {
+        const dist = Math.abs(canvasMidY - p.y);
+        let y = mapRange(0, canvasMidY / 2, 0, 1, dist);
+        if (p.y > canvasMidY) {
+            y *= -1;
+        }
+        return new Vector(0.25, y);
+    };
+
+    /*
+    Findings
+    Curve measure larger will create larger bubbles
+    Curve size, even larger bubbles
+    If point remove prox is too low line will create mushrooms.
+        Should be curve size or a few decimal points under
+    If insertion is > 1, then the line will just be straight
+    Mix mag should be incr in small sizes
+     */
+    const cs = {
+        mixTangentRatio: 0.45,
+        mixMagnitude: 1.25,
+        curvemeasure: 4,
+        curvesize: 5,
+        pointremove: 5,
+        insertion: 1,
+    };
 
     const setup = ({ canvas, context }) => {
         ctx = context;
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         background(canvas, context)(backgroundColor);
-        const points = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 10));
-        // const points = chaikin(createHorizontalPath(canvas, 0, canvasMidY, 10), 5);
+        const points = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 15));
 
-        circleAtPoint(ctx)(points, tinycolor('white'), 10);
+        const baseRiver = new River(points, {
+            maxHistory,
+            storeHistoryEvery: 30,
 
-        const csbak = {
-            curvemeasure: 10,
-            curvesize: 6,
-            pointremove: 6 * 0.25,
-            insertion: 6 * 0.8,
-        };
+            influenceLimit: 0,
 
-        const flowRight = (p, m) => new Vector(0.25, 0);
+            mixTangentRatio: cs.mixTangentRatio,
+            mixMagnitude: cs.mixMagnitude,
+            pushFlowVectorFn: flowRight,
+            oxbowProx: cs.curvesize,
 
-        // stronger middle pressure the farther away it is
-        const flowRightToMiddle = (p, m) => {
-            const dist = Math.abs(canvasMidY - p.y);
-            let y = mapRange(0, canvasMidY / 2, 0, 0.75, dist);
-            if (p.y > canvasMidY) {
-                y *= -1;
-            }
-            return new Vector(0.25, y);
-        };
-
-        const cs = {
-            mixTangentRatio: 0.5,
-            mixMagnitude: 1.25,
-            curvemeasure: 4,
-            curvesize: 5,
-            pointremove: 5,
-            insertion: 1,
-        };
-
-        /*
-        Findings
-        Curve measure larger will create larger bubbles
-        Curve size, even larger bubbles
-        If point remove prox is too low line will create mushrooms.
-            Should be curve size or a few decimal points under
-        If insertion is > 1, then the line will just be straight
-        Mix mag should be incr in small sizes
-         */
-
-        // red
-        // rivers.push(
-        //     new River(points, {
-        //         maxHistory: historicalColors.length / 2,
-        //         storeHistoryEvery: 30,
-        //
-        //         influenceLimit: 0,
-        //
-        //         mixTangentRatio: cs.mixTangentRatio,
-        //         mixMagnitude: cs.mixMagnitude,
-        //         pushFlowVectorFn: flowRight,
-        //         oxbowProx: cs.curvesize,
-        //
-        //         measureCurveAdjacent: cs.curvemeasure,
-        //         curveSize: cs.curvesize,
-        //         pointRemoveProx: cs.pointremove,
-        //         insertionFactor: cs.insertion,
-        //     })
-        // );
+            measureCurveAdjacent: cs.curvemeasure,
+            curveSize: cs.curvesize,
+            pointRemoveProx: cs.pointremove,
+            insertionFactor: cs.insertion,
+        });
 
         // blue
-        rivers.push(
-            new River(points, {
-                maxHistory: historicalColors.length,
-                storeHistoryEvery: 30,
-                fixedEndPoints: 3,
-                influenceLimit: 0,
+        const mainRiver = new River(points, {
+            maxHistory,
+            storeHistoryEvery: 50,
+            fixedEndPoints: 3,
+            influenceLimit: 0,
 
-                mixTangentRatio: cs.mixTangentRatio,
-                mixMagnitude: cs.mixMagnitude + 0.5,
-                pushFlowVectorFn: flowRightToMiddle,
-                oxbowProx: cs.curvesize * 0.5,
-                oxbowPointIndexProx: cs.curvemeasure, // measureCurveAdjacent * 1.5
+            mixTangentRatio: cs.mixTangentRatio,
+            mixMagnitude: cs.mixMagnitude + 0.5,
+            pushFlowVectorFn: flowRightToMiddle,
+            oxbowProx: cs.curvesize * 0.5,
+            oxbowPointIndexProx: cs.curvemeasure, // measureCurveAdjacent * 1.5
 
-                measureCurveAdjacent: cs.curvemeasure,
-                curveSize: cs.curvesize,
-                pointRemoveProx: cs.pointremove,
-                insertionFactor: cs.insertion,
+            measureCurveAdjacent: cs.curvemeasure,
+            curveSize: cs.curvesize,
+            pointRemoveProx: cs.pointremove,
+            insertionFactor: cs.insertion,
 
-                // noiseFn: noise,
-                // noiseMode: 'scaleMag',
-                // noiseStrengthAffect: 2,
-                // mixNoiseRatio: 0.3,
-            })
-        );
+            noiseFn: noise,
+            noiseMode: 'mix',
+            noiseStrengthAffect: 0,
+            mixNoiseRatio: 0.1,
+        });
+
+        const mainRiverSideChannel = new River(points, {
+            maxHistory,
+            storeHistoryEvery: 50,
+            fixedEndPoints: 3,
+            influenceLimit: 0,
+
+            // difference
+            segCurveMultiplier: 0.9999,
+
+            mixTangentRatio: cs.mixTangentRatio,
+            mixMagnitude: cs.mixMagnitude + 0.5,
+            pushFlowVectorFn: flowRightToMiddle,
+            oxbowProx: cs.curvesize * 0.5,
+            oxbowPointIndexProx: cs.curvemeasure, // measureCurveAdjacent * 1.5
+
+            measureCurveAdjacent: cs.curvemeasure,
+            curveSize: cs.curvesize,
+            pointRemoveProx: cs.pointremove,
+            insertionFactor: cs.insertion,
+
+            noiseFn: noise,
+            noiseMode: 'mix',
+            noiseStrengthAffect: 0,
+            mixNoiseRatio: 0.1,
+        });
+
+        rivers.push(mainRiver, mainRiverSideChannel);
     };
 
     const smoothPoints = (points, trim, smooth) => chaikin(trimPoints(points, trim), smooth);
-    // const smoothPoints = (points, trim, smooth) => createSplinePoints(trimPoints(points, trim));
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)(backgroundColor.clone().setAlpha(0.1));
-        // renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
+        background(canvas, context)(backgroundColor.clone().setAlpha(1));
+        renderField(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
 
         const riverColor = warmWhite;
-        const riverWeight = 20;
-        const oxbowColor = warmWhite; // warmGreyDark.clone().brighten(30).setAlpha(0.5);
-        const oxbowWeight = 20;
+        const riverWeight = [20, 5];
+        const oxbowColor = warmWhite;
+        const outlineColor = warmGreyDark;
 
-        const colors = ['red', 'blue'];
-
-        rivers.forEach((r, i) => {
+        // step
+        rivers.forEach((r) => {
             r.step();
+        });
 
-            for (let i = r.history.length - 1; i >= 0; i--) {
-                // drawOxbows(r.history[i].oxbows, tintingColor, oxbowWeight);
-                drawConnectedPoints(ctx)(
-                    smoothPoints(r.history[i].channel, 5, 2),
-                    getHistoricalColor(i),
-                    riverWeight * 1.25
-                );
+        // history
+        rivers.forEach((r, i) => {
+            for (let h = r.history.length - 1; h >= 0; h--) {
+                const a = mapRange(0, historicalColors.length / 2, 0.35, 0.1, h);
+                const hcolor = tinycolor.mix(riverColor, tintingColor, mapRange(0, maxHistory, 20, 100, h));
+                const hpoints = smoothPoints(r.history[h].channel, 2, 1);
+                // drawConnectedPoints(ctx)(hpoints, getHistoricalColor(h), riverWeight[i] * 2);
+                // warmGreyDark.clone().setAlpha(a)
+                drawConnectedPoints(ctx)(hpoints, hcolor, riverWeight[i] * 2);
             }
+        });
 
-            const points = smoothPoints(r.points, 1, 5);
-
+        // outline
+        rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
-                const w = mapRange(1, 200, oxbowWeight * 0.25, oxbowWeight, o.length);
-                drawConnectedPoints(ctx)(o, oxbowColor, w);
+                const w = mapRange(0, o.startLength, 0, riverWeight[i], o.points.length);
+                drawConnectedPoints(ctx)(o.points, outlineColor, w + 2);
             });
+            const points = smoothPoints(r.points, 1, 3);
+            drawConnectedPoints(ctx)(points, outlineColor, riverWeight[i] + 2);
+        });
 
-            drawConnectedPoints(ctx)(points, warmGreyDark, riverWeight + 2);
-            drawConnectedPoints(ctx)(points, warmWhite, riverWeight);
+        // main
+        rivers.forEach((r, i) => {
+            r.oxbows.forEach((o) => {
+                const w = mapRange(0, o.startLength, 0, riverWeight[i], o.points.length);
+                drawConnectedPoints(ctx)(o.points, oxbowColor, w);
+            });
+            const points = smoothPoints(r.points, 1, 3);
+            drawConnectedPoints(ctx)(points, riverColor, riverWeight[i]);
         });
 
         // if (time > 1000) {
