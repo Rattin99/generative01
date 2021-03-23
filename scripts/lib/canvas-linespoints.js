@@ -78,7 +78,7 @@ export const circleAtPoint = (context) => (points, color = 'black', radius = 5) 
 export const variableCircleAtPoint = (context) => (points, color = 'black', radius = 5, freq = 10, amp = 2) => {
     points.forEach((coords) => {
         const v = Math.sin(coords[0] / freq) * amp;
-        drawCircleFilled(context)(coords[0], coords[1], radius - v, color);
+        drawCircleFilled(context)(coords[0], coords[1], Math.abs(radius - v), color);
     });
 };
 

@@ -1,5 +1,6 @@
 import tinycolor from 'tinycolor2';
-import { create2dNoise, create3dNoise, pointDistance, randomNumberBetween, uvFromAngle } from './math';
+import { create2dNoise, create3dNoise, mapRange, pointDistance, randomNumberBetween, uvFromAngle } from './math';
+import { drawRectFilled } from './canvas';
 
 const TAU = Math.PI * 2;
 
@@ -56,7 +57,18 @@ const flowAtPoint = (x, y) => {
     // const theta = Math.sin(x * scale) + Math.sin(y * scale); // diamonds
     return theta * TAU;
 };
-export const renderField = ({ width, height }, context, fn, color = 'black', cell = '50', length) => {
+export const renderField = (
+    { width, height },
+    context,
+    fn,
+    color = 'black',
+    cell = '50',
+    length,
+    lowColor,
+    highColor,
+    noiseMax = 5,
+    maxAlpha = 1
+) => {
     const mid = cell / 2;
     for (let x = 0; x < width; x += cell) {
         for (let y = 0; y < height; y += cell) {
@@ -72,6 +84,12 @@ export const renderField = ({ width, height }, context, fn, color = 'black', cel
             context.moveTo(x1, y1);
             context.lineTo(x2, y2);
             context.stroke();
+
+            if (lowColor && highColor) {
+                const fillColor = theta < 0 ? lowColor : highColor;
+                const fillAlpha = mapRange(0, noiseMax, 0, maxAlpha, Math.abs(theta));
+                drawRectFilled(context)(x, y, x + cell, y + cell, tinycolor(fillColor).setAlpha(fillAlpha));
+            }
         }
     }
 };

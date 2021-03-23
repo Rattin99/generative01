@@ -6178,6 +6178,8 @@ var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _math = require("./math");
 
+var _canvas = require("./canvas");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var TAU = Math.PI * 2;
@@ -6270,6 +6272,10 @@ var renderField = function renderField(_ref, context, fn) {
   var color = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'black';
   var cell = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '50';
   var length = arguments.length > 5 ? arguments[5] : undefined;
+  var lowColor = arguments.length > 6 ? arguments[6] : undefined;
+  var highColor = arguments.length > 7 ? arguments[7] : undefined;
+  var noiseMax = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 5;
+  var maxAlpha = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 1;
   var mid = cell / 2;
 
   for (var x = 0; x < width; x += cell) {
@@ -6286,12 +6292,18 @@ var renderField = function renderField(_ref, context, fn) {
       context.moveTo(x1, y1);
       context.lineTo(x2, y2);
       context.stroke();
+
+      if (lowColor && highColor) {
+        var fillColor = theta < 0 ? lowColor : highColor;
+        var fillAlpha = (0, _math.mapRange)(0, noiseMax, 0, maxAlpha, Math.abs(theta));
+        (0, _canvas.drawRectFilled)(context)(x, y, x + cell, y + cell, (0, _tinycolor.default)(fillColor).setAlpha(fillAlpha));
+      }
     }
   }
 };
 
 exports.renderField = renderField;
-},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js"}],"scripts/released/flow-field-particles.js":[function(require,module,exports) {
+},{"tinycolor2":"node_modules/tinycolor2/tinycolor.js","./math":"scripts/lib/math.js","./canvas":"scripts/lib/canvas.js"}],"scripts/released/flow-field-particles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7833,7 +7845,7 @@ var variableCircleAtPoint = function variableCircleAtPoint(context) {
     var amp = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 2;
     points.forEach(function (coords) {
       var v = Math.sin(coords[0] / freq) * amp;
-      (0, _canvas.drawCircleFilled)(context)(coords[0], coords[1], radius - v, color);
+      (0, _canvas.drawCircleFilled)(context)(coords[0], coords[1], Math.abs(radius - v), color);
     });
   };
 };
@@ -10028,15 +10040,17 @@ var river = function river() {
   }; // stronger middle pressure the farther away it is
 
 
-  var flowRightToMiddle = function flowRightToMiddle(p, m) {
-    var dist = Math.abs(canvasMidY - p.y);
-    var y = (0, _math.mapRange)(0, canvasMidY / 2, 0, 1, dist);
+  var flowRightToMiddle = function flowRightToMiddle(f) {
+    return function (p, m) {
+      var dist = Math.abs(canvasMidY - p.y);
+      var y = (0, _math.mapRange)(0, canvasMidY / 2, 0, f, dist);
 
-    if (p.y > canvasMidY) {
-      y *= -1;
-    }
+      if (p.y > canvasMidY) {
+        y *= -1;
+      }
 
-    return new _Vector.Vector(0.25, y);
+      return new _Vector.Vector(0.25, y);
+    };
   };
   /*
   Findings
@@ -10087,7 +10101,7 @@ var river = function river() {
       influenceLimit: 0,
       mixTangentRatio: cs.mixTangentRatio,
       mixMagnitude: cs.mixMagnitude + 0.5,
-      pushFlowVectorFn: flowRightToMiddle,
+      pushFlowVectorFn: flowRightToMiddle(0.75),
       oxbowProx: cs.curvesize * 0.5,
       oxbowPointIndexProx: cs.curvemeasure,
       // measureCurveAdjacent * 1.5
@@ -10098,7 +10112,7 @@ var river = function river() {
       noiseFn: noise,
       noiseMode: 'mix',
       noiseStrengthAffect: 0,
-      mixNoiseRatio: 0.1
+      mixNoiseRatio: 0.2
     });
     var mainRiverSideChannel = new River(points, {
       maxHistory: maxHistory,
@@ -10109,7 +10123,7 @@ var river = function river() {
       segCurveMultiplier: 0.9999,
       mixTangentRatio: cs.mixTangentRatio,
       mixMagnitude: cs.mixMagnitude + 0.5,
-      pushFlowVectorFn: flowRightToMiddle,
+      pushFlowVectorFn: flowRightToMiddle(0.75),
       oxbowProx: cs.curvesize * 0.5,
       oxbowPointIndexProx: cs.curvemeasure,
       // measureCurveAdjacent * 1.5
@@ -10120,9 +10134,9 @@ var river = function river() {
       noiseFn: noise,
       noiseMode: 'mix',
       noiseStrengthAffect: 0,
-      mixNoiseRatio: 0.1
+      mixNoiseRatio: 0.2
     });
-    rivers.push(mainRiver, mainRiverSideChannel);
+    rivers.push(mainRiver); // , mainRiverSideChannel
   };
 
   var smoothPoints = function smoothPoints(points, trim, smooth) {
@@ -10132,11 +10146,11 @@ var river = function river() {
   var draw = function draw(_ref3) {
     var canvas = _ref3.canvas,
         context = _ref3.context;
-    (0, _canvas.background)(canvas, context)(backgroundColor.clone().setAlpha(1));
-    (0, _attractors.renderField)(canvas, context, noise, 'rgba(0,0,0,.1)', 30);
+    (0, _canvas.background)(canvas, context)(backgroundColor.clone());
+    (0, _attractors.renderField)(canvas, context, noise, 'rgba(0,0,0,.25)', 30, 5, _palettes.warmGreyDark.clone(), _palettes.warmWhite.clone(), 5, 0.25);
     var riverColor = _palettes.warmWhite;
-    var riverWeight = [20, 5];
-    var oxbowColor = _palettes.warmWhite;
+    var riverWeight = [15, 5];
+    var oxbowColor = riverColor;
     var outlineColor = _palettes.warmGreyDark; // step
 
     rivers.forEach(function (r) {
@@ -10147,31 +10161,32 @@ var river = function river() {
       for (var h = r.history.length - 1; h >= 0; h--) {
         var a = (0, _math.mapRange)(0, historicalColors.length / 2, 0.35, 0.1, h);
 
-        var hcolor = _tinycolor.default.mix(riverColor, tintingColor, (0, _math.mapRange)(0, maxHistory, 20, 100, h));
+        var hcolor = _tinycolor.default.mix(_palettes.warmGreyDark, tintingColor, (0, _math.mapRange)(0, maxHistory, 20, 100, h)).setAlpha(a);
 
-        var hpoints = smoothPoints(r.history[h].channel, 2, 1); // drawConnectedPoints(ctx)(hpoints, getHistoricalColor(h), riverWeight[i] * 2);
-        // warmGreyDark.clone().setAlpha(a)
+        var hpoints = smoothPoints(r.history[h].channel, 2, 1); // warmGreyDark.clone().setAlpha(a) getHistoricalColor(h)
 
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(hpoints, hcolor, riverWeight[i]); // variableCircleAtPoint(ctx)(chaikin(r.history[h].channel, 2), hcolor, riverWeight[i] / 2);
       }
     }); // outline
 
     rivers.forEach(function (r, i) {
       r.oxbows.forEach(function (o) {
-        var w = (0, _math.mapRange)(0, o.startLength, 0, riverWeight[i], o.points.length);
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, outlineColor, w + 2);
+        var w = (0, _math.mapRange)(0, o.startLength, 0, riverWeight[i], o.points.length); // drawConnectedPoints(ctx)(o.points, outlineColor, w + 2);
+
+        (0, _canvasLinespoints.variableCircleAtPoint)(ctx)(o.points, outlineColor, w / 2 + 3);
       });
       var points = smoothPoints(r.points, 1, 3);
-      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, outlineColor, riverWeight[i] + 2);
+      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, outlineColor, riverWeight[i] + 2); // variableCircleAtPoint(ctx)(points, outlineColor, riverWeight[i] / 2 + 2);
     }); // main
 
     rivers.forEach(function (r, i) {
       r.oxbows.forEach(function (o) {
-        var w = (0, _math.mapRange)(0, o.startLength, 0, riverWeight[i], o.points.length);
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, oxbowColor, w);
+        var w = Math.abs((0, _math.mapRange)(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length)); // drawConnectedPoints(ctx)(o.points, oxbowColor, w);
+
+        (0, _canvasLinespoints.variableCircleAtPoint)(ctx)(o.points, oxbowColor, w / 2);
       });
       var points = smoothPoints(r.points, 1, 3);
-      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, riverColor, riverWeight[i]);
+      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, riverColor, riverWeight[i]); // variableCircleAtPoint(ctx)(points, riverColor, riverWeight[i] / 2);
     }); // if (time > 1000) {
     //     return -1;
     // }
@@ -10289,7 +10304,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54658" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64672" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
