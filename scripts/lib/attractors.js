@@ -62,33 +62,38 @@ export const renderField = (
     context,
     fn,
     color = 'black',
-    cell = '50',
+    cells = '50',
     length,
     lowColor,
     highColor,
-    noiseMax = 5,
-    maxAlpha = 1
+    noiseMax = 5
 ) => {
-    const mid = cell / 2;
-    for (let x = 0; x < width; x += cell) {
-        for (let y = 0; y < height; y += cell) {
+    const xStep = Math.round(width / cells);
+    const yStep = Math.round(height / cells);
+    const xMid = xStep / 2;
+    const yMid = yStep / 2;
+    for (let x = 0; x < width; x += xStep) {
+        for (let y = 0; y < height; y += yStep) {
             const theta = fn(x, y);
-            const vect = uvFromAngle(theta).setMag(length || mid);
-            const x1 = x + mid;
-            const y1 = y + mid;
-            const x2 = x1 + vect.x;
-            const y2 = y1 + vect.y;
-            context.strokeStyle = tinycolor(color);
-            context.lineWidth = 1;
-            context.beginPath();
-            context.moveTo(x1, y1);
-            context.lineTo(x2, y2);
-            context.stroke();
 
             if (lowColor && highColor) {
-                const fillColor = theta < 0 ? lowColor : highColor;
-                const fillAlpha = mapRange(0, noiseMax, 0, maxAlpha, Math.abs(theta));
-                drawRectFilled(context)(x, y, x + cell, y + cell, tinycolor(fillColor).setAlpha(fillAlpha));
+                const colorMix = mapRange(0, noiseMax * 2, 0, 100, theta + noiseMax);
+                const fillColor = tinycolor.mix(lowColor, highColor, colorMix);
+                context.fillStyle = tinycolor(fillColor).toRgbString();
+                context.fillRect(x, y, x + xStep, y + yStep);
+            }
+            if (length > 0) {
+                const vect = uvFromAngle(theta).setMag(length || xMid);
+                const x1 = x + xMid;
+                const y1 = y + yMid;
+                const x2 = x1 + vect.x;
+                const y2 = y1 + vect.y;
+                context.strokeStyle = tinycolor(color);
+                context.lineWidth = 1;
+                context.beginPath();
+                context.moveTo(x1, y1);
+                context.lineTo(x2, y2);
+                context.stroke();
             }
         }
     }
