@@ -1,6 +1,8 @@
 import tinycolor from 'tinycolor2';
 import { create2dNoise, create3dNoise, mapRange, pointDistance, randomNumberBetween, uvFromAngle } from './math';
 import { drawRectFilled } from './canvas';
+import { Particle } from './Particle';
+import { Vector } from './Vector';
 
 const TAU = Math.PI * 2;
 
@@ -97,4 +99,36 @@ export const renderField = (
             }
         }
     }
+};
+
+/*
+const plotFFPointLines = (num) => {
+        for (let i = 0; i < num; i++) {
+            const coords = createFFParticleCoords(noise, 0, randomWholeBetween(0, canvasMidY * 2), 2000, 1);
+            drawConnectedPoints(ctx)(coords, tinycolor('rgba(0,0,0,.5'), 1);
+        }
+    };
+ */
+export const createFFParticleCoords = (fieldFn, startX, startY, length, fMag = 1, vlimit = 1) => {
+    const props = {
+        x: startX,
+        y: startY,
+        velocityX: 0,
+        velocityY: 0,
+        mass: 1,
+    };
+    const particle = new Particle(props);
+    const coords = [];
+    for (let i = 0; i < length; i++) {
+        const theta = fieldFn(particle.x, particle.y);
+        // theta = quantize(4, theta);
+        const force = uvFromAngle(theta).setMag(fMag);
+
+        particle.applyForce(force);
+        particle.velocity = particle.velocity.limit(vlimit);
+        particle.updatePosWithVelocity();
+        coords.push([particle.x, particle.y]);
+        particle.acceleration = new Vector(0, 0);
+    }
+    return coords;
 };

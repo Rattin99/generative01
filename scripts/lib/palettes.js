@@ -77,6 +77,16 @@ export const palettes = {
     ],
 };
 
+// colors sampled from http://roberthodgin.com/project/meander
+// const agedWarmWhite = tinycolor('hsl(42, 43%, 76%)');
+// const tintingColor = tinycolor('hsl(38, 38%, 64%)');
+// const palette = [
+//     tinycolor('hsl(97, 9%, 73%)'),
+//     tinycolor('hsl(51, 7%, 38%)'),
+//     tinycolor('hsl(19, 39%, 47%)'),
+//     tinycolor('hsl(166, 39%, 59%)'),
+// ];
+
 export const nicePalette = (_) => nicepalettes[randomWholeBetween(0, 99)];
 export const palette = (_) => palettes[oneOf(Object.keys(palettes))];
 
