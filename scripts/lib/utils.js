@@ -11,3 +11,24 @@ export const limitArrayLen = (arr) => {
     }
     return arr;
 };
+
+export const getArrayValuesFromStart = (arr, start, len) => {
+    const values = [];
+    let index = start;
+    for (let i = 0; i < len; i++) {
+        values.push(arr[index--]);
+        if (index < 0) index = arr.length - 1;
+    }
+    return values;
+};
+
+// Just getting an index by wrapping can be done w/ % https://benfrain.com/looping-infinitely-around-an-array-in-javascript/
+export const getArrayValuesFromEnd = (arr, start, len) => {
+    const values = [];
+    let index = start;
+    for (let i = 0; i < len; i++) {
+        values.push(arr[index++]);
+        if (index === arr.length) index = 0;
+    }
+    return values;
+};

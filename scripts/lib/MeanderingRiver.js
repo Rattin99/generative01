@@ -1,6 +1,6 @@
 import { linesIntersect, mCurvature, pa2VA, trimPoints, va2pA } from './lineSegments';
-import { defaultValue } from './utils';
-import { chaikin, degreesToRadians, lerp, mapRange, pointDistance, uvFromAngle } from './math';
+import { defaultValue, getArrayValuesFromEnd, getArrayValuesFromStart } from './utils';
+import { chaikin, degreesToRadians, lerp, mapRange, percentage, pointDistance, uvFromAngle } from './math';
 import { Vector } from './Vector';
 
 /*
@@ -66,8 +66,15 @@ export class MeanderingRiver {
         this.pointVectors = pa2VA(initPoints);
         this.oxbows = [];
 
-        // %age of line length to fix at each end
-        this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 10);
+        // Toggle oxbow checking
+        this.handleOxbows = true;
+
+        // Wrap around end points for testing circls/closed shapes
+        this.wrapEnd = true;
+
+        // %age of line length to fix at each end. Must be >= 1
+        // Setting to 1 will be fixing the first 1 point only, not percentage
+        this.fixedEndPoints = defaultValue(props, 'fixedEndPoints', 1);
         // how many adjacent points to use to measure the average curvature
         this.measureCurveAdjacent = defaultValue(props, 'measureCurveAdjacent', 30);
         // Ineffective multiply the measured curvature vector magnitude to enhance effect
@@ -111,6 +118,7 @@ export class MeanderingRiver {
         this.maxHistory = defaultValue(props, 'maxHistory', 10);
         this.storeHistoryEvery = defaultValue(props, 'storeHistoryEvery', 2);
         this.history = [];
+        this.running = true;
     }
 
     get points() {
@@ -139,6 +147,21 @@ export class MeanderingRiver {
         return degreesToRadians(sum / points.length);
     }
 
+    getPointsToMeasure(i, points) {
+        const len = this.measureCurveAdjacent;
+        let min = 0;
+        let max = points.length;
+        if (false && this.wrapEnd) {
+            // Circular
+            const start = getArrayValuesFromStart(points, i, len);
+            const end = getArrayValuesFromEnd(points, i, len);
+            return start.concat(end);
+        }
+        min = i < len ? 0 : i - len;
+        max = i > points.length - len ? points.length : i + len;
+        return points.slice(min, max);
+    }
+
     // The main part of the effect - most important parts
     // 1. The curvature of a portion of the points is measured and averaged
     // 2. The angle/tangent of the current and next points is measured
@@ -146,9 +169,8 @@ export class MeanderingRiver {
     // 4. A mix vector is created from a blend of the tangent and bitangent
     curvatureInfluence(point, i, allPoints) {
         const nextPoint = allPoints[i + 1];
-        const min = i < this.measureCurveAdjacent ? 0 : i - this.measureCurveAdjacent;
-        const max = i > allPoints.length - this.measureCurveAdjacent ? allPoints.length : i + this.measureCurveAdjacent;
-        const curvature = this.averageMCurvature(allPoints.slice(min, max)) * this.segCurveMultiplier;
+        // get x points on either side of the given point
+        const curvature = this.averageMCurvature(this.getPointsToMeasure(i, allPoints)) * this.segCurveMultiplier;
         const curveDirection = curvature < 0 ? 1 : -1;
 
         const tangent = nextPoint.sub(point);
@@ -190,26 +212,39 @@ export class MeanderingRiver {
     // Move the points
     meander(points) {
         // Slice the array in to points to affect (mid) and to not (start and end)
-        const pct = Math.round(this.fixedEndPoints * (points.length / 100)) + 1;
-        const startIndex = pct;
+        const pct = this.fixedEndPoints === 1 ? 1 : percentage(points.length, this.fixedEndPoints);
+        const fixedPointsPct = pct + 1;
+        const startIndex = fixedPointsPct;
         const startIndexPoints = points.slice(0, startIndex);
-        const endIndex = points.length - pct;
+        const endIndex = points.length - fixedPointsPct;
         const endIndexPoints = points.slice(endIndex, points.length);
         const middlePoints = points.slice(startIndex, endIndex);
+        let influencedPoints = [];
 
-        const influencedPoints = middlePoints.map((point, i) => {
-            const mixVector = this.curvatureInfluence(point, i + startIndex, points);
-            let infPoint = point.add(mixVector);
-            // Additional motion to the point vectors to push around the screen, sim flows in directions, keep towards
-            // the center of the screen, etc.
-            if (this.pushFlowVectorFn) {
-                const pushVector = this.pushFlowVectorFn(point, mixVector);
-                infPoint = infPoint.add(pushVector);
-            }
-            return infPoint;
-        });
+        if (middlePoints.length !== 0) {
+            influencedPoints = middlePoints.map((point, i) => {
+                const mixVector = this.curvatureInfluence(point, i + startIndex, points);
+                let infPoint = point.add(mixVector);
+                // Additional motion to the point vectors to push around the screen, sim flows in directions, keep towards
+                // the center of the screen, etc.
+                if (this.pushFlowVectorFn) {
+                    const pushVector = this.pushFlowVectorFn(point, mixVector);
+                    infPoint = infPoint.add(pushVector);
+                }
+                return infPoint;
+            });
+        } else {
+            // Lines crossed and there were cut off/oxbowed
+            this.running = false;
+            console.log('Meander crossed, stopping');
+        }
 
         return startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
+    }
+
+    canRemovePoint(i, points) {
+        const fixed = this.fixedEndPoints || 1;
+        return i > fixed && i < points.length - fixed;
     }
 
     // If points are too far apart, add extra points to allow for expansion
@@ -234,11 +269,7 @@ export class MeanderingRiver {
                     const ny = lerp(point.y, next.y, ratio);
                     acc.push(new Vector(nx, ny));
                 }
-            } else if (
-                i > this.fixedEndPoints &&
-                i < points.length - this.fixedEndPoints &&
-                distance < this.pointRemoveProx
-            ) {
+            } else if (this.canRemovePoint(i, points) && distance < this.pointRemoveProx) {
                 // Remove points
             } else {
                 acc.push(point);
@@ -307,19 +338,21 @@ export class MeanderingRiver {
 
     // Execute one step
     step() {
-        // influence segments to sim flow and process points
-        let newPoints = this.meander(this.pointVectors);
-        newPoints = this.adjustPointsSpacing(newPoints);
-        newPoints = this.checkForOxbows(newPoints);
+        // Running stops if the line crosses it self at the ends and the whole segment is cut ad becomes an oxbow
+        if (this.running) {
+            // influence segments to sim flow and process points
+            let newPoints = this.meander(this.pointVectors);
+            newPoints = this.adjustPointsSpacing(newPoints);
+            if (this.handleOxbows) newPoints = this.checkForOxbows(newPoints);
 
-        this.pointVectors = newPoints;
+            this.pointVectors = newPoints;
 
-        this.oxbows = this.shrinkOxbows(this.oxbows);
+            if (this.handleOxbows) this.oxbows = this.shrinkOxbows(this.oxbows);
 
-        // Record history
-        this.addToHistory(this.oxbows, va2pA(this.pointVectors));
-
-        this.steps++;
+            // Record history
+            this.addToHistory(this.oxbows, va2pA(this.pointVectors));
+            this.steps++;
+        } else if (this.handleOxbows) this.oxbows = this.shrinkOxbows(this.oxbows);
     }
 }
 

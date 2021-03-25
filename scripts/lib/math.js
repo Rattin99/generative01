@@ -30,6 +30,8 @@ export const checkBoundsRight = (b, v) => (v > b ? b : v);
 
 export const snapNumber = (snap, n) => Math.floor(n / snap) * snap;
 
+export const percentage = (total, num) => Math.round(num * (total / 100));
+
 // Hough transform
 // https://stackoverflow.com/questions/24372921/how-to-calculate-quantized-angle
 export const houghQuantize = (numAngles, theta) => Math.floor((numAngles * theta) / TAU + 0.5);

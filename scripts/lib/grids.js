@@ -1,12 +1,20 @@
 import { create2dNoiseAbs } from './math';
 
 // [[x,y], ...]
-export const createCirclePoints = (offsetX, offsetY, diameter, steps, sx = 1, sy = 1) => {
+export const createCirclePoints = (offsetX, offsetY, radius, steps, close = true) => {
+    const startAngle = 270;
+    const maxAngle = 360 + startAngle;
     const points = [];
-    for (let theta = 0; theta < 360; theta += steps) {
-        const radius = theta * (Math.PI / 180);
-        const x = Math.cos(radius) * diameter + sx + offsetX;
-        const y = Math.sin(radius) * diameter + sy + offsetY;
+    for (let angle = startAngle; angle < maxAngle; angle += steps) {
+        const theta = angle * (Math.PI / 180);
+        const x = Math.cos(theta) * radius + offsetX;
+        const y = Math.sin(theta) * radius + offsetY;
+        points.push([x, y]);
+    }
+    if (false && close) {
+        const theta = maxAngle - 1 * (Math.PI / 180);
+        const x = Math.cos(theta) * radius + offsetX;
+        const y = Math.sin(theta) * radius + offsetY;
         points.push([x, y]);
     }
     return points;

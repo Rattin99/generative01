@@ -32,7 +32,7 @@ export const plotLines = (context) => (points, color = 'black', width = 1) => {
     context.stroke();
 };
 
-export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1) => {
+export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1, close = false) => {
     ctx.beginPath();
     ctx.strokeStyle = tinycolor(color).clone().toRgbString();
 
@@ -47,6 +47,9 @@ export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1)
             ctx.lineTo(coords[0], coords[1]);
         }
     });
+    if (close) {
+        ctx.lineTo(points[0][0], points[0][1]);
+    }
     ctx.stroke();
 };
 
