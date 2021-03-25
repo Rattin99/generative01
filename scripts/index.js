@@ -5,10 +5,10 @@ Explorations with generative code
 import normalize from 'normalize.css';
 import { sketch } from './lib/sketch';
 import { variationsIndex } from './variationsIndex';
-import { meanderingRiver02 } from './experiments/meandering-river-02';
+import { meanderingRiver02 } from './released/meandering-river-02';
 
-// const experimentalVariation = undefined;
-const experimentalVariation = meanderingRiver02;
+const experimentalVariation = undefined;
+// const experimentalVariation = meanderingRiver02;
 
 const s = sketch();
 

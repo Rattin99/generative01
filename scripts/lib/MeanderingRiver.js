@@ -67,10 +67,10 @@ export class MeanderingRiver {
         this.oxbows = [];
 
         // Toggle oxbow checking
-        this.handleOxbows = true;
+        this.handleOxbows = defaultValue(props, 'handleOxbows', true);
 
-        // Wrap around end points for testing circls/closed shapes
-        this.wrapEnd = true;
+        // Wrap around end points for testing circles/closed shapes
+        this.wrapEnd = defaultValue(props, 'wrapEnd', false);
 
         // %age of line length to fix at each end. Must be >= 1
         // Setting to 1 will be fixing the first 1 point only, not percentage
@@ -152,7 +152,7 @@ export class MeanderingRiver {
         let min = 0;
         let max = points.length;
         if (false && this.wrapEnd) {
-            // Circular
+            // Circular - resulting in good curve values
             const start = getArrayValuesFromStart(points, i, len);
             const end = getArrayValuesFromEnd(points, i, len);
             return start.concat(end);
@@ -168,10 +168,16 @@ export class MeanderingRiver {
     // 3. A perpendicular bitangent is calculated and it's magnitude set to the curvature
     // 4. A mix vector is created from a blend of the tangent and bitangent
     curvatureInfluence(point, i, allPoints) {
-        const nextPoint = allPoints[i + 1];
         // get x points on either side of the given point
         const curvature = this.averageMCurvature(this.getPointsToMeasure(i, allPoints)) * this.segCurveMultiplier;
         const curveDirection = curvature < 0 ? 1 : -1;
+
+        let nextPoint = allPoints[i + 1];
+
+        if (!nextPoint && this.wrapEnd) {
+            // If wrapped, the next point at the end is the start
+            nextPoint = allPoints[0];
+        }
 
         const tangent = nextPoint.sub(point);
         const biangle = tangent.angle() + 1.5708 * curveDirection;
@@ -210,18 +216,19 @@ export class MeanderingRiver {
     }
 
     // Move the points
+    // TODO refactor to better take into account wrapped ends
     meander(points) {
         // Slice the array in to points to affect (mid) and to not (start and end)
-        const pct = this.fixedEndPoints === 1 ? 1 : percentage(points.length, this.fixedEndPoints);
-        const fixedPointsPct = pct + 1;
-        const startIndex = fixedPointsPct;
+        const pct = this.fixedEndPoints === 1 ? 1 : percentage(points.length, this.fixedEndPoints) + 1;
+        const fixedPointsPct = pct;
+        const startIndex = this.wrapEnd ? 0 : fixedPointsPct;
         const startIndexPoints = points.slice(0, startIndex);
         const endIndex = points.length - fixedPointsPct;
         const endIndexPoints = points.slice(endIndex, points.length);
-        const middlePoints = points.slice(startIndex, endIndex);
+        const middlePoints = this.wrapEnd ? points : points.slice(startIndex, endIndex);
         let influencedPoints = [];
 
-        if (middlePoints.length !== 0) {
+        if (middlePoints.length > 3) {
             influencedPoints = middlePoints.map((point, i) => {
                 const mixVector = this.curvatureInfluence(point, i + startIndex, points);
                 let infPoint = point.add(mixVector);
@@ -238,11 +245,14 @@ export class MeanderingRiver {
             this.running = false;
             console.log('Meander crossed, stopping');
         }
-
-        return startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
+        return this.wrapEnd ? influencedPoints : startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
+        // return
     }
 
     canRemovePoint(i, points) {
+        if (this.wrapEnd) {
+            // TODO Should be able to remove the first and last?
+        }
         const fixed = this.fixedEndPoints || 1;
         return i > fixed && i < points.length - fixed;
     }
@@ -252,12 +262,15 @@ export class MeanderingRiver {
     // Too many points too close together will trash performance and cause many many oxbows to form w/ short segments
     adjustPointsSpacing(points) {
         return points.reduce((acc, point, i) => {
-            if (i === 0 || i === points.length - 1) {
+            if (i === 0 || (i === points.length - 1 && !this.wrapEnd)) {
                 acc.push(point);
                 return acc;
             }
 
-            const next = points[i + 1];
+            let next = points[i + 1];
+
+            if (this.wrapEnd && !next) next = points[0];
+
             const distance = pointDistance(point, next);
 
             if (distance > this.curveSize) {
@@ -284,6 +297,9 @@ export class MeanderingRiver {
             const point = points[i];
             newPoints.push(point);
             for (let j = i; j < points.length; j++) {
+                // exclude first and last if it's wrapping
+                if ((this.wrapEnd && i === 0) || j === 0 || i === points.length - 1 || j === points.length - 1)
+                    continue;
                 const next = points[j];
                 const dist = pointDistance(point, next);
                 // Check the proximity of the points on the screen and their proximity in the points array
