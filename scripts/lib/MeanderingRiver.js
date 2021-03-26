@@ -147,16 +147,17 @@ export class MeanderingRiver {
         return degreesToRadians(sum / points.length);
     }
 
+    // get x# of points on either side of the given point
     getPointsToMeasure(i, points) {
         const len = this.measureCurveAdjacent;
         let min = 0;
         let max = points.length;
-        if (false && this.wrapEnd) {
-            // Circular - resulting in good curve values
-            const start = getArrayValuesFromStart(points, i, len);
-            const end = getArrayValuesFromEnd(points, i, len);
-            return start.concat(end);
-        }
+        // if (this.wrapEnd) {
+        //     // Circular - resulting in poor curve values
+        //     const start = getArrayValuesFromStart(points, i, len);
+        //     const end = getArrayValuesFromEnd(points, i, len);
+        //     return start.concat(end);
+        // }
         min = i < len ? 0 : i - len;
         max = i > points.length - len ? points.length : i + len;
         return points.slice(min, max);
@@ -168,7 +169,6 @@ export class MeanderingRiver {
     // 3. A perpendicular bitangent is calculated and it's magnitude set to the curvature
     // 4. A mix vector is created from a blend of the tangent and bitangent
     curvatureInfluence(point, i, allPoints) {
-        // get x points on either side of the given point
         const curvature = this.averageMCurvature(this.getPointsToMeasure(i, allPoints)) * this.segCurveMultiplier;
         const curveDirection = curvature < 0 ? 1 : -1;
 
@@ -300,8 +300,10 @@ export class MeanderingRiver {
                 // exclude first and last if it's wrapping
                 if ((this.wrapEnd && i === 0) || j === 0 || i === points.length - 1 || j === points.length - 1)
                     continue;
+
                 const next = points[j];
                 const dist = pointDistance(point, next);
+
                 // Check the proximity of the points on the screen and their proximity in the points array
                 if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
