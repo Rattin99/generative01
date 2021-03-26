@@ -27,7 +27,7 @@ const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => 
     return coords;
 };
 
-export const meanderingRiver01 = () => {
+export const river = () => {
     const config = {
         name: 'meandering-river-01',
         ratio: ratio.poster,

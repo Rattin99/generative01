@@ -24,7 +24,7 @@ on the extreme, oxbows everywhere. But this can be very interesting! Too too few
 */
 
 /*
-Settings for a nice medium high turbulence meanderingRiver01
+Settings for a nice medium high turbulence river
 
 // Convenience settings object
 const cs = {
