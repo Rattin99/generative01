@@ -65,11 +65,13 @@ export const sketch = () => {
 
     let fps = 0;
 
+    let drawRuns = 0;
+
     let currentVariationFn;
     let currentVariationRes;
     let animationId;
 
-    const canvasSizeFraction = 0.9;
+    const canvasSizeFraction = 0.95;
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
@@ -139,8 +141,9 @@ export const sketch = () => {
 
     const run = (variation) => {
         currentVariationFn = variation;
-
         currentVariationRes = currentVariationFn();
+
+        let currentDrawLimit;
 
         let backgroundColor;
 
@@ -154,6 +157,9 @@ export const sketch = () => {
             }
             if (config.fps) {
                 fps = config.fps;
+            }
+            if (config.drawLimit > 0) {
+                currentDrawLimit = config.drawLimit;
             }
         } else {
             resizeCanvas(
@@ -170,6 +176,13 @@ export const sketch = () => {
 
         // context.translate(0.5, 0.5);
 
+        const checkDrawLimit = () => {
+            if (currentDrawLimit) {
+                return drawRuns < currentDrawLimit;
+            }
+            return true;
+        };
+
         const startSketch = () => {
             window.removeEventListener('load', startSketch);
             hasStarted = true;
@@ -178,7 +191,8 @@ export const sketch = () => {
 
             const render = () => {
                 const result = currentVariationRes.draw({ canvas, context, mouse });
-                if (result !== -1) {
+                drawRuns++;
+                if (result !== -1 && checkDrawLimit()) {
                     animationId = requestAnimationFrame(render);
                 }
             };
@@ -195,7 +209,8 @@ export const sketch = () => {
                 if (elapsed > targetFpsInterval) {
                     lastAnimationFrameTime = now - (elapsed % targetFpsInterval);
                     const result = currentVariationRes.draw({ canvas, context, mouse });
-                    if (result === -1) {
+                    drawRuns++;
+                    if (result === -1 || (currentDrawLimit && drawRuns >= currentDrawLimit)) {
                         rendering = false;
                     }
                 }

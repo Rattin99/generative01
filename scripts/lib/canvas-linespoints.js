@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { drawCircleFilled } from './canvas';
+import { pixel, drawCircleFilled } from './canvas';
 import { mapRange } from './math';
 
 let lineCap = 'butt';
@@ -32,7 +32,13 @@ export const plotLines = (context) => (points, color = 'black', width = 1) => {
     context.stroke();
 };
 
-export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1, close = false) => {
+export const drawPoints = (ctx) => (points, color = 'black', width = 1) => {
+    points.forEach((coords, i) => {
+        pixel(ctx)(coords[0], coords[1], color, 'circle', width);
+    });
+};
+
+export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
     ctx.beginPath();
     ctx.strokeStyle = tinycolor(color).clone().toRgbString();
 
@@ -45,6 +51,9 @@ export const drawConnectedPoints = (ctx) => (points, color = 'black', width = 1,
             ctx.moveTo(coords[0], coords[1]);
         } else {
             ctx.lineTo(coords[0], coords[1]);
+        }
+        if (drawPoint) {
+            drawCircleFilled(ctx)(coords[0], coords[1], 1, 'red');
         }
     });
     if (close) {

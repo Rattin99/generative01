@@ -69,7 +69,7 @@ export class MeanderingRiver {
         // Toggle oxbow checking
         this.handleOxbows = defaultValue(props, 'handleOxbows', true);
 
-        // Wrap around end points for testing circles/closed shapes
+        // Wrap around end points circles/closed shapes
         this.wrapEnd = defaultValue(props, 'wrapEnd', false);
 
         // %age of line length to fix at each end. Must be >= 1
@@ -190,12 +190,19 @@ export class MeanderingRiver {
         // Noise to add interesting extra flows
         if (this.noiseFn) {
             const t = this.noiseFn(point.x, point.y);
-            // add if theta is high enough
-            if (Math.abs(t) > this.noiseStrengthAffect) {
+
+            if (this.noiseMode === 'mix' && Math.abs(t) > this.noiseStrengthAffect) {
+                // Mix the strength of the noise
                 const n = uvFromAngle(t);
                 mVector = mVector.mix(n, this.mixNoiseRatio);
-            } else if (Math.abs(t) < this.noiseStrengthAffect && this.noiseMode === 'only') {
-                mVector = new Vector(0, 0);
+            } else if (this.noiseMode === 'flowInTo') {
+                // "Flow" into lower areas, zero out high areas
+                if (t < 0) {
+                    const n = uvFromAngle(t);
+                    mVector = mVector.mix(n, this.mixNoiseRatio);
+                } else {
+                    mVector = new Vector(0, 0);
+                }
             } else if (this.noiseMode === 'scaleMag') {
                 const nscale = mapRange(0, this.noiseStrengthAffect, 5, 1, 3, Math.abs(t));
                 mVector = mVector.setMag(nscale);
@@ -216,21 +223,38 @@ export class MeanderingRiver {
     }
 
     // Move the points
-    // TODO refactor to better take into account wrapped ends
-    meander(points) {
+    meanderLinear(points) {
         // Slice the array in to points to affect (mid) and to not (start and end)
-        const pct = this.fixedEndPoints === 1 ? 1 : percentage(points.length, this.fixedEndPoints) + 1;
+        const pct = this.fixedEndPoints === 1 ? 1 : Math.max(percentage(points.length, this.fixedEndPoints), 1);
         const fixedPointsPct = pct;
-        const startIndex = this.wrapEnd ? 0 : fixedPointsPct;
+
+        const startIndex = fixedPointsPct;
         const startIndexPoints = points.slice(0, startIndex);
         const endIndex = points.length - fixedPointsPct;
         const endIndexPoints = points.slice(endIndex, points.length);
-        const middlePoints = this.wrapEnd ? points : points.slice(startIndex, endIndex);
+
+        const middlePoints = points.slice(startIndex, endIndex);
+        const influencedPoints = middlePoints.map((point, i) => {
+            const mixVector = this.curvatureInfluence(point, i + startIndex, points);
+            let infPoint = point.add(mixVector);
+            // Additional motion to the point vectors to push around the screen, sim flows in directions, keep towards
+            // the center of the screen, etc.
+            if (this.pushFlowVectorFn) {
+                const pushVector = this.pushFlowVectorFn(point, mixVector);
+                infPoint = infPoint.add(pushVector);
+            }
+            return infPoint;
+        });
+
+        return startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
+    }
+
+    meanderWrapped(points) {
         let influencedPoints = [];
 
-        if (middlePoints.length > 3) {
-            influencedPoints = middlePoints.map((point, i) => {
-                const mixVector = this.curvatureInfluence(point, i + startIndex, points);
+        if (points.length > 3) {
+            influencedPoints = points.map((point, i) => {
+                const mixVector = this.curvatureInfluence(point, i, points);
                 let infPoint = point.add(mixVector);
                 // Additional motion to the point vectors to push around the screen, sim flows in directions, keep towards
                 // the center of the screen, etc.
@@ -245,8 +269,8 @@ export class MeanderingRiver {
             this.running = false;
             console.log('Meander crossed, stopping');
         }
-        return this.wrapEnd ? influencedPoints : startIndexPoints.concat(influencedPoints).concat(endIndexPoints);
-        // return
+
+        return influencedPoints;
     }
 
     canRemovePoint(i, points) {
@@ -359,7 +383,9 @@ export class MeanderingRiver {
         // Running stops if the line crosses it self at the ends and the whole segment is cut ad becomes an oxbow
         if (this.running) {
             // influence segments to sim flow and process points
-            let newPoints = this.meander(this.pointVectors);
+            let newPoints = this.wrapEnd
+                ? this.meanderWrapped(this.pointVectors)
+                : this.meanderLinear(this.pointVectors);
             newPoints = this.adjustPointsSpacing(newPoints);
             if (this.handleOxbows) newPoints = this.checkForOxbows(newPoints);
 
