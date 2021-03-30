@@ -30,8 +30,8 @@ const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => 
 export const meanderingRiver01 = () => {
     const config = {
         name: 'meandering-river-01',
-        // ratio: ratio.poster,
-        // scale: scale.standard,
+        ratio: ratio.poster,
+        scale: scale.standard,
         // drawLimit: 100,
     };
 
@@ -44,15 +44,13 @@ export const meanderingRiver01 = () => {
     const backgroundColor = warmWhite;
 
     const riverColor = warmWhite.clone().brighten(20);
-    const riverWeight = [20, 3];
-    const oxbowColor = warmWhite.clone().darken(10);
+    const riverWeight = [10];
+    const oxbowColor = warmWhite.clone();
     const outlineColor = bicPenBlue.setAlpha(0.25);
 
-    const hunterGreen = 'hsl(156, 67%, 19%)';
+    const flatColor = backgroundColor.clone().darken(10);
 
-    const flatColor = tinycolor.mix(backgroundColor, hunterGreen, 5).darken(10);
-
-    const noise = (x, y) => simplexNoise2d(x, y, 0.0009);
+    const noise = (x, y) => simplexNoise2d(x, y, 0.0025);
     const maxHistory = 15;
     const historyStep = 15;
 
@@ -64,12 +62,12 @@ export const meanderingRiver01 = () => {
         const points = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 15));
 
         const cs = {
-            mixTangentRatio: 0.45,
-            mixMagnitude: 1.75,
+            mixTangentRatio: 0.6,
+            mixMagnitude: 1.25,
             curvemeasure: 4,
-            curvesize: 5,
-            pointremove: 5,
-            oxbowProx: 2.5,
+            curvesize: 3,
+            pointremove: 4,
+            oxbowProx: 3,
         };
 
         const mainRiver = new MeanderingRiver(points, {
@@ -77,8 +75,6 @@ export const meanderingRiver01 = () => {
             storeHistoryEvery: historyStep,
             fixedEndPoints: 2,
             influenceLimit: 0,
-            // wrapEnd: true,
-            handleOxbows: true,
 
             mixTangentRatio: cs.mixTangentRatio,
             mixMagnitude: cs.mixMagnitude,
@@ -99,24 +95,29 @@ export const meanderingRiver01 = () => {
         rivers.push(mainRiver);
 
         // Run some steps before render to smooth lines
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 30; i++) {
             rivers.forEach((r) => {
                 r.step();
             });
         }
 
         background(canvas, context)(backgroundColor);
-        renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 2);
-
-        renderFieldContour(canvas, context, noise, -8, 0, 30, flatColor.clone().darken(15), backgroundColor.clone());
+        renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 4);
+        renderFieldContour(
+            canvas,
+            context,
+            noise,
+            -8,
+            8,
+            15,
+            flatColor.clone().darken(5),
+            backgroundColor.clone().brighten(1)
+        );
     };
 
     const draw = ({ canvas, context }) => {
-        // background(canvas, context)(backgroundColor.clone());
-
         // step
         rivers.forEach((r) => {
-            r.step();
             r.step();
         });
 
@@ -137,11 +138,9 @@ export const meanderingRiver01 = () => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, 2, riverWeight[i], o.points.length));
                 drawConnectedPoints(ctx)(o.points, oxbowColor, w + 2);
-                // variableCircleAtPoint(ctx)(o.points, outlineColor, w / 2 + 2);
             });
             const { points } = r;
             drawConnectedPoints(ctx)(points, outlineColor, riverWeight[i] + 3);
-            // variableCircleAtPoint(ctx)(points, outlineColor, riverWeight[i] / 2 + 1, 30, 3);
         });
 
         // main
@@ -149,16 +148,10 @@ export const meanderingRiver01 = () => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
                 drawConnectedPoints(ctx)(o.points, outlineColor, w);
-                // variableCircleAtPoint(ctx)(o.points, oxbowColor, w / 2);
             });
             const { points } = r;
             drawConnectedPoints(ctx)(points, riverColor, riverWeight[i], false, false);
-            // variableCircleAtPoint(ctx)(points, riverColor, riverWeight[i] / 2);
         });
-
-        // if (++time > 1000) {
-        // return -1;
-        // }
     };
 
     return {

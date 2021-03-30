@@ -401,7 +401,7 @@ export class MeanderingRiver {
 }
 
 // Push the flow right
-export const flowRight = (p, m) => new Vector(0.25, 0);
+export const flowRight = (p, m) => new Vector(1, 0);
 
 // Push right and towards the middle
 export const flowRightToMiddle = (f, mid) => (p, m) => {
@@ -410,5 +410,5 @@ export const flowRightToMiddle = (f, mid) => (p, m) => {
     if (p.y > mid) {
         y *= -1;
     }
-    return new Vector(0.5, y);
+    return new Vector(1, y);
 };

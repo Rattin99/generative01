@@ -71,7 +71,7 @@ export const sketch = () => {
     let currentVariationRes;
     let animationId;
 
-    const canvasSizeFraction = 0.95;
+    const canvasSizeFraction = 0.9;
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
@@ -112,9 +112,9 @@ export const sketch = () => {
     window.addEventListener('mouseout', mouseOut);
     window.addEventListener('touchcancel', mouseOut);
 
-    const applyCanvasSize = (config) => {
-        const width = defaultValue(config, 'width', window.innerWidth * canvasSizeFraction);
-        const height = defaultValue(config, 'height', window.innerHeight * canvasSizeFraction);
+    const applyCanvasSize = (config, fraction) => {
+        const width = defaultValue(config, 'width', window.innerWidth);
+        const height = defaultValue(config, 'height', window.innerHeight);
         let newWidth = width;
         let newHeight = height;
 
@@ -122,8 +122,8 @@ export const sketch = () => {
         const cfgRatio = defaultValue(config, 'ratio', ratio.auto);
         const cfgScale = defaultValue(config, 'scale', scale.standard);
 
-        const aSide = Math.min(width, height);
-        const bSide = Math.round(cfgRatio * aSide);
+        const aSide = Math.min(width, height) * fraction;
+        const bSide = Math.round(cfgRatio * aSide) * fraction;
 
         if (cfgRatio === ratio.square) {
             newWidth = aSide;
@@ -151,7 +151,7 @@ export const sketch = () => {
 
         if (currentVariationRes.hasOwnProperty('config')) {
             const { config } = currentVariationRes;
-            applyCanvasSize(config);
+            applyCanvasSize(config, canvasSizeFraction);
             if (config.background) {
                 backgroundColor = config.background;
             }
@@ -162,12 +162,7 @@ export const sketch = () => {
                 currentDrawLimit = config.drawLimit;
             }
         } else {
-            resizeCanvas(
-                canvas,
-                context,
-                window.innerWidth * canvasSizeFraction,
-                window.innerHeight * canvasSizeFraction
-            );
+            resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
         }
 
         let rendering = true;

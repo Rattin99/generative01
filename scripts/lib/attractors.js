@@ -134,10 +134,10 @@ export const renderFieldContour = (
     steps = 30,
     lowColor = 'black',
     highColor = 'white',
-    varience = 0.01
+    varience = 0.025
 ) => {
     const nsteps = (max - min) / steps;
-    const rpoints = 50000;
+    const rpoints = 100000;
 
     for (let n = min; n < max; n += nsteps) {
         const lowPoints = [];
@@ -147,7 +147,7 @@ export const renderFieldContour = (
             const py = randomWholeBetween(0, height);
             const nheight = fn(px, py);
             if (valueCloseTo(n, nheight, varience)) {
-                if (nheight < 0) lowPoints.push([px, py]);
+                if (nheight <= 0) lowPoints.push([px, py]);
                 else highPoints.push([px, py]);
 
                 // const vect = uvFromAngle(nheight).setMag(5);

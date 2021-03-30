@@ -3625,7 +3625,7 @@ var sketch = function sketch() {
   var currentVariationFn;
   var currentVariationRes;
   var animationId;
-  var canvasSizeFraction = 0.95;
+  var canvasSizeFraction = 0.9;
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
 
@@ -3671,16 +3671,16 @@ var sketch = function sketch() {
   window.addEventListener('mouseout', mouseOut);
   window.addEventListener('touchcancel', mouseOut);
 
-  var applyCanvasSize = function applyCanvasSize(config) {
-    var width = (0, _utils.defaultValue)(config, 'width', window.innerWidth * canvasSizeFraction);
-    var height = (0, _utils.defaultValue)(config, 'height', window.innerHeight * canvasSizeFraction);
+  var applyCanvasSize = function applyCanvasSize(config, fraction) {
+    var width = (0, _utils.defaultValue)(config, 'width', window.innerWidth);
+    var height = (0, _utils.defaultValue)(config, 'height', window.innerHeight);
     var newWidth = width;
     var newHeight = height;
     var cfgOrientation = (0, _utils.defaultValue)(config, 'orientation', orientation.landscape);
     var cfgRatio = (0, _utils.defaultValue)(config, 'ratio', ratio.auto);
     var cfgScale = (0, _utils.defaultValue)(config, 'scale', scale.standard);
-    var aSide = Math.min(width, height);
-    var bSide = Math.round(cfgRatio * aSide);
+    var aSide = Math.min(width, height) * fraction;
+    var bSide = Math.round(cfgRatio * aSide) * fraction;
 
     if (cfgRatio === ratio.square) {
       newWidth = aSide;
@@ -3706,7 +3706,7 @@ var sketch = function sketch() {
     if (currentVariationRes.hasOwnProperty('config')) {
       var _currentVariationRes = currentVariationRes,
           config = _currentVariationRes.config;
-      applyCanvasSize(config);
+      applyCanvasSize(config, canvasSizeFraction);
 
       if (config.background) {
         backgroundColor = config.background;
@@ -3720,7 +3720,7 @@ var sketch = function sketch() {
         currentDrawLimit = config.drawLimit;
       }
     } else {
-      (0, _canvas.resizeCanvas)(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
+      (0, _canvas.resizeCanvas)(canvas, context, window.innerWidth, window.innerHeight);
     }
 
     var rendering = true;
@@ -6632,9 +6632,9 @@ var renderFieldContour = function renderFieldContour(_ref3, context, fn) {
   var steps = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 30;
   var lowColor = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'black';
   var highColor = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 'white';
-  var varience = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0.01;
+  var varience = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0.025;
   var nsteps = (max - min) / steps;
-  var rpoints = 50000;
+  var rpoints = 100000;
 
   for (var n = min; n < max; n += nsteps) {
     var lowPoints = [];
@@ -6646,7 +6646,7 @@ var renderFieldContour = function renderFieldContour(_ref3, context, fn) {
       var nheight = fn(px, py);
 
       if (valueCloseTo(n, nheight, varience)) {
-        if (nheight < 0) lowPoints.push([px, py]);else highPoints.push([px, py]); // const vect = uvFromAngle(nheight).setMag(5);
+        if (nheight <= 0) lowPoints.push([px, py]);else highPoints.push([px, py]); // const vect = uvFromAngle(nheight).setMag(5);
         // const x2 = px + vect.x;
         // const y2 = py + vect.y;
         // context.strokeStyle = tinycolor(lowColor);
@@ -9845,7 +9845,7 @@ var MeanderingRiver = /*#__PURE__*/function () {
 exports.MeanderingRiver = MeanderingRiver;
 
 var flowRight = function flowRight(p, m) {
-  return new _Vector.Vector(0.25, 0);
+  return new _Vector.Vector(1, 0);
 }; // Push right and towards the middle
 
 
@@ -9860,7 +9860,7 @@ var flowRightToMiddle = function flowRightToMiddle(f, mid) {
       y *= -1;
     }
 
-    return new _Vector.Vector(0.5, y);
+    return new _Vector.Vector(1, y);
   };
 };
 
@@ -10277,9 +10277,9 @@ var createHorizontalPath = function createHorizontalPath(_ref, startX, startY) {
 
 var meanderingRiver01 = function meanderingRiver01() {
   var config = {
-    name: 'meandering-river-01' // ratio: ratio.poster,
-    // scale: scale.standard,
-    // drawLimit: 100,
+    name: 'meandering-river-01',
+    ratio: _sketch.ratio.poster,
+    scale: _sketch.scale.standard // drawLimit: 100,
 
   };
   var ctx;
@@ -10291,18 +10291,16 @@ var meanderingRiver01 = function meanderingRiver01() {
 
   var riverColor = _palettes.warmWhite.clone().brighten(20);
 
-  var riverWeight = [20, 3];
+  var riverWeight = [10];
 
-  var oxbowColor = _palettes.warmWhite.clone().darken(10);
+  var oxbowColor = _palettes.warmWhite.clone();
 
   var outlineColor = _palettes.bicPenBlue.setAlpha(0.25);
 
-  var hunterGreen = 'hsl(156, 67%, 19%)';
-
-  var flatColor = _tinycolor.default.mix(backgroundColor, hunterGreen, 5).darken(10);
+  var flatColor = backgroundColor.clone().darken(10);
 
   var noise = function noise(x, y) {
-    return (0, _attractors.simplexNoise2d)(x, y, 0.0009);
+    return (0, _attractors.simplexNoise2d)(x, y, 0.0025);
   };
 
   var maxHistory = 15;
@@ -10316,20 +10314,18 @@ var meanderingRiver01 = function meanderingRiver01() {
     canvasMidY = canvas.height / 2;
     var points = (0, _lineSegments.createSplinePoints)(createHorizontalPath(canvas, 0, canvasMidY, 15));
     var cs = {
-      mixTangentRatio: 0.45,
-      mixMagnitude: 1.75,
+      mixTangentRatio: 0.6,
+      mixMagnitude: 1.25,
       curvemeasure: 4,
-      curvesize: 5,
-      pointremove: 5,
-      oxbowProx: 2.5
+      curvesize: 3,
+      pointremove: 4,
+      oxbowProx: 3
     };
     var mainRiver = new _MeanderingRiver.MeanderingRiver(points, {
       maxHistory: maxHistory,
       storeHistoryEvery: historyStep,
       fixedEndPoints: 2,
       influenceLimit: 0,
-      // wrapEnd: true,
-      handleOxbows: true,
       mixTangentRatio: cs.mixTangentRatio,
       mixMagnitude: cs.mixMagnitude,
       oxbowProx: cs.oxbowProx,
@@ -10345,24 +10341,22 @@ var meanderingRiver01 = function meanderingRiver01() {
     });
     rivers.push(mainRiver); // Run some steps before render to smooth lines
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 30; i++) {
       rivers.forEach(function (r) {
         r.step();
       });
     }
 
     (0, _canvas.background)(canvas, context)(backgroundColor);
-    (0, _attractors.renderFieldColor)(canvas, context, noise, 100, flatColor, backgroundColor, 2);
-    (0, _attractors.renderFieldContour)(canvas, context, noise, -8, 0, 30, flatColor.clone().darken(15), backgroundColor.clone());
+    (0, _attractors.renderFieldColor)(canvas, context, noise, 100, flatColor, backgroundColor, 4);
+    (0, _attractors.renderFieldContour)(canvas, context, noise, -8, 8, 15, flatColor.clone().darken(5), backgroundColor.clone().brighten(1));
   };
 
   var draw = function draw(_ref3) {
     var canvas = _ref3.canvas,
         context = _ref3.context;
-    // background(canvas, context)(backgroundColor.clone());
     // step
     rivers.forEach(function (r) {
-      r.step();
       r.step();
     }); // history
     // rivers.forEach((r, i) => {
@@ -10380,22 +10374,20 @@ var meanderingRiver01 = function meanderingRiver01() {
     rivers.forEach(function (r, i) {
       r.oxbows.forEach(function (o) {
         var w = Math.abs((0, _math.mapRange)(0, o.startLength, 2, riverWeight[i], o.points.length));
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, oxbowColor, w + 2); // variableCircleAtPoint(ctx)(o.points, outlineColor, w / 2 + 2);
+        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, oxbowColor, w + 2);
       });
       var points = r.points;
-      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, outlineColor, riverWeight[i] + 3); // variableCircleAtPoint(ctx)(points, outlineColor, riverWeight[i] / 2 + 1, 30, 3);
+      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, outlineColor, riverWeight[i] + 3);
     }); // main
 
     rivers.forEach(function (r, i) {
       r.oxbows.forEach(function (o) {
         var w = Math.abs((0, _math.mapRange)(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, outlineColor, w); // variableCircleAtPoint(ctx)(o.points, oxbowColor, w / 2);
+        (0, _canvasLinespoints.drawConnectedPoints)(ctx)(o.points, outlineColor, w);
       });
       var points = r.points;
-      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, riverColor, riverWeight[i], false, false); // variableCircleAtPoint(ctx)(points, riverColor, riverWeight[i] / 2);
-    }); // if (++time > 1000) {
-    // return -1;
-    // }
+      (0, _canvasLinespoints.drawConnectedPoints)(ctx)(points, riverColor, riverWeight[i], false, false);
+    });
   };
 
   return {
@@ -10501,7 +10493,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61663" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55167" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
