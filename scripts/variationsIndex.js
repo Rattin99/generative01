@@ -19,6 +19,7 @@ import { flowFieldRibbons2 } from './released/flow-field-ribbons-2';
 import { shadedBoxes } from './released/shaded-boxes';
 import { larrycarlson02 } from './released/larrycarlson02';
 import { meanderingRiver02 } from './released/meandering-river-02';
+import { meanderingRiver01 } from './released/meandering-river-01';
 
 export const variationsIndex = {
     1: {
@@ -104,5 +105,9 @@ export const variationsIndex = {
     21: {
         note: 'Based on "Meander" by Robert Hodgin and an implementation by Eric on Reddit',
         sketch: meanderingRiver02,
+    },
+    22: {
+        note: 'Meandering river over landscape. Refresh for new terrain. Based on "Meander" by Robert Hodgin.',
+        sketch: meanderingRiver01,
     },
 };

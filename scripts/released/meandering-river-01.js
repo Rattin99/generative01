@@ -6,7 +6,8 @@ import { bicPenBlue, warmWhite } from '../lib/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../lib/MeanderingRiver';
 import { createSplinePoints, trimPoints } from '../lib/lineSegments';
 import { simplexNoise2d, renderField, renderFieldColor, renderFieldContour } from '../lib/attractors';
-import { drawConnectedPoints, variableCircleAtPoint } from '../lib/canvas-linespoints';
+import { drawConnectedPoints, drawPoints, variableCircleAtPoint } from '../lib/canvas-linespoints';
+import { createCirclePoints } from '../lib/grids';
 
 /*
 Meandering River class at ../lib/MeanderingRiver
@@ -39,18 +40,38 @@ export const meanderingRiver01 = () => {
     let canvasMidX;
     let canvasMidY;
     const rivers = [];
-    const time = 0;
+    let time = 0;
 
     const backgroundColor = warmWhite;
 
     const riverColor = warmWhite.clone().brighten(20);
-    const riverWeight = [10];
-    const oxbowColor = warmWhite.clone();
+    const riverWeight = [15, 10];
+    const oxbowColor = riverColor.clone();
     const outlineColor = bicPenBlue.setAlpha(0.25);
+
+    const tintingColor = tinycolor('hsl(38, 38%, 64%)');
+    const palette = [
+        tinycolor('hsl(97, 9%, 73%)'),
+        tinycolor('hsl(51, 7%, 38%)'),
+        tinycolor('hsl(19, 39%, 47%)'),
+        tinycolor('hsl(166, 39%, 59%)'),
+        tinycolor.mix('hsl(97, 9%, 73%)', tintingColor, 25),
+        tinycolor.mix('hsl(51, 7%, 38%)', tintingColor, 25),
+        tinycolor.mix('hsl(19, 39%, 47%)', tintingColor, 25),
+        tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 25),
+        tinycolor.mix('hsl(97, 9%, 73%)', tintingColor, 55),
+        tinycolor.mix('hsl(51, 7%, 38%)', tintingColor, 55),
+        tinycolor.mix('hsl(19, 39%, 47%)', tintingColor, 55),
+        tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 55),
+        tinycolor.mix('hsl(97, 9%, 73%)', tintingColor, 75),
+        tinycolor.mix('hsl(51, 7%, 38%)', tintingColor, 75),
+        tinycolor.mix('hsl(19, 39%, 47%)', tintingColor, 75),
+        tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 75),
+    ].reverse();
 
     const flatColor = backgroundColor.clone().darken(10);
 
-    const noise = (x, y) => simplexNoise2d(x, y, 0.0025);
+    const noise = (x, y) => simplexNoise2d(x, y, 0.001);
     const maxHistory = 15;
     const historyStep = 15;
 
@@ -59,7 +80,8 @@ export const meanderingRiver01 = () => {
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
 
-        const points = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 15));
+        const horizpoints = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 15));
+        const circlepoints = createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
 
         const cs = {
             mixTangentRatio: 0.6,
@@ -70,19 +92,19 @@ export const meanderingRiver01 = () => {
             oxbowProx: 3,
         };
 
-        const mainRiver = new MeanderingRiver(points, {
+        const horizontal = new MeanderingRiver(horizpoints, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 2,
             influenceLimit: 0,
 
-            mixTangentRatio: cs.mixTangentRatio,
-            mixMagnitude: cs.mixMagnitude,
-            oxbowProx: cs.oxbowProx,
-            oxbowPointIndexProx: cs.curvemeasure,
-            measureCurveAdjacent: cs.curvemeasure,
-            curveSize: cs.curvesize,
-            pointRemoveProx: cs.pointremove,
+            mixTangentRatio: 0.6,
+            mixMagnitude: 1.5,
+            oxbowProx: 3,
+            oxbowPointIndexProx: 4,
+            measureCurveAdjacent: 6,
+            curveSize: 4,
+            pointRemoveProx: 4,
 
             pushFlowVectorFn: flowRightToMiddle(0.5, canvasMidY),
 
@@ -92,7 +114,31 @@ export const meanderingRiver01 = () => {
             mixNoiseRatio: 0.3,
         });
 
-        rivers.push(mainRiver);
+        const circular = new MeanderingRiver(circlepoints, {
+            maxHistory,
+            storeHistoryEvery: historyStep,
+            fixedEndPoints: 1,
+            influenceLimit: 0,
+            wrapEnd: true,
+
+            mixTangentRatio: 0.45,
+            mixMagnitude: 1,
+            oxbowProx: 2,
+            oxbowPointIndexProx: 2,
+            measureCurveAdjacent: 10,
+            curveSize: 5,
+            pointRemoveProx: 3,
+
+            // pushFlowVectorFn: flowRightToMiddle(0.5, canvasMidY),
+
+            noiseFn: noise,
+            noiseMode: 'flowInTo',
+            noiseStrengthAffect: 0,
+            mixNoiseRatio: 0.4,
+        });
+
+        rivers.push(horizontal);
+        // rivers.push(circular);
 
         // Run some steps before render to smooth lines
         for (let i = 0; i < 30; i++) {
@@ -121,37 +167,31 @@ export const meanderingRiver01 = () => {
             r.step();
         });
 
-        // history
-        // rivers.forEach((r, i) => {
-        //     for (let h = r.history.length - 1; h >= 0; h--) {
-        //         // const a = mapRange(0, maxHistory, 0.35, 0.1, h);
-        //         const b = mapRange(0, maxHistory, 5, 20, h);
-        //         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
-        //         // const hcolor = riverColor.clone().darken(b);
-        //         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
-        //         drawConnectedPoints(ctx)(hpoints, hcolor, riverWeight[i] * 2);
-        //     }
-        // });
+        const oColor = palette[Math.round(time * 0.01) % palette.length]; // .clone().setAlpha(0.75);
+        const oSize = 4;
 
         // outline
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
-                const w = Math.abs(mapRange(0, o.startLength, 2, riverWeight[i], o.points.length));
-                drawConnectedPoints(ctx)(o.points, oxbowColor, w + 2);
+                const w = Math.abs(mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
+                drawConnectedPoints(ctx)(o.points, oColor, w + oSize / 2);
             });
-            const { points } = r;
-            drawConnectedPoints(ctx)(points, outlineColor, riverWeight[i] + 3);
+            const points = chaikin(r.points, 5);
+            drawConnectedPoints(ctx)(points, oColor, riverWeight[i] + oSize);
         });
 
         // main
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-                drawConnectedPoints(ctx)(o.points, outlineColor, w);
+                drawConnectedPoints(ctx)(o.points, oxbowColor, w);
             });
-            const { points } = r;
+            const points = chaikin(r.points, 5);
             drawConnectedPoints(ctx)(points, riverColor, riverWeight[i], false, false);
+            // drawPoints(ctx)(r.points, 'red', 1);
         });
+
+        time++;
     };
 
     return {

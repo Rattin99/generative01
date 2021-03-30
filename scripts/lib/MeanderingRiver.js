@@ -58,6 +58,18 @@ const mediumRiver = new MeanderingRiver(points, {
     mixNoiseRatio: 0.3,
 });
 
+// history
+// rivers.forEach((r, i) => {
+//     for (let h = r.history.length - 1; h >= 0; h--) {
+//         // const a = mapRange(0, maxHistory, 0.35, 0.1, h);
+//         const b = mapRange(0, maxHistory, 5, 20, h);
+//         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
+//         // const hcolor = riverColor.clone().darken(b);
+//         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
+//         drawConnectedPoints(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+//     }
+// });
+
  */
 
 export class MeanderingRiver {

@@ -5,10 +5,10 @@ Explorations with generative code
 import normalize from 'normalize.css';
 import { sketch } from './lib/sketch';
 import { variationsIndex } from './variationsIndex';
-import { meanderingRiver01 } from './experiments/river';
+import { meanderingRiver01 } from './released/meandering-river-01';
 
-// const experimentalVariation = undefined;
-const experimentalVariation = meanderingRiver01;
+const experimentalVariation = undefined;
+// const experimentalVariation = meanderingRiver01;
 
 const s = sketch();
 
@@ -52,5 +52,7 @@ if (getQueryVariable('variation') && variationsIndex.hasOwnProperty(variationKey
     s.run(experimentalVariation);
     setNote('Current experiment ...');
 } else {
-    setNote('Not a valid variation!');
+    const vToRun = variationsIndex[variationKeys.length];
+    setNote(vToRun.note);
+    s.run(vToRun.sketch);
 }
