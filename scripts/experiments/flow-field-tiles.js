@@ -10,8 +10,8 @@ import {
     create3dNoise,
     quantize,
     houghQuantize,
-} from '../lib/math';
-import { edgeWrap, Particle, createRandomParticleValues } from '../lib/Particle';
+} from '../lib/math/math';
+import { edgeWrap, Particle, createRandomParticleValues } from '../lib/systems/Particle';
 import {
     background,
     drawCircleFilled,
@@ -19,10 +19,10 @@ import {
     drawQuadRectFilled,
     drawRectFilled,
     drawRoundRectFilled,
-} from '../lib/canvas';
+} from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { nicePalette, hslFromRange } from '../lib/palettes';
-import { Vector } from '../lib/Vector';
+import { nicePalette, hslFromRange } from '../lib/color/palettes';
+import { Vector } from '../lib/math/Vector';
 import {
     simplexNoise2d,
     simplexNoise3d,
@@ -30,7 +30,7 @@ import {
     cliffordAttractor,
     jongAttractor,
     diagLines,
-} from '../lib/attractors';
+} from '../lib/math/attractors';
 
 const tile = (context, x, y, size, color, heading) => {
     // drawQuadRectFilled(context)(x, y, size, size, color);

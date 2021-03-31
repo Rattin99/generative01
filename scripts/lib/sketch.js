@@ -31,8 +31,8 @@ TODO
 - [ ] great ideas here http://paperjs.org/features/
 */
 
-import { isHiDPI, contextScale, resizeCanvas } from './canvas';
-import { getRandomSeed, golden } from './math';
+import { isHiDPI, contextScale, resizeCanvas } from './canvas/canvas';
+import { getRandomSeed, golden } from './math/math';
 import { defaultValue } from './utils';
 
 export const orientation = {

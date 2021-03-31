@@ -1,9 +1,9 @@
 import tinycolor from 'tinycolor2';
-import { randomWholeBetween, degreesToRadians, randomPointAround } from '../lib/math';
-import { background, drawCircleFilled } from '../lib/canvas';
+import { randomWholeBetween, degreesToRadians, randomPointAround } from '../lib/math/math';
+import { background, drawCircleFilled } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { brightest, darkest, hslFromRange, nicePalette } from '../lib/palettes';
-import { simplexNoise2d, simplexNoise3d } from '../lib/attractors';
+import { brightest, darkest, hslFromRange, nicePalette } from '../lib/color/palettes';
+import { simplexNoise2d, simplexNoise3d } from '../lib/math/attractors';
 
 /*
 Started here but took a detour

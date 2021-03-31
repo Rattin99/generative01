@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { uvFromAngle } from './math';
+import { uvFromAngle } from '../math/math';
 import { drawLine } from './canvas';
 
 const debugDrawVectors = (segments) => {

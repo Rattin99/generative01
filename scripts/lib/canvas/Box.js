@@ -6,10 +6,10 @@ Clip to no overflow?
  */
 
 import tinycolor from 'tinycolor2';
-import { randomWholeBetween, randomNormalWholeBetween } from './math';
-import { defaultValue } from './utils';
+import { randomWholeBetween, randomNormalWholeBetween } from '../math/math';
+import { defaultValue } from '../utils';
 import { drawRect, drawRectFilled, resetStyles } from './canvas';
-import { Point } from './Point';
+import { Point } from '../math/Point';
 
 const defaultMP = {
     top: 0,

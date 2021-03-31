@@ -1,4 +1,4 @@
-import { background } from '../lib/canvas';
+import { background } from '../lib/canvas/canvas';
 import { orientation, ratio } from '../lib/sketch';
 
 export const blank = () => {

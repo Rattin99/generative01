@@ -1,6 +1,6 @@
-import { edgeBounce, Particle, createRandomParticleValues } from '../lib/Particle';
-import { background } from '../lib/canvas';
-import { drawParticlePoint, drawRotatedParticle } from '../lib/canvas-particles';
+import { edgeBounce, Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { background } from '../lib/canvas/canvas';
+import { drawParticlePoint, drawRotatedParticle } from '../lib/canvas/canvas-particles';
 
 const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
     const points = 5;

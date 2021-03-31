@@ -8,10 +8,10 @@ import {
     randomSign,
     randomWholeBetween,
     round2,
-} from './math';
+} from '../math/math';
 import { drawRectFilled } from './canvas';
 import { plotLines } from './canvas-linespoints';
-import { last } from './utils';
+import { last } from '../utils';
 
 const TAU = Math.PI * 2;
 const intervals = logInterval(10, 1, 10);

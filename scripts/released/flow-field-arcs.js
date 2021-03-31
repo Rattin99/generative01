@@ -1,8 +1,8 @@
 import tinycolor from 'tinycolor2';
 
-import { background, drawLineAngle } from '../lib/canvas';
+import { background, drawLineAngle } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { nicePalette, hslFromRange } from '../lib/palettes';
+import { nicePalette, hslFromRange } from '../lib/color/palettes';
 import {
     simplexNoise2d,
     simplexNoise3d,
@@ -10,8 +10,8 @@ import {
     cliffordAttractor,
     jongAttractor,
     diagLines,
-} from '../lib/attractors';
-import { mapRange, snapNumber } from '../lib/math';
+} from '../lib/math/attractors';
+import { mapRange, snapNumber } from '../lib/math/math';
 
 const TAU = Math.PI * 2;
 

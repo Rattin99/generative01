@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { normalizeInverse, pointDistance } from './math';
+import { normalizeInverse, pointDistance } from '../math/math';
 import { drawLine, resetStyles } from './canvas';
 
 export const drawParticlePoint = (context) => ({ x, y, radius, color }) => {

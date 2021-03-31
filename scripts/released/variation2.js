@@ -1,7 +1,7 @@
-import { Particle, createRandomParticleValues } from '../lib/Particle';
-import { clearCanvas } from '../lib/canvas';
-import { normalizeInverse, pointDistance, randomNumberBetween } from '../lib/math';
-import { connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas-particles';
+import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { clearCanvas } from '../lib/canvas/canvas';
+import { normalizeInverse, pointDistance, randomNumberBetween } from '../lib/math/math';
+import { connectParticles, drawMouse, drawParticlePoint } from '../lib/canvas/canvas-particles';
 
 const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
     const distance = pointDistance({ x, y }, particle);

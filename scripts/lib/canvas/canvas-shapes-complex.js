@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, pointOnCircle } from './math';
+import { mapRange, pointOnCircle } from '../math/math';
 import { drawLine } from './canvas';
-import { lineSlope } from './lineSegments';
+import { lineSlope } from '../math/lineSegments';
 
 /*
 ctx.lineWidth = oxbowWeight;

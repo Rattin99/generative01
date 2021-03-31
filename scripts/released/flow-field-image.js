@@ -1,14 +1,15 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize, pointDistance } from '../lib/math';
-import { Particle, createRandomParticleValues } from '../lib/Particle';
-import { background, drawCircleFilled } from '../lib/canvas';
+import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize, pointDistance } from '../lib/math/math';
+import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { background, drawCircleFilled } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { Vector } from '../lib/Vector';
-import { diagLines, renderField, simplexNoise2d, simplexNoise3d } from '../lib/attractors';
-import { hslFromRange, warmWhite } from '../lib/palettes';
-import { Bitmap } from '../lib/Bitmap';
+import { Vector } from '../lib/math/Vector';
+import { diagLines, simplexNoise2d, simplexNoise3d } from '../lib/math/attractors';
+import { hslFromRange, warmWhite } from '../lib/color/palettes';
+import { Bitmap } from '../lib/canvas/Bitmap';
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
-import { splatter } from '../lib/canvas-paint';
+import { splatter } from '../lib/canvas/canvas-paint';
+import { renderField } from '../lib/canvas/rendernoise';
 
 /*
 https://marcteyssier.com/projects/flowfield/

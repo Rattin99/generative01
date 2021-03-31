@@ -1,13 +1,14 @@
 import tinycolor from 'tinycolor2';
-import { randomNormalWholeBetween, chaikin, mapRange } from '../lib/math';
-import { background } from '../lib/canvas';
+import { randomNormalWholeBetween, chaikin, mapRange } from '../lib/math/math';
+import { background } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { bicPenBlue, warmWhite } from '../lib/palettes';
-import { MeanderingRiver, flowRightToMiddle } from '../lib/MeanderingRiver';
-import { createSplinePoints, trimPoints } from '../lib/lineSegments';
-import { simplexNoise2d, renderField, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/attractors';
-import { drawConnectedPoints, variableCircleAtPoint } from '../lib/canvas-linespoints';
-import { createCirclePoints } from '../lib/grids';
+import { bicPenBlue, warmWhite } from '../lib/color/palettes';
+import { MeanderingRiver, flowRightToMiddle } from '../lib/systems/MeanderingRiver';
+import { createSplinePoints, trimPoints } from '../lib/math/lineSegments';
+import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/math/attractors';
+import { drawConnectedPoints, variableCircleAtPoint } from '../lib/canvas/canvas-linespoints';
+import { createCirclePoints } from '../lib/math/grids';
+import { renderField } from '../lib/canvas/rendernoise';
 
 /*
 Meandering River class at ../lib/MeanderingRiver

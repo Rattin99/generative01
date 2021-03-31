@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { uvFromAngle } from './math';
+import { uvFromAngle } from '../math/math';
 
 export let isHiDPI = false;
 export let contextScale = 1;

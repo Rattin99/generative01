@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { background } from '../lib/canvas';
-import { mapRange, pointDistance, randomNumberBetween } from '../lib/math';
-import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas-particles';
+import { background } from '../lib/canvas/canvas';
+import { mapRange, pointDistance, randomNumberBetween } from '../lib/math/math';
+import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas/canvas-particles';
 
 /*
 Based on https://www.reddit.com/r/generative/comments/lqrg0t/some_parametric_equations/

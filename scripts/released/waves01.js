@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { background } from '../lib/canvas';
+import { background } from '../lib/canvas/canvas';
 import { ratio, orientation } from '../lib/sketch';
-import { create2dNoiseAbs, mapRange, randomNumberBetween, lowest, highest } from '../lib/math';
+import { create2dNoiseAbs, mapRange, randomNumberBetween, lowest, highest } from '../lib/math/math';
 
 /*
 Original inspiration

@@ -1,15 +1,15 @@
 import tinycolor from 'tinycolor2';
-import { Particle, createRandomParticleValues } from '../lib/Particle';
-import { background, pixel, resetStyles } from '../lib/canvas';
-import { mapRange, oneOf, uvFromAngle } from '../lib/math';
+import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { background, pixel, resetStyles } from '../lib/canvas/canvas';
+import { mapRange, oneOf, uvFromAngle } from '../lib/math/math';
 import { ratio, scale } from '../lib/sketch';
-import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../lib/palettes';
-import { Box } from '../lib/Box';
-import { simplexNoise3d } from '../lib/attractors';
-import { Vector } from '../lib/Vector';
-import { stippleRect, texturizeRect } from '../lib/canvas-textures';
-import { connectParticles, drawParticlePoint } from '../lib/canvas-particles';
-import { createGridCellsXY } from '../lib/grids';
+import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../lib/color/palettes';
+import { Box } from '../lib/canvas/Box';
+import { simplexNoise3d } from '../lib/math/attractors';
+import { Vector } from '../lib/math/Vector';
+import { stippleRect, texturizeRect } from '../lib/canvas/canvas-textures';
+import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
+import { createGridCellsXY } from '../lib/math/grids';
 
 export const shadedBoxes = () => {
     const config = {

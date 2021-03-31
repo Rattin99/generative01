@@ -1,7 +1,7 @@
-import { createRandomParticleValues, Particle } from '../lib/Particle';
-import { fillCanvas } from '../lib/canvas';
-import { normalizeInverse, pointDistance } from '../lib/math';
-import { connectParticles, drawParticlePoint } from '../lib/canvas-particles';
+import { createRandomParticleValues, Particle } from '../lib/systems/Particle';
+import { fillCanvas } from '../lib/canvas/canvas';
+import { normalizeInverse, pointDistance } from '../lib/math/math';
+import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
 
 const pointPush = (point, particle, f = 1) => {
     const dx = point.x - particle.x;

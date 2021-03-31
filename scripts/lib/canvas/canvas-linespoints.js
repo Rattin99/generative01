@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { pixel, drawCircleFilled } from './canvas';
-import { mapRange } from './math';
+import { mapRange } from '../math/math';
 
 let lineCap = 'butt';
 let lineJoin = 'miter';

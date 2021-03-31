@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { clearCanvas, getImageDataColor } from './canvas';
-import { averageNumArray, mapRange } from './math';
+import { averageNumArray, mapRange } from '../math/math';
 
 export class Bitmap {
     constructor(src) {

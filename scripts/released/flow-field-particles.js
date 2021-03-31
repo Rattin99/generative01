@@ -1,11 +1,11 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize } from '../lib/math';
-import { edgeWrap, Particle, createRandomParticleValues } from '../lib/Particle';
-import { background, drawCircleFilled } from '../lib/canvas';
+import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize } from '../lib/math/math';
+import { edgeWrap, Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { background, drawCircleFilled } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/sketch';
-import { Vector } from '../lib/Vector';
-import { simplexNoise3d } from '../lib/attractors';
-import { hslFromRange } from '../lib/palettes';
+import { Vector } from '../lib/math/Vector';
+import { simplexNoise3d } from '../lib/math/attractors';
+import { hslFromRange } from '../lib/color/palettes';
 
 export const flowFieldParticles = () => {
     const config = {

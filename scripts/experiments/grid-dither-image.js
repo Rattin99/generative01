@@ -1,11 +1,17 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, randomWholeBetween } from '../lib/math';
-import { background, pixel } from '../lib/canvas';
+import { mapRange, randomWholeBetween } from '../lib/math/math';
+import { background, pixel } from '../lib/canvas/canvas';
 import { ratio, scale, orientation } from '../lib/sketch';
-import { bicPenBlue, paperWhite } from '../lib/palettes';
-import { Bitmap } from '../lib/Bitmap';
-import { createGridCellsXY } from '../lib/grids';
-import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect, linesRect } from '../lib/canvas-textures';
+import { bicPenBlue, paperWhite } from '../lib/color/palettes';
+import { Bitmap } from '../lib/canvas/Bitmap';
+import { createGridCellsXY } from '../lib/math/grids';
+import {
+    setTextureClippingMask,
+    spiralRect,
+    stippleRect,
+    texturizeRect,
+    linesRect,
+} from '../lib/canvas/canvas-textures';
 
 // import sourcePng from '../../media/images/hi1.png';
 import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
