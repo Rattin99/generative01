@@ -20,7 +20,7 @@ import {
     drawRectFilled,
     drawRoundRectFilled,
 } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { nicePalette, hslFromRange } from '../lib/color/palettes';
 import { Vector } from '../lib/math/Vector';
 import {

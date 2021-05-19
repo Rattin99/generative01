@@ -6,10 +6,10 @@ import normalize from 'normalize.css';
 import { sketch } from './lib/sketch';
 import { variationsIndex } from './variationsIndex';
 import { meanderingRiver01 } from './released/meandering-river-01';
+import { marchingSquares } from './experiments/marching-squares';
 
 const experimentalVariation = undefined;
-// const experimentalVariation = meanderingRiver01;
-
+// const experimentalVariation = marchingSquares;
 const s = sketch();
 
 const saveCanvasCapture = (_) => {

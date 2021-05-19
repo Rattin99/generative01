@@ -1,0 +1,1 @@
+rollup $1 --file "b-${1}" --format es

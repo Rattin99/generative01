@@ -1,7 +1,7 @@
 import { background, pixel, drawRect, contextScale } from '../lib/canvas/canvas';
 import { create2dNoiseAbs, oneOf, pointDistance, randomWholeBetween, round2 } from '../lib/math/math';
 import { brightest, darkest, nicePalette } from '../lib/color/palettes';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { drawTextFilled, setTextAlignLeftTop, textStyles } from '../lib/canvas/canvas-text';
 import { createGridCellsXY } from '../lib/math/grids';
 

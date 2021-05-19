@@ -1,7 +1,7 @@
 import { Particle, createRandomParticleValues, edgeWrap } from '../lib/systems/Particle';
 import { background } from '../lib/canvas/canvas';
 import { mapRange } from '../lib/math/math';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { drawParticlePoint } from '../lib/canvas/canvas-particles';
 
 export const particleBasicTemplate = () => {

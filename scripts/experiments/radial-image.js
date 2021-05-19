@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { randomWholeBetween, degreesToRadians, randomPointAround, quantize } from '../lib/math/math';
 import { background, drawCircleFilled, clearCanvas } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { brightest, darkest, hslFromRange, nicePalette } from '../lib/color/palettes';
 import { simplexNoise2d, simplexNoise3d } from '../lib/math/attractors';
 import sourcePng from '../../media/images/gaetano-cessati-waves-400.png';

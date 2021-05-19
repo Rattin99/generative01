@@ -1,5 +1,5 @@
 import { background } from '../lib/canvas/canvas';
-import { orientation, ratio } from '../lib/sketch';
+import { orientation, ratio } from '../lib/Sketch';
 
 export const blank = () => {
     const config = {

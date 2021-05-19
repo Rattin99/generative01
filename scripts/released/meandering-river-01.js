@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { randomNormalWholeBetween, chaikin, mapRange } from '../lib/math/math';
 import { background } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { bicPenBlue, warmWhite } from '../lib/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../lib/systems/MeanderingRiver';
 import { createSplinePoints, trimPoints } from '../lib/math/lineSegments';

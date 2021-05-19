@@ -2,12 +2,12 @@ import tinycolor from 'tinycolor2';
 import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
 import { background, pixel, resetStyles } from '../lib/canvas/canvas';
 import { mapRange, oneOf, uvFromAngle } from '../lib/math/math';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../lib/color/palettes';
 import { Box } from '../lib/canvas/Box';
 import { simplexNoise3d } from '../lib/math/attractors';
 import { Vector } from '../lib/math/Vector';
-import { stippleRect, texturizeRect } from '../lib/canvas/canvas-textures';
+import { linesRect, stippleRect, texturizeRect } from '../lib/canvas/canvas-textures';
 import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
 import { createGridCellsXY } from '../lib/math/grids';
 
@@ -78,8 +78,7 @@ export const shadedBoxes = () => {
             }
             b.children = particles;
 
-            // texturizeRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx * 3 + 1, 'circles2');
-            stippleRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1, 'circles2');
+            stippleRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1);
         });
 
         // boxes.forEach((b) => {

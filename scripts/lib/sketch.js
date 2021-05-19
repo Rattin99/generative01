@@ -141,7 +141,7 @@ export const sketch = () => {
 
     const run = (variation) => {
         currentVariationFn = variation;
-        currentVariationRes = currentVariationFn();
+        currentVariationRes = currentVariationFn.call(this);
 
         let currentDrawLimit;
 

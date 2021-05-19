@@ -3,7 +3,7 @@ import random from 'canvas-sketch-util/random';
 import { randomWholeBetween, uvFromAngle, oneOf, randomPointAround, randomBoolean } from '../lib/math/math';
 import { Particle } from '../lib/systems/Particle';
 import { background } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { palettes } from '../lib/color/palettes';
 import { Vector } from '../lib/math/Vector';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/math/attractors';

@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 
 import { background, drawLineAngle } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/sketch';
+import { ratio, scale } from '../lib/Sketch';
 import { nicePalette, hslFromRange } from '../lib/color/palettes';
 import {
     simplexNoise2d,

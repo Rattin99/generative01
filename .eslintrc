@@ -11,6 +11,7 @@
     "jsx-props-no-spreading": 0,
     "no-prototype-builtins": 0,
     "no-plusplus": 0,
+    "max-classes-per-file": ["error",10], // for older bundled files
     "prettier/prettier": [
       "error",
       {

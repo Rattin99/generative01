@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, randomWholeBetween } from '../lib/math/math';
 import { background, pixel } from '../lib/canvas/canvas';
-import { ratio, scale, orientation } from '../lib/sketch';
+import { ratio, scale, orientation } from '../lib/Sketch';
 import { bicPenBlue, paperWhite } from '../lib/color/palettes';
 import { Bitmap } from '../lib/canvas/Bitmap';
 import { createGridCellsXY } from '../lib/math/grids';
