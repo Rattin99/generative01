@@ -32,7 +32,9 @@ export const getArrayValuesFromEnd = (arr, start, len) => {
     }
     return values;
 };
+
 export const averageNumArray = (arry) => arry.reduce((a, b) => a + b) / arry.length;
+
 export const lowest = (arry) =>
     arry.reduce((acc, v) => {
         if (v < acc) {
@@ -40,6 +42,7 @@ export const lowest = (arry) =>
         }
         return acc;
     }, 0);
+
 export const highest = (arry) =>
     arry.reduce((acc, v) => {
         if (v > acc) {
@@ -47,3 +50,15 @@ export const highest = (arry) =>
         }
         return acc;
     }, 0);
+
+export const getQueryVariable = (variable) => {
+    const query = window.location.search.substring(1);
+    const vars = query.split('&');
+    for (let i = 0; i < vars.length; i++) {
+        const pair = vars[i].split('=');
+        if (pair[0] === variable) {
+            return pair[1];
+        }
+    }
+    return false;
+};

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 
-import { background, drawLineAngle } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { nicePalette, hslFromRange } from '../rndrgen/color/palettes';
 import {
@@ -12,6 +12,7 @@ import {
     diagLines,
 } from '../rndrgen/math/attractors';
 import { mapRange, snapNumber } from '../rndrgen/math/math';
+import { drawLineAngle } from '../rndrgen/canvas/primatives';
 
 const TAU = Math.PI * 2;
 

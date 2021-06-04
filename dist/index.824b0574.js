@@ -386,24 +386,97 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 Explorations with generative code
 */ var _normalizeCss = require("normalize.css");
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
+var _utils = require("./rndrgen/utils");
 var _sketch = require("./rndrgen/sketch");
 var _variationsIndex = require("./variationsIndex");
-var _meanderingRiver01 = require("./released/meandering-river-01");
-var _marchingSquares = require("./experiments/marching-squares");
+const s = _sketch.sketch('canvas');
 const experimentalVariation = undefined;
 // const experimentalVariation = marchingSquares;
-const s = _sketch.sketch();
-const saveCanvasCapture = (_)=>{
-    console.log('Saving capture');
-    const imageURI = s.canvas().toDataURL('image/png');
-    document.getElementById('download').setAttribute('download', `${s.variationName()}.png`);
-    document.getElementById('download').href = imageURI;
-};
-document.getElementById('download').addEventListener('click', saveCanvasCapture);
-window.addEventListener('keydown', (e)=>{
-    if (e.key === 's') document.getElementById('download').click();
-});
 const setNote = (note)=>document.getElementById('note').innerText = note
+;
+const runVariation = (v)=>{
+    setNote(v.note);
+    s.run(v.sketch);
+};
+let variationKey = _utils.getQueryVariable('variation');
+const variationKeys = Object.keys(_variationsIndex.variationsIndex);
+variationKey = variationKey || variationKeys[variationKeys.length - 1];
+if (_utils.getQueryVariable('variation') && _variationsIndex.variationsIndex.hasOwnProperty(variationKey)) runVariation(_variationsIndex.variationsIndex[variationKey]);
+else if (experimentalVariation !== undefined) runVariation({
+    sketch: experimentalVariation,
+    note: 'Current experiment ...'
+});
+else runVariation(_variationsIndex.variationsIndex[variationKeys.length]);
+document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
+
+},{"normalize.css":"5i1nu","./rndrgen/utils":"1kIwI","./rndrgen/sketch":"2OcGA","./variationsIndex":"7sXnx","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"1kIwI":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
+);
+parcelHelpers.export(exports, "first", ()=>first
+);
+parcelHelpers.export(exports, "middle", ()=>middle
+);
+parcelHelpers.export(exports, "last", ()=>last
+);
+parcelHelpers.export(exports, "limitArrayLen", ()=>limitArrayLen
+);
+parcelHelpers.export(exports, "getArrayValuesFromStart", ()=>getArrayValuesFromStart
+);
+parcelHelpers.export(exports, "getArrayValuesFromEnd", ()=>getArrayValuesFromEnd
+);
+parcelHelpers.export(exports, "averageNumArray", ()=>averageNumArray
+);
+parcelHelpers.export(exports, "lowest", ()=>lowest
+);
+parcelHelpers.export(exports, "highest", ()=>highest
+);
+parcelHelpers.export(exports, "getQueryVariable", ()=>getQueryVariable
+);
+const defaultValue = (obj, key, value)=>obj.hasOwnProperty(key) ? obj[key] : value
+;
+const first = (arry)=>arry[0]
+;
+const middle = (arry)=>arry.slice(1, arry.length - 2)
+;
+const last = (arry)=>arry[arry.length - 1]
+;
+const limitArrayLen = (max, arr)=>{
+    const arrLength = arr.length;
+    if (arrLength > max) arr.splice(0, arrLength - max);
+    return arr;
+};
+const getArrayValuesFromStart = (arr, start, len)=>{
+    const values = [];
+    let index = start;
+    for(let i = 0; i < len; i++){
+        values.push(arr[index--]);
+        if (index < 0) index = arr.length - 1;
+    }
+    return values;
+};
+const getArrayValuesFromEnd = (arr, start, len)=>{
+    const values = [];
+    let index = start;
+    for(let i = 0; i < len; i++){
+        values.push(arr[index++]);
+        if (index === arr.length) index = 0;
+    }
+    return values;
+};
+const averageNumArray = (arry)=>arry.reduce((a, b)=>a + b
+    ) / arry.length
+;
+const lowest = (arry)=>arry.reduce((acc, v)=>{
+        if (v < acc) acc = v;
+        return acc;
+    }, 0)
+;
+const highest = (arry)=>arry.reduce((acc, v)=>{
+        if (v > acc) acc = v;
+        return acc;
+    }, 0)
 ;
 const getQueryVariable = (variable)=>{
     const query = window.location.search.substring(1);
@@ -414,23 +487,40 @@ const getQueryVariable = (variable)=>{
     }
     return false;
 };
-let variationKey = getQueryVariable('variation');
-const variationKeys = Object.keys(_variationsIndex.variationsIndex);
-variationKey = variationKey || variationKeys[variationKeys.length - 1];
-if (getQueryVariable('variation') && _variationsIndex.variationsIndex.hasOwnProperty(variationKey)) {
-    const vToRun = _variationsIndex.variationsIndex[variationKey];
-    setNote(vToRun.note);
-    s.run(vToRun.sketch);
-} else if (experimentalVariation !== undefined) {
-    s.run(experimentalVariation);
-    setNote('Current experiment ...');
-} else {
-    const vToRun = _variationsIndex.variationsIndex[variationKeys.length];
-    setNote(vToRun.note);
-    s.run(vToRun.sketch);
-}
 
-},{"normalize.css":"5i1nu","./rndrgen/sketch":"2OcGA","./variationsIndex":"7sXnx","./released/meandering-river-01":"2elLt","./experiments/marching-squares":"3oo76","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"2OcGA":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"367CR":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule') return;
+        // Skip duplicate re-exports when they have the same value.
+        if (key in dest && dest[key] === source[key]) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"2OcGA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "orientation", ()=>orientation
@@ -473,7 +563,6 @@ TODO
 - [ ] svg https://github.com/canvg/canvg
 - [ ] great ideas here http://paperjs.org/features/
 */ var _canvas = require("./canvas/canvas");
-var _math = require("./math/math");
 var _utils = require("./utils");
 var _random = require("./math/random");
 const orientation = {
@@ -483,7 +572,7 @@ const orientation = {
 const ratio = {
     letter: 0.773,
     poster: 0.667,
-    golden: _math.golden - 1,
+    golden: 0.6180339887498949,
     square: -1,
     auto: 1
 };
@@ -491,7 +580,7 @@ const scale = {
     standard: 1,
     hidpi: 2
 };
-const sketch = ()=>{
+const sketch = (canvasElId)=>{
     const mouse = {
         x: undefined,
         y: undefined,
@@ -505,7 +594,7 @@ const sketch = ()=>{
     let currentVariationRes;
     let animationId;
     const canvasSizeFraction = 0.9;
-    const canvas = document.getElementById('canvas');
+    const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
     const getCanvas = (_)=>canvas
     ;
@@ -517,7 +606,7 @@ const sketch = ()=>{
         mouse.isDown = true;
     };
     const mouseMove = (evt)=>{
-        const mult = _canvas.isHiDPI ? 2 : 1;
+        const mult = _canvas.isHiDPICanvas() ? 2 : 1;
         const canvasFrame = canvas.getBoundingClientRect();
         mouse.x = (evt.x - canvasFrame.x) * mult;
         mouse.y = (evt.y - canvasFrame.y) * mult;
@@ -530,53 +619,59 @@ const sketch = ()=>{
         mouse.y = undefined;
         mouse.isDown = false;
     };
-    window.addEventListener('mousedown', mouseDown);
-    window.addEventListener('touchstart', mouseDown);
-    window.addEventListener('mousemove', mouseMove);
-    window.addEventListener('touchmove', mouseMove);
-    window.addEventListener('mouseup', mouseUp);
-    window.addEventListener('touchend', mouseUp);
-    window.addEventListener('mouseout', mouseOut);
-    window.addEventListener('touchcancel', mouseOut);
     const applyCanvasSize = (config, fraction)=>{
         const width = _utils.defaultValue(config, 'width', window.innerWidth);
         const height = _utils.defaultValue(config, 'height', window.innerHeight);
-        let newWidth = width;
-        let newHeight = height;
+        let finalWidth = width;
+        let finalHeight = height;
         const cfgOrientation = _utils.defaultValue(config, 'orientation', orientation.landscape);
         const cfgRatio = _utils.defaultValue(config, 'ratio', ratio.auto);
         const cfgScale = _utils.defaultValue(config, 'scale', scale.standard);
-        const aSide = Math.min(width, height) * fraction;
-        const bSide = Math.round(cfgRatio * aSide) * fraction;
-        if (cfgRatio === ratio.square) {
-            newWidth = aSide;
-            newHeight = aSide;
+        if (cfgRatio === ratio.auto) {
+            finalWidth = width;
+            finalHeight = height;
+        } else if (cfgRatio === ratio.square) {
+            const smallestWindowSize = Math.min(width, height) * fraction;
+            finalWidth = smallestWindowSize;
+            finalHeight = smallestWindowSize;
+        } else if (cfgOrientation === orientation.landscape) {
+            let w = width;
+            let h = Math.round(cfgRatio * width);
+            const delta = h - height;
+            if (delta > 0) {
+                w -= delta;
+                h -= delta;
+            }
+            finalWidth = w * fraction;
+            finalHeight = h * fraction;
         } else if (cfgOrientation === orientation.portrait) {
-            newWidth = bSide;
-            newHeight = aSide;
-        } else if (cfgOrientation === orientation.landscape && cfgRatio !== ratio.auto) {
-            newWidth = aSide;
-            newHeight = bSide;
+            let w = Math.round(cfgRatio * height);
+            let h = height;
+            const delta = w - width;
+            if (delta > 0) {
+                w -= delta;
+                h -= delta;
+            }
+            finalWidth = w * fraction;
+            finalHeight = h * fraction;
         }
-        _canvas.resizeCanvas(canvas, context, newWidth, newHeight, cfgScale);
+        _canvas.resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
     };
     const run = (variation)=>{
         currentVariationFn = variation;
-        currentVariationRes = currentVariationFn.call(undefined);
+        currentVariationRes = currentVariationFn();
+        addEvents();
         let currentDrawLimit;
-        let backgroundColor;
+        let rendering = true;
+        const targetFpsInterval = 1000 / fps;
+        let lastAnimationFrameTime;
         context.clearRect(0, 0, canvas.width, canvas.height);
         if (currentVariationRes.hasOwnProperty('config')) {
             const { config  } = currentVariationRes;
             applyCanvasSize(config, canvasSizeFraction);
-            if (config.background) backgroundColor = config.background;
             if (config.fps) fps = config.fps;
             if (config.drawLimit > 0) currentDrawLimit = config.drawLimit;
         } else _canvas.resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
-        let rendering = true;
-        const targetFpsInterval = 1000 / fps;
-        let lastAnimationFrameTime;
-        // context.translate(0.5, 0.5);
         const checkDrawLimit = ()=>{
             if (currentDrawLimit) return drawRuns < currentDrawLimit;
             return true;
@@ -586,31 +681,27 @@ const sketch = ()=>{
             hasStarted = true;
             currentVariationRes.setup({
                 canvas,
-                context,
-                s: undefined
+                context
             });
-            const render = ()=>{
-                const result = currentVariationRes.draw({
+            const drawFrame = ()=>{
+                drawRuns++;
+                return currentVariationRes.draw({
                     canvas,
                     context,
                     mouse
                 });
-                drawRuns++;
+            };
+            const render = ()=>{
+                const result = drawFrame();
                 if (result !== -1 && checkDrawLimit()) animationId = requestAnimationFrame(render);
             };
-            // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
             const renderAtFps = ()=>{
                 if (rendering) animationId = window.requestAnimationFrame(renderAtFps);
                 const now = Date.now();
                 const elapsed = now - lastAnimationFrameTime;
                 if (elapsed > targetFpsInterval) {
                     lastAnimationFrameTime = now - elapsed % targetFpsInterval;
-                    const result = currentVariationRes.draw({
-                        canvas,
-                        context,
-                        mouse
-                    });
-                    drawRuns++;
+                    const result = drawFrame();
                     if (result === -1 || currentDrawLimit && drawRuns >= currentDrawLimit) rendering = false;
                 }
             };
@@ -623,8 +714,38 @@ const sketch = ()=>{
         if (!hasStarted) window.addEventListener('load', startSketch);
         else startSketch();
     };
+    const addEvents = (_)=>{
+        window.addEventListener('mousedown', mouseDown);
+        window.addEventListener('touchstart', mouseDown);
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('touchmove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('touchend', mouseUp);
+        window.addEventListener('mouseout', mouseOut);
+        window.addEventListener('touchcancel', mouseOut);
+        window.addEventListener('resize', windowResize);
+    };
+    const removeEvents = (_)=>{
+        window.removeEventListener('mousedown', mouseDown);
+        window.removeEventListener('touchstart', mouseDown);
+        window.removeEventListener('mousemove', mouseMove);
+        window.removeEventListener('touchmove', mouseMove);
+        window.removeEventListener('mouseup', mouseUp);
+        window.removeEventListener('touchend', mouseUp);
+        window.removeEventListener('mouseout', mouseOut);
+        window.removeEventListener('touchcancel', mouseOut);
+        window.removeEventListener('resize', windowResize);
+    };
     const stop = ()=>{
+        removeEvents();
         window.cancelAnimationFrame(animationId);
+    };
+    const windowResize = (evt)=>{
+        // clear and rerun to avoid artifacts
+        if (animationId) {
+            stop();
+            run(currentVariationFn);
+        }
     };
     const getVariationName = ()=>{
         const seed = _random.getRandomSeed();
@@ -632,14 +753,12 @@ const sketch = ()=>{
         if (currentVariationRes && currentVariationRes.hasOwnProperty('config') && currentVariationRes.config.hasOwnProperty('name')) name = currentVariationRes.config.name;
         return `sketch-${name}-${seed}`;
     };
-    const windowResize = (evt)=>{
-        // resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
-        if (animationId) {
-            stop();
-            run(currentVariationFn);
-        }
+    const saveCanvasCapture = (evt)=>{
+        console.log('Saving capture', evt);
+        const imageURI = canvas.toDataURL('image/png');
+        evt.target.setAttribute('download', `${getVariationName()}.png`);
+        evt.target.href = imageURI;
     };
-    window.addEventListener('resize', windowResize);
     return {
         variationName: getVariationName,
         canvas: getCanvas,
@@ -647,16 +766,16 @@ const sketch = ()=>{
         mouse: getMouse,
         run,
         stop,
-        s: sketch
+        saveCanvasCapture
     };
 };
 
-},{"./canvas/canvas":"73Br1","./math/math":"4t0bw","./utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./math/random":"1SLuP"}],"73Br1":[function(require,module,exports) {
+},{"./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"73Br1":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isHiDPI", ()=>isHiDPI
+parcelHelpers.export(exports, "isHiDPICanvas", ()=>isHiDPICanvas
 );
-parcelHelpers.export(exports, "contextScale", ()=>contextScale
+parcelHelpers.export(exports, "currentContextScale", ()=>currentContextScale
 );
 parcelHelpers.export(exports, "resizeCanvas", ()=>resizeCanvas
 );
@@ -674,37 +793,16 @@ parcelHelpers.export(exports, "blendMode", ()=>blendMode
 );
 parcelHelpers.export(exports, "filter", ()=>filter
 );
-parcelHelpers.export(exports, "pixel", ()=>pixel
-);
 parcelHelpers.export(exports, "setStokeColor", ()=>setStokeColor
-);
-parcelHelpers.export(exports, "drawLine", ()=>drawLine
-);
-parcelHelpers.export(exports, "drawLineAngle", ()=>drawLineAngle
-);
-parcelHelpers.export(exports, "drawCircle", ()=>drawCircle
-);
-parcelHelpers.export(exports, "drawCircleFilled", ()=>drawCircleFilled
-);
-parcelHelpers.export(exports, "drawRect", ()=>drawRect
-);
-parcelHelpers.export(exports, "drawRectFilled", ()=>drawRectFilled
-);
-parcelHelpers.export(exports, "drawSquareFilled", ()=>drawSquareFilled
-);
-parcelHelpers.export(exports, "drawTriangleFilled", ()=>drawTriangleFilled
-);
-parcelHelpers.export(exports, "drawQuadRectFilled", ()=>drawQuadRectFilled
-);
-parcelHelpers.export(exports, "drawRoundRectFilled", ()=>drawRoundRectFilled
-);
-parcelHelpers.export(exports, "drawTestPoint", ()=>drawTestPoint
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../math/math");
 let isHiDPI = false;
 let contextScale = 1;
+const isHiDPICanvas = (_)=>isHiDPI
+;
+const currentContextScale = (_)=>contextScale
+;
 const resizeCanvas = (canvas, context, width, height, scale)=>{
     contextScale = scale || window.devicePixelRatio;
     canvas.style.width = `${width}px`;
@@ -714,7 +812,7 @@ const resizeCanvas = (canvas, context, width, height, scale)=>{
     if (contextScale === 2) {
         isHiDPI = true;
         context.scale(1, 1);
-    // context.scale(2, 2);
+    // context.scale(2, 2); // not working
     } else context.scale(contextScale, contextScale);
 };
 const clearCanvas = (canvas, context)=>(_)=>context.clearRect(0, 0, canvas.width, canvas.height)
@@ -742,129 +840,18 @@ const blendMode = (context)=>(mode = 'source-over')=>context.globalCompositeOper
 ;
 const filter = (context)=>(f = '')=>context.filter = f
 ;
-const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
-        size = size || contextScale;
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        if (mode === 'circle') {
-            context.beginPath();
-            context.arc(x, y, size, 0, Math.PI * 2, false);
-            context.fill();
-        } else context.fillRect(x, y, size, size);
-    }
-;
 const setStokeColor = (context)=>(color)=>context.strokeStyle = _tinycolor2Default.default(color).toRgbString()
-;
-const drawLine = (context)=>(x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt')=>{
-        // color = 'black',
-        // context.strokeStyle = tinycolor(color).toRgbString();
-        context.lineWidth = strokeWidth;
-        context.lineCap = linecap;
-        context.beginPath();
-        context.moveTo(x1, y1);
-        context.lineTo(x2, y2);
-        context.stroke();
-    }
-;
-const drawLineAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
-        const theta = Math.PI * angle / 180;
-        const x2 = x1 + length * Math.cos(theta);
-        const y2 = y1 + length * Math.sin(theta);
-        drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
-    }
-;
-const drawCircle = (context)=>(strokeWidth, x, y, radius, color)=>{
-        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        context.lineWidth = strokeWidth;
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        // context.fillStyle = 'rgba(255,255,255,.1)';
-        // context.fill();
-        context.stroke();
-    }
-;
-const drawCircleFilled = (context)=>(x, y, radius, color)=>{
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = color;
-        context.fill();
-    }
-;
-const drawRect = (context)=>(x, y, w, h, strokeWidth = 1, color)=>{
-        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        context.lineWidth = strokeWidth;
-        context.rect(x, y, w, h);
-        context.stroke();
-    }
-;
-const drawRectFilled = (context)=>(x, y, w, h, color = 'white')=>{
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.fillRect(x, y, w, h);
-    }
-;
-const drawSquareFilled = (context)=>(x, y, size, color)=>{
-        drawRectFilled(context)(x, y, size, size, color);
-    }
-;
-const drawTriangleFilled = (context)=>(x, y, size, color)=>{
-        const half = size / 2;
-        context.beginPath();
-        context.moveTo(x - half, y - half);
-        context.lineTo(x + half, y);
-        context.lineTo(x - half, y + half);
-        context.fillStyle = color.toRgbString();
-        context.fill();
-    }
-;
-const drawQuadRectFilled = (context)=>(x, y, w, h, color)=>{
-        const mx = x + w / 2;
-        const my = y + h / 2;
-        context.beginPath();
-        // context.strokeStyle = 'green';
-        // context.lineWidth = '4';
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.moveTo(x, my);
-        context.quadraticCurveTo(x, y, mx, y);
-        context.quadraticCurveTo(x + w, y, x + w, my);
-        context.quadraticCurveTo(x + w, y + h, mx, y + h);
-        context.quadraticCurveTo(x, y + h, x, my);
-        // context.stroke();
-        context.fill();
-    }
-;
-const drawRoundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
-        if (w < corner || h < corner) corner = Math.min(w, h);
-        const r = x + w;
-        const b = y + h;
-        context.beginPath();
-        // context.strokeStyle = 'green';
-        // context.lineWidth = '4';
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.moveTo(x + corner, y);
-        context.lineTo(r - corner, y);
-        context.quadraticCurveTo(r, y, r, y + corner);
-        context.lineTo(r, y + h - corner);
-        context.quadraticCurveTo(r, b, r - corner, b);
-        context.lineTo(x + corner, b);
-        context.quadraticCurveTo(x, b, x, b - corner);
-        context.lineTo(x, y + corner);
-        context.quadraticCurveTo(x, y, x + corner, y);
-        // context.stroke();
-        context.fill();
-    }
-;
-const drawTestPoint = (context)=>({ x , y , radius , color  })=>{
-        context.strokeStyle = color.toRgbString();
-        context.lineWidth = 1;
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = 'rgba(255,255,255,.1)';
-        context.fill();
-        context.stroke();
-        drawLine(context)(x, y, x + radius, y, 1);
-    }
-;
+; //----------------------------------------------------------------------------------------------------------------------
+ // PRIMITIVES
+ //----------------------------------------------------------------------------------------------------------------------
+ // export const drawLineAngleV = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
+ //     const vect = uvFromAngle(angle).setMag(length);
+ //     const x2 = x1 + vect.x;
+ //     const y2 = y1 + vect.y;
+ //     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
+ // };
 
-},{"tinycolor2":"101FG","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
+},{"tinycolor2":"101FG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
 // TinyColor v1.4.2
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -1961,481 +1948,7 @@ const drawTestPoint = (context)=>({ x , y , radius , color  })=>{
     else window.tinycolor = tinycolor;
 })(Math);
 
-},{}],"4t0bw":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "\u{3c0}", ()=>π
-);
-parcelHelpers.export(exports, "PI", ()=>PI
-);
-parcelHelpers.export(exports, "TAU", ()=>TAU
-);
-parcelHelpers.export(exports, "abs", ()=>abs
-);
-parcelHelpers.export(exports, "sin", ()=>sin
-);
-parcelHelpers.export(exports, "cos", ()=>cos
-);
-parcelHelpers.export(exports, "tan", ()=>tan
-);
-parcelHelpers.export(exports, "pow", ()=>pow
-);
-parcelHelpers.export(exports, "round", ()=>round
-);
-parcelHelpers.export(exports, "floor", ()=>floor
-);
-parcelHelpers.export(exports, "golden", ()=>golden
-);
-parcelHelpers.export(exports, "checkBoundsLeft", ()=>checkBoundsLeft
-);
-parcelHelpers.export(exports, "checkBoundsRight", ()=>checkBoundsRight
-);
-parcelHelpers.export(exports, "snapNumber", ()=>snapNumber
-);
-parcelHelpers.export(exports, "percentage", ()=>percentage
-);
-parcelHelpers.export(exports, "houghQuantize", ()=>houghQuantize
-);
-parcelHelpers.export(exports, "quantize", ()=>quantize
-);
-parcelHelpers.export(exports, "round2", ()=>round2
-);
-parcelHelpers.export(exports, "loopingValue", ()=>loopingValue
-);
-parcelHelpers.export(exports, "pingPontValue", ()=>pingPontValue
-);
-parcelHelpers.export(exports, "pointOnCircle", ()=>pointOnCircle
-);
-parcelHelpers.export(exports, "normalize", ()=>normalize
-);
-parcelHelpers.export(exports, "normalizeInverse", ()=>normalizeInverse
-);
-parcelHelpers.export(exports, "lerp", ()=>lerp
-);
-parcelHelpers.export(exports, "clamp", ()=>clamp
-);
-parcelHelpers.export(exports, "invlerp", ()=>invlerp
-);
-parcelHelpers.export(exports, "mapRange", ()=>mapRange
-);
-parcelHelpers.export(exports, "toSinValue", ()=>toSinValue
-);
-parcelHelpers.export(exports, "mapToTau", ()=>mapToTau
-);
-parcelHelpers.export(exports, "aFromVector", ()=>aFromVector
-);
-parcelHelpers.export(exports, "uvFromAngle", ()=>uvFromAngle
-);
-parcelHelpers.export(exports, "radiansToDegrees", ()=>radiansToDegrees
-);
-parcelHelpers.export(exports, "degreesToRadians", ()=>degreesToRadians
-);
-parcelHelpers.export(exports, "valueCloseTo", ()=>valueCloseTo
-);
-parcelHelpers.export(exports, "logInterval", ()=>logInterval
-);
-parcelHelpers.export(exports, "marginify", ()=>marginify
-);
-parcelHelpers.export(exports, "pointDistance", ()=>pointDistance
-);
-parcelHelpers.export(exports, "pointRotateCoord", ()=>pointRotateCoord
-);
-parcelHelpers.export(exports, "pointAngleFromVelocity", ()=>pointAngleFromVelocity
-);
-parcelHelpers.export(exports, "scalePointToCanvas", ()=>scalePointToCanvas
-);
-/*
-  Math Snippets
-  https://github.com/terkelg/math
-*/ var _vector = require("./Vector");
-const π = Math.PI;
-const { PI  } = Math;
-const TAU = Math.PI * 2;
-const { abs  } = Math;
-const { sin  } = Math;
-const { cos  } = Math;
-const { tan  } = Math;
-const { pow  } = Math;
-const { round  } = Math;
-const { floor  } = Math;
-const golden = 1.618033988749895;
-const checkBoundsLeft = (b, v)=>v < b ? b : v
-;
-const checkBoundsRight = (b, v)=>v > b ? b : v
-;
-const snapNumber = (snap, n)=>Math.floor(n / snap) * snap
-;
-const percentage = (total, num)=>Math.round(num * (total / 100))
-;
-const houghQuantize = (numAngles, theta)=>Math.floor(numAngles * theta / TAU + 0.5)
-;
-const quantize = (numAngles, theta)=>(Math.round(theta * (numAngles / Math.PI)) + numAngles) % numAngles
-;
-const round2 = (num)=>Math.round((num + Number.EPSILON) * 100) / 100
-;
-const loopingValue = (t, m = 0.5)=>Math.sin(t * m)
-;
-const pingPontValue = (t)=>Math.sin(t * Math.PI)
-;
-const pointOnCircle = (x, y, r, a)=>({
-        x: r * Math.sin(a) + x,
-        y: r * Math.cos(a) + y
-    })
-;
-const normalize = (min, max, val)=>(val - min) / (max - min)
-;
-const normalizeInverse = (min, max, val)=>1 - normalize(min, max, val)
-;
-const lerp = (x, y, a)=>x * (1 - a) + y * a
-;
-const clamp = (min = 0, max = 1, a)=>Math.min(max, Math.max(min, a))
-;
-const invlerp = (x, y, a)=>clamp(0, 1, (a - x) / (y - x))
-;
-const mapRange = (x1, y1, x2, y2, a)=>lerp(x2, y2, invlerp(x1, y1, a))
-;
-const toSinValue = (value)=>Math.abs(Math.sin(value * TAU))
-;
-const mapToTau = (start, end, value)=>mapRange(start, end, 0, TAU, value)
-;
-const aFromVector = ({ x , y  })=>Math.atan2(y, x)
-;
-const uvFromAngle = (a)=>new _vector.Vector(Math.cos(a), Math.sin(a))
-;
-const radiansToDegrees = (rad)=>rad * 180 / Math.PI
-;
-const degreesToRadians = (deg)=>deg * Math.PI / 180
-;
-const valueCloseTo = (testVal, val, range)=>{
-    if (val === testVal) return true;
-    if (val - range < testVal && val + range > testVal) return true;
-    return false;
-};
-const logInterval = (total_intervals, start, end)=>{
-    const startInterVal = 1;
-    const endInterval = total_intervals;
-    const minLog = Math.log(start);
-    const maxLog = Math.log(end);
-    const scale = (maxLog - minLog) / (endInterval - startInterVal);
-    const result = [];
-    for(let i = 1; i < total_intervals; i++)result.push(Math.exp(minLog + scale * (i - startInterVal)));
-    result.push(end);
-    return result;
-};
-const marginify = ({ margin , u , v , width , height  })=>({
-        x: lerp(margin, width - margin, u),
-        y: lerp(margin, height - margin, v)
-    })
-;
-const pointDistance = (pointA, pointB)=>{
-    const dx = pointA.x - pointB.x;
-    const dy = pointA.y - pointB.y;
-    return Math.sqrt(dx * dx + dy * dy);
-};
-const pointRotateCoord = (point, angle)=>({
-        x: point.x * cos(angle) - point.y * sin(angle),
-        y: point.y * cos(angle) + point.x * sin(angle)
-    })
-;
-const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
-;
-const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y)=>{
-    const particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
-    const particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
-    return {
-        x: x * zoomFactor + particleXOffset,
-        y: y * zoomFactor + particleYOffset
-    };
-};
-
-},{"./Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1MSqh":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Vector", ()=>Vector
-);
-// Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
-// Edited and expanded to match p5's vectors
-// ref - p5 vector https://p5js.org/reference/#/p5.Vector
-// https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
-const fromAngles = (theta, phi)=>new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi))
-;
-const randomDirection = ()=>fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1))
-;
-const min = (a, b)=>new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z))
-;
-const max = (a, b)=>new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z))
-;
-const lerp = (a, b, fraction)=>b.sub(a).mult(fraction).add(a)
-;
-const fromArray = (a)=>new Vector(a[0], a[1], a[2])
-;
-const angleBetween = (a, b)=>a.angleTo(b)
-;
-class Vector {
-    constructor(x, y, z){
-        this.x = x || 0;
-        this.y = y || 0;
-        this.z = z || 0;
-    }
-    negative() {
-        return new Vector(-this.x, -this.y, -this.z);
-    }
-    add(v) {
-        if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
-        return new Vector(this.x + v, this.y + v, this.z + v);
-    }
-    sub(v) {
-        if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
-        return new Vector(this.x - v, this.y - v, this.z - v);
-    }
-    mult(v) {
-        if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
-        return new Vector(this.x * v, this.y * v, this.z * v);
-    }
-    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
-    mix(b, fraction) {
-        // return this.mult(1 - mix).add(o.mult(mix));
-        return lerp(this, b, fraction);
-    }
-    div(v) {
-        if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
-        return new Vector(this.x / v, this.y / v, this.z / v);
-    }
-    equals(v) {
-        return this.x === v.x && this.y === v.y && this.z === v.z;
-    }
-    dot(v) {
-        return this.x * v.x + this.y * v.y + this.z * v.z;
-    }
-    cross(v) {
-        return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
-    }
-    length() {
-        return Math.sqrt(this.dot(this));
-    }
-    mag() {
-        return this.length();
-    }
-    magSq() {
-        const m = this.length();
-        return m * m;
-    }
-    setMag(m) {
-        const c = this.mag();
-        const r = m / c;
-        return this.mult(r);
-    }
-    normalize() {
-        let mag = this.mag();
-        mag = mag || 1;
-        return this.div(mag);
-    }
-    unit() {
-        return this.div(this.length());
-    }
-    min() {
-        return Math.min(Math.min(this.x, this.y), this.z);
-    }
-    max() {
-        return Math.max(Math.max(this.x, this.y), this.z);
-    }
-    limit(v) {
-        const cm = this.mag();
-        if (cm > v) return this.setMag(v);
-        return this;
-    }
-    angle() {
-        return Math.atan2(this.y, this.x);
-    }
-    toAngles() {
-        return {
-            theta: Math.atan2(this.z, this.x),
-            phi: Math.asin(this.y / this.length())
-        };
-    }
-    angleTo(a) {
-        return Math.acos(this.dot(a) / (this.length() * a.length()));
-    }
-    toArray(n) {
-        return [
-            this.x,
-            this.y,
-            this.z
-        ].slice(0, n || 3);
-    }
-    clone() {
-        return new Vector(this.x, this.y, this.z);
-    }
-}
-const negative = (a, b)=>{
-    b.x = -a.x;
-    b.y = -a.y;
-    b.z = -a.z;
-    return b;
-};
-const add = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x + b.x;
-        c.y = a.y + b.y;
-        c.z = a.z + b.z;
-    } else {
-        c.x = a.x + b;
-        c.y = a.y + b;
-        c.z = a.z + b;
-    }
-    return c;
-};
-const subtract = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x - b.x;
-        c.y = a.y - b.y;
-        c.z = a.z - b.z;
-    } else {
-        c.x = a.x - b;
-        c.y = a.y - b;
-        c.z = a.z - b;
-    }
-    return c;
-};
-const multiply = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x * b.x;
-        c.y = a.y * b.y;
-        c.z = a.z * b.z;
-    } else {
-        c.x = a.x * b;
-        c.y = a.y * b;
-        c.z = a.z * b;
-    }
-    return c;
-};
-const divide = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x / b.x;
-        c.y = a.y / b.y;
-        c.z = a.z / b.z;
-    } else {
-        c.x = a.x / b;
-        c.y = a.y / b;
-        c.z = a.z / b;
-    }
-    return c;
-};
-const cross = (a, b, c)=>{
-    c.x = a.y * b.z - a.z * b.y;
-    c.y = a.z * b.x - a.x * b.z;
-    c.z = a.x * b.y - a.y * b.x;
-    return c;
-};
-const unit = (a, b)=>{
-    const length = a.length();
-    b.x = a.x / length;
-    b.y = a.y / length;
-    b.z = a.z / length;
-    return b;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"367CR":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule') return;
-        // Skip duplicate re-exports when they have the same value.
-        if (key in dest && dest[key] === source[key]) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"1kIwI":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
-);
-parcelHelpers.export(exports, "first", ()=>first
-);
-parcelHelpers.export(exports, "middle", ()=>middle
-);
-parcelHelpers.export(exports, "last", ()=>last
-);
-parcelHelpers.export(exports, "limitArrayLen", ()=>limitArrayLen
-);
-parcelHelpers.export(exports, "getArrayValuesFromStart", ()=>getArrayValuesFromStart
-);
-parcelHelpers.export(exports, "getArrayValuesFromEnd", ()=>getArrayValuesFromEnd
-);
-parcelHelpers.export(exports, "averageNumArray", ()=>averageNumArray
-);
-parcelHelpers.export(exports, "lowest", ()=>lowest
-);
-parcelHelpers.export(exports, "highest", ()=>highest
-);
-const defaultValue = (obj, key, value)=>obj.hasOwnProperty(key) ? obj[key] : value
-;
-const first = (arry)=>arry[0]
-;
-const middle = (arry)=>arry.slice(1, arry.length - 2)
-;
-const last = (arry)=>arry[arry.length - 1]
-;
-const limitArrayLen = (max, arr)=>{
-    const arrLength = arr.length;
-    if (arrLength > max) arr.splice(0, arrLength - max);
-    return arr;
-};
-const getArrayValuesFromStart = (arr, start, len)=>{
-    const values = [];
-    let index = start;
-    for(let i = 0; i < len; i++){
-        values.push(arr[index--]);
-        if (index < 0) index = arr.length - 1;
-    }
-    return values;
-};
-const getArrayValuesFromEnd = (arr, start, len)=>{
-    const values = [];
-    let index = start;
-    for(let i = 0; i < len; i++){
-        values.push(arr[index++]);
-        if (index === arr.length) index = 0;
-    }
-    return values;
-};
-const averageNumArray = (arry)=>arry.reduce((a, b)=>a + b
-    ) / arry.length
-;
-const lowest = (arry)=>arry.reduce((acc, v)=>{
-        if (v < acc) acc = v;
-        return acc;
-    }, 0)
-;
-const highest = (arry)=>arry.reduce((acc, v)=>{
-        if (v > acc) acc = v;
-        return acc;
-    }, 0)
-;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1SLuP":[function(require,module,exports) {
+},{}],"1SLuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getRandomSeed", ()=>getRandomSeed
@@ -3574,7 +3087,384 @@ module.exports = function() {
     }
 };
 
-},{}],"7sXnx":[function(require,module,exports) {
+},{}],"4t0bw":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "\u{3c0}", ()=>π
+);
+parcelHelpers.export(exports, "PI", ()=>PI
+);
+parcelHelpers.export(exports, "TAU", ()=>TAU
+);
+parcelHelpers.export(exports, "abs", ()=>abs
+);
+parcelHelpers.export(exports, "sin", ()=>sin
+);
+parcelHelpers.export(exports, "cos", ()=>cos
+);
+parcelHelpers.export(exports, "tan", ()=>tan
+);
+parcelHelpers.export(exports, "pow", ()=>pow
+);
+parcelHelpers.export(exports, "round", ()=>round
+);
+parcelHelpers.export(exports, "floor", ()=>floor
+);
+parcelHelpers.export(exports, "golden", ()=>golden
+);
+parcelHelpers.export(exports, "fibonacci", ()=>fibonacci
+);
+parcelHelpers.export(exports, "checkBoundsLeft", ()=>checkBoundsLeft
+);
+parcelHelpers.export(exports, "checkBoundsRight", ()=>checkBoundsRight
+);
+parcelHelpers.export(exports, "clamp", ()=>clamp
+);
+parcelHelpers.export(exports, "snapNumber", ()=>snapNumber
+);
+parcelHelpers.export(exports, "percentage", ()=>percentage
+);
+parcelHelpers.export(exports, "houghQuantize", ()=>houghQuantize
+);
+parcelHelpers.export(exports, "quantize", ()=>quantize
+);
+parcelHelpers.export(exports, "round2", ()=>round2
+);
+parcelHelpers.export(exports, "loopingValue", ()=>loopingValue
+);
+parcelHelpers.export(exports, "pingPontValue", ()=>pingPontValue
+);
+parcelHelpers.export(exports, "pointOnCircle", ()=>pointOnCircle
+);
+parcelHelpers.export(exports, "normalize", ()=>normalize
+);
+parcelHelpers.export(exports, "normalizeInverse", ()=>normalizeInverse
+);
+parcelHelpers.export(exports, "lerp", ()=>lerp
+);
+parcelHelpers.export(exports, "invlerp", ()=>invlerp
+);
+parcelHelpers.export(exports, "mapRange", ()=>mapRange
+);
+parcelHelpers.export(exports, "isValueInRange", ()=>isValueInRange
+);
+parcelHelpers.export(exports, "mapToTau", ()=>mapToTau
+);
+parcelHelpers.export(exports, "logInterval", ()=>logInterval
+);
+parcelHelpers.export(exports, "angleFromVector", ()=>angleFromVector
+);
+parcelHelpers.export(exports, "uvFromAngle", ()=>uvFromAngle
+);
+parcelHelpers.export(exports, "toSinValue", ()=>toSinValue
+);
+parcelHelpers.export(exports, "radiansToDegrees", ()=>radiansToDegrees
+);
+parcelHelpers.export(exports, "degreesToRadians", ()=>degreesToRadians
+);
+parcelHelpers.export(exports, "circleX", ()=>circleX
+);
+parcelHelpers.export(exports, "circleY", ()=>circleY
+);
+/*
+  Math Snippets
+  https://github.com/terkelg/math
+*/ var _vector = require("./Vector");
+const π = Math.PI;
+const { PI  } = Math;
+const TAU = Math.PI * 2;
+const { abs  } = Math;
+const { sin  } = Math;
+const { cos  } = Math;
+const { tan  } = Math;
+const { pow  } = Math;
+const { round  } = Math;
+const { floor  } = Math;
+const golden = 1.618033988749895;
+const fibonacci = [
+    0,
+    1,
+    1,
+    2,
+    3,
+    5,
+    8,
+    13,
+    21,
+    34,
+    55,
+    89,
+    144,
+    233,
+    377,
+    610,
+    987,
+    1597,
+    2584,
+    4181,
+    6765,
+    10946,
+    17711,
+    28657,
+    46368,
+    75025,
+    121393,
+    196418,
+    317811, 
+];
+const checkBoundsLeft = (b, v)=>v < b ? b : v
+;
+const checkBoundsRight = (b, v)=>v > b ? b : v
+;
+const clamp = (min = 0, max = 1, a)=>Math.min(max, Math.max(min, a))
+;
+const snapNumber = (snap, n)=>Math.floor(n / snap) * snap
+;
+const percentage = (total, num)=>Math.round(num * (total / 100))
+;
+const houghQuantize = (numAngles, theta)=>Math.floor(numAngles * theta / TAU + 0.5)
+;
+const quantize = (numAngles, theta)=>(Math.round(theta * (numAngles / Math.PI)) + numAngles) % numAngles
+;
+const round2 = (num)=>Math.round((num + Number.EPSILON) * 100) / 100
+;
+const loopingValue = (t, m = 0.5)=>Math.sin(t * m)
+;
+const pingPontValue = (t)=>Math.sin(t * Math.PI)
+;
+const pointOnCircle = (x, y, r, a)=>({
+        x: r * Math.sin(a) + x,
+        y: r * Math.cos(a) + y
+    })
+;
+const normalize = (min, max, val)=>(val - min) / (max - min)
+;
+const normalizeInverse = (min, max, val)=>1 - normalize(min, max, val)
+;
+const lerp = (x, y, a)=>x * (1 - a) + y * a
+;
+const invlerp = (x, y, a)=>clamp(0, 1, (a - x) / (y - x))
+;
+const mapRange = (x1, y1, x2, y2, a)=>lerp(x2, y2, invlerp(x1, y1, a))
+;
+const isValueInRange = (testVal, val, range)=>val === testVal || val - range < testVal && val + range > testVal
+;
+const mapToTau = (start, end, value)=>mapRange(start, end, 0, TAU, value)
+;
+const logInterval = (total_intervals, start, end)=>{
+    const startInterVal = 1;
+    const endInterval = total_intervals;
+    const minLog = Math.log(start);
+    const maxLog = Math.log(end);
+    const scale = (maxLog - minLog) / (endInterval - startInterVal);
+    const result = [];
+    for(let i = 1; i < total_intervals; i++)result.push(Math.exp(minLog + scale * (i - startInterVal)));
+    result.push(end);
+    return result;
+};
+const angleFromVector = ({ x , y  })=>Math.atan2(y, x)
+;
+const uvFromAngle = (a)=>new _vector.Vector(Math.cos(a), Math.sin(a))
+;
+const toSinValue = (value)=>Math.abs(Math.sin(value * TAU))
+;
+const radiansToDegrees = (rad)=>rad * 180 / Math.PI
+;
+const degreesToRadians = (deg)=>deg * Math.PI / 180
+;
+const circleX = (theta, amp, freq)=>Math.cos(theta / freq) * amp
+;
+const circleY = (theta, amp, freq)=>Math.sin(theta / freq) * amp
+;
+
+},{"./Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1MSqh":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Vector", ()=>Vector
+);
+// Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
+// Edited and expanded to match p5's vectors
+// ref - p5 vector https://p5js.org/reference/#/p5.Vector
+// https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
+const fromAngles = (theta, phi)=>new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi))
+;
+const randomDirection = ()=>fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1))
+;
+const min = (a, b)=>new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z))
+;
+const max = (a, b)=>new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z))
+;
+const lerp = (a, b, fraction)=>b.sub(a).mult(fraction).add(a)
+;
+const fromArray = (a)=>new Vector(a[0], a[1], a[2])
+;
+const angleBetween = (a, b)=>a.angleTo(b)
+;
+class Vector {
+    constructor(x, y, z){
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+    }
+    negative() {
+        return new Vector(-this.x, -this.y, -this.z);
+    }
+    add(v) {
+        if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
+        return new Vector(this.x + v, this.y + v, this.z + v);
+    }
+    sub(v) {
+        if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
+        return new Vector(this.x - v, this.y - v, this.z - v);
+    }
+    mult(v) {
+        if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
+        return new Vector(this.x * v, this.y * v, this.z * v);
+    }
+    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
+    mix(b, fraction) {
+        // return this.mult(1 - mix).add(o.mult(mix));
+        return lerp(this, b, fraction);
+    }
+    div(v) {
+        if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
+        return new Vector(this.x / v, this.y / v, this.z / v);
+    }
+    equals(v) {
+        return this.x === v.x && this.y === v.y && this.z === v.z;
+    }
+    dot(v) {
+        return this.x * v.x + this.y * v.y + this.z * v.z;
+    }
+    cross(v) {
+        return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
+    }
+    length() {
+        return Math.sqrt(this.dot(this));
+    }
+    mag() {
+        return this.length();
+    }
+    magSq() {
+        const m = this.length();
+        return m * m;
+    }
+    setMag(m) {
+        const c = this.mag();
+        const r = m / c;
+        return this.mult(r);
+    }
+    normalize() {
+        let mag = this.mag();
+        mag = mag || 1;
+        return this.div(mag);
+    }
+    unit() {
+        return this.div(this.length());
+    }
+    min() {
+        return Math.min(Math.min(this.x, this.y), this.z);
+    }
+    max() {
+        return Math.max(Math.max(this.x, this.y), this.z);
+    }
+    limit(v) {
+        const cm = this.mag();
+        if (cm > v) return this.setMag(v);
+        return this;
+    }
+    angle() {
+        return Math.atan2(this.y, this.x);
+    }
+    toAngles() {
+        return {
+            theta: Math.atan2(this.z, this.x),
+            phi: Math.asin(this.y / this.length())
+        };
+    }
+    angleTo(a) {
+        return Math.acos(this.dot(a) / (this.length() * a.length()));
+    }
+    toArray(n) {
+        return [
+            this.x,
+            this.y,
+            this.z
+        ].slice(0, n || 3);
+    }
+    clone() {
+        return new Vector(this.x, this.y, this.z);
+    }
+}
+const negative = (a, b)=>{
+    b.x = -a.x;
+    b.y = -a.y;
+    b.z = -a.z;
+    return b;
+};
+const add = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x + b.x;
+        c.y = a.y + b.y;
+        c.z = a.z + b.z;
+    } else {
+        c.x = a.x + b;
+        c.y = a.y + b;
+        c.z = a.z + b;
+    }
+    return c;
+};
+const subtract = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x - b.x;
+        c.y = a.y - b.y;
+        c.z = a.z - b.z;
+    } else {
+        c.x = a.x - b;
+        c.y = a.y - b;
+        c.z = a.z - b;
+    }
+    return c;
+};
+const multiply = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x * b.x;
+        c.y = a.y * b.y;
+        c.z = a.z * b.z;
+    } else {
+        c.x = a.x * b;
+        c.y = a.y * b;
+        c.z = a.z * b;
+    }
+    return c;
+};
+const divide = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x / b.x;
+        c.y = a.y / b.y;
+        c.z = a.z / b.z;
+    } else {
+        c.x = a.x / b;
+        c.y = a.y / b;
+        c.z = a.z / b;
+    }
+    return c;
+};
+const cross = (a, b, c)=>{
+    c.x = a.y * b.z - a.z * b.y;
+    c.y = a.z * b.x - a.x * b.z;
+    c.z = a.x * b.y - a.y * b.x;
+    return c;
+};
+const unit = (a, b)=>{
+    const length = a.length();
+    b.x = a.x / length;
+    b.y = a.y / length;
+    b.z = a.z / length;
+    return b;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3700,9 +3590,10 @@ parcelHelpers.export(exports, "variation1", ()=>variation1
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
+var _points = require("../rndrgen/math/points");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _math.pointDistance({
+        const distance = _points.pointDistance({
             x,
             y
         }, particle);
@@ -3754,11 +3645,11 @@ const variation1 = ()=>{
                 y: canvasCenterY
             }, particlesArray[i], 4);
             attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
-            _canvasParticles.drawPointTrail(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawPointTrail(context)(particlesArray[i]);
         }
-        _canvasParticles.connectParticles(context)(particlesArray, 200);
-        _canvasParticles.drawMouse(context)(mouse);
+        _particles.connectParticles(context)(particlesArray, 200);
+        _particles.drawMouse(context)(mouse);
     };
     return {
         setup,
@@ -3766,7 +3657,7 @@ const variation1 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mD6I":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"1mD6I":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Particle", ()=>Particle
@@ -3782,6 +3673,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _vector = require("../rndrgen/math/Vector");
 var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
 const MAX_COORD_HISTORY = 30;
 class Particle {
     #x;
@@ -3871,7 +3763,7 @@ class Particle {
     }
     // Rotation angle to point in direction of velocity
     get heading() {
-        return _math.pointAngleFromVelocity(this);
+        return _points.pointAngleFromVelocity(this);
     }
     reverseVelocityX() {
         this.velocityX *= -1;
@@ -3908,7 +3800,7 @@ class Particle {
     // mode 1 is attract, -1 is repel
     // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
     attract({ x , y , mass , g  }, mode = 1, affectDist = 1000) {
-        if (_math.pointDistance({
+        if (_points.pointDistance({
             x,
             y
         }, {
@@ -3969,7 +3861,223 @@ const edgeWrap = ({ width , height  }, particle)=>{
     else if (particle.y - particle.radius < 0) particle.y = height - particle.radius;
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"66xFi":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"4RQVg":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "pointArrayToPointObject", ()=>pointArrayToPointObject
+);
+parcelHelpers.export(exports, "pointArrayToVector", ()=>pointArrayToVector
+);
+parcelHelpers.export(exports, "vectorToPointArray", ()=>vectorToPointArray
+);
+parcelHelpers.export(exports, "arrayPointArrayToObjectArray", ()=>arrayPointArrayToObjectArray
+);
+parcelHelpers.export(exports, "arrayPointArrayToVectorArray", ()=>arrayPointArrayToVectorArray
+);
+parcelHelpers.export(exports, "arrayVectorToPointArray", ()=>arrayVectorToPointArray
+);
+parcelHelpers.export(exports, "flattenPointArray", ()=>flattenPointArray
+);
+parcelHelpers.export(exports, "unflattenPointArray", ()=>unflattenPointArray
+);
+parcelHelpers.export(exports, "uvPointToCanvas", ()=>uvPointToCanvas
+);
+parcelHelpers.export(exports, "pointDistance", ()=>pointDistance
+);
+parcelHelpers.export(exports, "pointRotateCoord", ()=>pointRotateCoord
+);
+parcelHelpers.export(exports, "pointAngleFromVelocity", ()=>pointAngleFromVelocity
+);
+parcelHelpers.export(exports, "scalePointToCanvas", ()=>scalePointToCanvas
+);
+parcelHelpers.export(exports, "pointsOrientation", ()=>pointsOrientation
+);
+parcelHelpers.export(exports, "pointsFromSegment", ()=>pointsFromSegment
+);
+parcelHelpers.export(exports, "trimPointArray", ()=>trimPointArray
+);
+parcelHelpers.export(exports, "createSplineFromPointArray", ()=>createSplineFromPointArray
+);
+var _vector = require("./Vector");
+var _math = require("./math");
+var _curveCalc = require("./curve-calc");
+const pointArrayToPointObject = (a)=>({
+        x: a[0],
+        y: a[1]
+    })
+;
+const pointArrayToVector = (a)=>new _vector.Vector(a[0], a[1])
+;
+const vectorToPointArray = (v)=>[
+        v.x,
+        v.y
+    ]
+;
+const arrayPointArrayToObjectArray = (arry)=>arry.map((a)=>pointArrayToPointObject(a)
+    )
+;
+const arrayPointArrayToVectorArray = (arry)=>arry.map((a)=>pointArrayToVector(a)
+    )
+;
+const arrayVectorToPointArray = (arry)=>arry.map((a)=>vectorToPointArray(a)
+    )
+;
+const flattenPointArray = (arry)=>arry.reduce((acc, p)=>{
+        if (p) {
+            acc.push(p[0]);
+            acc.push(p[1]);
+        }
+        return acc;
+    }, [])
+;
+const unflattenPointArray = (arry)=>{
+    const points = [];
+    for(let i = 0; i < arry.length; i += 2)points.push([
+        arry[i],
+        arry[i + 1]
+    ]);
+    return points;
+};
+const uvPointToCanvas = ({ margin =0 , u , v , width , height  })=>({
+        x: _math.lerp(margin, width - margin, u),
+        y: _math.lerp(margin, height - margin, v)
+    })
+;
+const pointDistance = (pointA, pointB)=>{
+    const dx = pointA.x - pointB.x;
+    const dy = pointA.y - pointB.y;
+    return Math.sqrt(dx * dx + dy * dy);
+};
+const pointRotateCoord = (point, angle)=>({
+        x: point.x * _math.cos(angle) - point.y * _math.sin(angle),
+        y: point.y * _math.cos(angle) + point.x * _math.sin(angle)
+    })
+;
+const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
+;
+const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y)=>{
+    const particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
+    const particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
+    return {
+        x: x * zoomFactor + particleXOffset,
+        y: y * zoomFactor + particleYOffset
+    };
+};
+const pointsOrientation = (a, b)=>Math.atan2(b.y - a.y, b.x - a.x)
+;
+const pointsFromSegment = (seg)=>{
+    const points = [];
+    for(let i = 0; i < seg.length; i++){
+        points.push([
+            seg[i].start.x,
+            seg[i].start.y
+        ]);
+        points.push([
+            seg[i].end.x,
+            seg[i].end.y
+        ]);
+    }
+    return points;
+};
+const trimPointArray = (points, skip = 2)=>points.reduce((acc, s, i)=>{
+        if (i === 0 || i === points.length - 1) acc.push(s);
+        else if (i % skip === 0) acc.push(s);
+        return acc;
+    }, [])
+;
+const createSplineFromPointArray = (points)=>unflattenPointArray(_curveCalc.getCurvePoints(flattenPointArray(points)))
+; // // For array of points from segments, take only the first start
+ // export const startPointsOnly = (points) => {
+ //     const p = [];
+ //     for (let i = 0; i < points.length; i += 2) {
+ //         p.push(points[i]);
+ //     }
+ //     // last end point
+ //     p.push(last(points));
+ //     return p;
+ // };
+ // Using https://github.com/gdenisov/cardinal-spline-js
+
+},{"./Vector":"1MSqh","./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./curve-calc":"4EuBm"}],"4EuBm":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getCurvePoints", ()=>getCurvePoints
+);
+const getCurvePoints = (points, tension, numOfSeg, close)=>{
+    // options or defaults
+    tension = typeof tension === 'number' ? tension : 0.5;
+    numOfSeg = numOfSeg || 25;
+    let pts; // for cloning point array
+    let i = 1;
+    let l = points.length;
+    let rPos = 0;
+    const rLen = (l - 2) * numOfSeg + 2 + (close ? 2 * numOfSeg : 0);
+    if (rLen < 0) return [];
+    const res = new Float32Array(rLen);
+    const cache = new Float32Array((numOfSeg + 2) * 4);
+    let cachePtr = 4;
+    pts = points.slice(0);
+    if (close) {
+        pts.unshift(points[l - 1]); // insert end point as first point
+        pts.unshift(points[l - 2]);
+        pts.push(points[0], points[1]); // first point as last point
+    } else {
+        pts.unshift(points[1]); // copy 1. point and insert at beginning
+        pts.unshift(points[0]);
+        pts.push(points[l - 2], points[l - 1]); // duplicate end-points
+    }
+    // cache inner-loop calculations as they are based on t alone
+    cache[0] = 1; // 1,0,0,0
+    for(; i < numOfSeg; i++){
+        const st = i / numOfSeg;
+        const st2 = st * st;
+        const st3 = st2 * st;
+        const st23 = st3 * 2;
+        const st32 = st2 * 3;
+        cache[cachePtr++] = st23 - st32 + 1; // c1
+        cache[cachePtr++] = st32 - st23; // c2
+        cache[cachePtr++] = st3 - 2 * st2 + st; // c3
+        cache[cachePtr++] = st3 - st2; // c4
+    }
+    cache[++cachePtr] = 1; // 0,1,0,0
+    // calc. points
+    parse(pts, cache, l);
+    if (close) {
+        // l = points.length;
+        pts = [];
+        pts.push(points[l - 4], points[l - 3], points[l - 2], points[l - 1]); // second last and last
+        pts.push(points[0], points[1], points[2], points[3]); // first and second
+        parse(pts, cache, 4);
+    }
+    function parse(pts1, cache1, l1) {
+        for(var i1 = 2, t; i1 < l1; i1 += 2){
+            const pt1 = pts1[i1];
+            const pt2 = pts1[i1 + 1];
+            const pt3 = pts1[i1 + 2];
+            const pt4 = pts1[i1 + 3];
+            const t1x = (pt3 - pts1[i1 - 2]) * tension;
+            const t1y = (pt4 - pts1[i1 - 1]) * tension;
+            const t2x = (pts1[i1 + 4] - pt1) * tension;
+            const t2y = (pts1[i1 + 5] - pt2) * tension;
+            for(t = 0; t < numOfSeg; t++){
+                const c = t << 2; // t * 4;
+                const c1 = cache1[c];
+                const c2 = cache1[c + 1];
+                const c3 = cache1[c + 2];
+                const c4 = cache1[c + 3];
+                res[rPos++] = c1 * pt1 + c2 * pt3 + c3 * t1x + c4 * t2x;
+                res[rPos++] = c1 * pt2 + c2 * pt4 + c3 * t1y + c4 * t2y;
+            }
+        }
+    }
+    // add last point
+    l = close ? 0 : points.length - 2;
+    res[rPos++] = points[l];
+    res[rPos] = points[l + 1];
+    return res;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"33yaF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "drawParticlePoint", ()=>drawParticlePoint
@@ -3990,6 +4098,8 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../math/math");
 var _canvas = require("./canvas");
+var _primatives = require("./primatives");
+var _points = require("../math/points");
 const drawParticlePoint = (context)=>({ x , y , radius , color  })=>{
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2, false);
@@ -4016,12 +4126,12 @@ const connectParticles = (context)=>(pArray, proximity, useAlpha = true)=>{
         for(let b = a; b < len; b++){
             const pA = pArray[a];
             const pB = pArray[b];
-            const distance = _math.pointDistance(pA, pB);
+            const distance = _points.pointDistance(pA, pB);
             if (distance < proximity) {
                 const pColor = pA.color;
                 if (useAlpha) pColor.setAlpha(_math.normalizeInverse(0, proximity, distance));
                 context.strokeStyle = pColor.toHslString();
-                _canvas.drawLine(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
+                _primatives.drawLine(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
             }
         }
         _canvas.resetStyles(context);
@@ -4038,7 +4148,7 @@ const drawPointTrail = (context)=>(particle)=>{
         for(let i = 0; i < trailLen; i++){
             const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
             const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-            _canvas.drawLine(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
+            _primatives.drawLine(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
             pColor.setAlpha(alpha);
             context.strokeStyle = pColor.toRgbString();
             alpha -= aFade;
@@ -4054,9 +4164,9 @@ const drawParticleVectors = (context)=>(particle)=>{
         const { velocity  } = particle;
         const { acceleration  } = particle;
         context.strokeStyle = _tinycolor2Default.default(vel).toRgbString();
-        _canvas.drawLine(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
+        _primatives.drawLine(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
         context.strokeStyle = _tinycolor2Default.default(acc).toRgbString();
-        _canvas.drawLine(context)(particle.x, particle.y, particle.x + acceleration.x * amult, particle.y + acceleration.y * amult, 1);
+        _primatives.drawLine(context)(particle.x, particle.y, particle.x + acceleration.x * amult, particle.y + acceleration.y * amult, 1);
     }
 ;
 const drawMouse = (context)=>({ x , y , radius  })=>{
@@ -4082,7 +4192,144 @@ const drawAttractor = (context)=>({ x , y , mass , g  }, mode, radius)=>{
     }
 ;
 
-},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7LmVa":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas":"73Br1","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/points":"4RQVg"}],"6MM7x":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "pixel", ()=>pixel
+);
+parcelHelpers.export(exports, "drawLine", ()=>drawLine
+);
+parcelHelpers.export(exports, "drawLineAngle", ()=>drawLineAngle
+);
+parcelHelpers.export(exports, "drawCircle", ()=>drawCircle
+);
+parcelHelpers.export(exports, "drawCircleFilled", ()=>drawCircleFilled
+);
+parcelHelpers.export(exports, "drawRect", ()=>drawRect
+);
+parcelHelpers.export(exports, "drawRectFilled", ()=>drawRectFilled
+);
+parcelHelpers.export(exports, "drawSquareFilled", ()=>drawSquareFilled
+);
+parcelHelpers.export(exports, "drawTriangleFilled", ()=>drawTriangleFilled
+);
+parcelHelpers.export(exports, "drawQuadRectFilled", ()=>drawQuadRectFilled
+);
+parcelHelpers.export(exports, "drawRoundRectFilled", ()=>drawRoundRectFilled
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _canvas = require("./canvas");
+const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
+        size = size || _canvas.currentContextScale();
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        if (mode === 'circle') {
+            context.beginPath();
+            context.arc(x, y, size, 0, Math.PI * 2, false);
+            context.fill();
+        } else context.fillRect(x, y, size, size);
+    }
+;
+const drawLine = (context)=>(x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt')=>{
+        // color = 'black',
+        // context.strokeStyle = tinycolor(color).toRgbString();
+        context.lineWidth = strokeWidth;
+        context.lineCap = linecap;
+        context.beginPath();
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.stroke();
+    }
+;
+const drawLineAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
+        const theta = Math.PI * angle / 180;
+        const x2 = x1 + length * Math.cos(theta);
+        const y2 = y1 + length * Math.sin(theta);
+        drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
+    }
+;
+const drawCircle = (context)=>(strokeWidth, x, y, radius, color)=>{
+        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        context.lineWidth = strokeWidth;
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        // context.fillStyle = 'rgba(255,255,255,.1)';
+        // context.fill();
+        context.stroke();
+    }
+;
+const drawCircleFilled = (context)=>(x, y, radius, color)=>{
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        context.fillStyle = color;
+        context.fill();
+    }
+;
+const drawRect = (context)=>(x, y, w, h, strokeWidth = 1, color)=>{
+        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        context.lineWidth = strokeWidth;
+        context.rect(x, y, w, h);
+        context.stroke();
+    }
+;
+const drawRectFilled = (context)=>(x, y, w, h, color = 'white')=>{
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.fillRect(x, y, w, h);
+    }
+;
+const drawSquareFilled = (context)=>(x, y, size, color)=>{
+        drawRectFilled(context)(x, y, size, size, color);
+    }
+;
+const drawTriangleFilled = (context)=>(x, y, size, color)=>{
+        const half = size / 2;
+        context.beginPath();
+        context.moveTo(x - half, y - half);
+        context.lineTo(x + half, y);
+        context.lineTo(x - half, y + half);
+        context.fillStyle = color.toRgbString();
+        context.fill();
+    }
+;
+const drawQuadRectFilled = (context)=>(x, y, w, h, color)=>{
+        const mx = x + w / 2;
+        const my = y + h / 2;
+        context.beginPath();
+        // context.strokeStyle = 'green';
+        // context.lineWidth = '4';
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.moveTo(x, my);
+        context.quadraticCurveTo(x, y, mx, y);
+        context.quadraticCurveTo(x + w, y, x + w, my);
+        context.quadraticCurveTo(x + w, y + h, mx, y + h);
+        context.quadraticCurveTo(x, y + h, x, my);
+        // context.stroke();
+        context.fill();
+    }
+;
+const drawRoundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
+        if (w < corner || h < corner) corner = Math.min(w, h);
+        const r = x + w;
+        const b = y + h;
+        context.beginPath();
+        // context.strokeStyle = 'green';
+        // context.lineWidth = '4';
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.moveTo(x + corner, y);
+        context.lineTo(r - corner, y);
+        context.quadraticCurveTo(r, y, r, y + corner);
+        context.lineTo(r, y + h - corner);
+        context.quadraticCurveTo(r, b, r - corner, b);
+        context.lineTo(x + corner, b);
+        context.quadraticCurveTo(x, b, x, b - corner);
+        context.lineTo(x, y + corner);
+        context.quadraticCurveTo(x, y, x + corner, y);
+        // context.stroke();
+        context.fill();
+    }
+;
+
+},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7LmVa":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation2", ()=>variation2
@@ -4090,10 +4337,11 @@ parcelHelpers.export(exports, "variation2", ()=>variation2
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _math.pointDistance({
+        const distance = _points.pointDistance({
             x,
             y
         }, particle);
@@ -4143,11 +4391,11 @@ const variation2 = ()=>{
             if (particlesArray[i].y + particlesArray[i].radius > canvas.height || particlesArray[i].y - particlesArray[i].radius < 0) particlesArray[i].mass *= -1;
             avoidPoint(mouse, particlesArray[i]);
             // attractPoint(psMouseCoords(), particlesArray[i]);
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
         // drawPointTrail(context)(particlesArray[i]);
         }
-        _canvasParticles.connectParticles(context)(particlesArray, 100);
-        _canvasParticles.drawMouse(context)(mouse);
+        _particles.connectParticles(context)(particlesArray, 100);
+        _particles.drawMouse(context)(mouse);
         return 1;
     };
     return {
@@ -4157,7 +4405,7 @@ const variation2 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2ZQOQ":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"2ZQOQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "domokun", ()=>domokun
@@ -4167,12 +4415,14 @@ var _domokunPngDefault = parcelHelpers.interopDefault(_domokunPng);
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _points = require("../rndrgen/math/points");
 const pointPush = (point, particle, f = 1)=>{
     const dx = point.x - particle.x;
     const dy = point.y - particle.y;
-    const distance = _math.pointDistance(point, particle);
+    const distance = _points.pointDistance(point, particle);
     const forceDirectionX = dx / distance;
     const forceDirectionY = dy / distance;
     const force = _math.normalizeInverse(0, point.radius, distance) * f;
@@ -4217,7 +4467,7 @@ const domokun = (_)=>{
         for(let y = 0, { height  } = imageData; y < height; y++)for(let x = 0, { width  } = imageData; x < width; x++){
             const pxColor = getImageDataColor(imageData, x, y);
             if (pxColor.a > cropColor) {
-                const points = _math.scalePointToCanvas(canvas.width, canvas.height, imageData.width, imageData.height, imageZoomFactor, x, y);
+                const points = _points.scalePointToCanvas(canvas.width, canvas.height, imageData.width, imageData.height, imageZoomFactor, x, y);
                 const pX = points.x;
                 const pY = points.y;
                 const mass = _random.randomNumberBetween(2, 12);
@@ -4238,7 +4488,7 @@ const domokun = (_)=>{
         _canvas.background(canvas, context)('yellow');
         for(let i = 0; i < numParticles; i++){
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-            _canvas.drawSquareFilled(context)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, particlesArray[i].color);
+            _primatives.drawSquareFilled(context)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, particlesArray[i].color);
         }
     // drawMouse(context)(mouse);
     };
@@ -4249,7 +4499,7 @@ const domokun = (_)=>{
     };
 };
 
-},{"../../media/images/domokun.png":"2oLZU","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2oLZU":[function(require,module,exports) {
+},{"../../media/images/domokun.png":"2oLZU","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"2oLZU":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "domokun.01fc712a.png";
 
 },{"./bundle-url":"3seVR"}],"3seVR":[function(require,module,exports) {
@@ -4288,11 +4538,12 @@ parcelHelpers.export(exports, "variation4", ()=>variation4
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
+var _points = require("../rndrgen/math/points");
 const pointPush = (point, particle, f = 1)=>{
     const dx = point.x - particle.x;
     const dy = point.y - particle.y;
-    const distance = _math.pointDistance(point, particle);
+    const distance = _points.pointDistance(point, particle);
     const forceDirectionX = dx / distance;
     const forceDirectionY = dy / distance;
     const force = _math.normalizeInverse(0, point.radius, distance) * f;
@@ -4346,7 +4597,7 @@ const variation4 = ()=>{
         _canvas.fillCanvas(canvas, context)(0.005, '255,255,255');
         for(let i = 0; i < config.numParticles; i++){
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
         // let index = particlesArray[i].index + 1;
         // if(index === circles.length) {
         //     index = 0;
@@ -4355,7 +4606,7 @@ const variation4 = ()=>{
         // particlesArray[i].y = circles[index][1];
         // particlesArray.index = index;
         }
-        _canvasParticles.connectParticles(context)(particlesArray, 200);
+        _particles.connectParticles(context)(particlesArray, 200);
         return 1; // -1 to exit animation loop
     };
     return {
@@ -4365,7 +4616,7 @@ const variation4 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1i6Vo":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"1i6Vo":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation5", ()=>variation5
@@ -4373,10 +4624,11 @@ parcelHelpers.export(exports, "variation5", ()=>variation5
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _math.pointDistance({
+        const distance = _points.pointDistance({
             x,
             y
         }, particle);
@@ -4442,9 +4694,9 @@ const variation5 = ()=>{
                 x: circles[c][0],
                 y: circles[c][1]
             }, particlesArray[i], 4);
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
         }
-        _canvasParticles.connectParticles(context)(particlesArray, 50);
+        _particles.connectParticles(context)(particlesArray, 50);
     };
     return {
         config,
@@ -4453,17 +4705,18 @@ const variation5 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"725FF":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"725FF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation6", ()=>variation6
 );
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 var _math = require("../rndrgen/math/math");
+var _points = require("../rndrgen/math/points");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _math.pointDistance({
+        const distance = _points.pointDistance({
             x,
             y
         }, particle);
@@ -4514,7 +4767,7 @@ const variation6 = ()=>{
             _particle.edgeBounce(canvas, particlesArray[i]);
             gravityPoint()(canvas.width / 2, canvas.height, 2000, particlesArray[i]);
             // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
         }
         // connectParticles(context)(particlesArray, 100);
         return 1;
@@ -4525,18 +4778,18 @@ const variation6 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6wKUk":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"6wKUk":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "rainbowRakeOrbit", ()=>rainbowRakeOrbit
 );
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 const drawRake = (context)=>({ x , y , radius , color  }, spacing)=>{
         const points = 5;
         spacing |= radius * 3;
-        for(let i = 0; i < points; i++)_canvasParticles.drawParticlePoint(context)({
+        for(let i = 0; i < points; i++)_particles.drawParticlePoint(context)({
             x: x + spacing * i,
             y,
             radius,
@@ -4599,7 +4852,7 @@ const rainbowRakeOrbit = ()=>{
             particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
             particlesArray[i].updatePosWithVelocity();
             _particle.edgeBounce(canvas, particlesArray[i]);
-            _canvasParticles.drawRotatedParticle(context, drawRake, particlesArray[i]);
+            _particles.drawRotatedParticle(context, drawRake, particlesArray[i]);
             particlesArray[i].acceleration = {
                 x: 0,
                 y: 0
@@ -4613,7 +4866,7 @@ const rainbowRakeOrbit = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "threeAttractors", ()=>threeAttractors
@@ -4621,7 +4874,7 @@ parcelHelpers.export(exports, "threeAttractors", ()=>threeAttractors
 var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
 const threeAttractors = ()=>{
@@ -4690,9 +4943,9 @@ const threeAttractors = ()=>{
             particlesArray[i].velocity = particlesArray[i].velocity.limit(10);
             particlesArray[i].updatePosWithVelocity();
             // edgeBounce(canvas, particlesArray[i]);
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
         }
-        _canvasParticles.connectParticles(context)(particlesArray, 50, false);
+        _particles.connectParticles(context)(particlesArray, 50, false);
     };
     return {
         config,
@@ -4701,7 +4954,7 @@ const threeAttractors = ()=>{
     };
 };
 
-},{"../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2Wgq0":[function(require,module,exports) {
+},{"../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Wgq0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createCirclePoints", ()=>createCirclePoints
@@ -4709,8 +4962,6 @@ parcelHelpers.export(exports, "createCirclePoints", ()=>createCirclePoints
 parcelHelpers.export(exports, "createGridPointsXY", ()=>createGridPointsXY
 );
 parcelHelpers.export(exports, "createGridCellsXY", ()=>createGridCellsXY
-);
-parcelHelpers.export(exports, "createGridPointsUV", ()=>createGridPointsUV
 );
 var _random = require("./random");
 const createCirclePoints = (offsetX, offsetY, radius, steps, close = true)=>{
@@ -4768,30 +5019,8 @@ const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0)
         rowHeight: rowStep
     };
 };
-const createGridPointsUV = (columns, rows)=>{
-    rows = rows || columns;
-    const points = [];
-    const amplitude = 0.1;
-    const frequency = 1;
-    for(let x = 0; x < columns; x++)for(let y = 0; y < rows; y++){
-        const u = columns <= 1 ? 0.5 : x / (columns - 1);
-        const v = columns <= 1 ? 0.5 : y / (rows - 1);
-        // const radius = Math.abs(random.gaussian() * 0.02);
-        const radius = _random.create2dNoiseAbs(u, v);
-        const rotation = _random.create2dNoiseAbs(u, v);
-        points.push({
-            radius,
-            rotation,
-            position: [
-                u,
-                v
-            ]
-        });
-    }
-    return points;
-};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./random":"1SLuP"}],"7fBhq":[function(require,module,exports) {
+},{"./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7fBhq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "hiImage01", ()=>hiImage01
@@ -4801,9 +5030,10 @@ var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
 var _canvas = require("../rndrgen/canvas/canvas");
 var _particle = require("../systems/Particle");
 var _math = require("../rndrgen/math/math");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _particles = require("../rndrgen/canvas/particles");
 var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
 const getImageDataFromImage = (context)=>(image)=>{
         context.drawImage(image, 0, 0);
         return context.getImageData(0, 0, image.width, image.width);
@@ -4869,7 +5099,7 @@ const hiImage01 = (_)=>{
                     b: 252
                 };
             } else particlesArray[i].color = particleColor;
-            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+            _particles.drawParticlePoint(context)(particlesArray[i]);
         }
     };
     return {
@@ -4879,7 +5109,7 @@ const hiImage01 = (_)=>{
     };
 };
 
-},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../systems/Particle":"1mD6I","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2Mkol":[function(require,module,exports) {
+},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../systems/Particle":"1mD6I","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Mkol":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "hi1.b86a235f.png";
 
 },{"./bundle-url":"3seVR"}],"4YK3b":[function(require,module,exports) {
@@ -4891,8 +5121,32 @@ var _canvas = require("../rndrgen/canvas/canvas");
 var _palettes = require("../rndrgen/color/palettes");
 var _math = require("../rndrgen/math/math");
 var _timeline = require("../rndrgen/animation/Timeline");
-var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _points = require("../rndrgen/math/points");
+// -> [{radius, rotation, position:[u,v]}, ...]
+const createGridPointsUV = (columns, rows)=>{
+    rows = rows || columns;
+    const points = [];
+    const amplitude = 0.1;
+    const frequency = 1;
+    for(let x = 0; x < columns; x++)for(let y = 0; y < rows; y++){
+        const u = columns <= 1 ? 0.5 : x / (columns - 1);
+        const v = columns <= 1 ? 0.5 : y / (rows - 1);
+        // const radius = Math.abs(random.gaussian() * 0.02);
+        const radius = _random.create2dNoiseAbs(u, v);
+        const rotation = _random.create2dNoiseAbs(u, v);
+        points.push({
+            radius,
+            rotation,
+            position: [
+                u,
+                v
+            ]
+        });
+    }
+    return points;
+};
 const windLines = ()=>{
     const config = {
         width: 600,
@@ -4900,7 +5154,7 @@ const windLines = ()=>{
         fps: 60
     };
     let counter = 0;
-    let grid = _grids.createGridPointsUV(15, 15);
+    let grid = createGridPointsUV(15, 15);
     const timeline = new _timeline.Timeline(config.fps, 0, 5);
     const setup = ({ canvas , context  })=>{
         const colors = _palettes.nicePalette();
@@ -4914,7 +5168,7 @@ const windLines = ()=>{
         _canvas.background(canvas, context)('rgba(255,255,255,.1');
         grid.forEach(({ position , rotation , color  })=>{
             const [u, v] = position;
-            const { x , y  } = _math.marginify({
+            const { x , y  } = _points.uvPointToCanvas({
                 margin: 100,
                 u,
                 v,
@@ -4925,7 +5179,7 @@ const windLines = ()=>{
             const wave = _random.create3dNoiseAbs(u, v, counter, 3 * t) * 10;
             const startvect = _math.uvFromAngle((rotation + wave) * -1).setMag(25);
             _canvas.setStokeColor(context)(color);
-            _canvas.drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
+            _primatives.drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
         });
         counter += 0.01;
         return timeline.onFrame();
@@ -4937,7 +5191,7 @@ const windLines = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/math":"4t0bw","../rndrgen/animation/Timeline":"6ohNr","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"3qayM":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/math":"4t0bw","../rndrgen/animation/Timeline":"6ohNr","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"3qayM":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "asTinyColor", ()=>asTinyColor
@@ -5108,7 +5362,7 @@ color.brighten(mapRange(0, mid / 2, 50, 0, distFromCenter));
 color.darken(mapRange(0, mid, 0, 40, distFromCenter) + randomNumberBetween(0, 30));
  */ 
 
-},{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"3CNWv":[function(require,module,exports) {
+},{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"4t0bw","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3CNWv":[function(require,module,exports) {
 module.exports = JSON.parse("[[\"#69d2e7\",\"#a7dbd8\",\"#e0e4cc\",\"#f38630\",\"#fa6900\"],[\"#fe4365\",\"#fc9d9a\",\"#f9cdad\",\"#c8c8a9\",\"#83af9b\"],[\"#ecd078\",\"#d95b43\",\"#c02942\",\"#542437\",\"#53777a\"],[\"#556270\",\"#4ecdc4\",\"#c7f464\",\"#ff6b6b\",\"#c44d58\"],[\"#774f38\",\"#e08e79\",\"#f1d4af\",\"#ece5ce\",\"#c5e0dc\"],[\"#e8ddcb\",\"#cdb380\",\"#036564\",\"#033649\",\"#031634\"],[\"#490a3d\",\"#bd1550\",\"#e97f02\",\"#f8ca00\",\"#8a9b0f\"],[\"#594f4f\",\"#547980\",\"#45ada8\",\"#9de0ad\",\"#e5fcc2\"],[\"#00a0b0\",\"#6a4a3c\",\"#cc333f\",\"#eb6841\",\"#edc951\"],[\"#e94e77\",\"#d68189\",\"#c6a49a\",\"#c6e5d9\",\"#f4ead5\"],[\"#3fb8af\",\"#7fc7af\",\"#dad8a7\",\"#ff9e9d\",\"#ff3d7f\"],[\"#d9ceb2\",\"#948c75\",\"#d5ded9\",\"#7a6a53\",\"#99b2b7\"],[\"#ffffff\",\"#cbe86b\",\"#f2e9e1\",\"#1c140d\",\"#cbe86b\"],[\"#efffcd\",\"#dce9be\",\"#555152\",\"#2e2633\",\"#99173c\"],[\"#343838\",\"#005f6b\",\"#008c9e\",\"#00b4cc\",\"#00dffc\"],[\"#413e4a\",\"#73626e\",\"#b38184\",\"#f0b49e\",\"#f7e4be\"],[\"#ff4e50\",\"#fc913a\",\"#f9d423\",\"#ede574\",\"#e1f5c4\"],[\"#99b898\",\"#fecea8\",\"#ff847c\",\"#e84a5f\",\"#2a363b\"],[\"#655643\",\"#80bca3\",\"#f6f7bd\",\"#e6ac27\",\"#bf4d28\"],[\"#00a8c6\",\"#40c0cb\",\"#f9f2e7\",\"#aee239\",\"#8fbe00\"],[\"#351330\",\"#424254\",\"#64908a\",\"#e8caa4\",\"#cc2a41\"],[\"#554236\",\"#f77825\",\"#d3ce3d\",\"#f1efa5\",\"#60b99a\"],[\"#5d4157\",\"#838689\",\"#a8caba\",\"#cad7b2\",\"#ebe3aa\"],[\"#8c2318\",\"#5e8c6a\",\"#88a65e\",\"#bfb35a\",\"#f2c45a\"],[\"#fad089\",\"#ff9c5b\",\"#f5634a\",\"#ed303c\",\"#3b8183\"],[\"#ff4242\",\"#f4fad2\",\"#d4ee5e\",\"#e1edb9\",\"#f0f2eb\"],[\"#f8b195\",\"#f67280\",\"#c06c84\",\"#6c5b7b\",\"#355c7d\"],[\"#d1e751\",\"#ffffff\",\"#000000\",\"#4dbce9\",\"#26ade4\"],[\"#1b676b\",\"#519548\",\"#88c425\",\"#bef202\",\"#eafde6\"],[\"#5e412f\",\"#fcebb6\",\"#78c0a8\",\"#f07818\",\"#f0a830\"],[\"#bcbdac\",\"#cfbe27\",\"#f27435\",\"#f02475\",\"#3b2d38\"],[\"#452632\",\"#91204d\",\"#e4844a\",\"#e8bf56\",\"#e2f7ce\"],[\"#eee6ab\",\"#c5bc8e\",\"#696758\",\"#45484b\",\"#36393b\"],[\"#f0d8a8\",\"#3d1c00\",\"#86b8b1\",\"#f2d694\",\"#fa2a00\"],[\"#2a044a\",\"#0b2e59\",\"#0d6759\",\"#7ab317\",\"#a0c55f\"],[\"#f04155\",\"#ff823a\",\"#f2f26f\",\"#fff7bd\",\"#95cfb7\"],[\"#b9d7d9\",\"#668284\",\"#2a2829\",\"#493736\",\"#7b3b3b\"],[\"#bbbb88\",\"#ccc68d\",\"#eedd99\",\"#eec290\",\"#eeaa88\"],[\"#b3cc57\",\"#ecf081\",\"#ffbe40\",\"#ef746f\",\"#ab3e5b\"],[\"#a3a948\",\"#edb92e\",\"#f85931\",\"#ce1836\",\"#009989\"],[\"#300030\",\"#480048\",\"#601848\",\"#c04848\",\"#f07241\"],[\"#67917a\",\"#170409\",\"#b8af03\",\"#ccbf82\",\"#e33258\"],[\"#aab3ab\",\"#c4cbb7\",\"#ebefc9\",\"#eee0b7\",\"#e8caaf\"],[\"#e8d5b7\",\"#0e2430\",\"#fc3a51\",\"#f5b349\",\"#e8d5b9\"],[\"#ab526b\",\"#bca297\",\"#c5ceae\",\"#f0e2a4\",\"#f4ebc3\"],[\"#607848\",\"#789048\",\"#c0d860\",\"#f0f0d8\",\"#604848\"],[\"#b6d8c0\",\"#c8d9bf\",\"#dadabd\",\"#ecdbbc\",\"#fedcba\"],[\"#a8e6ce\",\"#dcedc2\",\"#ffd3b5\",\"#ffaaa6\",\"#ff8c94\"],[\"#3e4147\",\"#fffedf\",\"#dfba69\",\"#5a2e2e\",\"#2a2c31\"],[\"#fc354c\",\"#29221f\",\"#13747d\",\"#0abfbc\",\"#fcf7c5\"],[\"#cc0c39\",\"#e6781e\",\"#c8cf02\",\"#f8fcc1\",\"#1693a7\"],[\"#1c2130\",\"#028f76\",\"#b3e099\",\"#ffeaad\",\"#d14334\"],[\"#a7c5bd\",\"#e5ddcb\",\"#eb7b59\",\"#cf4647\",\"#524656\"],[\"#dad6ca\",\"#1bb0ce\",\"#4f8699\",\"#6a5e72\",\"#563444\"],[\"#5c323e\",\"#a82743\",\"#e15e32\",\"#c0d23e\",\"#e5f04c\"],[\"#edebe6\",\"#d6e1c7\",\"#94c7b6\",\"#403b33\",\"#d3643b\"],[\"#fdf1cc\",\"#c6d6b8\",\"#987f69\",\"#e3ad40\",\"#fcd036\"],[\"#230f2b\",\"#f21d41\",\"#ebebbc\",\"#bce3c5\",\"#82b3ae\"],[\"#b9d3b0\",\"#81bda4\",\"#b28774\",\"#f88f79\",\"#f6aa93\"],[\"#3a111c\",\"#574951\",\"#83988e\",\"#bcdea5\",\"#e6f9bc\"],[\"#5e3929\",\"#cd8c52\",\"#b7d1a3\",\"#dee8be\",\"#fcf7d3\"],[\"#1c0113\",\"#6b0103\",\"#a30006\",\"#c21a01\",\"#f03c02\"],[\"#000000\",\"#9f111b\",\"#b11623\",\"#292c37\",\"#cccccc\"],[\"#382f32\",\"#ffeaf2\",\"#fcd9e5\",\"#fbc5d8\",\"#f1396d\"],[\"#e3dfba\",\"#c8d6bf\",\"#93ccc6\",\"#6cbdb5\",\"#1a1f1e\"],[\"#f6f6f6\",\"#e8e8e8\",\"#333333\",\"#990100\",\"#b90504\"],[\"#1b325f\",\"#9cc4e4\",\"#e9f2f9\",\"#3a89c9\",\"#f26c4f\"],[\"#a1dbb2\",\"#fee5ad\",\"#faca66\",\"#f7a541\",\"#f45d4c\"],[\"#c1b398\",\"#605951\",\"#fbeec2\",\"#61a6ab\",\"#accec0\"],[\"#5e9fa3\",\"#dcd1b4\",\"#fab87f\",\"#f87e7b\",\"#b05574\"],[\"#951f2b\",\"#f5f4d7\",\"#e0dfb1\",\"#a5a36c\",\"#535233\"],[\"#8dccad\",\"#988864\",\"#fea6a2\",\"#f9d6ac\",\"#ffe9af\"],[\"#2d2d29\",\"#215a6d\",\"#3ca2a2\",\"#92c7a3\",\"#dfece6\"],[\"#413d3d\",\"#040004\",\"#c8ff00\",\"#fa023c\",\"#4b000f\"],[\"#eff3cd\",\"#b2d5ba\",\"#61ada0\",\"#248f8d\",\"#605063\"],[\"#ffefd3\",\"#fffee4\",\"#d0ecea\",\"#9fd6d2\",\"#8b7a5e\"],[\"#cfffdd\",\"#b4dec1\",\"#5c5863\",\"#a85163\",\"#ff1f4c\"],[\"#9dc9ac\",\"#fffec7\",\"#f56218\",\"#ff9d2e\",\"#919167\"],[\"#4e395d\",\"#827085\",\"#8ebe94\",\"#ccfc8e\",\"#dc5b3e\"],[\"#a8a7a7\",\"#cc527a\",\"#e8175d\",\"#474747\",\"#363636\"],[\"#f8edd1\",\"#d88a8a\",\"#474843\",\"#9d9d93\",\"#c5cfc6\"],[\"#046d8b\",\"#309292\",\"#2fb8ac\",\"#93a42a\",\"#ecbe13\"],[\"#f38a8a\",\"#55443d\",\"#a0cab5\",\"#cde9ca\",\"#f1edd0\"],[\"#a70267\",\"#f10c49\",\"#fb6b41\",\"#f6d86b\",\"#339194\"],[\"#ff003c\",\"#ff8a00\",\"#fabe28\",\"#88c100\",\"#00c176\"],[\"#ffedbf\",\"#f7803c\",\"#f54828\",\"#2e0d23\",\"#f8e4c1\"],[\"#4e4d4a\",\"#353432\",\"#94ba65\",\"#2790b0\",\"#2b4e72\"],[\"#0ca5b0\",\"#4e3f30\",\"#fefeeb\",\"#f8f4e4\",\"#a5b3aa\"],[\"#4d3b3b\",\"#de6262\",\"#ffb88c\",\"#ffd0b3\",\"#f5e0d3\"],[\"#fffbb7\",\"#a6f6af\",\"#66b6ab\",\"#5b7c8d\",\"#4f2958\"],[\"#edf6ee\",\"#d1c089\",\"#b3204d\",\"#412e28\",\"#151101\"],[\"#9d7e79\",\"#ccac95\",\"#9a947c\",\"#748b83\",\"#5b756c\"],[\"#fcfef5\",\"#e9ffe1\",\"#cdcfb7\",\"#d6e6c3\",\"#fafbe3\"],[\"#9cddc8\",\"#bfd8ad\",\"#ddd9ab\",\"#f7af63\",\"#633d2e\"],[\"#30261c\",\"#403831\",\"#36544f\",\"#1f5f61\",\"#0b8185\"],[\"#aaff00\",\"#ffaa00\",\"#ff00aa\",\"#aa00ff\",\"#00aaff\"],[\"#d1313d\",\"#e5625c\",\"#f9bf76\",\"#8eb2c5\",\"#615375\"],[\"#ffe181\",\"#eee9e5\",\"#fad3b2\",\"#ffba7f\",\"#ff9c97\"],[\"#73c8a9\",\"#dee1b6\",\"#e1b866\",\"#bd5532\",\"#373b44\"],[\"#805841\",\"#dcf7f3\",\"#fffcdd\",\"#ffd8d8\",\"#f5a2a2\"]]");
 
 },{}],"6ohNr":[function(require,module,exports) {
@@ -5117,6 +5371,14 @@ parcelHelpers.defineInteropFlag(exports);
 /*
 Canvas animation timeline based on Canvas Sketch time keeping methods
 https://github.com/mattdesl/canvas-sketch/blob/master/docs/animated-sketches.md
+
+Usage:
+
+const timeline = new Timeline(config.fps, 0, 5);
+const t = toSinValue(timeline.playhead) * 0.1;
+// -1 if loops exceeded
+draw -> return timeline.onFrame();
+
  */ parcelHelpers.export(exports, "Timeline", ()=>Timeline
 );
 class Timeline {
@@ -5313,7 +5575,7 @@ const waves01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP","../rndrgen/utils":"1kIwI"}],"2CMm3":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","../rndrgen/utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2CMm3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "lissajous01", ()=>lissajous01
@@ -5322,9 +5584,11 @@ var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
 var _palettes = require("../rndrgen/color/palettes");
 var _sketch = require("../rndrgen/Sketch");
-var _canvasText = require("../rndrgen/canvas/canvas-text");
+var _text = require("../rndrgen/canvas/text");
 var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _points = require("../rndrgen/math/points");
 class Curve {
     constructor(x, y, radius, angle, speed, noise){
         this.x = x;
@@ -5363,7 +5627,7 @@ class Curve {
         return this.originY + this.radius;
     }
     get distFromCenter() {
-        return _math.pointDistance({
+        return _points.pointDistance({
             x: this.centerX,
             y: this.centerY
         }, {
@@ -5425,7 +5689,7 @@ const lissajous01 = ()=>{
     };
     const draw = ({ context  })=>{
         grid.points.forEach((point)=>{
-            _canvas.drawRect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
+            _primatives.drawRect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
         });
         for(let b = 0; b < renderBatch; b++){
             for(let i = 0; i < curves.length; i++){
@@ -5449,9 +5713,9 @@ const lissajous01 = ()=>{
                 // const l = 30;
                 // const a = 0.75;
                 // const color = `hsla(${h},${s}%,${l}%,${a})`;
-                _canvas.pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
-                _canvasText.setTextAlignLeftTop(context);
-                _canvasText.drawTextFilled(context)(`k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`, c.originX, c.originY + c.size + 10, colorText, _canvasText.textStyles.size(10));
+                _primatives.pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
+                _text.setTextAlignLeftTop(context);
+                _text.drawTextFilled(context)(`k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`, c.originX, c.originY + c.size + 10, colorText, _text.textStyles.size(10));
             }
             tick++;
         }
@@ -5463,7 +5727,7 @@ const lissajous01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/color/palettes":"3qayM","../rndrgen/Sketch":"2OcGA","../rndrgen/canvas/canvas-text":"2bZzd","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2bZzd":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/color/palettes":"3qayM","../rndrgen/Sketch":"2OcGA","../rndrgen/canvas/text":"3weRL","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"3weRL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "textStyles", ()=>textStyles
@@ -5523,6 +5787,7 @@ var _vector = require("../rndrgen/math/Vector");
 var _attractors = require("../rndrgen/math/attractors");
 var _palettes = require("../rndrgen/color/palettes");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
 const flowFieldParticles = ()=>{
     const config = {
         name: 'flowFieldParticles',
@@ -5553,7 +5818,7 @@ const flowFieldParticles = ()=>{
         const pcolor = color || particle.color;
         const x = _math.snapNumber(maxSize * 2, particle.x);
         const y = _math.snapNumber(maxSize * 2, particle.y);
-        _canvas.drawCircleFilled(context)(x, y, rad, pcolor);
+        _primatives.drawCircleFilled(context)(x, y, rad, pcolor);
         return true;
     };
     const drawParticles = ({ canvas , context  })=>{
@@ -5598,7 +5863,7 @@ const flowFieldParticles = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"BodqP":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"BodqP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "simplexNoise2d", ()=>simplexNoise2d
@@ -5692,7 +5957,7 @@ const plotFFPointLines = (num) => {
  //     return coords;
  // };
 
-},{"./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./random":"1SLuP"}],"3Q1u4":[function(require,module,exports) {
+},{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Q1u4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldArcs", ()=>flowFieldArcs
@@ -5704,6 +5969,7 @@ var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
 var _math = require("../rndrgen/math/math");
+var _primatives = require("../rndrgen/canvas/primatives");
 const TAU = Math.PI * 2;
 const arc = (context, x, y, size, thick, color, theta)=>{
     const startR = _math.snapNumber(Math.PI / 2, theta);
@@ -5729,7 +5995,7 @@ const circle = (context, x, y, size, color, theta)=>{
 const line = (context, x, y, size, thick, color, theta)=>{
     const startR = _math.snapNumber(Math.PI / 2, theta) + Math.PI / 2;
     context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-    _canvas.drawLineAngle(context)(x + size, y + size, startR, size * 2, thick, 'round');
+    _primatives.drawLineAngle(context)(x + size, y + size, startR, size * 2, thick, 'round');
 };
 const flowFieldArcs = ()=>{
     const config = {
@@ -5771,7 +6037,7 @@ const flowFieldArcs = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5P1Ch":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5P1Ch":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldImage", ()=>flowFieldImage
@@ -5788,9 +6054,11 @@ var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
 var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
-var _canvasPaint = require("../rndrgen/canvas/canvas-paint");
+var _paint = require("../rndrgen/canvas/paint");
 var _rendernoise = require("../rndrgen/canvas/rendernoise");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _points = require("../rndrgen/math/points");
 /*
 https://marcteyssier.com/projects/flowfield/
 https://larrycarlson.com/collections/wavy-art-prints
@@ -5824,7 +6092,7 @@ const flowFieldImage = ()=>{
         const pcolor = color || particle.color;
         const { x  } = particle;
         const { y  } = particle;
-        _canvas.drawCircleFilled(context)(x, y, rad, pcolor);
+        _primatives.drawCircleFilled(context)(x, y, rad, pcolor);
         return true;
     };
     const drawParticle = ({ canvas , context  }, particle)=>{
@@ -5833,7 +6101,7 @@ const flowFieldImage = ()=>{
         particle.applyForce(force);
         particle.velocity = particle.velocity.limit(3);
         particle.updatePosWithVelocity();
-        const fromCenter = _math.pointDistance(particle, {
+        const fromCenter = _points.pointDistance(particle, {
             x: canvas.width / 2,
             y: canvas.height / 2
         });
@@ -5845,7 +6113,7 @@ const flowFieldImage = ()=>{
         const size = _math.mapRange(0, 255, 0, maxSize, imagePixelBrightness);
         const sizeMult = _math.mapRange(canvas.width / 3, canvas.width / 2, 1, 5, fromCenter);
         drawPixel(canvas, context, particle, particleColor, size * sizeMult);
-        if (Math.abs(theta) >= 5.7) _canvasPaint.splatter(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
+        if (Math.abs(theta) >= 5.7) _paint.splatter(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
         particle.acceleration = new _vector.Vector(0, 0);
     };
     const drawFibers = ({ canvas , context  })=>{
@@ -5870,7 +6138,7 @@ const flowFieldImage = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/canvas-paint":"32k8N","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"17J8Q":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/paint":"5KGcr","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Bitmap", ()=>Bitmap
@@ -5969,35 +6237,35 @@ class Bitmap {
     }
 }
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../utils":"1kIwI"}],"2bj6J":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2bj6J":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "kristijan-arsov-woman-400.56b3ea5d.png";
 
-},{"./bundle-url":"3seVR"}],"32k8N":[function(require,module,exports) {
+},{"./bundle-url":"3seVR"}],"5KGcr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "splatter", ()=>splatter
 );
 // "paint splatters" around center point
-var _canvas = require("./canvas");
 var _random = require("../math/random");
-const TAU = Math.PI * 2;
+var _primatives = require("./primatives");
+var _math = require("../math/math");
 const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
         for(let i = 0; i < amount; i++){
             const s = _random.randomWholeBetween(size * 0.25, size * 3);
             // circle dist
             const radius = _random.randomWholeBetween(0, range);
-            const angle = _random.randomNumberBetween(0, TAU);
+            const angle = _random.randomNumberBetween(0, _math.TAU);
             const xoff = radius * Math.cos(angle);
             const yoff = radius * Math.sin(angle);
             // square dist
             // const xoff = randomWholeBetween(-range, range);
             // const yoff = randomWholeBetween(-range, range);
-            _canvas.drawCircleFilled(context)(x + xoff, y + yoff, s, color);
+            _primatives.drawCircleFilled(context)(x + xoff, y + yoff, s, color);
         }
     }
 ;
 
-},{"./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"4SfKr":[function(require,module,exports) {
+},{"../math/random":"1SLuP","./primatives":"6MM7x","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4SfKr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "renderField", ()=>renderField
@@ -6009,7 +6277,7 @@ parcelHelpers.export(exports, "renderFieldContour", ()=>renderFieldContour
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../math/math");
-var _canvasLinespoints = require("./canvas-linespoints");
+var _segments = require("./segments");
 var _random = require("../math/random");
 const renderField = ({ width , height  }, context, fn, color = 'black', resolution = '50', length = 10)=>{
     const xStep = Math.round(width / resolution);
@@ -6052,7 +6320,7 @@ const renderFieldContour = ({ width , height  }, context, fn, min = -8, max = 8,
             const px = _random.randomWholeBetween(0, width);
             const py = _random.randomWholeBetween(0, height);
             const nheight = fn(px, py);
-            if (_math.valueCloseTo(n, nheight, varience)) {
+            if (_math.isValueInRange(n, nheight, varience)) {
                 if (nheight <= 0) lowPoints.push([
                     px,
                     py
@@ -6063,8 +6331,8 @@ const renderFieldContour = ({ width , height  }, context, fn, min = -8, max = 8,
                 ]);
             }
         }
-        _canvasLinespoints.drawPoints(context)(lowPoints, lowColor, 1);
-        _canvasLinespoints.drawPoints(context)(highPoints, highColor, 1);
+        _segments.drawPoints(context)(lowPoints, lowColor, 1);
+        _segments.drawPoints(context)(highPoints, highColor, 1);
     }
 }; // https://thingonitsown.blogspot.com/2019/02/finding-perlin-contours.html
  /*
@@ -6083,7 +6351,7 @@ function renderNoiseContour(startX, startY, borderVal, fn) {
         const lastY = nextY;
         for (
             distance = lastDistance + Math.PI / 2;
-            (distance > lastDistance - Math.PI / 2 && !valueCloseTo(borderVal, fn(startX, startY), 0.0035)) ||
+            (distance > lastDistance - Math.PI / 2 && !isValueInRange(borderVal, fn(startX, startY), 0.0035)) ||
             distance === lastDistance + Math.PI / 2;
             distance -= 0.17
         ) {
@@ -6104,7 +6372,7 @@ function renderNoiseContour(startX, startY, borderVal, fn) {
 }
 */ 
 
-},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas-linespoints":"6M7Gi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"6M7Gi":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./segments":"ocHxp","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"ocHxp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "turtleLineMode", ()=>turtleLineMode
@@ -6127,8 +6395,8 @@ parcelHelpers.export(exports, "drawSegmentTaper", ()=>drawSegmentTaper
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("./canvas");
 var _math = require("../math/math");
+var _primatives = require("./primatives");
 let lineCap = 'butt';
 let lineJoin = 'miter';
 const turtleLineMode = (m = 'butt')=>{
@@ -6155,7 +6423,7 @@ const plotLines = (context)=>(points, color = 'black', width = 1)=>{
 ;
 const drawPoints = (ctx)=>(points, color = 'black', width = 1)=>{
         points.forEach((coords, i)=>{
-            _canvas.pixel(ctx)(coords[0], coords[1], color, 'circle', width);
+            _primatives.pixel(ctx)(coords[0], coords[1], color, 'circle', width);
         });
     }
 ;
@@ -6168,7 +6436,7 @@ const drawConnectedPoints = (ctx)=>(points, color = 'black', width = 1, close = 
         points.forEach((coords, i)=>{
             if (i === 0) ctx.moveTo(coords[0], coords[1]);
             else ctx.lineTo(coords[0], coords[1]);
-            if (drawPoint) _canvas.drawCircleFilled(ctx)(coords[0], coords[1], 1, 'red');
+            if (drawPoint) _primatives.drawCircleFilled(ctx)(coords[0], coords[1], 1, 'red');
         });
         if (close) ctx.lineTo(points[0][0], points[0][1]);
         ctx.stroke();
@@ -6192,14 +6460,14 @@ const drawPointsTaper = (ctx)=>(points, color = 'black', width = 1)=>{
 ;
 const circleAtPoint = (context)=>(points, color = 'black', radius = 5)=>{
         points.forEach((coords)=>{
-            _canvas.drawCircleFilled(context)(coords[0], coords[1], radius, color);
+            _primatives.drawCircleFilled(context)(coords[0], coords[1], radius, color);
         });
     }
 ;
 const variableCircleAtPoint = (context)=>(points, color = 'black', radius = 5, freq = 10, amp = 2)=>{
         points.forEach((coords)=>{
             const v = Math.sin(coords[0] / freq) * amp;
-            _canvas.drawCircleFilled(context)(coords[0], coords[1], Math.abs(radius - v), color);
+            _primatives.drawCircleFilled(context)(coords[0], coords[1], Math.abs(radius - v), color);
         });
     }
 ;
@@ -6217,8 +6485,8 @@ const drawSegment = (ctx)=>(segments, color, weight, points = false)=>{
         ctx.stroke();
         if (points) segments.forEach((seg, i)=>{
             const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
-            _canvas.drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
-            _canvas.drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
+            _primatives.drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
+            _primatives.drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
         });
     }
 ;
@@ -6239,13 +6507,13 @@ const drawSegmentTaper = (ctx)=>(segments, color, maxWeight, minWeight = 1, poin
         });
         if (points) segments.forEach((seg, i)=>{
             const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
-            _canvas.drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
-            _canvas.drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
+            _primatives.drawCircleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
+            _primatives.drawCircleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
         });
     }
 ;
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Qctl":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Qctl":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "radialNoise", ()=>radialNoise
@@ -6258,6 +6526,7 @@ var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
 /*
 Started here but took a detour
 https://www.reddit.com/r/creativecoding/comments/lx9prx/audiovisual_sound_of_space_solar_system_david/
@@ -6299,7 +6568,7 @@ const radialNoise = ()=>{
         _canvas.background(canvas, context)(backgroundColor);
     };
     const drawPixel = (context, x, y, color, size = 1, heading = 0)=>{
-        _canvas.drawCircleFilled(context)(x, y, size, color);
+        _primatives.drawCircleFilled(context)(x, y, size, color);
     };
     const drawLine = (context, x1, y1, x2, y2, color, strokeWidth = 1)=>{
         context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
@@ -6356,7 +6625,7 @@ const radialNoise = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"3hmlu":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3hmlu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons", ()=>flowFieldRibbons
@@ -6486,7 +6755,7 @@ const flowFieldRibbons = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2IsLg":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2IsLg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons2", ()=>flowFieldRibbons2
@@ -6654,7 +6923,7 @@ const flowFieldRibbons2 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"1wwAx":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1wwAx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "shadedBoxes", ()=>shadedBoxes
@@ -6669,10 +6938,11 @@ var _palettes = require("../rndrgen/color/palettes");
 var _box = require("../rndrgen/canvas/Box");
 var _attractors = require("../rndrgen/math/attractors");
 var _vector = require("../rndrgen/math/Vector");
-var _canvasTextures = require("../rndrgen/canvas/canvas-textures");
-var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _textures = require("../rndrgen/canvas/textures");
+var _particles = require("../rndrgen/canvas/particles");
 var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
 const shadedBoxes = ()=>{
     const config = {
         name: 'shadedBoxes',
@@ -6730,7 +7000,7 @@ const shadedBoxes = ()=>{
                 particles.push(new _particle.Particle(props));
             }
             b.children = particles;
-            _canvasTextures.stippleRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1);
+            _textures.stippleRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1);
         });
         // boxes.forEach((b) => {
         //     b.fill();
@@ -6748,7 +7018,7 @@ const shadedBoxes = ()=>{
                 particle.updatePosWithVelocity();
                 particle.acceleration = new _vector.Vector(0, 0);
                 box.particleEdgeWrap(particle);
-                _canvas.pixel(context)(particle.x, particle.y, particle.color, 'circle', 0.5);
+                _primatives.pixel(context)(particle.x, particle.y, particle.color, 'circle', 0.5);
             });
             box.removeClip();
         });
@@ -6761,7 +7031,7 @@ const shadedBoxes = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Box":"64rI2","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/canvas-textures":"79QHa","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"64rI2":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Box":"64rI2","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/textures":"73mfQ","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"64rI2":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Box", ()=>Box
@@ -6777,6 +7047,7 @@ var _utils = require("../utils");
 var _canvas = require("./canvas");
 var _point = require("../math/Point");
 var _random = require("../math/random");
+var _primatives = require("./primatives");
 const defaultMP = {
     top: 0,
     right: 0,
@@ -6826,7 +7097,7 @@ class Box {
     }
     fill(color) {
         color = color || this.backgroundColor;
-        _canvas.drawRectFilled(this.context)(this.x, this.y, this.width, this.height, color);
+        _primatives.drawRectFilled(this.context)(this.x, this.y, this.width, this.height, color);
     }
     erase() {
         this.context.clearRect(this.x, this.y, this.width, this.height);
@@ -6917,7 +7188,7 @@ class Box {
     };
 }
 
-},{"tinycolor2":"101FG","../utils":"1kIwI","./canvas":"73Br1","../math/Point":"3VbqL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"3VbqL":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../utils":"1kIwI","./canvas":"73Br1","../math/Point":"3VbqL","../math/random":"1SLuP","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3VbqL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Point", ()=>Point
@@ -6947,7 +7218,7 @@ class Point {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"79QHa":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"73mfQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "setTextureClippingMask", ()=>setTextureClippingMask
@@ -6964,10 +7235,10 @@ parcelHelpers.export(exports, "linesRect", ()=>linesRect
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../math/math");
-var _canvas = require("./canvas");
-var _canvasLinespoints = require("./canvas-linespoints");
+var _segments = require("./segments");
 var _utils = require("../utils");
 var _random = require("../math/random");
+var _primatives = require("./primatives");
 const TAU = Math.PI * 2;
 const intervals = _math.logInterval(10, 1, 10);
 let clipping = true;
@@ -7170,7 +7441,7 @@ const linesRect = (context)=>(x, y, width, height, color = 'black', amount = 5, 
         }
         // line to the bottom
         if (_utils.last(points)[1] < y + height) _utils.last(points)[1] = y + height;
-        _canvasLinespoints.plotLines(context)(points, strokeColor, lineWidth);
+        _segments.plotLines(context)(points, strokeColor, lineWidth);
         if (clipping) context.restore();
     }
 ; /*
@@ -7301,7 +7572,7 @@ const x2 = x1 + length * Math.cos(theta);
 const y2 = y1 + length * Math.sin(theta);
  */ 
 
-},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas":"73Br1","./canvas-linespoints":"6M7Gi","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"3xaAe":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./segments":"ocHxp","../utils":"1kIwI","../math/random":"1SLuP","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3xaAe":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "larrycarlson02", ()=>larrycarlson02
@@ -7315,6 +7586,7 @@ var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPng = require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPngDefault = parcelHelpers.interopDefault(_alexanderKrivitskiy2WOEPBkaH7OUnsplashPng);
+var _primatives = require("../rndrgen/canvas/primatives");
 const larrycarlson02 = ()=>{
     const config = {
         name: 'larrycarlson2',
@@ -7377,7 +7649,7 @@ const larrycarlson02 = ()=>{
             if (pxbrightness >= 70 && pxbrightness <= 100) color.spin(30);
             // const ox = circleX(theta, amp, freq) + x;
             // const oy = circleY(theta, amp, freq) + y;
-            _canvas.pixel(ctx)(x, y, color, 'circle', size);
+            _primatives.pixel(ctx)(x, y, color, 'circle', size);
         // theta += 0.25;
         }
     };
@@ -7454,7 +7726,7 @@ const larrycarlson02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "alexander-krivitskiy-2wOEPBkaH7o-unsplash.c33afb25.png";
 
 },{"./bundle-url":"3seVR"}],"6SHt4":[function(require,module,exports) {
@@ -7469,12 +7741,13 @@ var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../systems/MeanderingRiver");
-var _lineSegments = require("../rndrgen/math/lineSegments");
+var _segments = require("../rndrgen/math/segments");
 var _attractors = require("../rndrgen/math/attractors");
-var _canvasLinespoints = require("../rndrgen/canvas/canvas-linespoints");
+var _segments1 = require("../rndrgen/canvas/segments");
 var _grids = require("../rndrgen/math/grids");
 var _rendernoise = require("../rndrgen/canvas/rendernoise");
 var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
  */ const createHorizontalPath = ({ width , height  }, startX, startY, steps = 20)=>{
@@ -7550,8 +7823,8 @@ const meanderingRiver02 = ()=>{
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         _canvas.background(canvas, context)(backgroundColor);
-        const horizontal = _lineSegments.createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 40));
-        const vertical = _lineSegments.createSplinePoints(createVerticalPath(canvas, canvasMidX, 0, 40));
+        const horizontal = _points.createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 40));
+        const vertical = _points.createSplineFromPointArray(createVerticalPath(canvas, canvasMidX, 0, 40));
         const circle = _grids.createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
         const cs = {
             mixTangentRatio: 0.45,
@@ -7644,8 +7917,8 @@ const meanderingRiver02 = ()=>{
             //     // const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
             //     drawConnectedPoints(ctx)(o.points, c, 1);
             // });
-            const points = _lineSegments.chaikin(r.points, 8);
-            if (points.length) _canvasLinespoints.drawConnectedPoints(ctx)(points, c, 2, closed[i]);
+            const points = _segments.chaikin(r.points, 8);
+            if (points.length) _segments1.drawConnectedPoints(ctx)(points, c, 2, closed[i]);
         });
         // if (++time > 1000) {
         // return -1;
@@ -7659,7 +7932,7 @@ const meanderingRiver02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/lineSegments":"r9YCg","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/canvas-linespoints":"6M7Gi","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"1KEiH":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/segments":"ocHxp","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"1KEiH":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -7731,14 +8004,15 @@ parcelHelpers.export(exports, "flowRight", ()=>flowRight
 );
 parcelHelpers.export(exports, "flowRightToMiddle", ()=>flowRightToMiddle
 );
-var _lineSegments = require("../rndrgen/math/lineSegments");
+var _segments = require("../rndrgen/math/segments");
 var _utils = require("../rndrgen/utils");
 var _math = require("../rndrgen/math/math");
 var _vector = require("../rndrgen/math/Vector");
+var _points = require("../rndrgen/math/points");
 class MeanderingRiver {
     constructor(initPoints, props){
         this.startingPoints = initPoints;
-        this.pointVectors = _lineSegments.pa2VA(initPoints);
+        this.pointVectors = _points.arrayPointArrayToVectorArray(initPoints);
         this.oxbows = [];
         // Toggle oxbow checking
         this.handleOxbows = _utils.defaultValue(props, 'handleOxbows', true);
@@ -7786,7 +8060,7 @@ class MeanderingRiver {
         this.running = true;
     }
     get points() {
-        return _lineSegments.va2pA(this.pointVectors);
+        return _points.arrayVectorToPointArray(this.pointVectors);
     }
     addToHistory(ox, channel) {
         if (this.steps % this.storeHistoryEvery === 0) {
@@ -7802,7 +8076,7 @@ class MeanderingRiver {
         const sum = points.reduce((diffs, point, i)=>{
             const prev = i - 1;
             const next = i + 1;
-            if (prev >= 0 && next < points.length) diffs += _lineSegments.mCurvature(points[prev], point, points[next]);
+            if (prev >= 0 && next < points.length) diffs += _segments.mengerCurvature(points[prev], point, points[next]);
             return diffs;
         }, 0);
         return _math.degreesToRadians(sum / points.length);
@@ -7922,7 +8196,7 @@ class MeanderingRiver {
             }
             let next = points[i + 1];
             if (this.wrapEnd && !next) next = points[0];
-            const distance = _math.pointDistance(point, next);
+            const distance = _points.pointDistance(point, next);
             if (distance > this.curveSize) {
                 // Add points
                 const numInsertPoints = Math.round(distance / this.curveSize * this.insertionFactor) + 1;
@@ -7946,12 +8220,12 @@ class MeanderingRiver {
                 // exclude first and last if it's wrapping
                 if (this.wrapEnd && i === 0 || j === 0 || i === points.length - 1 || j === points.length - 1) continue;
                 const next = points[j];
-                const dist = _math.pointDistance(point, next);
+                const dist = _points.pointDistance(point, next);
                 // Check the proximity of the points on the screen and their proximity in the points array
                 if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
-                    let oxpoints = _lineSegments.va2pA(points.slice(i, j));
-                    oxpoints = _lineSegments.chaikin(_lineSegments.trimPoints(oxpoints, 3), 3);
+                    let oxpoints = _points.arrayVectorToPointArray(points.slice(i, j));
+                    oxpoints = _segments.chaikin(_points.trimPointArray(oxpoints, 3), 3);
                     this.oxbows.push({
                         points: oxpoints,
                         startLength: oxpoints.length
@@ -7977,7 +8251,7 @@ class MeanderingRiver {
                         if (!acc) {
                             const np = this.pointVectors[k + 1];
                             const nop = oxpoints[i + 1];
-                            if (np && nop) acc = _lineSegments.linesIntersect(cp.x, cp.y, np.x, np.y, point[0], point[1], nop[0], nop[1]);
+                            if (np && nop) acc = _segments.linesIntersect(cp.x, cp.y, np.x, np.y, point[0], point[1], nop[0], nop[1]);
                         }
                         return acc;
                     }, false);
@@ -8003,7 +8277,7 @@ class MeanderingRiver {
             this.pointVectors = newPoints;
             if (this.handleOxbows) this.oxbows = this.shrinkOxbows(this.oxbows);
             // Record history
-            this.addToHistory(this.oxbows, _lineSegments.va2pA(this.pointVectors));
+            this.addToHistory(this.oxbows, _points.arrayVectorToPointArray(this.pointVectors));
             this.steps++;
         } else if (this.handleOxbows) this.oxbows = this.shrinkOxbows(this.oxbows);
     }
@@ -8018,219 +8292,42 @@ const flowRightToMiddle = (f, mid)=>(p, m)=>{
     }
 ;
 
-},{"../rndrgen/math/lineSegments":"r9YCg","../rndrgen/utils":"1kIwI","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"r9YCg":[function(require,module,exports) {
+},{"../rndrgen/math/segments":"5KdqE","../rndrgen/utils":"1kIwI","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}],"5KdqE":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "triangleArea2", ()=>triangleArea2
-);
-parcelHelpers.export(exports, "mCurvature", ()=>mCurvature
-);
-parcelHelpers.export(exports, "lineSlope", ()=>lineSlope
-);
-parcelHelpers.export(exports, "linesIntersect", ()=>linesIntersect
-);
-parcelHelpers.export(exports, "segmentsIntersect", ()=>segmentsIntersect
-);
-parcelHelpers.export(exports, "segment", ()=>segment
-);
-parcelHelpers.export(exports, "connectSegments", ()=>connectSegments
-);
-parcelHelpers.export(exports, "trimSegments", ()=>trimSegments
-);
-parcelHelpers.export(exports, "startPointsOnly", ()=>startPointsOnly
-);
-parcelHelpers.export(exports, "getSegPointsMid", ()=>getSegPointsMid
-);
-parcelHelpers.export(exports, "trimPoints", ()=>trimPoints
-);
-parcelHelpers.export(exports, "pointsOrientation", ()=>pointsOrientation
-);
-parcelHelpers.export(exports, "segmentOrientation", ()=>segmentOrientation
-);
-parcelHelpers.export(exports, "segmentFromPoints", ()=>segmentFromPoints
-);
-parcelHelpers.export(exports, "pointsFromSegment", ()=>pointsFromSegment
-);
-parcelHelpers.export(exports, "a2p", ()=>a2p
-);
-parcelHelpers.export(exports, "a2V", ()=>a2V
-);
-parcelHelpers.export(exports, "v2a", ()=>v2a
-);
-parcelHelpers.export(exports, "a2pA", ()=>a2pA
-);
-parcelHelpers.export(exports, "pa2VA", ()=>pa2VA
-);
-parcelHelpers.export(exports, "va2pA", ()=>va2pA
-);
-parcelHelpers.export(exports, "flattenPointArray", ()=>flattenPointArray
-);
-parcelHelpers.export(exports, "unflattenPointArray", ()=>unflattenPointArray
-);
-parcelHelpers.export(exports, "createSplinePoints", ()=>createSplinePoints
-);
 parcelHelpers.export(exports, "reduceLineFromStart", ()=>reduceLineFromStart
 );
 parcelHelpers.export(exports, "reduceLineFromEnd", ()=>reduceLineFromEnd
 );
 parcelHelpers.export(exports, "reduceLineEqually", ()=>reduceLineEqually
 );
-parcelHelpers.export(exports, "intersect", ()=>intersect
+parcelHelpers.export(exports, "lineSlope", ()=>lineSlope
 );
 parcelHelpers.export(exports, "chaikin", ()=>chaikin
 );
+parcelHelpers.export(exports, "linesIntersect", ()=>linesIntersect
+);
+parcelHelpers.export(exports, "getLineIntersectPoint", ()=>getLineIntersectPoint
+);
+parcelHelpers.export(exports, "mengerCurvature", ()=>mengerCurvature
+);
+parcelHelpers.export(exports, "segment", ()=>segment
+);
+parcelHelpers.export(exports, "segmentOrientation", ()=>segmentOrientation
+);
+parcelHelpers.export(exports, "segmentFromPoints", ()=>segmentFromPoints
+);
+parcelHelpers.export(exports, "segmentsIntersect", ()=>segmentsIntersect
+);
+parcelHelpers.export(exports, "connectSegments", ()=>connectSegments
+);
+parcelHelpers.export(exports, "trimSegments", ()=>trimSegments
+);
+parcelHelpers.export(exports, "getSegPointsMid", ()=>getSegPointsMid
+);
 var _vector = require("./Vector");
-var _math = require("./math");
-var _curveCalc = require("./curve-calc");
 var _utils = require("../utils");
-const triangleArea2 = (a, b, c)=>(b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
-;
-const mCurvature = (p1, p2, p3)=>{
-    const t4 = 2 * triangleArea2(p1, p2, p3);
-    const la = _math.pointDistance(p1, p2);
-    const lb = _math.pointDistance(p2, p3);
-    const lc = _math.pointDistance(p3, p1);
-    return t4 / (la * lb * lc);
-};
-const lineSlope = (a, b)=>(b.y - a.y) / (b.x - a.x)
-;
-const linesIntersect = (a, b, c, d, p, q, r, s)=>{
-    const det = (c - a) * (s - q) - (r - p) * (d - b);
-    if (det === 0) return false;
-    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
-    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
-    return lambda > 0 && lambda < 1 && gamma > 0 && gamma < 1;
-};
-const segmentsIntersect = (a, b)=>linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y)
-;
-const segment = (x1, y1, x2, y2)=>{
-    const start = new _vector.Vector(x1, y1);
-    const end = new _vector.Vector(x2, y2);
-    return {
-        start,
-        end
-    };
-};
-const connectSegments = (segs)=>segs.map((s, i)=>{
-        if (i === segs.length - 1) return s;
-        const next = segs[i + 1];
-        const distance = _math.pointDistance({
-            x: s.end.x,
-            y: s.end.y
-        }, {
-            x: next.start.x,
-            y: s.start.y
-        });
-        if (distance > 1) s.end = new _vector.Vector(next.start.x, next.start.y);
-        return s;
-    })
-;
-const trimSegments = (segs, skip = 2)=>segs.reduce((acc, s, i)=>{
-        if (i === 0 || i === segs.length - 1) acc.push(s);
-        else if (i % skip === 0) acc.push(s);
-        return acc;
-    }, [])
-;
-const startPointsOnly = (points)=>{
-    const p = [];
-    for(let i = 0; i < points.length; i += 2)p.push(points[i]);
-    // last end point
-    p.push(_utils.last(points));
-    return p;
-};
-const getSegPointsMid = (points)=>{
-    const p = [];
-    for(let i = 0; i < points.length; i += 2){
-        const s = points[i];
-        const e = points[i + 1];
-        if (e) {
-            const midX = s[0] + (e[0] - s[0]) * 0.5;
-            const midY = s[1] + (e[1] - s[1]) * 0.5;
-            p.push([
-                midX,
-                midY
-            ]);
-        } else p.push(s);
-    }
-    // last end point
-    p.push(_utils.last(points));
-    return p;
-};
-const trimPoints = (points, skip = 2)=>points.reduce((acc, s, i)=>{
-        if (i === 0 || i === points.length - 1) acc.push(s);
-        else if (i % skip === 0) acc.push(s);
-        return acc;
-    }, [])
-;
-const pointsOrientation = (a, b)=>Math.atan2(b.y - a.y, b.x - a.x)
-;
-const segmentOrientation = ({ start , end  })=>pointsOrientation(start, end)
-;
-const segmentFromPoints = (points)=>{
-    const seg = [];
-    for(let i = 0; i < points.length; i += 2){
-        // if it's an uneven number, dupe the last point
-        const next = i + 1 === points.length ? i : i + 1;
-        seg.push(segment(points[i][0], points[i][1], points[next][0], points[next][1]));
-    }
-    return seg;
-};
-const pointsFromSegment = (seg)=>{
-    const points = [];
-    for(let i = 0; i < seg.length; i++){
-        points.push([
-            seg[i].start.x,
-            seg[i].start.y
-        ]);
-        points.push([
-            seg[i].end.x,
-            seg[i].end.y
-        ]);
-    }
-    return points;
-};
-const a2p = (a)=>({
-        x: a[0],
-        y: a[1]
-    })
-;
-const a2V = (a)=>new _vector.Vector(a[0], a[1])
-;
-const v2a = (v)=>[
-        v.x,
-        v.y
-    ]
-;
-const a2pA = (arry)=>arry.map((a)=>a2p(a)
-    )
-;
-const pa2VA = (arry)=>arry.map((a)=>a2V(a)
-    )
-;
-const va2pA = (arry)=>arry.map((a)=>v2a(a)
-    )
-;
-const flattenPointArray = (arry)=>arry.reduce((acc, p)=>{
-        if (p) {
-            acc.push(p[0]);
-            acc.push(p[1]);
-        }
-        return acc;
-    }, [])
-;
-const unflattenPointArray = (arry)=>{
-    const points = [];
-    for(let i = 0; i < arry.length; i += 2)points.push([
-        arry[i],
-        arry[i + 1]
-    ]);
-    return points;
-};
-const createSplinePoints = (points)=>{
-    const fpoints = flattenPointArray(points);
-    const curve = _curveCalc.getCurvePoints(fpoints);
-    return unflattenPointArray(curve);
-};
+var _points = require("./points");
 const reduceLineFromStart = (p1, p2, r)=>{
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
@@ -8265,24 +8362,8 @@ const reduceLineEqually = (p1, p2, r)=>{
         }, 
     ];
 };
-const intersect = (x1, y1, x2, y2, x3, y3, x4, y4)=>{
-    // Check if none of the lines are of length 0
-    if (x1 === x2 && y1 === y2 || x3 === x4 && y3 === y4) return false;
-    const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-    // Lines are parallel
-    if (denominator === 0) return false;
-    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
-    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
-    // is the intersection along the segments
-    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return false;
-    // Return a object with the x and y coordinates of the intersection
-    const x = x1 + ua * (x2 - x1);
-    const y = y1 + ua * (y2 - y1);
-    return {
-        x,
-        y
-    };
-};
+const lineSlope = (p1, p2)=>(p2.y - p1.y) / (p2.x - p1.x)
+;
 const chaikin = (input, itr = 1)=>{
     if (itr === 0) return input;
     const output = [];
@@ -8306,87 +8387,103 @@ const chaikin = (input, itr = 1)=>{
     }
     return itr === 1 ? output : chaikin(output, itr - 1);
 };
-
-},{"./Vector":"1MSqh","./math":"4t0bw","./curve-calc":"4EuBm","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4EuBm":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getCurvePoints", ()=>getCurvePoints
-);
-const getCurvePoints = (points, tension, numOfSeg, close)=>{
-    // options or defaults
-    tension = typeof tension === 'number' ? tension : 0.5;
-    numOfSeg = numOfSeg || 25;
-    let pts; // for cloning point array
-    let i = 1;
-    let l = points.length;
-    let rPos = 0;
-    const rLen = (l - 2) * numOfSeg + 2 + (close ? 2 * numOfSeg : 0);
-    if (rLen < 0) return [];
-    const res = new Float32Array(rLen);
-    const cache = new Float32Array((numOfSeg + 2) * 4);
-    let cachePtr = 4;
-    pts = points.slice(0);
-    if (close) {
-        pts.unshift(points[l - 1]); // insert end point as first point
-        pts.unshift(points[l - 2]);
-        pts.push(points[0], points[1]); // first point as last point
-    } else {
-        pts.unshift(points[1]); // copy 1. point and insert at beginning
-        pts.unshift(points[0]);
-        pts.push(points[l - 2], points[l - 1]); // duplicate end-points
+const linesIntersect = (a, b, c, d, p, q, r, s)=>{
+    const det = (c - a) * (s - q) - (r - p) * (d - b);
+    if (det === 0) return false;
+    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    return lambda > 0 && lambda < 1 && gamma > 0 && gamma < 1;
+};
+const getLineIntersectPoint = (x1, y1, x2, y2, x3, y3, x4, y4)=>{
+    // Check if none of the lines are of length 0
+    if (x1 === x2 && y1 === y2 || x3 === x4 && y3 === y4) return false;
+    const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+    // Lines are parallel
+    if (denominator === 0) return false;
+    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
+    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
+    // is the intersection along the segments
+    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return false;
+    // Return a object with the x and y coordinates of the intersection
+    const x = x1 + ua * (x2 - x1);
+    const y = y1 + ua * (y2 - y1);
+    return {
+        x,
+        y
+    };
+};
+const mengerCurvature = (p1, p2, p3)=>{
+    // https://stackoverflow.com/questions/41144224/calculate-curvature-for-3-points-x-y
+    // possible alternate https://www.mathsisfun.com/geometry/herons-formula.html
+    const triangleArea2 = (a, b, c)=>(b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+    ;
+    const t4 = 2 * triangleArea2(p1, p2, p3);
+    const la = _points.pointDistance(p1, p2);
+    const lb = _points.pointDistance(p2, p3);
+    const lc = _points.pointDistance(p3, p1);
+    return t4 / (la * lb * lc);
+};
+const segment = (x1, y1, x2, y2)=>{
+    const start = new _vector.Vector(x1, y1);
+    const end = new _vector.Vector(x2, y2);
+    return {
+        start,
+        end
+    };
+};
+const segmentOrientation = ({ start , end  })=>_points.pointsOrientation(start, end)
+;
+const segmentFromPoints = (points)=>{
+    const seg = [];
+    for(let i = 0; i < points.length; i += 2){
+        // if it's an uneven number, dupe the last point
+        const next = i + 1 === points.length ? i : i + 1;
+        seg.push(segment(points[i][0], points[i][1], points[next][0], points[next][1]));
     }
-    // cache inner-loop calculations as they are based on t alone
-    cache[0] = 1; // 1,0,0,0
-    for(; i < numOfSeg; i++){
-        const st = i / numOfSeg;
-        const st2 = st * st;
-        const st3 = st2 * st;
-        const st23 = st3 * 2;
-        const st32 = st2 * 3;
-        cache[cachePtr++] = st23 - st32 + 1; // c1
-        cache[cachePtr++] = st32 - st23; // c2
-        cache[cachePtr++] = st3 - 2 * st2 + st; // c3
-        cache[cachePtr++] = st3 - st2; // c4
+    return seg;
+};
+const segmentsIntersect = (a, b)=>linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y)
+;
+const connectSegments = (segs)=>segs.map((s, i)=>{
+        if (i === segs.length - 1) return s;
+        const next = segs[i + 1];
+        const distance = _points.pointDistance({
+            x: s.end.x,
+            y: s.end.y
+        }, {
+            x: next.start.x,
+            y: s.start.y
+        });
+        if (distance > 1) s.end = new _vector.Vector(next.start.x, next.start.y);
+        return s;
+    })
+;
+const trimSegments = (segs, skip = 2)=>segs.reduce((acc, s, i)=>{
+        if (i === 0 || i === segs.length - 1) acc.push(s);
+        else if (i % skip === 0) acc.push(s);
+        return acc;
+    }, [])
+;
+const getSegPointsMid = (points)=>{
+    const p = [];
+    for(let i = 0; i < points.length; i += 2){
+        const s = points[i];
+        const e = points[i + 1];
+        if (e) {
+            const midX = s[0] + (e[0] - s[0]) * 0.5;
+            const midY = s[1] + (e[1] - s[1]) * 0.5;
+            p.push([
+                midX,
+                midY
+            ]);
+        } else p.push(s);
     }
-    cache[++cachePtr] = 1; // 0,1,0,0
-    // calc. points
-    parse(pts, cache, l);
-    if (close) {
-        // l = points.length;
-        pts = [];
-        pts.push(points[l - 4], points[l - 3], points[l - 2], points[l - 1]); // second last and last
-        pts.push(points[0], points[1], points[2], points[3]); // first and second
-        parse(pts, cache, 4);
-    }
-    function parse(pts1, cache1, l1) {
-        for(var i1 = 2, t; i1 < l1; i1 += 2){
-            const pt1 = pts1[i1];
-            const pt2 = pts1[i1 + 1];
-            const pt3 = pts1[i1 + 2];
-            const pt4 = pts1[i1 + 3];
-            const t1x = (pt3 - pts1[i1 - 2]) * tension;
-            const t1y = (pt4 - pts1[i1 - 1]) * tension;
-            const t2x = (pts1[i1 + 4] - pt1) * tension;
-            const t2y = (pts1[i1 + 5] - pt2) * tension;
-            for(t = 0; t < numOfSeg; t++){
-                const c = t << 2; // t * 4;
-                const c1 = cache1[c];
-                const c2 = cache1[c + 1];
-                const c3 = cache1[c + 2];
-                const c4 = cache1[c + 3];
-                res[rPos++] = c1 * pt1 + c2 * pt3 + c3 * t1x + c4 * t2x;
-                res[rPos++] = c1 * pt2 + c2 * pt4 + c3 * t1y + c4 * t2y;
-            }
-        }
-    }
-    // add last point
-    l = close ? 0 : points.length - 2;
-    res[rPos++] = points[l];
-    res[rPos] = points[l + 1];
-    return res;
+    // last end point
+    p.push(_utils.last(points));
+    return p;
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2elLt":[function(require,module,exports) {
+},{"./Vector":"1MSqh","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./points":"4RQVg"}],"2elLt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "meanderingRiver01", ()=>meanderingRiver01
@@ -8398,12 +8495,13 @@ var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../systems/MeanderingRiver");
-var _lineSegments = require("../rndrgen/math/lineSegments");
+var _segments = require("../rndrgen/math/segments");
 var _attractors = require("../rndrgen/math/attractors");
-var _canvasLinespoints = require("../rndrgen/canvas/canvas-linespoints");
+var _segments1 = require("../rndrgen/canvas/segments");
 var _grids = require("../rndrgen/math/grids");
 var _rendernoise = require("../rndrgen/canvas/rendernoise");
 var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
  */ const createHorizontalPath = ({ width , height  }, startX, startY, steps = 20)=>{
@@ -8428,8 +8526,9 @@ Meandering River class at ../rndrgen/MeanderingRiver
 const meanderingRiver01 = ()=>{
     const config = {
         name: 'meandering-river-01',
-        ratio: _sketch.ratio.poster,
-        scale: _sketch.scale.standard
+        ratio: _sketch.ratio.letter,
+        scale: _sketch.scale.standard,
+        orientation: _sketch.orientation.landscape
     };
     let ctx;
     let canvasMidX;
@@ -8472,7 +8571,7 @@ const meanderingRiver01 = ()=>{
         ctx = context;
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
-        const horizpoints = _lineSegments.createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 15));
+        const horizpoints = _points.createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 15));
         const circlepoints = _grids.createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
         const cs = {
             mixTangentRatio: 0.6,
@@ -8540,19 +8639,19 @@ const meanderingRiver01 = ()=>{
         rivers.forEach((r, i)=>{
             r.oxbows.forEach((o)=>{
                 const w = Math.abs(_math.mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
-                _canvasLinespoints.drawConnectedPoints(ctx)(o.points, oColor, w + oSize / 2);
+                _segments1.drawConnectedPoints(ctx)(o.points, oColor, w + oSize / 2);
             });
-            const points = _lineSegments.chaikin(r.points, 5);
-            _canvasLinespoints.drawConnectedPoints(ctx)(points, oColor, riverWeight[i] + oSize);
+            const points = _segments.chaikin(r.points, 5);
+            _segments1.drawConnectedPoints(ctx)(points, oColor, riverWeight[i] + oSize);
         });
         // main
         rivers.forEach((r, i)=>{
             r.oxbows.forEach((o)=>{
                 const w = Math.abs(_math.mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-                _canvasLinespoints.drawConnectedPoints(ctx)(o.points, oxbowColor, w);
+                _segments1.drawConnectedPoints(ctx)(o.points, oxbowColor, w);
             });
-            const points = _lineSegments.chaikin(r.points, 5);
-            _canvasLinespoints.drawConnectedPoints(ctx)(points, riverColor, riverWeight[i], false, false);
+            const points = _segments.chaikin(r.points, 5);
+            _segments1.drawConnectedPoints(ctx)(points, riverColor, riverWeight[i], false, false);
         // drawPoints(ctx)(r.points, 'red', 1);
         });
         time++;
@@ -8564,91 +8663,6 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/lineSegments":"r9YCg","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/canvas-linespoints":"6M7Gi","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"3oo76":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "marchingSquares", ()=>marchingSquares
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
-var _palettes = require("../rndrgen/color/palettes");
-var _attractors = require("../rndrgen/math/attractors");
-var _rendernoise = require("../rndrgen/canvas/rendernoise");
-var _math = require("../rndrgen/math/math");
-const marchingSquares = ()=>{
-    const config = {
-        name: 'marchingSquares',
-        ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
-    };
-    let ctx;
-    let canvasWidth;
-    let canvasHeight;
-    let canvasCenterX;
-    let canvasCenterY;
-    let centerRadius;
-    let imageWidth;
-    let imageHeight;
-    let startX;
-    let maxX;
-    let startY;
-    let maxY;
-    const margin = 50;
-    const backgroundColor = _palettes.paperWhite.clone();
-    const foreColor = _palettes.bicPenBlue.clone();
-    const noise = (x, y)=>_attractors.simplexNoise2d(x, y, 0.004)
-    ;
-    const setup = ({ canvas , context  })=>{
-        ctx = context;
-        canvasWidth = canvas.width;
-        canvasHeight = canvas.height;
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        centerRadius = canvas.height / 4;
-        imageWidth = canvas.width - margin * 2;
-        imageHeight = canvas.height - margin * 2;
-        startX = margin;
-        maxX = canvas.width - margin;
-        startY = margin;
-        maxY = canvas.height - margin;
-        _canvas.background(canvas, context)(backgroundColor);
-    };
-    const getTile = (num)=>{
-    };
-    const draw = ({ canvas , context  })=>{
-        const { width , height  } = canvas;
-        const resolution = 10;
-        const lowColor = backgroundColor.clone().darken(25);
-        const highColor = backgroundColor.clone().brighten(25);
-        const noiseMax = 8;
-        const xStep = Math.round(width / resolution) + 1;
-        const yStep = Math.round(height / resolution) + 1;
-        const field = [];
-        for(let x = 0; x <= width; x += xStep)for(let y = 0; y <= height; y += yStep){
-            const theta = noise(x, y);
-            const normalized = _math.mapRange(-5, 5, 0, 1, theta);
-            field.push({
-                x,
-                y,
-                val: normalized
-            });
-            const fillColor = _tinycolor2Default.default.mix(lowColor, highColor, normalized * 100);
-            context.fillStyle = _tinycolor2Default.default(fillColor).toRgbString();
-            context.fillRect(x, y, x + xStep, y + yStep);
-            _canvas.drawCircleFilled(context)(x, y, 3, 'red');
-        }
-        // console.log(field);
-        return -1;
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/segments":"ocHxp","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

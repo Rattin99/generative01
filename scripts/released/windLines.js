@@ -1,9 +1,35 @@
-import { background, drawLineAngle, setStokeColor } from '../rndrgen/canvas/canvas';
+import { background, setStokeColor } from '../rndrgen/canvas/canvas';
 import { nicePalette } from '../rndrgen/color/palettes';
-import { marginify, toSinValue, uvFromAngle } from '../rndrgen/math/math';
+import { toSinValue, uvFromAngle } from '../rndrgen/math/math';
 import { Timeline } from '../rndrgen/animation/Timeline';
-import { createGridPointsUV } from '../rndrgen/math/grids';
-import { create3dNoiseAbs, oneOf } from '../rndrgen/math/random';
+import { create2dNoiseAbs, create3dNoiseAbs, oneOf } from '../rndrgen/math/random';
+import { drawLineAngle } from '../rndrgen/canvas/primatives';
+import { uvPointToCanvas } from '../rndrgen/math/points';
+
+// -> [{radius, rotation, position:[u,v]}, ...]
+const createGridPointsUV = (columns, rows) => {
+    rows = rows || columns;
+    const points = [];
+
+    const amplitude = 0.1;
+    const frequency = 1;
+
+    for (let x = 0; x < columns; x++) {
+        for (let y = 0; y < rows; y++) {
+            const u = columns <= 1 ? 0.5 : x / (columns - 1);
+            const v = columns <= 1 ? 0.5 : y / (rows - 1);
+            // const radius = Math.abs(random.gaussian() * 0.02);
+            const radius = create2dNoiseAbs(u, v);
+            const rotation = create2dNoiseAbs(u, v);
+            points.push({
+                radius,
+                rotation,
+                position: [u, v],
+            });
+        }
+    }
+    return points;
+};
 
 export const windLines = () => {
     const config = {
@@ -31,7 +57,7 @@ export const windLines = () => {
 
         grid.forEach(({ position, rotation, color }) => {
             const [u, v] = position;
-            const { x, y } = marginify({ margin: 100, u, v, width: canvas.width, height: canvas.height });
+            const { x, y } = uvPointToCanvas({ margin: 100, u, v, width: canvas.width, height: canvas.height });
             const t = toSinValue(timeline.playhead) * 0.1;
             const wave = create3dNoiseAbs(u, v, counter, 3 * t) * 10;
             const startvect = uvFromAngle((rotation + wave) * -1).setMag(25);

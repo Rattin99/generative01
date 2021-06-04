@@ -1,15 +1,16 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { orientation, ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
-import { chaikin, createSplinePoints, trimPoints } from '../rndrgen/math/lineSegments';
+import { chaikin } from '../rndrgen/math/segments';
 import { simplexNoise2d } from '../rndrgen/math/attractors';
-import { drawConnectedPoints, drawPoints, variableCircleAtPoint } from '../rndrgen/canvas/canvas-linespoints';
+import { drawConnectedPoints } from '../rndrgen/canvas/segments';
 import { createCirclePoints } from '../rndrgen/math/grids';
-import { renderField, renderFieldColor, renderFieldContour } from '../rndrgen/canvas/rendernoise';
+import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/rendernoise';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
+import { createSplineFromPointArray } from '../rndrgen/math/points';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -33,9 +34,9 @@ const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => 
 export const meanderingRiver01 = () => {
     const config = {
         name: 'meandering-river-01',
-        ratio: ratio.poster,
+        ratio: ratio.letter,
         scale: scale.standard,
-        // drawLimit: 100,
+        orientation: orientation.landscape,
     };
 
     let ctx;
@@ -82,7 +83,7 @@ export const meanderingRiver01 = () => {
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
 
-        const horizpoints = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 15));
+        const horizpoints = createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 15));
         const circlepoints = createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
 
         const cs = {

@@ -1,10 +1,12 @@
-import { background, pixel, drawRect, contextScale } from '../rndrgen/canvas/canvas';
-import { pointDistance, round2 } from '../rndrgen/math/math';
+import { background, contextScale } from '../rndrgen/canvas/canvas';
+import { round2 } from '../rndrgen/math/math';
 import { brightest, darkest, nicePalette } from '../rndrgen/color/palettes';
 import { ratio, scale } from '../rndrgen/Sketch';
-import { drawTextFilled, setTextAlignLeftTop, textStyles } from '../rndrgen/canvas/canvas-text';
+import { drawTextFilled, setTextAlignLeftTop, textStyles } from '../rndrgen/canvas/text';
 import { createGridCellsXY } from '../rndrgen/math/grids';
 import { create2dNoiseAbs, oneOf, randomWholeBetween } from '../rndrgen/math/random';
+import { drawRect, pixel } from '../rndrgen/canvas/primatives';
+import { pointDistance } from '../rndrgen/math/points';
 
 class Curve {
     constructor(x, y, radius, angle, speed, noise) {

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, pointDistance, uvFromAngle, valueCloseTo } from '../math/math';
-import { drawPoints } from './canvas-linespoints';
+import { mapRange, uvFromAngle, isValueInRange } from '../math/math';
+import { drawPoints } from './segments';
 import { randomWholeBetween } from '../math/random';
 
 export const renderField = ({ width, height }, context, fn, color = 'black', resolution = '50', length = 10) => {
@@ -72,7 +72,7 @@ export const renderFieldContour = (
             const px = randomWholeBetween(0, width);
             const py = randomWholeBetween(0, height);
             const nheight = fn(px, py);
-            if (valueCloseTo(n, nheight, varience)) {
+            if (isValueInRange(n, nheight, varience)) {
                 if (nheight <= 0) lowPoints.push([px, py]);
                 else highPoints.push([px, py]);
 
@@ -109,7 +109,7 @@ function renderNoiseContour(startX, startY, borderVal, fn) {
         const lastY = nextY;
         for (
             distance = lastDistance + Math.PI / 2;
-            (distance > lastDistance - Math.PI / 2 && !valueCloseTo(borderVal, fn(startX, startY), 0.0035)) ||
+            (distance > lastDistance - Math.PI / 2 && !isValueInRange(borderVal, fn(startX, startY), 0.0035)) ||
             distance === lastDistance + Math.PI / 2;
             distance -= 0.17
         ) {

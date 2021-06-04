@@ -1,16 +1,18 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, uvFromAngle, snapNumber, quantize, pointDistance } from '../rndrgen/math/math';
+import { mapRange, uvFromAngle, snapNumber, quantize } from '../rndrgen/math/math';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
-import { background, drawCircleFilled } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { Vector } from '../rndrgen/math/Vector';
 import { diagLines, simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import { hslFromRange, warmWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
-import { splatter } from '../rndrgen/canvas/canvas-paint';
+import { splatter } from '../rndrgen/canvas/paint';
 import { renderField } from '../rndrgen/canvas/rendernoise';
 import { randomWholeBetween } from '../rndrgen/math/random';
+import { drawCircleFilled } from '../rndrgen/canvas/primatives';
+import { pointDistance } from '../rndrgen/math/points';
 
 /*
 https://marcteyssier.com/projects/flowfield/

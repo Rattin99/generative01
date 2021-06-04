@@ -1,10 +1,11 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
-import { background, pixel } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { paperWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import sourcePng from '../../media/images/rafaella-mendes-diniz-400.png';
+import { pixel } from '../rndrgen/canvas/primatives';
 
 /*
 https://larrycarlson.com/collections/wavy-art-prints

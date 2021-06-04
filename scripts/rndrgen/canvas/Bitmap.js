@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { clearCanvas, getImageDataColor } from './canvas';
+import { clearCanvas } from './canvas';
 import { mapRange } from '../math/math';
 import { averageNumArray } from '../utils';
 

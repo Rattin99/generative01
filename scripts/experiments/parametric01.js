@@ -1,8 +1,9 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { mapRange, pointDistance } from '../rndrgen/math/math';
-import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../rndrgen/canvas/canvas-particles';
+import { mapRange } from '../rndrgen/math/math';
+import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
+import { pointDistance } from '../rndrgen/math/points';
 
 /*
 Based on https://www.reddit.com/r/generative/comments/lqrg0t/some_parametric_equations/

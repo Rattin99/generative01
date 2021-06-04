@@ -1,7 +1,9 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
-import { drawTestPoint, background, drawRectFilled } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { Vector } from '../rndrgen/math/Vector';
-import { drawParticleVectors, drawRotatedParticle } from '../rndrgen/canvas/canvas-particles';
+import { drawParticleVectors, drawRotatedParticle } from '../rndrgen/canvas/particles';
+import { drawTestPoint } from '../rndrgen/canvas/debugShapes';
+import { drawRectFilled } from '../rndrgen/canvas/primatives';
 
 export const forcesDev = () => {
     const config = {

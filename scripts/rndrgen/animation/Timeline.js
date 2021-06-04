@@ -1,6 +1,14 @@
 /*
 Canvas animation timeline based on Canvas Sketch time keeping methods
 https://github.com/mattdesl/canvas-sketch/blob/master/docs/animated-sketches.md
+
+Usage:
+
+const timeline = new Timeline(config.fps, 0, 5);
+const t = toSinValue(timeline.playhead) * 0.1;
+// -1 if loops exceeded
+draw -> return timeline.onFrame();
+
  */
 
 export class Timeline {

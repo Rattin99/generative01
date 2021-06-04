@@ -1,11 +1,12 @@
 import tinycolor from 'tinycolor2';
-import { background, drawCircleFilled, pixel } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 
 import { simplexNoise2d } from '../rndrgen/math/attractors';
 import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/rendernoise';
 import { mapRange } from '../rndrgen/math/math';
+import { drawCircleFilled, pixel } from '../rndrgen/canvas/primatives';
 
 // https://www.youtube.com/watch?v=0ZONMNUKTfU&t=2s
 

@@ -1,7 +1,8 @@
 import tinycolor from 'tinycolor2';
-import { pointDistance, lerp, pointAngleFromVelocity, clamp } from '../rndrgen/math/math';
+import { lerp, clamp } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';
 import { randomNumberBetween } from '../rndrgen/math/random';
+import { pointAngleFromVelocity, pointDistance } from '../rndrgen/math/points';
 
 const MAX_COORD_HISTORY = 30;
 

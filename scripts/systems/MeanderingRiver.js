@@ -1,7 +1,13 @@
-import { chaikin, linesIntersect, mCurvature, pa2VA, trimPoints, va2pA } from '../rndrgen/math/lineSegments';
+import { chaikin, linesIntersect, mengerCurvature } from '../rndrgen/math/segments';
 import { defaultValue, getArrayValuesFromEnd, getArrayValuesFromStart } from '../rndrgen/utils';
-import { degreesToRadians, lerp, mapRange, percentage, pointDistance, uvFromAngle } from '../rndrgen/math/math';
+import { degreesToRadians, lerp, mapRange, percentage, uvFromAngle } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';
+import {
+    arrayPointArrayToVectorArray,
+    pointDistance,
+    arrayVectorToPointArray,
+    trimPointArray,
+} from '../rndrgen/math/points';
 
 /*
 Based on Meander by Robert Hodgin
@@ -75,7 +81,7 @@ const mediumRiver = new MeanderingRiver(points, {
 export class MeanderingRiver {
     constructor(initPoints, props) {
         this.startingPoints = initPoints;
-        this.pointVectors = pa2VA(initPoints);
+        this.pointVectors = arrayPointArrayToVectorArray(initPoints);
         this.oxbows = [];
 
         // Toggle oxbow checking
@@ -134,7 +140,7 @@ export class MeanderingRiver {
     }
 
     get points() {
-        return va2pA(this.pointVectors);
+        return arrayVectorToPointArray(this.pointVectors);
     }
 
     addToHistory(ox, channel) {
@@ -152,7 +158,7 @@ export class MeanderingRiver {
             const prev = i - 1;
             const next = i + 1;
             if (prev >= 0 && next < points.length) {
-                diffs += mCurvature(points[prev], point, points[next]);
+                diffs += mengerCurvature(points[prev], point, points[next]);
             }
             return diffs;
         }, 0);
@@ -343,8 +349,8 @@ export class MeanderingRiver {
                 // Check the proximity of the points on the screen and their proximity in the points array
                 if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
-                    let oxpoints = va2pA(points.slice(i, j));
-                    oxpoints = chaikin(trimPoints(oxpoints, 3), 3);
+                    let oxpoints = arrayVectorToPointArray(points.slice(i, j));
+                    oxpoints = chaikin(trimPointArray(oxpoints, 3), 3);
                     this.oxbows.push({ points: oxpoints, startLength: oxpoints.length });
                     // Skip i ahead to j since these points were removed
                     i = j;
@@ -406,7 +412,7 @@ export class MeanderingRiver {
             if (this.handleOxbows) this.oxbows = this.shrinkOxbows(this.oxbows);
 
             // Record history
-            this.addToHistory(this.oxbows, va2pA(this.pointVectors));
+            this.addToHistory(this.oxbows, arrayVectorToPointArray(this.pointVectors));
             this.steps++;
         } else if (this.handleOxbows) this.oxbows = this.shrinkOxbows(this.oxbows);
     }

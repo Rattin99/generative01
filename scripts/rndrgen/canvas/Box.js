@@ -7,9 +7,10 @@ Clip to no overflow?
 
 import tinycolor from 'tinycolor2';
 import { defaultValue } from '../utils';
-import { drawRect, drawRectFilled, resetStyles } from './canvas';
+import { resetStyles } from './canvas';
 import { Point } from '../math/Point';
 import { randomNormalWholeBetween, randomWholeBetween } from '../math/random';
+import { drawRect, drawRectFilled } from './primatives';
 
 const defaultMP = {
     top: 0,

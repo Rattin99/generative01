@@ -4,12 +4,13 @@ import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
-import { chaikin, createSplinePoints, trimPoints } from '../rndrgen/math/lineSegments';
+import { chaikin } from '../rndrgen/math/segments';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../rndrgen/math/attractors';
-import { drawConnectedPoints, variableCircleAtPoint } from '../rndrgen/canvas/canvas-linespoints';
+import { drawConnectedPoints, variableCircleAtPoint } from '../rndrgen/canvas/segments';
 import { createCirclePoints } from '../rndrgen/math/grids';
 import { renderField } from '../rndrgen/canvas/rendernoise';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
+import { createSplineFromPointArray, trimPointArray } from '../rndrgen/math/points';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -86,8 +87,8 @@ export const meanderingRiver02 = () => {
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         background(canvas, context)(backgroundColor);
-        const horizontal = createSplinePoints(createHorizontalPath(canvas, 0, canvasMidY, 40));
-        const vertical = createSplinePoints(createVerticalPath(canvas, canvasMidX, 0, 40));
+        const horizontal = createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 40));
+        const vertical = createSplineFromPointArray(createVerticalPath(canvas, canvasMidX, 0, 40));
         const circle = createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
 
         const cs = {

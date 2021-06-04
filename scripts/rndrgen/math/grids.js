@@ -19,6 +19,7 @@ export const createCirclePoints = (offsetX, offsetY, radius, steps, close = true
     }
     return points;
 };
+
 export const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows) => {
     const gridPoints = [];
 
@@ -35,6 +36,7 @@ export const createGridPointsXY = (width, height, xMargin, yMargin, columns, row
 
     return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
 };
+
 export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0) => {
     const points = [];
 
@@ -50,28 +52,4 @@ export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutt
     }
 
     return { points, columnWidth: colStep, rowHeight: rowStep };
-};
-// -> [{radius, rotation, position:[u,v]}, ...]
-export const createGridPointsUV = (columns, rows) => {
-    rows = rows || columns;
-    const points = [];
-
-    const amplitude = 0.1;
-    const frequency = 1;
-
-    for (let x = 0; x < columns; x++) {
-        for (let y = 0; y < rows; y++) {
-            const u = columns <= 1 ? 0.5 : x / (columns - 1);
-            const v = columns <= 1 ? 0.5 : y / (rows - 1);
-            // const radius = Math.abs(random.gaussian() * 0.02);
-            const radius = create2dNoiseAbs(u, v);
-            const rotation = create2dNoiseAbs(u, v);
-            points.push({
-                radius,
-                rotation,
-                position: [u, v],
-            });
-        }
-    }
-    return points;
 };

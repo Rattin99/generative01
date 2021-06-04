@@ -1,16 +1,17 @@
 import tinycolor from 'tinycolor2';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
-import { background, pixel, resetStyles } from '../rndrgen/canvas/canvas';
+import { background, resetStyles } from '../rndrgen/canvas/canvas';
 import { mapRange, uvFromAngle } from '../rndrgen/math/math';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../rndrgen/color/palettes';
 import { Box } from '../rndrgen/canvas/Box';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { Vector } from '../rndrgen/math/Vector';
-import { linesRect, stippleRect, texturizeRect } from '../rndrgen/canvas/canvas-textures';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/canvas-particles';
+import { linesRect, stippleRect, texturizeRect } from '../rndrgen/canvas/textures';
+import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
 import { createGridCellsXY } from '../rndrgen/math/grids';
 import { oneOf } from '../rndrgen/math/random';
+import { pixel } from '../rndrgen/canvas/primatives';
 
 export const shadedBoxes = () => {
     const config = {

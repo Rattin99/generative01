@@ -1,11 +1,12 @@
 import tinycolor from 'tinycolor2';
 import { degreesToRadians, quantize } from '../rndrgen/math/math';
-import { background, drawCircleFilled, clearCanvas } from '../rndrgen/canvas/canvas';
+import { background, clearCanvas } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { brightest, darkest, hslFromRange, nicePalette } from '../rndrgen/color/palettes';
 import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import sourcePng from '../../media/images/gaetano-cessati-waves-400.png';
 import { randomPointAround, randomWholeBetween } from '../rndrgen/math/random';
+import { drawCircleFilled } from '../rndrgen/canvas/primatives';
 
 /*
 Started here but took a detour

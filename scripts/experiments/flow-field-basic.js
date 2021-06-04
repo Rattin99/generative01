@@ -1,14 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, uvFromAngle, aFromVector, snapNumber, quantize, houghQuantize } from '../rndrgen/math/math';
+import { mapRange, uvFromAngle, angleFromVector, snapNumber, quantize, houghQuantize } from '../rndrgen/math/math';
 import { edgeWrap, Particle, createRandomParticleValues } from '../systems/Particle';
-import {
-    background,
-    drawCircleFilled,
-    drawLineAngle,
-    drawQuadRectFilled,
-    drawRectFilled,
-    drawRoundRectFilled,
-} from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { nicePalette, hslFromRange } from '../rndrgen/color/palettes';
 import { Vector } from '../rndrgen/math/Vector';
@@ -21,6 +14,13 @@ import {
     diagLines,
 } from '../rndrgen/math/attractors';
 import { create2dNoise, create3dNoise, oneOf, randomWholeBetween } from '../rndrgen/math/random';
+import {
+    drawCircleFilled,
+    drawLineAngle,
+    drawQuadRectFilled,
+    drawRectFilled,
+    drawRoundRectFilled,
+} from '../rndrgen/canvas/primatives';
 
 /*
 https://www.khanacademy.org/math/multivariable-calculus/thinking-about-multivariable-function/visualizing-vector-valued-functions/v/parametric-curves
@@ -93,7 +93,7 @@ export const flowFieldBasic = () => {
     };
 
     const drawTile = (canvas, context, force, particle) => {
-        const angle = aFromVector(force);
+        const angle = angleFromVector(force);
 
         particle.applyForce(force);
         particle.velocity = particle.velocity.limit(4);

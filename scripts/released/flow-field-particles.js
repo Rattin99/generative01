@@ -1,12 +1,13 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, uvFromAngle, snapNumber, quantize } from '../rndrgen/math/math';
 import { edgeWrap, Particle, createRandomParticleValues } from '../systems/Particle';
-import { background, drawCircleFilled } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { Vector } from '../rndrgen/math/Vector';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { hslFromRange } from '../rndrgen/color/palettes';
 import { randomWholeBetween } from '../rndrgen/math/random';
+import { drawCircleFilled } from '../rndrgen/canvas/primatives';
 
 export const flowFieldParticles = () => {
     const config = {

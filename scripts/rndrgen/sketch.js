@@ -31,8 +31,7 @@ TODO
 - [ ] great ideas here http://paperjs.org/features/
 */
 
-import { isHiDPI, contextScale, resizeCanvas } from './canvas/canvas';
-import { golden } from './math/math';
+import { isHiDPICanvas, resizeCanvas } from './canvas/canvas';
 import { defaultValue } from './utils';
 import { getRandomSeed } from './math/random';
 
@@ -44,7 +43,7 @@ export const orientation = {
 export const ratio = {
     letter: 0.773, // 8.5x11
     poster: 0.667, // 24x36
-    golden: golden - 1,
+    golden: 0.6180339887498948482,
     square: -1,
     auto: 1,
 };
@@ -54,7 +53,7 @@ export const scale = {
     hidpi: 2,
 };
 
-export const sketch = () => {
+export const sketch = (canvasElId) => {
     const mouse = {
         x: undefined,
         y: undefined,
@@ -73,7 +72,7 @@ export const sketch = () => {
     let animationId;
 
     const canvasSizeFraction = 0.9;
-    const canvas = document.getElementById('canvas');
+    const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
 
     const getCanvas = (_) => canvas;
@@ -85,7 +84,7 @@ export const sketch = () => {
     };
 
     const mouseMove = (evt) => {
-        const mult = isHiDPI ? 2 : 1;
+        const mult = isHiDPICanvas() ? 2 : 1;
         const canvasFrame = canvas.getBoundingClientRect();
         mouse.x = (evt.x - canvasFrame.x) * mult;
         mouse.y = (evt.y - canvasFrame.y) * mult;
@@ -101,61 +100,64 @@ export const sketch = () => {
         mouse.isDown = false;
     };
 
-    window.addEventListener('mousedown', mouseDown);
-    window.addEventListener('touchstart', mouseDown);
-
-    window.addEventListener('mousemove', mouseMove);
-    window.addEventListener('touchmove', mouseMove);
-
-    window.addEventListener('mouseup', mouseUp);
-    window.addEventListener('touchend', mouseUp);
-
-    window.addEventListener('mouseout', mouseOut);
-    window.addEventListener('touchcancel', mouseOut);
-
     const applyCanvasSize = (config, fraction) => {
         const width = defaultValue(config, 'width', window.innerWidth);
         const height = defaultValue(config, 'height', window.innerHeight);
-        let newWidth = width;
-        let newHeight = height;
+        let finalWidth = width;
+        let finalHeight = height;
 
         const cfgOrientation = defaultValue(config, 'orientation', orientation.landscape);
         const cfgRatio = defaultValue(config, 'ratio', ratio.auto);
         const cfgScale = defaultValue(config, 'scale', scale.standard);
 
-        const aSide = Math.min(width, height) * fraction;
-        const bSide = Math.round(cfgRatio * aSide) * fraction;
-
-        if (cfgRatio === ratio.square) {
-            newWidth = aSide;
-            newHeight = aSide;
+        if (cfgRatio === ratio.auto) {
+            finalWidth = width;
+            finalHeight = height;
+        } else if (cfgRatio === ratio.square) {
+            const smallestWindowSize = Math.min(width, height) * fraction;
+            finalWidth = smallestWindowSize;
+            finalHeight = smallestWindowSize;
+        } else if (cfgOrientation === orientation.landscape) {
+            let w = width;
+            let h = Math.round(cfgRatio * width);
+            const delta = h - height;
+            if (delta > 0) {
+                w -= delta;
+                h -= delta;
+            }
+            finalWidth = w * fraction;
+            finalHeight = h * fraction;
         } else if (cfgOrientation === orientation.portrait) {
-            newWidth = bSide;
-            newHeight = aSide;
-        } else if (cfgOrientation === orientation.landscape && cfgRatio !== ratio.auto) {
-            newWidth = aSide;
-            newHeight = bSide;
+            let w = Math.round(cfgRatio * height);
+            let h = height;
+            const delta = w - width;
+            if (delta > 0) {
+                w -= delta;
+                h -= delta;
+            }
+            finalWidth = w * fraction;
+            finalHeight = h * fraction;
         }
 
-        resizeCanvas(canvas, context, newWidth, newHeight, cfgScale);
+        resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
     };
 
     const run = (variation) => {
         currentVariationFn = variation;
-        currentVariationRes = currentVariationFn.call(this);
+        currentVariationRes = currentVariationFn();
+
+        addEvents();
 
         let currentDrawLimit;
-
-        let backgroundColor;
+        let rendering = true;
+        const targetFpsInterval = 1000 / fps;
+        let lastAnimationFrameTime;
 
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         if (currentVariationRes.hasOwnProperty('config')) {
             const { config } = currentVariationRes;
             applyCanvasSize(config, canvasSizeFraction);
-            if (config.background) {
-                backgroundColor = config.background;
-            }
             if (config.fps) {
                 fps = config.fps;
             }
@@ -165,12 +167,6 @@ export const sketch = () => {
         } else {
             resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
         }
-
-        let rendering = true;
-        const targetFpsInterval = 1000 / fps;
-        let lastAnimationFrameTime;
-
-        // context.translate(0.5, 0.5);
 
         const checkDrawLimit = () => {
             if (currentDrawLimit) {
@@ -183,17 +179,20 @@ export const sketch = () => {
             window.removeEventListener('load', startSketch);
             hasStarted = true;
 
-            currentVariationRes.setup({ canvas, context, s: this });
+            currentVariationRes.setup({ canvas, context });
+
+            const drawFrame = () => {
+                drawRuns++;
+                return currentVariationRes.draw({ canvas, context, mouse });
+            };
 
             const render = () => {
-                const result = currentVariationRes.draw({ canvas, context, mouse });
-                drawRuns++;
+                const result = drawFrame();
                 if (result !== -1 && checkDrawLimit()) {
                     animationId = requestAnimationFrame(render);
                 }
             };
 
-            // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
             const renderAtFps = () => {
                 if (rendering) {
                     animationId = window.requestAnimationFrame(renderAtFps);
@@ -204,8 +203,7 @@ export const sketch = () => {
 
                 if (elapsed > targetFpsInterval) {
                     lastAnimationFrameTime = now - (elapsed % targetFpsInterval);
-                    const result = currentVariationRes.draw({ canvas, context, mouse });
-                    drawRuns++;
+                    const result = drawFrame();
                     if (result === -1 || (currentDrawLimit && drawRuns >= currentDrawLimit)) {
                         rendering = false;
                     }
@@ -227,8 +225,41 @@ export const sketch = () => {
         }
     };
 
+    const addEvents = (_) => {
+        window.addEventListener('mousedown', mouseDown);
+        window.addEventListener('touchstart', mouseDown);
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('touchmove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('touchend', mouseUp);
+        window.addEventListener('mouseout', mouseOut);
+        window.addEventListener('touchcancel', mouseOut);
+        window.addEventListener('resize', windowResize);
+    };
+
+    const removeEvents = (_) => {
+        window.removeEventListener('mousedown', mouseDown);
+        window.removeEventListener('touchstart', mouseDown);
+        window.removeEventListener('mousemove', mouseMove);
+        window.removeEventListener('touchmove', mouseMove);
+        window.removeEventListener('mouseup', mouseUp);
+        window.removeEventListener('touchend', mouseUp);
+        window.removeEventListener('mouseout', mouseOut);
+        window.removeEventListener('touchcancel', mouseOut);
+        window.removeEventListener('resize', windowResize);
+    };
+
     const stop = () => {
+        removeEvents();
         window.cancelAnimationFrame(animationId);
+    };
+
+    const windowResize = (evt) => {
+        // clear and rerun to avoid artifacts
+        if (animationId) {
+            stop();
+            run(currentVariationFn);
+        }
     };
 
     const getVariationName = () => {
@@ -244,14 +275,12 @@ export const sketch = () => {
         return `sketch-${name}-${seed}`;
     };
 
-    const windowResize = (evt) => {
-        // resizeCanvas(canvas, context, window.innerWidth * canvasSizeFraction, window.innerHeight * canvasSizeFraction);
-        if (animationId) {
-            stop();
-            run(currentVariationFn);
-        }
+    const saveCanvasCapture = (evt) => {
+        console.log('Saving capture', evt);
+        const imageURI = canvas.toDataURL('image/png');
+        evt.target.setAttribute('download', `${getVariationName()}.png`);
+        evt.target.href = imageURI;
     };
-    window.addEventListener('resize', windowResize);
 
     return {
         variationName: getVariationName,
@@ -260,6 +289,6 @@ export const sketch = () => {
         mouse: getMouse,
         run,
         stop,
-        s: sketch,
+        saveCanvasCapture,
     };
 };

@@ -3,41 +3,20 @@ Explorations with generative code
 */
 
 import normalize from 'normalize.css';
+import { getQueryVariable } from './rndrgen/utils';
 import { sketch } from './rndrgen/sketch';
 import { variationsIndex } from './variationsIndex';
-import { meanderingRiver01 } from './released/meandering-river-01';
-import { marchingSquares } from './experiments/marching-squares';
+
+const s = sketch('canvas');
 
 const experimentalVariation = undefined;
 // const experimentalVariation = marchingSquares;
-const s = sketch();
-
-const saveCanvasCapture = (_) => {
-    console.log('Saving capture');
-    const imageURI = s.canvas().toDataURL('image/png');
-    document.getElementById('download').setAttribute('download', `${s.variationName()}.png`);
-    document.getElementById('download').href = imageURI;
-};
-
-document.getElementById('download').addEventListener('click', saveCanvasCapture);
-window.addEventListener('keydown', (e) => {
-    if (e.key === 's') {
-        document.getElementById('download').click();
-    }
-});
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
-const getQueryVariable = (variable) => {
-    const query = window.location.search.substring(1);
-    const vars = query.split('&');
-    for (let i = 0; i < vars.length; i++) {
-        const pair = vars[i].split('=');
-        if (pair[0] === variable) {
-            return pair[1];
-        }
-    }
-    return false;
+const runVariation = (v) => {
+    setNote(v.note);
+    s.run(v.sketch);
 };
 
 let variationKey = getQueryVariable('variation');
@@ -45,14 +24,11 @@ const variationKeys = Object.keys(variationsIndex);
 variationKey = variationKey || variationKeys[variationKeys.length - 1];
 
 if (getQueryVariable('variation') && variationsIndex.hasOwnProperty(variationKey)) {
-    const vToRun = variationsIndex[variationKey];
-    setNote(vToRun.note);
-    s.run(vToRun.sketch);
+    runVariation(variationsIndex[variationKey]);
 } else if (experimentalVariation !== undefined) {
-    s.run(experimentalVariation);
-    setNote('Current experiment ...');
+    runVariation({ sketch: experimentalVariation, note: 'Current experiment ...' });
 } else {
-    const vToRun = variationsIndex[variationKeys.length];
-    setNote(vToRun.note);
-    s.run(vToRun.sketch);
+    runVariation(variationsIndex[variationKeys.length]);
 }
+
+document.getElementById('download').addEventListener('click', s.saveCanvasCapture);

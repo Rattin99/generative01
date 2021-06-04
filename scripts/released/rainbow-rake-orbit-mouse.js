@@ -1,6 +1,6 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
-import { drawParticlePoint, drawRotatedParticle } from '../rndrgen/canvas/canvas-particles';
+import { drawParticlePoint, drawRotatedParticle } from '../rndrgen/canvas/particles';
 
 const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
     const points = 5;

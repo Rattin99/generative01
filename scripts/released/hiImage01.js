@@ -1,10 +1,11 @@
 import sourcePng from '../../media/images/hi1.png';
-import { clearCanvas, drawSquareFilled, background } from '../rndrgen/canvas/canvas';
+import { clearCanvas, background } from '../rndrgen/canvas/canvas';
 import { createRandomParticleValues, edgeWrap, Particle } from '../systems/Particle';
 import { mapRange } from '../rndrgen/math/math';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/canvas-particles';
+import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
 import { createGridPointsXY } from '../rndrgen/math/grids';
 import { createRandomNumberArray, randomNumberBetween } from '../rndrgen/math/random';
+import { drawSquareFilled } from '../rndrgen/canvas/primatives';
 
 const getImageDataFromImage = (context) => (image) => {
     context.drawImage(image, 0, 0);
