@@ -1,0 +1,1 @@
+module.exports = require('./bundle-url').getBundleURL() + "kristijan-arsov-woman-400.HASH_REF_52c35bdc0019e5bc7ae60c4256b3ea5d.png";

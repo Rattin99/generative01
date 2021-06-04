@@ -1,0 +1,147 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "lissajous01", ()=>lissajous01
+);
+var _canvas = require("../lib/canvas/canvas");
+var _math = require("../lib/math/math");
+var _palettes = require("../lib/color/palettes");
+var _sketch = require("../lib/Sketch");
+var _canvasText = require("../lib/canvas/canvas-text");
+var _grids = require("../lib/math/grids");
+class Curve {
+    constructor(x, y, radius, angle, speed, noise){
+        this.x = x;
+        this.y = y;
+        this.originX = x;
+        this.originY = y;
+        this.radius = radius;
+        this.speed = speed || 1;
+        this.angle = angle || 0;
+        this.noise = noise;
+        // Randomize some noise possibilities
+        this.xa = _math.oneOf([
+            _math.randomWholeBetween(1, 5),
+            _math.round2(this.noise)
+        ]);
+        this.xb = _math.oneOf([
+            _math.randomWholeBetween(1, 5),
+            _math.round2(this.noise)
+        ]);
+        this.ya = _math.oneOf([
+            _math.randomWholeBetween(1, 5),
+            _math.round2(this.noise)
+        ]);
+        this.yb = _math.oneOf([
+            _math.randomWholeBetween(1, 5),
+            _math.round2(this.noise)
+        ]);
+    }
+    get size() {
+        return this.radius * 2;
+    }
+    get centerX() {
+        return this.originX + this.radius;
+    }
+    get centerY() {
+        return this.originY + this.radius;
+    }
+    get distFromCenter() {
+        return _math.pointDistance({
+            x: this.centerX,
+            y: this.centerY
+        }, {
+            x: this.x,
+            y: this.y
+        });
+    }
+}
+const lissajous01 = ()=>{
+    const config = {
+        name: 'lissajous01',
+        ratio: _sketch.ratio.square,
+        scale: _sketch.scale.hidpi
+    };
+    const renderBatch = 10;
+    const curves = [];
+    let canvasCenterX;
+    let canvasCenterY;
+    let centerRadius;
+    const columns = 3;
+    let margin;
+    const palette = _palettes.nicePalette();
+    const colorBackground = _palettes.brightest(palette).clone().lighten(10);
+    const colorCurve = _palettes.darkest(palette).clone().darken(25);
+    const colorText = colorBackground.clone().darken(15).desaturate(20);
+    let tick = 0;
+    let grid;
+    const setup = ({ canvas , context  })=>{
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        centerRadius = canvas.height / 4;
+        margin = 50 * _canvas.contextScale;
+        if (columns === 1) curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
+        else {
+            grid = _grids.createGridCellsXY(canvas.width, canvas.width, columns, columns, margin, margin / 2);
+            grid.points.forEach((point)=>{
+                const x1 = point[0];
+                const y1 = point[1];
+                curves.push(new Curve(x1, y1, grid.columnWidth / 2, 0, 0.05, _math.create2dNoiseAbs(x1, y1)));
+            });
+        }
+        _canvas.background(canvas, context)(colorBackground);
+    };
+    const circleX = (curve, v = 1)=>curve.radius * Math.cos(curve.angle * v)
+    ;
+    const circleY = (curve, v = 1)=>curve.radius * Math.sin(curve.angle * v)
+    ;
+    // k is # of petals
+    // https://en.wikipedia.org/wiki/Rose_(mathematics)
+    // http://xahlee.info/SpecialPlaneCurves_dir/Rose_dir/rose.html
+    const roseX = (curve, k = 1, a = 1, b = 1)=>curve.radius * Math.cos(k * curve.angle * a) * Math.cos(curve.angle * b)
+    ;
+    const roseY = (curve, k = 1, a = 1, b = 1)=>curve.radius * Math.cos(k * curve.angle * a) * Math.sin(curve.angle * b)
+    ;
+    const linearYDown = (curve)=>{
+        let { y: y1  } = curve;
+        if ((++y1) > curve.size) y1 = 0;
+        return y1;
+    };
+    const draw = ({ context  })=>{
+        grid.points.forEach((point)=>{
+            _canvas.drawRect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
+        });
+        for(let b = 0; b < renderBatch; b++){
+            for(let i = 0; i < curves.length; i++){
+                // const idx = i + 1;
+                // const pointRad = 1;
+                const c = curves[i];
+                const k = _math.round2((i + 1) * 2 / 9);
+                const { xa  } = c;
+                const { xb  } = c;
+                const { ya  } = c;
+                const { yb  } = c;
+                // c.x = circleX(c);
+                // c.y = circleY(c);
+                c.x = roseX(c, k, xa, xb);
+                c.y = roseY(c, k, ya, yb);
+                // c.y = linearYDown(c);
+                // TODO, put a/b on the canvas so i can remember them!
+                c.angle += c.speed;
+                // const h = mapRange(0, c.radius, 180, 270, c.distFromCenter);
+                // const s = 100;
+                // const l = 30;
+                // const a = 0.75;
+                // const color = `hsla(${h},${s}%,${l}%,${a})`;
+                _canvas.pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
+                _canvasText.setTextAlignLeftTop(context);
+                _canvasText.drawTextFilled(context)(`k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`, c.originX, c.originY + c.size + 10, colorText, _canvasText.textStyles.size(10));
+            }
+            tick++;
+        }
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};

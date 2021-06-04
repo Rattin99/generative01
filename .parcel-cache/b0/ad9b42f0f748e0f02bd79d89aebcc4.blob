@@ -1,0 +1,96 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "flowFieldImage", ()=>flowFieldImage
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _math = require("../lib/math/math");
+var _particle = require("../systems/Particle");
+var _canvas = require("../lib/canvas/canvas");
+var _sketch = require("../lib/Sketch");
+var _vector = require("../lib/math/Vector");
+var _attractors = require("../lib/math/attractors");
+var _palettes = require("../lib/color/palettes");
+var _bitmap = require("../lib/canvas/Bitmap");
+var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
+var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
+var _canvasPaint = require("../lib/canvas/canvas-paint");
+var _rendernoise = require("../lib/canvas/rendernoise");
+/*
+https://marcteyssier.com/projects/flowfield/
+https://larrycarlson.com/collections/wavy-art-prints
+ */ const TAU = Math.PI * 2;
+const flowFieldImage = ()=>{
+    const config = {
+        name: 'flowFieldImage',
+        ratio: _sketch.ratio.square,
+        scale: _sketch.scale.standard
+    };
+    const maxSize = 5;
+    let time = 0;
+    const backgroundColor = _palettes.warmWhite;
+    const image = new _bitmap.Bitmap(_kristijanArsovWoman400PngDefault.default);
+    const createRandomParticle = (canvas)=>{
+        const props = _particle.createRandomParticleValues(canvas);
+        props.x = _math.randomWholeBetween(0, canvas.width);
+        props.y = _math.randomWholeBetween(0, canvas.height);
+        props.velocityX = 0;
+        props.velocityY = 0;
+        return new _particle.Particle(props);
+    };
+    const imageFlow = (x, y)=>image.pixelThetaFromCanvas(x, y) * TAU
+    ;
+    const setup = ({ canvas , context  })=>{
+        image.init(canvas, context);
+        _canvas.background(canvas, context)(backgroundColor);
+        _rendernoise.renderField(canvas, context, imageFlow, 'rgba(0,0,0,.15)', 50, 10);
+    };
+    const drawPixel = (canvas, context, particle, color, rad = 1)=>{
+        const pcolor = color || particle.color;
+        const { x  } = particle;
+        const { y  } = particle;
+        _canvas.drawCircleFilled(context)(x, y, rad, pcolor);
+        return true;
+    };
+    const drawParticle = ({ canvas , context  }, particle)=>{
+        const theta = imageFlow(particle.x, particle.y);
+        const force = _math.uvFromAngle(theta);
+        particle.applyForce(force);
+        particle.velocity = particle.velocity.limit(3);
+        particle.updatePosWithVelocity();
+        const fromCenter = _math.pointDistance(particle, {
+            x: canvas.width / 2,
+            y: canvas.height / 2
+        });
+        const imagePixelColor = image.pixelColorFromCanvas(particle.x, particle.y);
+        const imagePixelBrightness = 256 - imagePixelColor.getBrightness();
+        const hslColor = _palettes.hslFromRange(canvas.width, 90, 270, particle.x).spin(time);
+        const particleColor = _tinycolor2Default.default.mix(hslColor, imagePixelColor, 90);
+        particleColor.desaturate(_math.mapRange(canvas.width / 3, canvas.width / 2, 0, 10, fromCenter));
+        const size = _math.mapRange(0, 255, 0, maxSize, imagePixelBrightness);
+        const sizeMult = _math.mapRange(canvas.width / 3, canvas.width / 2, 1, 5, fromCenter);
+        drawPixel(canvas, context, particle, particleColor, size * sizeMult);
+        if (Math.abs(theta) >= 5.7) _canvasPaint.splatter(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
+        particle.acceleration = new _vector.Vector(0, 0);
+    };
+    const drawFibers = ({ canvas , context  })=>{
+        const particle = createRandomParticle(canvas);
+        const length = _math.randomWholeBetween(50, 1000);
+        for(let i = 0; i < length; i++)drawParticle({
+            canvas,
+            context
+        }, particle);
+    };
+    const draw = ({ canvas , context  })=>{
+        drawFibers({
+            canvas,
+            context
+        });
+        time += 0.05;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};

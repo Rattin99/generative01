@@ -1,0 +1,72 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "variation2", ()=>variation2
+);
+var _particle = require("../systems/Particle");
+var _canvas = require("../lib/canvas/canvas");
+var _math = require("../lib/math/math");
+var _canvasParticles = require("../lib/canvas/canvas-particles");
+const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
+        const distance = _math.pointDistance({
+            x,
+            y
+        }, particle);
+        if (distance < radius) {
+            const dx = x - particle.x;
+            const dy = y - particle.y;
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = _math.normalizeInverse(0, radius, distance) * f * mult;
+            const tempX = forceDirectionX * force * particle.radius * 2;
+            const tempY = forceDirectionY * force * particle.radius * 2;
+            particle.x += tempX;
+            particle.y += tempY;
+        }
+    }
+;
+// for moving points, push away/around from point
+const avoidPoint = (point, particle, f = 1)=>{
+    gravityPoint(1, f *= -1)(point.x, point.y, point.radius, particle);
+};
+const variation2 = ()=>{
+    const config = {
+        friction: 0.8,
+        gravity: 1,
+        decay: 0.05,
+        tweenDamp: 0.1,
+        margin: 50,
+        intensity: 0,
+        numParticles: 200
+    };
+    const particlesArray = [];
+    const setup = ({ canvas , context  })=>{
+        for(let i = 0; i < config.numParticles; i++)particlesArray.push(new _particle.Particle(_particle.createRandomParticleValues(canvas)));
+    };
+    const draw = ({ canvas , context , mouse  })=>{
+        _canvas.clearCanvas(canvas, context)();
+        for(let i = 0; i < config.numParticles; i++){
+            particlesArray[i].radius -= config.decay;
+            if (particlesArray[i].radius <= 0) {
+                const props = _particle.createRandomParticleValues(canvas);
+                props.x = mouse.x + _math.randomNumberBetween(-10, 10);
+                props.y = mouse.y + _math.randomNumberBetween(-10, 10);
+                particlesArray[i].initValues(props);
+            }
+            particlesArray[i].y += particlesArray[i].mass * (mouse.isDown ? 1 : 0.2);
+            particlesArray[i].mass += 0.2 * config.gravity;
+            if (particlesArray[i].y + particlesArray[i].radius > canvas.height || particlesArray[i].y - particlesArray[i].radius < 0) particlesArray[i].mass *= -1;
+            avoidPoint(mouse, particlesArray[i]);
+            // attractPoint(psMouseCoords(), particlesArray[i]);
+            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+        // drawPointTrail(context)(particlesArray[i]);
+        }
+        _canvasParticles.connectParticles(context)(particlesArray, 100);
+        _canvasParticles.drawMouse(context)(mouse);
+        return 1;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};

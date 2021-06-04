@@ -1,0 +1,1 @@
+module.exports = require('./bundle-url').getBundleURL() + "domokun.HASH_REF_5d08efd84f6d37d54acb3a4a01fc712a.png";

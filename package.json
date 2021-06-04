@@ -14,6 +14,7 @@
   "author": "Matt Perkins, hello@mattperkins.me",
   "license": "MIT",
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.0.0-beta.3.1",
     "babel-eslint": "^10.1.0",
     "canvas-sketch-util": "^1.10.0",
     "eslint": "^7.18.0",
@@ -28,8 +29,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "nice-color-palettes": "^3.0.0",
     "normalize.css": "^8.0.1",
-    "parcel-bundler": "^1.12.4",
-    "parcel-plugin-url-loader": "^1.3.1",
+    "parcel": "^2.0.0-beta.3.1",
     "prettier": "^2.2.1",
     "sass": "^1.32.6",
     "tinycolor2": "^1.4.2"

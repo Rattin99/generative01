@@ -1,0 +1,52 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "windLines", ()=>windLines
+);
+var _canvas = require("../lib/canvas/canvas");
+var _palettes = require("../lib/color/palettes");
+var _math = require("../lib/math/math");
+var _timeline = require("../lib/Timeline");
+var _grids = require("../lib/math/grids");
+const windLines = ()=>{
+    const config = {
+        width: 600,
+        height: 600,
+        fps: 60
+    };
+    let counter = 0;
+    let grid = _grids.createGridPointsUV(15, 15);
+    const timeline = new _timeline.Timeline(config.fps, 0, 5);
+    const setup = ({ canvas , context  })=>{
+        const colors = _palettes.nicePalette();
+        grid = grid.map((g)=>{
+            g.color = _math.oneOf(colors);
+            return g;
+        });
+        _canvas.background(canvas, context)('rgba(255,255,255,1');
+    };
+    const draw = ({ canvas , context , mouse  })=>{
+        _canvas.background(canvas, context)('rgba(255,255,255,.1');
+        grid.forEach(({ position , rotation , color  })=>{
+            const [u, v] = position;
+            const { x , y  } = _math.marginify({
+                margin: 100,
+                u,
+                v,
+                width: canvas.width,
+                height: canvas.height
+            });
+            const t = _math.toSinValue(timeline.playhead) * 0.1;
+            const wave = _math.create3dNoiseAbs(u, v, counter, 3 * t) * 10;
+            const startvect = _math.uvFromAngle((rotation + wave) * -1).setMag(25);
+            _canvas.setStokeColor(context)(color);
+            _canvas.drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
+        });
+        counter += 0.01;
+        return timeline.onFrame();
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};

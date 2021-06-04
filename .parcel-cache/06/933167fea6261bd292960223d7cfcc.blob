@@ -1,0 +1,151 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "larrycarlson02", ()=>larrycarlson02
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _math = require("../lib/math/math");
+var _canvas = require("../lib/canvas/canvas");
+var _sketch = require("../lib/Sketch");
+var _palettes = require("../lib/color/palettes");
+var _bitmap = require("../lib/canvas/Bitmap");
+var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPng = require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png");
+var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPngDefault = parcelHelpers.interopDefault(_alexanderKrivitskiy2WOEPBkaH7OUnsplashPng);
+const larrycarlson02 = ()=>{
+    const config = {
+        name: 'larrycarlson2',
+        ratio: _sketch.ratio.square,
+        // ratio: ratio.poster,
+        // orientation: orientation.portrait,
+        scale: _sketch.scale.standard
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let centerRadius;
+    let imageWidth;
+    let imageHeight;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    const ribbonThickness = 10;
+    const backgroundColor = _palettes.paperWhite.clone();
+    const image = new _bitmap.Bitmap(_alexanderKrivitskiy2WOEPBkaH7OUnsplashPngDefault.default);
+    const colorImageTop = _tinycolor2Default.default('#ffeb00');
+    const colorImageBottom = _tinycolor2Default.default('#01ff4f');
+    const colorLinesTop = _tinycolor2Default.default('#ff01d7');
+    const colorLinesBottom = _tinycolor2Default.default('#5600cc');
+    const setup = ({ canvas , context  })=>{
+        image.init(canvas, context);
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        centerRadius = canvas.height / 4;
+        imageWidth = canvas.width - margin * 2;
+        imageHeight = canvas.height - margin * 2;
+        startX = margin;
+        maxX = canvas.width - margin;
+        startY = margin;
+        maxY = canvas.height - margin;
+        _canvas.background(canvas, context)(backgroundColor);
+    };
+    // const circleX = (theta, amp, freq) => Math.cos(theta / freq) * amp;
+    // const circleY = (theta, amp, freq) => Math.sin(theta / freq) * amp;
+    const renderImage = ()=>{
+        const resolution = ribbonThickness / 2;
+        const border = margin / -2;
+        // const freq = 30;
+        // const amp = 1;
+        // let theta = 0;
+        for(let x = startX + border; x < maxX - border; x += resolution)for(let y = startY + border; y < maxY - border; y += resolution){
+            const pxcolor = image.pixelColorFromCanvas(x, y);
+            const pxbrightness = pxcolor.getBrightness();
+            const bright = _math.mapRange(128, 255, 0, 50, pxbrightness);
+            const color = _tinycolor2Default.default.mix(colorImageTop, colorImageBottom, _math.mapRange(startY, maxY, 0, 100, y));
+            const size = resolution;
+            if (pxbrightness > 128) color.brighten(bright);
+            if (pxbrightness >= 70 && pxbrightness <= 100) color.spin(30);
+            // const ox = circleX(theta, amp, freq) + x;
+            // const oy = circleY(theta, amp, freq) + y;
+            _canvas.pixel(ctx)(x, y, color, 'circle', size);
+        // theta += 0.25;
+        }
+    };
+    const drawRibbonPoint = (point, isOtherSide)=>{
+        const x = point[0];
+        const y = point[1];
+        // -2 +1 to keep from overlapping other ribbons and give it a min thickness of 1
+        const size = image.sizeFromPixelBrightness(x, y, ribbonThickness - 2, 128, 255) + 0.75;
+        let jitterX = 0; // size;
+        // let jitterY = 0;
+        if (isOtherSide) jitterX = size * -1;
+        ctx.lineTo(x + jitterX, y);
+    };
+    const drawRibbon = (sideA, color, stroke = false)=>{
+        const rColor = _tinycolor2Default.default(color).clone();
+        const gradient = ctx.createLinearGradient(0, startY, 0, maxY);
+        gradient.addColorStop(0, colorLinesTop.toRgbString());
+        gradient.addColorStop(1, colorLinesBottom.toRgbString());
+        ctx.beginPath();
+        ctx.moveTo(sideA[0], sideA[0]);
+        sideA.forEach((w)=>{
+            drawRibbonPoint(w, false);
+        });
+        sideA.reverse().forEach((w)=>{
+            drawRibbonPoint(w, true);
+        });
+        ctx.closePath();
+        if (stroke) {
+            ctx.strokeStyle = rColor.darken(70).toRgbString();
+            ctx.lineWidth = 0.75;
+            ctx.stroke();
+        }
+        ctx.fillStyle = gradient;
+        ctx.fill();
+    };
+    const renderPoints = (points)=>{
+        points.forEach((line)=>{
+            if (line.length) drawRibbon(line, 'red', false, 0);
+        });
+    };
+    /*
+    https://www.desmos.com/calculator/rzwar3xxpy
+    y-x = amp * Math.sin((y+x)/freq)
+     */ const getPointsDiagSinWave = (xoffset, yoffset)=>{
+        const freq = 40; // 30
+        const amp = 15; // 5
+        let y = 0;
+        const a = Math.PI / 3; // angle of the wave, 1 is 45
+        const points = [];
+        for(let x = 0; x < canvasWidth; x++){
+            const b = x; // Math.sin(x / Math.PI) * 2;
+            // y = amp * Math.sin((y + b) / freq) + x * a;
+            y = amp * Math.sin((y * a + b) / freq) + x * a;
+            const px = x + xoffset;
+            const py = y + yoffset;
+            if (px > startX && px < maxX && py > startY && py < maxY) points.push([
+                px,
+                py
+            ]);
+        }
+        return points;
+    };
+    const draw = ({ canvas , context  })=>{
+        const points = [];
+        renderImage();
+        for(let x = (imageWidth + 100) * -1; x < imageWidth * 2; x += ribbonThickness)points.push(getPointsDiagSinWave(x, 0));
+        renderPoints(points);
+        return -1;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};

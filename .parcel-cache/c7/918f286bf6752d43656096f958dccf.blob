@@ -1,0 +1,168 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "asTinyColor", ()=>asTinyColor
+);
+parcelHelpers.export(exports, "brightest", ()=>brightest
+);
+parcelHelpers.export(exports, "darkest", ()=>darkest
+);
+parcelHelpers.export(exports, "bicPenBlue", ()=>bicPenBlue
+);
+parcelHelpers.export(exports, "paperWhite", ()=>paperWhite
+);
+parcelHelpers.export(exports, "warmWhite", ()=>warmWhite
+);
+parcelHelpers.export(exports, "warmPink", ()=>warmPink
+);
+parcelHelpers.export(exports, "coolGreyDark", ()=>coolGreyDark
+);
+parcelHelpers.export(exports, "warmGreyDark", ()=>warmGreyDark
+);
+parcelHelpers.export(exports, "palettes", ()=>palettes
+);
+parcelHelpers.export(exports, "nicePalette", ()=>nicePalette
+);
+parcelHelpers.export(exports, "palette", ()=>palette
+);
+parcelHelpers.export(exports, "hslFromRange", ()=>hslFromRange
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _niceColorPalettes = require("nice-color-palettes");
+var _math = require("../math/math");
+const asTinyColor = (arry)=>arry.map((c)=>_tinycolor2Default.default(c)
+    )
+;
+const brightest = (arry)=>{
+    const colors = asTinyColor(arry);
+    return colors.reduce((acc, c)=>{
+        if (c.getBrightness() > acc.getBrightness()) acc = c;
+        return acc;
+    }, colors[0]);
+};
+const darkest = (arry)=>{
+    const colors = asTinyColor(arry);
+    return colors.reduce((acc, c)=>{
+        if (c.getBrightness() < acc.getBrightness()) acc = c;
+        return acc;
+    }, colors[0]);
+};
+const bicPenBlue = _tinycolor2Default.default('hsl(250,79,29)').clone();
+const paperWhite = _tinycolor2Default.default('hsl(53,3,100)').clone();
+const warmWhite = _tinycolor2Default.default('hsl(42, 14%, 86%)').clone();
+const warmPink = _tinycolor2Default.default('hsl(29, 42%, 86%)').clone();
+const coolGreyDark = _tinycolor2Default.default('#1f2933').clone();
+const warmGreyDark = _tinycolor2Default.default('#27241d').clone();
+const palettes = {
+    greyWarm: [
+        '#faf97f',
+        '#e8e6e1',
+        '#d3cec4',
+        '#b8b2a7',
+        '#a39e93',
+        '#857f72',
+        '#625d52',
+        '#504a40',
+        '#423d33',
+        '#27241d', 
+    ],
+    greyCool: [
+        '#f5f7fa',
+        '#e4e7eb',
+        '#cbd2d9',
+        '#9aa5b1',
+        '#7b8794',
+        '#616e7c',
+        '#52606d',
+        '#3e4c59',
+        '#323f4b',
+        '#1f2933', 
+    ],
+    pop: [
+        '#ed3441',
+        '#ffd630',
+        '#329fe3',
+        '#154296',
+        '#303030'
+    ],
+    '60s_psyc': [
+        '#ffeb00',
+        '#fc0019',
+        '#01ff4f',
+        '#ff01d7',
+        '#5600cc',
+        '#00edf5'
+    ],
+    '70s': [
+        '#73BFA3',
+        '#F2DBAE',
+        '#F29829',
+        '#D9631E',
+        '#593C2C'
+    ],
+    '80s_pastells': [
+        '#FF3F3F',
+        '#FF48C4',
+        '#F3EA5F',
+        '#C04DF9',
+        '#2BD1FC',
+        '#38CEF6'
+    ],
+    '80s_pop': [
+        '#FF82E2',
+        '#70BAFF',
+        '#FED715',
+        '#0037B3',
+        '#FE0879'
+    ],
+    '90s': [
+        '#42C8B0',
+        '#4575F3',
+        '#6933B0',
+        '#D36F88',
+        '#FC8D45'
+    ],
+    retro_sunset: [
+        '#FFD319',
+        '#FF2975',
+        '#F222FF',
+        '#8C1EFF',
+        '#FF901F'
+    ],
+    vapor_wave: [
+        '#F6A3EF',
+        '#50D8EC',
+        '#DD6DFB',
+        '#EECD69',
+        '#6FEAE6'
+    ],
+    // https://www.colourlovers.com/palette/694737/Thought_Provoking
+    thought_provoking: [
+        'hsl(46, 75%, 70%)',
+        'hsl(10, 66%, 56%)',
+        'hsl(350, 65%, 46%)',
+        'hsl(336, 40%, 24%)',
+        'hsl(185, 19%, 40%)', 
+    ]
+};
+const nicePalette = (_)=>_niceColorPalettes[_math.randomWholeBetween(0, 99)]
+;
+const palette = (_)=>palettes[_math.oneOf(Object.keys(palettes))]
+;
+const hslFromRange = (y1, x2, y2, v)=>{
+    const h = _math.mapRange(0, y1, x2, y2, v);
+    const s = 100;
+    const l = 50;
+    return _tinycolor2Default.default(`hsl(${h},${s}%,${l}%)`);
+}; /*
+Color between 2 defined and a hue spin in the middle to introduce a 3rd
+// Palette from https://www.colourlovers.com/palette/694737/Thought_Provoking
+
+const colorTop = 'hsl(350, 65%, 46%)';
+const colorBottom = 'hsl(185, 19%, 40%)';
+const distFromCenter = Math.abs(mid - currentY);
+const color = tinycolor.mix(colorTop, colorBottom, mapRange(startY, maxY, 0, 100, currentY));
+color.spin(mapRange(0, mid / 2, 60, 0, distFromCenter));
+color.brighten(mapRange(0, mid / 2, 50, 0, distFromCenter));
+color.darken(mapRange(0, mid, 0, 40, distFromCenter) + randomNumberBetween(0, 30));
+ */ 

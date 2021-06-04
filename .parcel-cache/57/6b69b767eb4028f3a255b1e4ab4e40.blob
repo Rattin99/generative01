@@ -1,0 +1,85 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "hiImage01", ()=>hiImage01
+);
+var _hi1Png = require("../../media/images/hi1.png");
+var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
+var _canvas = require("../lib/canvas/canvas");
+var _particle = require("../systems/Particle");
+var _math = require("../lib/math/math");
+var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _grids = require("../lib/math/grids");
+const getImageDataFromImage = (context)=>(image)=>{
+        context.drawImage(image, 0, 0);
+        return context.getImageData(0, 0, image.width, image.width);
+    }
+;
+const getImageDataColor = (imageData, x, y)=>({
+        r: imageData.data[y * 4 * imageData.width + x * 4],
+        g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
+        b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
+        a: imageData.data[y * 4 * imageData.width + x * 4 + 3]
+    })
+;
+const hiImage01 = (_)=>{
+    const config = {
+        width: 600,
+        height: 600
+    };
+    let imageZoomFactor;
+    const png = new Image();
+    png.src = _hi1PngDefault.default;
+    let imageData;
+    const numParticles = 500;
+    const particlesArray = [];
+    const particleColor = {
+        r: 252,
+        g: 3,
+        b: 152
+    };
+    const setup = ({ canvas , context  })=>{
+        imageData = getImageDataFromImage(context)(png);
+        _canvas.clearCanvas(canvas, context)();
+        imageZoomFactor = canvas.width / imageData.width;
+        for(let i = 0; i < numParticles; i++){
+            const props = _particle.createRandomParticleValues(canvas);
+            props.radius = _math.randomNumberBetween(1, 5);
+            props.color = particleColor;
+            if (i % 2) props.x = 0;
+            else props.x = canvas.width;
+            particlesArray.push(new _particle.Particle(props));
+        }
+        _canvas.background(canvas, context)({
+            r: 255,
+            g: 255,
+            b: 0
+        });
+    };
+    const draw = ({ canvas , context , mouse  })=>{
+        _canvas.background(canvas, context)({
+            r: 255,
+            g: 255,
+            b: 0,
+            a: 0.004
+        });
+        for(let i = 0; i < numParticles; i++){
+            particlesArray[i].updatePosWithVelocity();
+            _particle.edgeWrap(canvas, particlesArray[i]);
+            const pxColor = getImageDataColor(imageData, Math.round(particlesArray[i].x / imageZoomFactor), Math.round(particlesArray[i].y / imageZoomFactor));
+            if (pxColor.r > 250) {
+                particlesArray[i].drag(0.001);
+                particlesArray[i].color = {
+                    r: 3,
+                    g: 227,
+                    b: 252
+                };
+            } else particlesArray[i].color = particleColor;
+            _canvasParticles.drawParticlePoint(context)(particlesArray[i]);
+        }
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
