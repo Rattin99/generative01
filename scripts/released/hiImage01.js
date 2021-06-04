@@ -1,6 +1,6 @@
 import sourcePng from '../../media/images/hi1.png';
 import { clearCanvas, drawSquareFilled, background } from '../lib/canvas/canvas';
-import { createRandomParticleValues, edgeWrap, Particle } from '../lib/systems/Particle';
+import { createRandomParticleValues, edgeWrap, Particle } from '../systems/Particle';
 import { createRandomNumberArray, mapRange, randomNumberBetween } from '../lib/math/math';
 import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
 import { createGridPointsXY } from '../lib/math/grids';

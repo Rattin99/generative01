@@ -1,5 +1,5 @@
 import { createRandomNumberArray, mapRange } from '../lib/math/math';
-import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../lib/canvas/canvas';
 import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
 import { createGridPointsXY } from '../lib/math/grids';

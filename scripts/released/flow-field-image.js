@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, randomWholeBetween, uvFromAngle, snapNumber, quantize, pointDistance } from '../lib/math/math';
-import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background, drawCircleFilled } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/Sketch';
 import { Vector } from '../lib/math/Vector';

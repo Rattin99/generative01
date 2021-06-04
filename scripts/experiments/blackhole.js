@@ -1,4 +1,4 @@
-import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background, drawCircleFilled } from '../lib/canvas/canvas';
 import { clamp, mapRange, pointDistance, randomNumberBetween } from '../lib/math/math';
 import { Vector } from '../lib/math/Vector';

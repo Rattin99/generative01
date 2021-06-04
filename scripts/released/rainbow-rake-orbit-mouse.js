@@ -1,4 +1,4 @@
-import { edgeBounce, Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../lib/canvas/canvas';
 import { drawParticlePoint, drawRotatedParticle } from '../lib/canvas/canvas-particles';
 

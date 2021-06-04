@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background, pixel, resetStyles } from '../lib/canvas/canvas';
 import { mapRange, oneOf, uvFromAngle } from '../lib/math/math';
 import { ratio, scale } from '../lib/Sketch';

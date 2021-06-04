@@ -1,4 +1,4 @@
-import { Particle, createRandomParticleValues, edgeWrap } from '../lib/systems/Particle';
+import { Particle, createRandomParticleValues, edgeWrap } from '../systems/Particle';
 import { background } from '../lib/canvas/canvas';
 import { mapRange } from '../lib/math/math';
 import { ratio, scale } from '../lib/Sketch';

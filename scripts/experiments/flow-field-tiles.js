@@ -11,7 +11,7 @@ import {
     quantize,
     houghQuantize,
 } from '../lib/math/math';
-import { edgeWrap, Particle, createRandomParticleValues } from '../lib/systems/Particle';
+import { edgeWrap, Particle, createRandomParticleValues } from '../systems/Particle';
 import {
     background,
     drawCircleFilled,

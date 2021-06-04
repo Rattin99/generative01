@@ -3,7 +3,7 @@ import { randomNormalWholeBetween, chaikin, mapRange } from '../lib/math/math';
 import { background } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/Sketch';
 import { bicPenBlue, warmWhite } from '../lib/color/palettes';
-import { MeanderingRiver, flowRightToMiddle } from '../lib/systems/MeanderingRiver';
+import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
 import { createSplinePoints, trimPoints } from '../lib/math/lineSegments';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/math/attractors';
 import { drawConnectedPoints, variableCircleAtPoint } from '../lib/canvas/canvas-linespoints';

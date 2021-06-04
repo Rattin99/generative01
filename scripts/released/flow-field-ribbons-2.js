@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
 import { randomWholeBetween, uvFromAngle, oneOf, randomPointAround, randomBoolean } from '../lib/math/math';
-import { Particle } from '../lib/systems/Particle';
+import { Particle } from '../systems/Particle';
 import { background } from '../lib/canvas/canvas';
 import { ratio, scale } from '../lib/Sketch';
 import { palettes } from '../lib/color/palettes';

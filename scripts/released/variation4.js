@@ -1,4 +1,4 @@
-import { createRandomParticleValues, Particle } from '../lib/systems/Particle';
+import { createRandomParticleValues, Particle } from '../systems/Particle';
 import { fillCanvas } from '../lib/canvas/canvas';
 import { normalizeInverse, pointDistance } from '../lib/math/math';
 import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';

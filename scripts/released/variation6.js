@@ -1,4 +1,4 @@
-import { Particle, createRandomParticleValues, edgeBounce } from '../lib/systems/Particle';
+import { Particle, createRandomParticleValues, edgeBounce } from '../systems/Particle';
 import { fillCanvas } from '../lib/canvas/canvas';
 import { drawParticlePoint } from '../lib/canvas/canvas-particles';
 import { normalizeInverse, pointDistance, mapRange } from '../lib/math/math';

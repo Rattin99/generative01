@@ -1,5 +1,5 @@
 import { create2dNoise, create3dNoise, pointDistance, randomNumberBetween, uvFromAngle } from './math';
-import { Particle } from '../systems/Particle';
+import { Particle } from '../../systems/Particle';
 import { Vector } from './Vector';
 
 const TAU = Math.PI * 2;
