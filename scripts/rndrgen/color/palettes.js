@@ -1,6 +1,7 @@
 import tinycolor from 'tinycolor2';
 import * as nicepalettes from 'nice-color-palettes';
-import { mapRange, oneOf, randomWholeBetween } from '../math/math';
+import { mapRange } from '../math/math';
+import { oneOf, randomWholeBetween } from '../math/random';
 
 export const asTinyColor = (arry) => arry.map((c) => tinycolor(c));
 

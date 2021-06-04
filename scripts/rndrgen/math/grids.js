@@ -1,4 +1,4 @@
-import { create2dNoiseAbs } from './math';
+import { create2dNoiseAbs } from './random';
 
 // [[x,y], ...]
 export const createCirclePoints = (offsetX, offsetY, radius, steps, close = true) => {

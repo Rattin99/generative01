@@ -1,6 +1,6 @@
 import { Vector } from './Vector';
 import { pointDistance } from './math';
-import { getCurvePoints } from '../community/curve-calc';
+import { getCurvePoints } from './curve-calc';
 import { last } from '../utils';
 
 // https://stackoverflow.com/questions/41144224/calculate-curvature-for-3-points-x-y
@@ -230,4 +230,26 @@ export const intersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
     const y = y1 + ua * (y2 - y1);
 
     return { x, y };
+};
+
+// https://github.com/Jam3/chaikin-smooth/blob/master/index.js
+export const chaikin = (input, itr = 1) => {
+    if (itr === 0) return input;
+    const output = [];
+
+    for (let i = 0; i < input.length - 1; i++) {
+        const p0 = input[i];
+        const p1 = input[i + 1];
+        const p0x = p0[0];
+        const p0y = p0[1];
+        const p1x = p1[0];
+        const p1y = p1[1];
+
+        const Q = [0.75 * p0x + 0.25 * p1x, 0.75 * p0y + 0.25 * p1y];
+        const R = [0.25 * p0x + 0.75 * p1x, 0.25 * p0y + 0.75 * p1y];
+        output.push(Q);
+        output.push(R);
+    }
+
+    return itr === 1 ? output : chaikin(output, itr - 1);
 };

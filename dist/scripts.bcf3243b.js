@@ -4334,13 +4334,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation1 = void 0;
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -4437,13 +4437,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation2 = void 0;
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -4549,13 +4549,13 @@ exports.domokun = void 0;
 
 var _domokun = _interopRequireDefault(require("../../media/images/domokun.png"));
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4676,13 +4676,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation4 = void 0;
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
 var pointPush = function pointPush(point, particle) {
   var f = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
@@ -4785,13 +4785,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation5 = void 0;
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -4901,13 +4901,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.variation6 = void 0;
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
 var gravityPoint = function gravityPoint() {
   var mult = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.2;
@@ -5000,11 +5000,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.rainbowRakeOrbit = void 0;
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
 var drawRake = function drawRake(context) {
   return function (_ref, spacing) {
@@ -5234,15 +5234,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.threeAttractors = void 0;
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
 var threeAttractors = function threeAttractors() {
   var config = {// width: 500,
@@ -5351,15 +5351,15 @@ exports.hiImage01 = void 0;
 
 var _hi = _interopRequireDefault(require("../../media/images/hi1.png"));
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5676,15 +5676,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.windLines = void 0;
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Timeline = require("../lib/Timeline");
+var _Timeline = require("../rndrgen/Timeline");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -6028,11 +6028,11 @@ exports.waves01 = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -6281,17 +6281,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.lissajous01 = void 0;
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _canvasText = require("../lib/canvas/canvas-text");
+var _canvasText = require("../rndrgen/canvas/canvas-text");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6614,19 +6614,19 @@ exports.flowFieldParticles = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _Vector = require("../lib/math/Vector");
+var _Vector = require("../rndrgen/math/Vector");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -6738,15 +6738,15 @@ exports.flowFieldArcs = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7425,27 +7425,27 @@ exports.flowFieldImage = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _Vector = require("../lib/math/Vector");
+var _Vector = require("../rndrgen/math/Vector");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _Bitmap = require("../lib/canvas/Bitmap");
+var _Bitmap = require("../rndrgen/canvas/Bitmap");
 
 var _kristijanArsovWoman = _interopRequireDefault(require("../../media/images/kristijan-arsov-woman-400.png"));
 
-var _canvasPaint = require("../lib/canvas/canvas-paint");
+var _canvasPaint = require("../rndrgen/canvas/canvas-paint");
 
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7568,15 +7568,15 @@ exports.radialNoise = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7719,21 +7719,21 @@ var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _Vector = require("../lib/math/Vector");
+var _Vector = require("../rndrgen/math/Vector");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7895,21 +7895,21 @@ var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
 var _random = _interopRequireDefault(require("canvas-sketch-util/random"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _Vector = require("../lib/math/Vector");
+var _Vector = require("../rndrgen/math/Vector");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8833,27 +8833,27 @@ exports.shadedBoxes = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _Particle = require("../lib/systems/Particle");
+var _Particle = require("../rndrgen/systems/Particle");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _Box = require("../lib/canvas/Box");
+var _Box = require("../rndrgen/canvas/Box");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _Vector = require("../lib/math/Vector");
+var _Vector = require("../rndrgen/math/Vector");
 
-var _canvasTextures = require("../lib/canvas/canvas-textures");
+var _canvasTextures = require("../rndrgen/canvas/canvas-textures");
 
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8971,15 +8971,15 @@ exports.larrycarlson02 = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _Bitmap = require("../lib/canvas/Bitmap");
+var _Bitmap = require("../rndrgen/canvas/Bitmap");
 
 var _alexanderKrivitskiy2wOEPBkaH7oUnsplash = _interopRequireDefault(require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png"));
 
@@ -10157,30 +10157,30 @@ exports.meanderingRiver02 = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _MeanderingRiver = require("../lib/systems/MeanderingRiver");
+var _MeanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 
-var _lineSegments = require("../lib/math/lineSegments");
+var _lineSegments = require("../rndrgen/math/lineSegments");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _canvasLinespoints = require("../lib/canvas/canvas-linespoints");
+var _canvasLinespoints = require("../rndrgen/canvas/canvas-linespoints");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-Meandering River class at ../lib/MeanderingRiver
+Meandering River class at ../rndrgen/MeanderingRiver
  */
 var createHorizontalPath = function createHorizontalPath(_ref, startX, startY) {
   var width = _ref.width,
@@ -10382,30 +10382,30 @@ exports.meanderingRiver01 = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _MeanderingRiver = require("../lib/systems/MeanderingRiver");
+var _MeanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 
-var _lineSegments = require("../lib/math/lineSegments");
+var _lineSegments = require("../rndrgen/math/lineSegments");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _canvasLinespoints = require("../lib/canvas/canvas-linespoints");
+var _canvasLinespoints = require("../rndrgen/canvas/canvas-linespoints");
 
-var _grids = require("../lib/math/grids");
+var _grids = require("../rndrgen/math/grids");
 
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-Meandering River class at ../lib/MeanderingRiver
+Meandering River class at ../rndrgen/MeanderingRiver
  */
 var createHorizontalPath = function createHorizontalPath(_ref, startX, startY) {
   var width = _ref.width,
@@ -10717,17 +10717,17 @@ exports.marchingSquares = void 0;
 
 var _tinycolor = _interopRequireDefault(require("tinycolor2"));
 
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 
-var _Sketch = require("../lib/Sketch");
+var _Sketch = require("../rndrgen/Sketch");
 
-var _palettes = require("../lib/color/palettes");
+var _palettes = require("../rndrgen/color/palettes");
 
-var _attractors = require("../lib/math/attractors");
+var _attractors = require("../rndrgen/math/attractors");
 
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
 
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -10828,7 +10828,7 @@ exports.marchingSquares = marchingSquares;
 
 var _normalize = _interopRequireDefault(require("normalize.css"));
 
-var _sketch = require("./lib/sketch");
+var _sketch = require("./rndrgen/sketch");
 
 var _variationsIndex = require("./variationsIndex");
 

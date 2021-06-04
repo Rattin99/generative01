@@ -4,10 +4,10 @@ export const first = (arry) => arry[0];
 export const middle = (arry) => arry.slice(1, arry.length - 2);
 export const last = (arry) => arry[arry.length - 1];
 
-export const limitArrayLen = (arr) => {
+export const limitArrayLen = (max, arr) => {
     const arrLength = arr.length;
-    if (arrLength > MAX_COORD_HISTORY) {
-        arr.splice(0, arrLength - MAX_COORD_HISTORY);
+    if (arrLength > max) {
+        arr.splice(0, arrLength - max);
     }
     return arr;
 };
@@ -32,3 +32,18 @@ export const getArrayValuesFromEnd = (arr, start, len) => {
     }
     return values;
 };
+export const averageNumArray = (arry) => arry.reduce((a, b) => a + b) / arry.length;
+export const lowest = (arry) =>
+    arry.reduce((acc, v) => {
+        if (v < acc) {
+            acc = v;
+        }
+        return acc;
+    }, 0);
+export const highest = (arry) =>
+    arry.reduce((acc, v) => {
+        if (v > acc) {
+            acc = v;
+        }
+        return acc;
+    }, 0);

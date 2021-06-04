@@ -1,9 +1,9 @@
 import tinycolor from 'tinycolor2';
-import { mapRange } from '../lib/math/math';
-import { background, pixel } from '../lib/canvas/canvas';
-import { ratio, scale, orientation } from '../lib/Sketch';
-import { paperWhite } from '../lib/color/palettes';
-import { Bitmap } from '../lib/canvas/Bitmap';
+import { mapRange } from '../rndrgen/math/math';
+import { background, pixel } from '../rndrgen/canvas/canvas';
+import { ratio, scale, orientation } from '../rndrgen/Sketch';
+import { paperWhite } from '../rndrgen/color/palettes';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import sourcePng from '../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png';
 
 /*

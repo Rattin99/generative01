@@ -1,6 +1,6 @@
 // "paint splatters" around center point
-import { randomNumberBetween, randomWholeBetween } from '../math/math';
 import { drawCircleFilled } from './canvas';
+import { randomNumberBetween, randomWholeBetween } from '../math/random';
 
 const TAU = Math.PI * 2;
 

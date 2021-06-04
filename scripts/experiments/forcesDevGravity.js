@@ -1,6 +1,6 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
-import { background, drawRake } from '../lib/canvas/canvas';
-import { drawRotatedParticle } from '../lib/canvas/canvas-particles';
+import { background, drawRake } from '../rndrgen/canvas/canvas';
+import { drawRotatedParticle } from '../rndrgen/canvas/canvas-particles';
 
 export const forcesDevGravity = () => {
     const config = {

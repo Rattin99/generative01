@@ -1,13 +1,14 @@
 import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
-import { randomWholeBetween, uvFromAngle, oneOf, randomPointAround, randomBoolean } from '../lib/math/math';
+import { uvFromAngle } from '../rndrgen/math/math';
 import { Particle } from '../systems/Particle';
-import { background } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/Sketch';
-import { palettes } from '../lib/color/palettes';
-import { Vector } from '../lib/math/Vector';
-import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/math/attractors';
-import { renderField } from '../lib/canvas/rendernoise';
+import { background } from '../rndrgen/canvas/canvas';
+import { ratio, scale } from '../rndrgen/Sketch';
+import { palettes } from '../rndrgen/color/palettes';
+import { Vector } from '../rndrgen/math/Vector';
+import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../rndrgen/math/attractors';
+import { renderField } from '../rndrgen/canvas/rendernoise';
+import { oneOf, randomBoolean, randomPointAround, randomWholeBetween } from '../rndrgen/math/random';
 
 /*
 Based on

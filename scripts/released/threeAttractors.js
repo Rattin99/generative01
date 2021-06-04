@@ -1,8 +1,9 @@
-import { createRandomNumberArray, mapRange } from '../lib/math/math';
+import { mapRange } from '../rndrgen/math/math';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
-import { background } from '../lib/canvas/canvas';
-import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
-import { createGridPointsXY } from '../lib/math/grids';
+import { background } from '../rndrgen/canvas/canvas';
+import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/canvas-particles';
+import { createGridPointsXY } from '../rndrgen/math/grids';
+import { createRandomNumberArray } from '../rndrgen/math/random';
 
 export const threeAttractors = () => {
     const config = {

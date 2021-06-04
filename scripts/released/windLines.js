@@ -1,8 +1,9 @@
-import { background, drawLineAngle, setStokeColor } from '../lib/canvas/canvas';
-import { nicePalette } from '../lib/color/palettes';
-import { create3dNoiseAbs, marginify, oneOf, toSinValue, uvFromAngle } from '../lib/math/math';
-import { Timeline } from '../lib/Timeline';
-import { createGridPointsUV } from '../lib/math/grids';
+import { background, drawLineAngle, setStokeColor } from '../rndrgen/canvas/canvas';
+import { nicePalette } from '../rndrgen/color/palettes';
+import { marginify, toSinValue, uvFromAngle } from '../rndrgen/math/math';
+import { Timeline } from '../rndrgen/animation/Timeline';
+import { createGridPointsUV } from '../rndrgen/math/grids';
+import { create3dNoiseAbs, oneOf } from '../rndrgen/math/random';
 
 export const windLines = () => {
     const config = {

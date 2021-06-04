@@ -1,20 +1,21 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, randomWholeBetween } from '../lib/math/math';
-import { background, pixel } from '../lib/canvas/canvas';
-import { ratio, scale, orientation } from '../lib/Sketch';
-import { bicPenBlue, paperWhite } from '../lib/color/palettes';
-import { Bitmap } from '../lib/canvas/Bitmap';
-import { createGridCellsXY } from '../lib/math/grids';
+import { mapRange } from '../rndrgen/math/math';
+import { background, pixel } from '../rndrgen/canvas/canvas';
+import { ratio, scale, orientation } from '../rndrgen/Sketch';
+import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
+import { createGridCellsXY } from '../rndrgen/math/grids';
 import {
     setTextureClippingMask,
     spiralRect,
     stippleRect,
     texturizeRect,
     linesRect,
-} from '../lib/canvas/canvas-textures';
+} from '../rndrgen/canvas/canvas-textures';
 
 // import sourcePng from '../../media/images/hi1.png';
 import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
+import { randomWholeBetween } from '../rndrgen/math/random';
 
 export const gridDitherImage = () => {
     const config = {

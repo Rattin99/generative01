@@ -1,6 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { mapRange, pointDistance, randomWholeBetween, uvFromAngle, valueCloseTo } from '../math/math';
+import { mapRange, pointDistance, uvFromAngle, valueCloseTo } from '../math/math';
 import { drawPoints } from './canvas-linespoints';
+import { randomWholeBetween } from '../math/random';
 
 export const renderField = ({ width, height }, context, fn, color = 'black', resolution = '50', length = 10) => {
     const xStep = Math.round(width / resolution);

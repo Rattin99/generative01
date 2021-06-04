@@ -1,15 +1,16 @@
 import tinycolor from 'tinycolor2';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
-import { background, pixel, resetStyles } from '../lib/canvas/canvas';
-import { mapRange, oneOf, uvFromAngle } from '../lib/math/math';
-import { ratio, scale } from '../lib/Sketch';
-import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../lib/color/palettes';
-import { Box } from '../lib/canvas/Box';
-import { simplexNoise3d } from '../lib/math/attractors';
-import { Vector } from '../lib/math/Vector';
-import { linesRect, stippleRect, texturizeRect } from '../lib/canvas/canvas-textures';
-import { connectParticles, drawParticlePoint } from '../lib/canvas/canvas-particles';
-import { createGridCellsXY } from '../lib/math/grids';
+import { background, pixel, resetStyles } from '../rndrgen/canvas/canvas';
+import { mapRange, uvFromAngle } from '../rndrgen/math/math';
+import { ratio, scale } from '../rndrgen/Sketch';
+import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../rndrgen/color/palettes';
+import { Box } from '../rndrgen/canvas/Box';
+import { simplexNoise3d } from '../rndrgen/math/attractors';
+import { Vector } from '../rndrgen/math/Vector';
+import { linesRect, stippleRect, texturizeRect } from '../rndrgen/canvas/canvas-textures';
+import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/canvas-particles';
+import { createGridCellsXY } from '../rndrgen/math/grids';
+import { oneOf } from '../rndrgen/math/random';
 
 export const shadedBoxes = () => {
     const config = {

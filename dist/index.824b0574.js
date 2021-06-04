@@ -386,7 +386,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 Explorations with generative code
 */ var _normalizeCss = require("normalize.css");
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
-var _sketch = require("./lib/sketch");
+var _sketch = require("./rndrgen/sketch");
 var _variationsIndex = require("./variationsIndex");
 var _meanderingRiver01 = require("./released/meandering-river-01");
 var _marchingSquares = require("./experiments/marching-squares");
@@ -430,7 +430,7 @@ if (getQueryVariable('variation') && _variationsIndex.variationsIndex.hasOwnProp
     s.run(vToRun.sketch);
 }
 
-},{"normalize.css":"5i1nu","./lib/sketch":"2kdSe","./variationsIndex":"7sXnx","./released/meandering-river-01":"2elLt","./experiments/marching-squares":"3oo76","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"2kdSe":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./rndrgen/sketch":"2OcGA","./variationsIndex":"7sXnx","./released/meandering-river-01":"2elLt","./experiments/marching-squares":"3oo76","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"2OcGA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "orientation", ()=>orientation
@@ -475,6 +475,7 @@ TODO
 */ var _canvas = require("./canvas/canvas");
 var _math = require("./math/math");
 var _utils = require("./utils");
+var _random = require("./math/random");
 const orientation = {
     portrait: 0,
     landscape: 1
@@ -626,7 +627,7 @@ const sketch = ()=>{
         window.cancelAnimationFrame(animationId);
     };
     const getVariationName = ()=>{
-        const seed = _math.getRandomSeed();
+        const seed = _random.getRandomSeed();
         let name = 'untitled';
         if (currentVariationRes && currentVariationRes.hasOwnProperty('config') && currentVariationRes.config.hasOwnProperty('name')) name = currentVariationRes.config.name;
         return `sketch-${name}-${seed}`;
@@ -650,7 +651,7 @@ const sketch = ()=>{
     };
 };
 
-},{"./canvas/canvas":"pnYxG","./math/math":"jAxxe","./utils":"0EaEI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"pnYxG":[function(require,module,exports) {
+},{"./canvas/canvas":"73Br1","./math/math":"4t0bw","./utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./math/random":"1SLuP"}],"73Br1":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "isHiDPI", ()=>isHiDPI
@@ -863,7 +864,7 @@ const drawTestPoint = (context)=>({ x , y , radius , color  })=>{
     }
 ;
 
-},{"tinycolor2":"101FG","../math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
 // TinyColor v1.4.2
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -1960,9 +1961,29 @@ const drawTestPoint = (context)=>({ x , y , radius , color  })=>{
     else window.tinycolor = tinycolor;
 })(Math);
 
-},{}],"jAxxe":[function(require,module,exports) {
+},{}],"4t0bw":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "\u{3c0}", ()=>π
+);
+parcelHelpers.export(exports, "PI", ()=>PI
+);
+parcelHelpers.export(exports, "TAU", ()=>TAU
+);
+parcelHelpers.export(exports, "abs", ()=>abs
+);
+parcelHelpers.export(exports, "sin", ()=>sin
+);
+parcelHelpers.export(exports, "cos", ()=>cos
+);
+parcelHelpers.export(exports, "tan", ()=>tan
+);
+parcelHelpers.export(exports, "pow", ()=>pow
+);
+parcelHelpers.export(exports, "round", ()=>round
+);
+parcelHelpers.export(exports, "floor", ()=>floor
+);
 parcelHelpers.export(exports, "golden", ()=>golden
 );
 parcelHelpers.export(exports, "checkBoundsLeft", ()=>checkBoundsLeft
@@ -1979,6 +2000,444 @@ parcelHelpers.export(exports, "quantize", ()=>quantize
 );
 parcelHelpers.export(exports, "round2", ()=>round2
 );
+parcelHelpers.export(exports, "loopingValue", ()=>loopingValue
+);
+parcelHelpers.export(exports, "pingPontValue", ()=>pingPontValue
+);
+parcelHelpers.export(exports, "pointOnCircle", ()=>pointOnCircle
+);
+parcelHelpers.export(exports, "normalize", ()=>normalize
+);
+parcelHelpers.export(exports, "normalizeInverse", ()=>normalizeInverse
+);
+parcelHelpers.export(exports, "lerp", ()=>lerp
+);
+parcelHelpers.export(exports, "clamp", ()=>clamp
+);
+parcelHelpers.export(exports, "invlerp", ()=>invlerp
+);
+parcelHelpers.export(exports, "mapRange", ()=>mapRange
+);
+parcelHelpers.export(exports, "toSinValue", ()=>toSinValue
+);
+parcelHelpers.export(exports, "mapToTau", ()=>mapToTau
+);
+parcelHelpers.export(exports, "aFromVector", ()=>aFromVector
+);
+parcelHelpers.export(exports, "uvFromAngle", ()=>uvFromAngle
+);
+parcelHelpers.export(exports, "radiansToDegrees", ()=>radiansToDegrees
+);
+parcelHelpers.export(exports, "degreesToRadians", ()=>degreesToRadians
+);
+parcelHelpers.export(exports, "valueCloseTo", ()=>valueCloseTo
+);
+parcelHelpers.export(exports, "logInterval", ()=>logInterval
+);
+parcelHelpers.export(exports, "marginify", ()=>marginify
+);
+parcelHelpers.export(exports, "pointDistance", ()=>pointDistance
+);
+parcelHelpers.export(exports, "pointRotateCoord", ()=>pointRotateCoord
+);
+parcelHelpers.export(exports, "pointAngleFromVelocity", ()=>pointAngleFromVelocity
+);
+parcelHelpers.export(exports, "scalePointToCanvas", ()=>scalePointToCanvas
+);
+/*
+  Math Snippets
+  https://github.com/terkelg/math
+*/ var _vector = require("./Vector");
+const π = Math.PI;
+const { PI  } = Math;
+const TAU = Math.PI * 2;
+const { abs  } = Math;
+const { sin  } = Math;
+const { cos  } = Math;
+const { tan  } = Math;
+const { pow  } = Math;
+const { round  } = Math;
+const { floor  } = Math;
+const golden = 1.618033988749895;
+const checkBoundsLeft = (b, v)=>v < b ? b : v
+;
+const checkBoundsRight = (b, v)=>v > b ? b : v
+;
+const snapNumber = (snap, n)=>Math.floor(n / snap) * snap
+;
+const percentage = (total, num)=>Math.round(num * (total / 100))
+;
+const houghQuantize = (numAngles, theta)=>Math.floor(numAngles * theta / TAU + 0.5)
+;
+const quantize = (numAngles, theta)=>(Math.round(theta * (numAngles / Math.PI)) + numAngles) % numAngles
+;
+const round2 = (num)=>Math.round((num + Number.EPSILON) * 100) / 100
+;
+const loopingValue = (t, m = 0.5)=>Math.sin(t * m)
+;
+const pingPontValue = (t)=>Math.sin(t * Math.PI)
+;
+const pointOnCircle = (x, y, r, a)=>({
+        x: r * Math.sin(a) + x,
+        y: r * Math.cos(a) + y
+    })
+;
+const normalize = (min, max, val)=>(val - min) / (max - min)
+;
+const normalizeInverse = (min, max, val)=>1 - normalize(min, max, val)
+;
+const lerp = (x, y, a)=>x * (1 - a) + y * a
+;
+const clamp = (min = 0, max = 1, a)=>Math.min(max, Math.max(min, a))
+;
+const invlerp = (x, y, a)=>clamp(0, 1, (a - x) / (y - x))
+;
+const mapRange = (x1, y1, x2, y2, a)=>lerp(x2, y2, invlerp(x1, y1, a))
+;
+const toSinValue = (value)=>Math.abs(Math.sin(value * TAU))
+;
+const mapToTau = (start, end, value)=>mapRange(start, end, 0, TAU, value)
+;
+const aFromVector = ({ x , y  })=>Math.atan2(y, x)
+;
+const uvFromAngle = (a)=>new _vector.Vector(Math.cos(a), Math.sin(a))
+;
+const radiansToDegrees = (rad)=>rad * 180 / Math.PI
+;
+const degreesToRadians = (deg)=>deg * Math.PI / 180
+;
+const valueCloseTo = (testVal, val, range)=>{
+    if (val === testVal) return true;
+    if (val - range < testVal && val + range > testVal) return true;
+    return false;
+};
+const logInterval = (total_intervals, start, end)=>{
+    const startInterVal = 1;
+    const endInterval = total_intervals;
+    const minLog = Math.log(start);
+    const maxLog = Math.log(end);
+    const scale = (maxLog - minLog) / (endInterval - startInterVal);
+    const result = [];
+    for(let i = 1; i < total_intervals; i++)result.push(Math.exp(minLog + scale * (i - startInterVal)));
+    result.push(end);
+    return result;
+};
+const marginify = ({ margin , u , v , width , height  })=>({
+        x: lerp(margin, width - margin, u),
+        y: lerp(margin, height - margin, v)
+    })
+;
+const pointDistance = (pointA, pointB)=>{
+    const dx = pointA.x - pointB.x;
+    const dy = pointA.y - pointB.y;
+    return Math.sqrt(dx * dx + dy * dy);
+};
+const pointRotateCoord = (point, angle)=>({
+        x: point.x * cos(angle) - point.y * sin(angle),
+        y: point.y * cos(angle) + point.x * sin(angle)
+    })
+;
+const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
+;
+const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y)=>{
+    const particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
+    const particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
+    return {
+        x: x * zoomFactor + particleXOffset,
+        y: y * zoomFactor + particleYOffset
+    };
+};
+
+},{"./Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1MSqh":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Vector", ()=>Vector
+);
+// Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
+// Edited and expanded to match p5's vectors
+// ref - p5 vector https://p5js.org/reference/#/p5.Vector
+// https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
+const fromAngles = (theta, phi)=>new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi))
+;
+const randomDirection = ()=>fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1))
+;
+const min = (a, b)=>new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z))
+;
+const max = (a, b)=>new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z))
+;
+const lerp = (a, b, fraction)=>b.sub(a).mult(fraction).add(a)
+;
+const fromArray = (a)=>new Vector(a[0], a[1], a[2])
+;
+const angleBetween = (a, b)=>a.angleTo(b)
+;
+class Vector {
+    constructor(x, y, z){
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+    }
+    negative() {
+        return new Vector(-this.x, -this.y, -this.z);
+    }
+    add(v) {
+        if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
+        return new Vector(this.x + v, this.y + v, this.z + v);
+    }
+    sub(v) {
+        if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
+        return new Vector(this.x - v, this.y - v, this.z - v);
+    }
+    mult(v) {
+        if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
+        return new Vector(this.x * v, this.y * v, this.z * v);
+    }
+    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
+    mix(b, fraction) {
+        // return this.mult(1 - mix).add(o.mult(mix));
+        return lerp(this, b, fraction);
+    }
+    div(v) {
+        if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
+        return new Vector(this.x / v, this.y / v, this.z / v);
+    }
+    equals(v) {
+        return this.x === v.x && this.y === v.y && this.z === v.z;
+    }
+    dot(v) {
+        return this.x * v.x + this.y * v.y + this.z * v.z;
+    }
+    cross(v) {
+        return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
+    }
+    length() {
+        return Math.sqrt(this.dot(this));
+    }
+    mag() {
+        return this.length();
+    }
+    magSq() {
+        const m = this.length();
+        return m * m;
+    }
+    setMag(m) {
+        const c = this.mag();
+        const r = m / c;
+        return this.mult(r);
+    }
+    normalize() {
+        let mag = this.mag();
+        mag = mag || 1;
+        return this.div(mag);
+    }
+    unit() {
+        return this.div(this.length());
+    }
+    min() {
+        return Math.min(Math.min(this.x, this.y), this.z);
+    }
+    max() {
+        return Math.max(Math.max(this.x, this.y), this.z);
+    }
+    limit(v) {
+        const cm = this.mag();
+        if (cm > v) return this.setMag(v);
+        return this;
+    }
+    angle() {
+        return Math.atan2(this.y, this.x);
+    }
+    toAngles() {
+        return {
+            theta: Math.atan2(this.z, this.x),
+            phi: Math.asin(this.y / this.length())
+        };
+    }
+    angleTo(a) {
+        return Math.acos(this.dot(a) / (this.length() * a.length()));
+    }
+    toArray(n) {
+        return [
+            this.x,
+            this.y,
+            this.z
+        ].slice(0, n || 3);
+    }
+    clone() {
+        return new Vector(this.x, this.y, this.z);
+    }
+}
+const negative = (a, b)=>{
+    b.x = -a.x;
+    b.y = -a.y;
+    b.z = -a.z;
+    return b;
+};
+const add = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x + b.x;
+        c.y = a.y + b.y;
+        c.z = a.z + b.z;
+    } else {
+        c.x = a.x + b;
+        c.y = a.y + b;
+        c.z = a.z + b;
+    }
+    return c;
+};
+const subtract = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x - b.x;
+        c.y = a.y - b.y;
+        c.z = a.z - b.z;
+    } else {
+        c.x = a.x - b;
+        c.y = a.y - b;
+        c.z = a.z - b;
+    }
+    return c;
+};
+const multiply = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x * b.x;
+        c.y = a.y * b.y;
+        c.z = a.z * b.z;
+    } else {
+        c.x = a.x * b;
+        c.y = a.y * b;
+        c.z = a.z * b;
+    }
+    return c;
+};
+const divide = (a, b, c)=>{
+    if (b instanceof Vector) {
+        c.x = a.x / b.x;
+        c.y = a.y / b.y;
+        c.z = a.z / b.z;
+    } else {
+        c.x = a.x / b;
+        c.y = a.y / b;
+        c.z = a.z / b;
+    }
+    return c;
+};
+const cross = (a, b, c)=>{
+    c.x = a.y * b.z - a.z * b.y;
+    c.y = a.z * b.x - a.x * b.z;
+    c.z = a.x * b.y - a.y * b.x;
+    return c;
+};
+const unit = (a, b)=>{
+    const length = a.length();
+    b.x = a.x / length;
+    b.y = a.y / length;
+    b.z = a.z / length;
+    return b;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"367CR":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule') return;
+        // Skip duplicate re-exports when they have the same value.
+        if (key in dest && dest[key] === source[key]) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"1kIwI":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
+);
+parcelHelpers.export(exports, "first", ()=>first
+);
+parcelHelpers.export(exports, "middle", ()=>middle
+);
+parcelHelpers.export(exports, "last", ()=>last
+);
+parcelHelpers.export(exports, "limitArrayLen", ()=>limitArrayLen
+);
+parcelHelpers.export(exports, "getArrayValuesFromStart", ()=>getArrayValuesFromStart
+);
+parcelHelpers.export(exports, "getArrayValuesFromEnd", ()=>getArrayValuesFromEnd
+);
+parcelHelpers.export(exports, "averageNumArray", ()=>averageNumArray
+);
+parcelHelpers.export(exports, "lowest", ()=>lowest
+);
+parcelHelpers.export(exports, "highest", ()=>highest
+);
+const defaultValue = (obj, key, value)=>obj.hasOwnProperty(key) ? obj[key] : value
+;
+const first = (arry)=>arry[0]
+;
+const middle = (arry)=>arry.slice(1, arry.length - 2)
+;
+const last = (arry)=>arry[arry.length - 1]
+;
+const limitArrayLen = (max, arr)=>{
+    const arrLength = arr.length;
+    if (arrLength > max) arr.splice(0, arrLength - max);
+    return arr;
+};
+const getArrayValuesFromStart = (arr, start, len)=>{
+    const values = [];
+    let index = start;
+    for(let i = 0; i < len; i++){
+        values.push(arr[index--]);
+        if (index < 0) index = arr.length - 1;
+    }
+    return values;
+};
+const getArrayValuesFromEnd = (arr, start, len)=>{
+    const values = [];
+    let index = start;
+    for(let i = 0; i < len; i++){
+        values.push(arr[index++]);
+        if (index === arr.length) index = 0;
+    }
+    return values;
+};
+const averageNumArray = (arry)=>arry.reduce((a, b)=>a + b
+    ) / arry.length
+;
+const lowest = (arry)=>arry.reduce((acc, v)=>{
+        if (v < acc) acc = v;
+        return acc;
+    }, 0)
+;
+const highest = (arry)=>arry.reduce((acc, v)=>{
+        if (v > acc) acc = v;
+        return acc;
+    }, 0)
+;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1SLuP":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getRandomSeed", ()=>getRandomSeed
 );
 parcelHelpers.export(exports, "setRandomSeed", ()=>setRandomSeed
@@ -2003,57 +2462,9 @@ parcelHelpers.export(exports, "randomBoolean", ()=>randomBoolean
 );
 parcelHelpers.export(exports, "randomChance", ()=>randomChance
 );
-parcelHelpers.export(exports, "averageNumArray", ()=>averageNumArray
-);
 parcelHelpers.export(exports, "oneOf", ()=>oneOf
 );
-parcelHelpers.export(exports, "lowest", ()=>lowest
-);
-parcelHelpers.export(exports, "highest", ()=>highest
-);
 parcelHelpers.export(exports, "createRandomNumberArray", ()=>createRandomNumberArray
-);
-parcelHelpers.export(exports, "loopingValue", ()=>loopingValue
-);
-parcelHelpers.export(exports, "pingPontValue", ()=>pingPontValue
-);
-parcelHelpers.export(exports, "pointOnCircle", ()=>pointOnCircle
-);
-parcelHelpers.export(exports, "normalize", ()=>normalize
-);
-parcelHelpers.export(exports, "normalizeInverse", ()=>normalizeInverse
-);
-parcelHelpers.export(exports, "lerp", ()=>lerp
-);
-parcelHelpers.export(exports, "clamp", ()=>clamp
-);
-parcelHelpers.export(exports, "invlerp", ()=>invlerp
-);
-parcelHelpers.export(exports, "mapRange", ()=>mapRange
-);
-parcelHelpers.export(exports, "toSinValue", ()=>toSinValue
-);
-parcelHelpers.export(exports, "mapToTau", ()=>mapToTau
-);
-parcelHelpers.export(exports, "logInterval", ()=>logInterval
-);
-parcelHelpers.export(exports, "marginify", ()=>marginify
-);
-parcelHelpers.export(exports, "pointDistance", ()=>pointDistance
-);
-parcelHelpers.export(exports, "pointRotateCoord", ()=>pointRotateCoord
-);
-parcelHelpers.export(exports, "pointAngleFromVelocity", ()=>pointAngleFromVelocity
-);
-parcelHelpers.export(exports, "aFromVector", ()=>aFromVector
-);
-parcelHelpers.export(exports, "uvFromAngle", ()=>uvFromAngle
-);
-parcelHelpers.export(exports, "radiansToDegrees", ()=>radiansToDegrees
-);
-parcelHelpers.export(exports, "degreesToRadians", ()=>degreesToRadians
-);
-parcelHelpers.export(exports, "scalePointToCanvas", ()=>scalePointToCanvas
 );
 parcelHelpers.export(exports, "create2dNoise", ()=>create2dNoise
 );
@@ -2065,44 +2476,11 @@ parcelHelpers.export(exports, "create3dNoiseAbs", ()=>create3dNoiseAbs
 );
 parcelHelpers.export(exports, "randomPointAround", ()=>randomPointAround
 );
-parcelHelpers.export(exports, "chaikin", ()=>chaikin
-);
-parcelHelpers.export(exports, "valueCloseTo", ()=>valueCloseTo
-);
-/*
-  Math Snippets
-  https://github.com/terkelg/math
-*/ var _random = require("canvas-sketch-util/random");
+var _random = require("canvas-sketch-util/random");
 var _randomDefault = parcelHelpers.interopDefault(_random);
-var _vector = require("./Vector");
-// Math aliases
-const π = Math.PI;
-const { PI  } = Math;
-const TAU = Math.PI * 2;
-const { abs  } = Math;
-const { sin  } = Math;
-const { cos  } = Math;
-const { tan  } = Math;
-const { pow  } = Math;
-const { round  } = Math;
-const { floor  } = Math;
+var _math = require("./math");
 _randomDefault.default.setSeed(_randomDefault.default.getRandomSeed());
 console.log(`Using seed ${_randomDefault.default.getSeed()}`);
-const golden = 1.618033988749895;
-const checkBoundsLeft = (b, v)=>v < b ? b : v
-;
-const checkBoundsRight = (b, v)=>v > b ? b : v
-;
-const snapNumber = (snap, n)=>Math.floor(n / snap) * snap
-;
-const percentage = (total, num)=>Math.round(num * (total / 100))
-;
-const houghQuantize = (numAngles, theta)=>Math.floor(numAngles * theta / TAU + 0.5)
-;
-const quantize = (numAngles, theta)=>(Math.round(theta * (numAngles / Math.PI)) + numAngles) % numAngles
-;
-const round2 = (num)=>Math.round((num + Number.EPSILON) * 100) / 100
-;
 const getRandomSeed = ()=>_randomDefault.default.getSeed()
 ;
 const setRandomSeed = (s)=>_randomDefault.default.setRandomSeed(s)
@@ -2149,95 +2527,13 @@ const randomBoolean = ()=>Math.round(_randomDefault.default.value()) === 1
 ;
 const randomChance = (chance = 0.5)=>_randomDefault.default.chance(chance)
 ;
-const averageNumArray = (arry)=>arry.reduce((a, b)=>a + b
-    ) / arry.length
-;
 const oneOf = (arry)=>{
     const i = randomWholeBetween(0, arry.length - 1);
     return arry[i];
 };
-const lowest = (arry)=>arry.reduce((acc, v)=>{
-        if (v < acc) acc = v;
-        return acc;
-    }, 0)
-;
-const highest = (arry)=>arry.reduce((acc, v)=>{
-        if (v > acc) acc = v;
-        return acc;
-    }, 0)
-;
 const createRandomNumberArray = (len, min, max)=>Array.from(new Array(len)).map(()=>randomNumberBetween(min, max)
     )
 ;
-const loopingValue = (t, m = 0.5)=>Math.sin(t * m)
-;
-const pingPontValue = (t)=>Math.sin(t * Math.PI)
-;
-const pointOnCircle = (x, y, r, a)=>({
-        x: r * Math.sin(a) + x,
-        y: r * Math.cos(a) + y
-    })
-;
-const normalize = (min, max, val)=>(val - min) / (max - min)
-;
-const normalizeInverse = (min, max, val)=>1 - normalize(min, max, val)
-;
-const lerp = (x, y, a)=>x * (1 - a) + y * a
-;
-const clamp = (min = 0, max = 1, a)=>Math.min(max, Math.max(min, a))
-;
-const invlerp = (x, y, a)=>clamp(0, 1, (a - x) / (y - x))
-;
-const mapRange = (x1, y1, x2, y2, a)=>lerp(x2, y2, invlerp(x1, y1, a))
-;
-const toSinValue = (value)=>Math.abs(Math.sin(value * TAU))
-;
-const mapToTau = (start, end, value)=>mapRange(start, end, 0, TAU, value)
-;
-const logInterval = (total_intervals, start, end)=>{
-    const startInterVal = 1;
-    const endInterval = total_intervals;
-    const minLog = Math.log(start);
-    const maxLog = Math.log(end);
-    const scale = (maxLog - minLog) / (endInterval - startInterVal);
-    const result = [];
-    for(let i = 1; i < total_intervals; i++)result.push(Math.exp(minLog + scale * (i - startInterVal)));
-    result.push(end);
-    return result;
-};
-const marginify = ({ margin , u , v , width , height  })=>({
-        x: lerp(margin, width - margin, u),
-        y: lerp(margin, height - margin, v)
-    })
-;
-const pointDistance = (pointA, pointB)=>{
-    const dx = pointA.x - pointB.x;
-    const dy = pointA.y - pointB.y;
-    return Math.sqrt(dx * dx + dy * dy);
-};
-const pointRotateCoord = (point, angle)=>({
-        x: point.x * cos(angle) - point.y * sin(angle),
-        y: point.y * cos(angle) + point.x * sin(angle)
-    })
-;
-const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
-;
-const aFromVector = ({ x , y  })=>Math.atan2(y, x)
-;
-const uvFromAngle = (a)=>new _vector.Vector(Math.cos(a), Math.sin(a))
-;
-const radiansToDegrees = (rad)=>rad * 180 / Math.PI
-;
-const degreesToRadians = (deg)=>deg * Math.PI / 180
-;
-const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y)=>{
-    const particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
-    const particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
-    return {
-        x: x * zoomFactor + particleXOffset,
-        y: y * zoomFactor + particleYOffset
-    };
-};
 const create2dNoise = (u, v, amplitude = 1, frequency = 0.5)=>_randomDefault.default.noise2D(u * frequency, v * frequency) * amplitude
 ;
 const create2dNoiseAbs = (u, v, amplitude = 1, frequency = 0.5)=>Math.abs(_randomDefault.default.noise2D(u * frequency, v * frequency)) * amplitude
@@ -2248,42 +2544,14 @@ const create3dNoiseAbs = (u, v, t, amplitude = 1, frequency = 0.5)=>Math.abs(_ra
 ;
 const randomPointAround = (range = 20)=>{
     const radius = randomWholeBetween(0, range);
-    const angle = randomNumberBetween(0, TAU);
+    const angle = randomNumberBetween(0, _math.TAU);
     return {
         x: radius * Math.cos(angle),
         y: radius * Math.sin(angle)
     };
 };
-const chaikin = (input, itr = 1)=>{
-    if (itr === 0) return input;
-    const output = [];
-    for(let i = 0; i < input.length - 1; i++){
-        const p0 = input[i];
-        const p1 = input[i + 1];
-        const p0x = p0[0];
-        const p0y = p0[1];
-        const p1x = p1[0];
-        const p1y = p1[1];
-        const Q = [
-            0.75 * p0x + 0.25 * p1x,
-            0.75 * p0y + 0.25 * p1y
-        ];
-        const R = [
-            0.25 * p0x + 0.75 * p1x,
-            0.25 * p0y + 0.75 * p1y
-        ];
-        output.push(Q);
-        output.push(R);
-    }
-    return itr === 1 ? output : chaikin(output, itr - 1);
-};
-const valueCloseTo = (testVal, val, range)=>{
-    if (val === testVal) return true;
-    if (val - range < testVal && val + range > testVal) return true;
-    return false;
-};
 
-},{"canvas-sketch-util/random":"5RUiF","./Vector":"3PiuJ","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5RUiF":[function(require,module,exports) {
+},{"canvas-sketch-util/random":"5RUiF","./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5RUiF":[function(require,module,exports) {
 var seedRandom = require('seed-random');
 var SimplexNoise = require('simplex-noise');
 var defined = require('defined');
@@ -3306,275 +3574,7 @@ module.exports = function() {
     }
 };
 
-},{}],"3PiuJ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Vector", ()=>Vector
-);
-// Vector class originally from https://evanw.github.io/lightgl.js/docs/vector.html
-// Edited and expanded to match p5's vectors
-// ref - p5 vector https://p5js.org/reference/#/p5.Vector
-// https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/more-vector-math
-const fromAngles = (theta, phi)=>new Vector(Math.cos(theta) * Math.cos(phi), Math.sin(phi), Math.sin(theta) * Math.cos(phi))
-;
-const randomDirection = ()=>fromAngles(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1))
-;
-const min = (a, b)=>new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z))
-;
-const max = (a, b)=>new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z))
-;
-const lerp = (a, b, fraction)=>b.sub(a).mult(fraction).add(a)
-;
-const fromArray = (a)=>new Vector(a[0], a[1], a[2])
-;
-const angleBetween = (a, b)=>a.angleTo(b)
-;
-class Vector {
-    constructor(x, y, z){
-        this.x = x || 0;
-        this.y = y || 0;
-        this.z = z || 0;
-    }
-    negative() {
-        return new Vector(-this.x, -this.y, -this.z);
-    }
-    add(v) {
-        if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y, this.z + v.z);
-        return new Vector(this.x + v, this.y + v, this.z + v);
-    }
-    sub(v) {
-        if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
-        return new Vector(this.x - v, this.y - v, this.z - v);
-    }
-    mult(v) {
-        if (v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y, this.z * v.z);
-        return new Vector(this.x * v, this.y * v, this.z * v);
-    }
-    // https://github.com/openrndr/openrndr/blob/master/openrndr-math/src/main/kotlin/org/openrndr/math/Vector2.kt
-    mix(b, fraction) {
-        // return this.mult(1 - mix).add(o.mult(mix));
-        return lerp(this, b, fraction);
-    }
-    div(v) {
-        if (v instanceof Vector) return new Vector(this.x / v.x, this.y / v.y, this.z / v.z);
-        return new Vector(this.x / v, this.y / v, this.z / v);
-    }
-    equals(v) {
-        return this.x === v.x && this.y === v.y && this.z === v.z;
-    }
-    dot(v) {
-        return this.x * v.x + this.y * v.y + this.z * v.z;
-    }
-    cross(v) {
-        return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
-    }
-    length() {
-        return Math.sqrt(this.dot(this));
-    }
-    mag() {
-        return this.length();
-    }
-    magSq() {
-        const m = this.length();
-        return m * m;
-    }
-    setMag(m) {
-        const c = this.mag();
-        const r = m / c;
-        return this.mult(r);
-    }
-    normalize() {
-        let mag = this.mag();
-        mag = mag || 1;
-        return this.div(mag);
-    }
-    unit() {
-        return this.div(this.length());
-    }
-    min() {
-        return Math.min(Math.min(this.x, this.y), this.z);
-    }
-    max() {
-        return Math.max(Math.max(this.x, this.y), this.z);
-    }
-    limit(v) {
-        const cm = this.mag();
-        if (cm > v) return this.setMag(v);
-        return this;
-    }
-    angle() {
-        return Math.atan2(this.y, this.x);
-    }
-    toAngles() {
-        return {
-            theta: Math.atan2(this.z, this.x),
-            phi: Math.asin(this.y / this.length())
-        };
-    }
-    angleTo(a) {
-        return Math.acos(this.dot(a) / (this.length() * a.length()));
-    }
-    toArray(n) {
-        return [
-            this.x,
-            this.y,
-            this.z
-        ].slice(0, n || 3);
-    }
-    clone() {
-        return new Vector(this.x, this.y, this.z);
-    }
-}
-const negative = (a, b)=>{
-    b.x = -a.x;
-    b.y = -a.y;
-    b.z = -a.z;
-    return b;
-};
-const add = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x + b.x;
-        c.y = a.y + b.y;
-        c.z = a.z + b.z;
-    } else {
-        c.x = a.x + b;
-        c.y = a.y + b;
-        c.z = a.z + b;
-    }
-    return c;
-};
-const subtract = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x - b.x;
-        c.y = a.y - b.y;
-        c.z = a.z - b.z;
-    } else {
-        c.x = a.x - b;
-        c.y = a.y - b;
-        c.z = a.z - b;
-    }
-    return c;
-};
-const multiply = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x * b.x;
-        c.y = a.y * b.y;
-        c.z = a.z * b.z;
-    } else {
-        c.x = a.x * b;
-        c.y = a.y * b;
-        c.z = a.z * b;
-    }
-    return c;
-};
-const divide = (a, b, c)=>{
-    if (b instanceof Vector) {
-        c.x = a.x / b.x;
-        c.y = a.y / b.y;
-        c.z = a.z / b.z;
-    } else {
-        c.x = a.x / b;
-        c.y = a.y / b;
-        c.z = a.z / b;
-    }
-    return c;
-};
-const cross = (a, b, c)=>{
-    c.x = a.y * b.z - a.z * b.y;
-    c.y = a.z * b.x - a.x * b.z;
-    c.z = a.x * b.y - a.y * b.x;
-    return c;
-};
-const unit = (a, b)=>{
-    const length = a.length();
-    b.x = a.x / length;
-    b.y = a.y / length;
-    b.z = a.z / length;
-    return b;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"367CR":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule') return;
-        // Skip duplicate re-exports when they have the same value.
-        if (key in dest && dest[key] === source[key]) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"0EaEI":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
-);
-parcelHelpers.export(exports, "first", ()=>first
-);
-parcelHelpers.export(exports, "middle", ()=>middle
-);
-parcelHelpers.export(exports, "last", ()=>last
-);
-parcelHelpers.export(exports, "limitArrayLen", ()=>limitArrayLen
-);
-parcelHelpers.export(exports, "getArrayValuesFromStart", ()=>getArrayValuesFromStart
-);
-parcelHelpers.export(exports, "getArrayValuesFromEnd", ()=>getArrayValuesFromEnd
-);
-const defaultValue = (obj, key, value)=>obj.hasOwnProperty(key) ? obj[key] : value
-;
-const first = (arry)=>arry[0]
-;
-const middle = (arry)=>arry.slice(1, arry.length - 2)
-;
-const last = (arry)=>arry[arry.length - 1]
-;
-const limitArrayLen = (arr)=>{
-    const arrLength = arr.length;
-    if (arrLength > MAX_COORD_HISTORY) arr.splice(0, arrLength - MAX_COORD_HISTORY);
-    return arr;
-};
-const getArrayValuesFromStart = (arr, start, len)=>{
-    const values = [];
-    let index = start;
-    for(let i = 0; i < len; i++){
-        values.push(arr[index--]);
-        if (index < 0) index = arr.length - 1;
-    }
-    return values;
-};
-const getArrayValuesFromEnd = (arr, start, len)=>{
-    const values = [];
-    let index = start;
-    for(let i = 0; i < len; i++){
-        values.push(arr[index++]);
-        if (index === arr.length) index = 0;
-    }
-    return values;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7sXnx":[function(require,module,exports) {
+},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3698,9 +3698,9 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation1", ()=>variation1
 );
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
         const distance = _math.pointDistance({
             x,
@@ -3766,7 +3766,7 @@ const variation1 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../lib/canvas/canvas-particles":"1vL4T","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mD6I":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mD6I":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Particle", ()=>Particle
@@ -3779,8 +3779,9 @@ parcelHelpers.export(exports, "edgeWrap", ()=>edgeWrap
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
-var _vector = require("../lib/math/Vector");
+var _math = require("../rndrgen/math/math");
+var _vector = require("../rndrgen/math/Vector");
+var _random = require("../rndrgen/math/random");
 const MAX_COORD_HISTORY = 30;
 class Particle {
     #x;
@@ -3925,21 +3926,21 @@ class Particle {
 }
 const createRandomParticleValues = ({ width , height  })=>{
     const vel = 2;
-    const radius = _math.randomNumberBetween(5, 10);
+    const radius = _random.randomNumberBetween(5, 10);
     return {
         radius,
-        x: _math.randomNumberBetween(0, width),
-        y: _math.randomNumberBetween(0, height),
-        mass: _math.randomNumberBetween(1, 10),
-        velocityX: _math.randomNumberBetween(-vel, vel),
-        velocityY: _math.randomNumberBetween(-vel, vel),
+        x: _random.randomNumberBetween(0, width),
+        y: _random.randomNumberBetween(0, height),
+        mass: _random.randomNumberBetween(1, 10),
+        velocityX: _random.randomNumberBetween(-vel, vel),
+        velocityY: _random.randomNumberBetween(-vel, vel),
         accelerationX: 0,
         accelerationY: 0,
-        rotation: _math.randomNumberBetween(-180, 180),
+        rotation: _random.randomNumberBetween(-180, 180),
         color: {
-            r: _math.randomNumberBetween(100, 255),
-            g: _math.randomNumberBetween(100, 255),
-            b: _math.randomNumberBetween(100, 255)
+            r: _random.randomNumberBetween(100, 255),
+            g: _random.randomNumberBetween(100, 255),
+            b: _random.randomNumberBetween(100, 255)
         }
     };
 };
@@ -3968,7 +3969,7 @@ const edgeWrap = ({ width , height  }, particle)=>{
     else if (particle.y - particle.radius < 0) particle.y = height - particle.radius;
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../lib/math/Vector":"3PiuJ","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1vL4T":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"66xFi":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "drawParticlePoint", ()=>drawParticlePoint
@@ -4081,15 +4082,16 @@ const drawAttractor = (context)=>({ x , y , mass , g  }, mode, radius)=>{
     }
 ;
 
-},{"tinycolor2":"101FG","../math/math":"jAxxe","./canvas":"pnYxG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7LmVa":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7LmVa":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation2", ()=>variation2
 );
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _random = require("../rndrgen/math/random");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
         const distance = _math.pointDistance({
             x,
@@ -4132,8 +4134,8 @@ const variation2 = ()=>{
             particlesArray[i].radius -= config.decay;
             if (particlesArray[i].radius <= 0) {
                 const props = _particle.createRandomParticleValues(canvas);
-                props.x = mouse.x + _math.randomNumberBetween(-10, 10);
-                props.y = mouse.y + _math.randomNumberBetween(-10, 10);
+                props.x = mouse.x + _random.randomNumberBetween(-10, 10);
+                props.y = mouse.y + _random.randomNumberBetween(-10, 10);
                 particlesArray[i].initValues(props);
             }
             particlesArray[i].y += particlesArray[i].mass * (mouse.isDown ? 1 : 0.2);
@@ -4155,17 +4157,18 @@ const variation2 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../lib/canvas/canvas-particles":"1vL4T","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2ZQOQ":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2ZQOQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "domokun", ()=>domokun
 );
 var _domokunPng = require("../../media/images/domokun.png");
 var _domokunPngDefault = parcelHelpers.interopDefault(_domokunPng);
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _random = require("../rndrgen/math/random");
 const pointPush = (point, particle, f = 1)=>{
     const dx = point.x - particle.x;
     const dy = point.y - particle.y;
@@ -4217,7 +4220,7 @@ const domokun = (_)=>{
                 const points = _math.scalePointToCanvas(canvas.width, canvas.height, imageData.width, imageData.height, imageZoomFactor, x, y);
                 const pX = points.x;
                 const pY = points.y;
-                const mass = _math.randomNumberBetween(2, 12);
+                const mass = _random.randomNumberBetween(2, 12);
                 const color = pxColor;
                 const radius = imageZoomFactor;
                 particlesArray.push(new _particle.Particle({
@@ -4246,7 +4249,7 @@ const domokun = (_)=>{
     };
 };
 
-},{"../../media/images/domokun.png":"2oLZU","../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../systems/Particle":"1mD6I","../lib/canvas/canvas-particles":"1vL4T","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2oLZU":[function(require,module,exports) {
+},{"../../media/images/domokun.png":"2oLZU","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2oLZU":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "domokun.01fc712a.png";
 
 },{"./bundle-url":"3seVR"}],"3seVR":[function(require,module,exports) {
@@ -4283,9 +4286,9 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation4", ()=>variation4
 );
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 const pointPush = (point, particle, f = 1)=>{
     const dx = point.x - particle.x;
     const dy = point.y - particle.y;
@@ -4362,15 +4365,16 @@ const variation4 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../lib/canvas/canvas-particles":"1vL4T","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1i6Vo":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1i6Vo":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation5", ()=>variation5
 );
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _random = require("../rndrgen/math/random");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
         const distance = _math.pointDistance({
             x,
@@ -4423,7 +4427,7 @@ const variation5 = ()=>{
             circles.push([
                 x,
                 y,
-                _math.randomNumberBetween(20, 100)
+                _random.randomNumberBetween(20, 100)
             ]);
         }
         _canvas.fillCanvas(canvas, context)(1, '255,255,255');
@@ -4449,15 +4453,15 @@ const variation5 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../lib/canvas/canvas-particles":"1vL4T","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"725FF":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"725FF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation6", ()=>variation6
 );
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
-var _math = require("../lib/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _math = require("../rndrgen/math/math");
 const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
         const distance = _math.pointDistance({
             x,
@@ -4521,14 +4525,14 @@ const variation6 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/canvas/canvas-particles":"1vL4T","../lib/math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6wKUk":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6wKUk":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "rainbowRakeOrbit", ()=>rainbowRakeOrbit
 );
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
 const drawRake = (context)=>({ x , y , radius , color  }, spacing)=>{
         const points = 5;
         spacing |= radius * 3;
@@ -4609,16 +4613,17 @@ const rainbowRakeOrbit = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/canvas/canvas-particles":"1vL4T","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/canvas-particles":"66xFi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "threeAttractors", ()=>threeAttractors
 );
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
-var _grids = require("../lib/math/grids");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _grids = require("../rndrgen/math/grids");
+var _random = require("../rndrgen/math/random");
 const threeAttractors = ()=>{
     const config = {
     };
@@ -4666,7 +4671,7 @@ const threeAttractors = ()=>{
             props.velocityY = 0;
             props.mass = 1;
             props.radius = 1; // randomNumberBetween(10, 30);
-            props.spikes = _math.createRandomNumberArray(20, 0, 360);
+            props.spikes = _random.createRandomNumberArray(20, 0, 360);
             const h = _math.mapRange(0, canvas.width, 0, 90, props.x);
             const s = 100; // lerpRange(0,10,0,100,prop.radius);
             const l = 50; // lerpRange(0,10,25,75,prop.radius);
@@ -4696,7 +4701,7 @@ const threeAttractors = ()=>{
     };
 };
 
-},{"../lib/math/math":"jAxxe","../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/canvas/canvas-particles":"1vL4T","../lib/math/grids":"4d6Yp","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4d6Yp":[function(require,module,exports) {
+},{"../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2Wgq0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createCirclePoints", ()=>createCirclePoints
@@ -4707,7 +4712,7 @@ parcelHelpers.export(exports, "createGridCellsXY", ()=>createGridCellsXY
 );
 parcelHelpers.export(exports, "createGridPointsUV", ()=>createGridPointsUV
 );
-var _math = require("./math");
+var _random = require("./random");
 const createCirclePoints = (offsetX, offsetY, radius, steps, close = true)=>{
     const startAngle = 270;
     const maxAngle = 360 + startAngle;
@@ -4772,8 +4777,8 @@ const createGridPointsUV = (columns, rows)=>{
         const u = columns <= 1 ? 0.5 : x / (columns - 1);
         const v = columns <= 1 ? 0.5 : y / (rows - 1);
         // const radius = Math.abs(random.gaussian() * 0.02);
-        const radius = _math.create2dNoiseAbs(u, v);
-        const rotation = _math.create2dNoiseAbs(u, v);
+        const radius = _random.create2dNoiseAbs(u, v);
+        const rotation = _random.create2dNoiseAbs(u, v);
         points.push({
             radius,
             rotation,
@@ -4786,18 +4791,19 @@ const createGridPointsUV = (columns, rows)=>{
     return points;
 };
 
-},{"./math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7fBhq":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./random":"1SLuP"}],"7fBhq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "hiImage01", ()=>hiImage01
 );
 var _hi1Png = require("../../media/images/hi1.png");
 var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
-var _canvas = require("../lib/canvas/canvas");
+var _canvas = require("../rndrgen/canvas/canvas");
 var _particle = require("../systems/Particle");
-var _math = require("../lib/math/math");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
-var _grids = require("../lib/math/grids");
+var _math = require("../rndrgen/math/math");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _grids = require("../rndrgen/math/grids");
+var _random = require("../rndrgen/math/random");
 const getImageDataFromImage = (context)=>(image)=>{
         context.drawImage(image, 0, 0);
         return context.getImageData(0, 0, image.width, image.width);
@@ -4832,7 +4838,7 @@ const hiImage01 = (_)=>{
         imageZoomFactor = canvas.width / imageData.width;
         for(let i = 0; i < numParticles; i++){
             const props = _particle.createRandomParticleValues(canvas);
-            props.radius = _math.randomNumberBetween(1, 5);
+            props.radius = _random.randomNumberBetween(1, 5);
             props.color = particleColor;
             if (i % 2) props.x = 0;
             else props.x = canvas.width;
@@ -4873,7 +4879,7 @@ const hiImage01 = (_)=>{
     };
 };
 
-},{"../../media/images/hi1.png":"2Mkol","../lib/canvas/canvas":"pnYxG","../systems/Particle":"1mD6I","../lib/math/math":"jAxxe","../lib/canvas/canvas-particles":"1vL4T","../lib/math/grids":"4d6Yp","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Mkol":[function(require,module,exports) {
+},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../systems/Particle":"1mD6I","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2Mkol":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "hi1.b86a235f.png";
 
 },{"./bundle-url":"3seVR"}],"4YK3b":[function(require,module,exports) {
@@ -4881,11 +4887,12 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "windLines", ()=>windLines
 );
-var _canvas = require("../lib/canvas/canvas");
-var _palettes = require("../lib/color/palettes");
-var _math = require("../lib/math/math");
-var _timeline = require("../lib/Timeline");
-var _grids = require("../lib/math/grids");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _palettes = require("../rndrgen/color/palettes");
+var _math = require("../rndrgen/math/math");
+var _timeline = require("../rndrgen/animation/Timeline");
+var _grids = require("../rndrgen/math/grids");
+var _random = require("../rndrgen/math/random");
 const windLines = ()=>{
     const config = {
         width: 600,
@@ -4898,7 +4905,7 @@ const windLines = ()=>{
     const setup = ({ canvas , context  })=>{
         const colors = _palettes.nicePalette();
         grid = grid.map((g)=>{
-            g.color = _math.oneOf(colors);
+            g.color = _random.oneOf(colors);
             return g;
         });
         _canvas.background(canvas, context)('rgba(255,255,255,1');
@@ -4915,7 +4922,7 @@ const windLines = ()=>{
                 height: canvas.height
             });
             const t = _math.toSinValue(timeline.playhead) * 0.1;
-            const wave = _math.create3dNoiseAbs(u, v, counter, 3 * t) * 10;
+            const wave = _random.create3dNoiseAbs(u, v, counter, 3 * t) * 10;
             const startvect = _math.uvFromAngle((rotation + wave) * -1).setMag(25);
             _canvas.setStokeColor(context)(color);
             _canvas.drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
@@ -4930,7 +4937,7 @@ const windLines = ()=>{
     };
 };
 
-},{"../lib/canvas/canvas":"pnYxG","../lib/color/palettes":"31bok","../lib/math/math":"jAxxe","../lib/Timeline":"6Z1Qp","../lib/math/grids":"4d6Yp","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"31bok":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/math":"4t0bw","../rndrgen/animation/Timeline":"6ohNr","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"3qayM":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "asTinyColor", ()=>asTinyColor
@@ -4963,6 +4970,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _niceColorPalettes = require("nice-color-palettes");
 var _math = require("../math/math");
+var _random = require("../math/random");
 const asTinyColor = (arry)=>arry.map((c)=>_tinycolor2Default.default(c)
     )
 ;
@@ -5078,9 +5086,9 @@ const palettes = {
         'hsl(185, 19%, 40%)', 
     ]
 };
-const nicePalette = (_)=>_niceColorPalettes[_math.randomWholeBetween(0, 99)]
+const nicePalette = (_)=>_niceColorPalettes[_random.randomWholeBetween(0, 99)]
 ;
-const palette = (_)=>palettes[_math.oneOf(Object.keys(palettes))]
+const palette = (_)=>palettes[_random.oneOf(Object.keys(palettes))]
 ;
 const hslFromRange = (y1, x2, y2, v)=>{
     const h = _math.mapRange(0, y1, x2, y2, v);
@@ -5100,10 +5108,10 @@ color.brighten(mapRange(0, mid / 2, 50, 0, distFromCenter));
 color.darken(mapRange(0, mid, 0, 40, distFromCenter) + randomNumberBetween(0, 30));
  */ 
 
-},{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3CNWv":[function(require,module,exports) {
+},{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"3CNWv":[function(require,module,exports) {
 module.exports = JSON.parse("[[\"#69d2e7\",\"#a7dbd8\",\"#e0e4cc\",\"#f38630\",\"#fa6900\"],[\"#fe4365\",\"#fc9d9a\",\"#f9cdad\",\"#c8c8a9\",\"#83af9b\"],[\"#ecd078\",\"#d95b43\",\"#c02942\",\"#542437\",\"#53777a\"],[\"#556270\",\"#4ecdc4\",\"#c7f464\",\"#ff6b6b\",\"#c44d58\"],[\"#774f38\",\"#e08e79\",\"#f1d4af\",\"#ece5ce\",\"#c5e0dc\"],[\"#e8ddcb\",\"#cdb380\",\"#036564\",\"#033649\",\"#031634\"],[\"#490a3d\",\"#bd1550\",\"#e97f02\",\"#f8ca00\",\"#8a9b0f\"],[\"#594f4f\",\"#547980\",\"#45ada8\",\"#9de0ad\",\"#e5fcc2\"],[\"#00a0b0\",\"#6a4a3c\",\"#cc333f\",\"#eb6841\",\"#edc951\"],[\"#e94e77\",\"#d68189\",\"#c6a49a\",\"#c6e5d9\",\"#f4ead5\"],[\"#3fb8af\",\"#7fc7af\",\"#dad8a7\",\"#ff9e9d\",\"#ff3d7f\"],[\"#d9ceb2\",\"#948c75\",\"#d5ded9\",\"#7a6a53\",\"#99b2b7\"],[\"#ffffff\",\"#cbe86b\",\"#f2e9e1\",\"#1c140d\",\"#cbe86b\"],[\"#efffcd\",\"#dce9be\",\"#555152\",\"#2e2633\",\"#99173c\"],[\"#343838\",\"#005f6b\",\"#008c9e\",\"#00b4cc\",\"#00dffc\"],[\"#413e4a\",\"#73626e\",\"#b38184\",\"#f0b49e\",\"#f7e4be\"],[\"#ff4e50\",\"#fc913a\",\"#f9d423\",\"#ede574\",\"#e1f5c4\"],[\"#99b898\",\"#fecea8\",\"#ff847c\",\"#e84a5f\",\"#2a363b\"],[\"#655643\",\"#80bca3\",\"#f6f7bd\",\"#e6ac27\",\"#bf4d28\"],[\"#00a8c6\",\"#40c0cb\",\"#f9f2e7\",\"#aee239\",\"#8fbe00\"],[\"#351330\",\"#424254\",\"#64908a\",\"#e8caa4\",\"#cc2a41\"],[\"#554236\",\"#f77825\",\"#d3ce3d\",\"#f1efa5\",\"#60b99a\"],[\"#5d4157\",\"#838689\",\"#a8caba\",\"#cad7b2\",\"#ebe3aa\"],[\"#8c2318\",\"#5e8c6a\",\"#88a65e\",\"#bfb35a\",\"#f2c45a\"],[\"#fad089\",\"#ff9c5b\",\"#f5634a\",\"#ed303c\",\"#3b8183\"],[\"#ff4242\",\"#f4fad2\",\"#d4ee5e\",\"#e1edb9\",\"#f0f2eb\"],[\"#f8b195\",\"#f67280\",\"#c06c84\",\"#6c5b7b\",\"#355c7d\"],[\"#d1e751\",\"#ffffff\",\"#000000\",\"#4dbce9\",\"#26ade4\"],[\"#1b676b\",\"#519548\",\"#88c425\",\"#bef202\",\"#eafde6\"],[\"#5e412f\",\"#fcebb6\",\"#78c0a8\",\"#f07818\",\"#f0a830\"],[\"#bcbdac\",\"#cfbe27\",\"#f27435\",\"#f02475\",\"#3b2d38\"],[\"#452632\",\"#91204d\",\"#e4844a\",\"#e8bf56\",\"#e2f7ce\"],[\"#eee6ab\",\"#c5bc8e\",\"#696758\",\"#45484b\",\"#36393b\"],[\"#f0d8a8\",\"#3d1c00\",\"#86b8b1\",\"#f2d694\",\"#fa2a00\"],[\"#2a044a\",\"#0b2e59\",\"#0d6759\",\"#7ab317\",\"#a0c55f\"],[\"#f04155\",\"#ff823a\",\"#f2f26f\",\"#fff7bd\",\"#95cfb7\"],[\"#b9d7d9\",\"#668284\",\"#2a2829\",\"#493736\",\"#7b3b3b\"],[\"#bbbb88\",\"#ccc68d\",\"#eedd99\",\"#eec290\",\"#eeaa88\"],[\"#b3cc57\",\"#ecf081\",\"#ffbe40\",\"#ef746f\",\"#ab3e5b\"],[\"#a3a948\",\"#edb92e\",\"#f85931\",\"#ce1836\",\"#009989\"],[\"#300030\",\"#480048\",\"#601848\",\"#c04848\",\"#f07241\"],[\"#67917a\",\"#170409\",\"#b8af03\",\"#ccbf82\",\"#e33258\"],[\"#aab3ab\",\"#c4cbb7\",\"#ebefc9\",\"#eee0b7\",\"#e8caaf\"],[\"#e8d5b7\",\"#0e2430\",\"#fc3a51\",\"#f5b349\",\"#e8d5b9\"],[\"#ab526b\",\"#bca297\",\"#c5ceae\",\"#f0e2a4\",\"#f4ebc3\"],[\"#607848\",\"#789048\",\"#c0d860\",\"#f0f0d8\",\"#604848\"],[\"#b6d8c0\",\"#c8d9bf\",\"#dadabd\",\"#ecdbbc\",\"#fedcba\"],[\"#a8e6ce\",\"#dcedc2\",\"#ffd3b5\",\"#ffaaa6\",\"#ff8c94\"],[\"#3e4147\",\"#fffedf\",\"#dfba69\",\"#5a2e2e\",\"#2a2c31\"],[\"#fc354c\",\"#29221f\",\"#13747d\",\"#0abfbc\",\"#fcf7c5\"],[\"#cc0c39\",\"#e6781e\",\"#c8cf02\",\"#f8fcc1\",\"#1693a7\"],[\"#1c2130\",\"#028f76\",\"#b3e099\",\"#ffeaad\",\"#d14334\"],[\"#a7c5bd\",\"#e5ddcb\",\"#eb7b59\",\"#cf4647\",\"#524656\"],[\"#dad6ca\",\"#1bb0ce\",\"#4f8699\",\"#6a5e72\",\"#563444\"],[\"#5c323e\",\"#a82743\",\"#e15e32\",\"#c0d23e\",\"#e5f04c\"],[\"#edebe6\",\"#d6e1c7\",\"#94c7b6\",\"#403b33\",\"#d3643b\"],[\"#fdf1cc\",\"#c6d6b8\",\"#987f69\",\"#e3ad40\",\"#fcd036\"],[\"#230f2b\",\"#f21d41\",\"#ebebbc\",\"#bce3c5\",\"#82b3ae\"],[\"#b9d3b0\",\"#81bda4\",\"#b28774\",\"#f88f79\",\"#f6aa93\"],[\"#3a111c\",\"#574951\",\"#83988e\",\"#bcdea5\",\"#e6f9bc\"],[\"#5e3929\",\"#cd8c52\",\"#b7d1a3\",\"#dee8be\",\"#fcf7d3\"],[\"#1c0113\",\"#6b0103\",\"#a30006\",\"#c21a01\",\"#f03c02\"],[\"#000000\",\"#9f111b\",\"#b11623\",\"#292c37\",\"#cccccc\"],[\"#382f32\",\"#ffeaf2\",\"#fcd9e5\",\"#fbc5d8\",\"#f1396d\"],[\"#e3dfba\",\"#c8d6bf\",\"#93ccc6\",\"#6cbdb5\",\"#1a1f1e\"],[\"#f6f6f6\",\"#e8e8e8\",\"#333333\",\"#990100\",\"#b90504\"],[\"#1b325f\",\"#9cc4e4\",\"#e9f2f9\",\"#3a89c9\",\"#f26c4f\"],[\"#a1dbb2\",\"#fee5ad\",\"#faca66\",\"#f7a541\",\"#f45d4c\"],[\"#c1b398\",\"#605951\",\"#fbeec2\",\"#61a6ab\",\"#accec0\"],[\"#5e9fa3\",\"#dcd1b4\",\"#fab87f\",\"#f87e7b\",\"#b05574\"],[\"#951f2b\",\"#f5f4d7\",\"#e0dfb1\",\"#a5a36c\",\"#535233\"],[\"#8dccad\",\"#988864\",\"#fea6a2\",\"#f9d6ac\",\"#ffe9af\"],[\"#2d2d29\",\"#215a6d\",\"#3ca2a2\",\"#92c7a3\",\"#dfece6\"],[\"#413d3d\",\"#040004\",\"#c8ff00\",\"#fa023c\",\"#4b000f\"],[\"#eff3cd\",\"#b2d5ba\",\"#61ada0\",\"#248f8d\",\"#605063\"],[\"#ffefd3\",\"#fffee4\",\"#d0ecea\",\"#9fd6d2\",\"#8b7a5e\"],[\"#cfffdd\",\"#b4dec1\",\"#5c5863\",\"#a85163\",\"#ff1f4c\"],[\"#9dc9ac\",\"#fffec7\",\"#f56218\",\"#ff9d2e\",\"#919167\"],[\"#4e395d\",\"#827085\",\"#8ebe94\",\"#ccfc8e\",\"#dc5b3e\"],[\"#a8a7a7\",\"#cc527a\",\"#e8175d\",\"#474747\",\"#363636\"],[\"#f8edd1\",\"#d88a8a\",\"#474843\",\"#9d9d93\",\"#c5cfc6\"],[\"#046d8b\",\"#309292\",\"#2fb8ac\",\"#93a42a\",\"#ecbe13\"],[\"#f38a8a\",\"#55443d\",\"#a0cab5\",\"#cde9ca\",\"#f1edd0\"],[\"#a70267\",\"#f10c49\",\"#fb6b41\",\"#f6d86b\",\"#339194\"],[\"#ff003c\",\"#ff8a00\",\"#fabe28\",\"#88c100\",\"#00c176\"],[\"#ffedbf\",\"#f7803c\",\"#f54828\",\"#2e0d23\",\"#f8e4c1\"],[\"#4e4d4a\",\"#353432\",\"#94ba65\",\"#2790b0\",\"#2b4e72\"],[\"#0ca5b0\",\"#4e3f30\",\"#fefeeb\",\"#f8f4e4\",\"#a5b3aa\"],[\"#4d3b3b\",\"#de6262\",\"#ffb88c\",\"#ffd0b3\",\"#f5e0d3\"],[\"#fffbb7\",\"#a6f6af\",\"#66b6ab\",\"#5b7c8d\",\"#4f2958\"],[\"#edf6ee\",\"#d1c089\",\"#b3204d\",\"#412e28\",\"#151101\"],[\"#9d7e79\",\"#ccac95\",\"#9a947c\",\"#748b83\",\"#5b756c\"],[\"#fcfef5\",\"#e9ffe1\",\"#cdcfb7\",\"#d6e6c3\",\"#fafbe3\"],[\"#9cddc8\",\"#bfd8ad\",\"#ddd9ab\",\"#f7af63\",\"#633d2e\"],[\"#30261c\",\"#403831\",\"#36544f\",\"#1f5f61\",\"#0b8185\"],[\"#aaff00\",\"#ffaa00\",\"#ff00aa\",\"#aa00ff\",\"#00aaff\"],[\"#d1313d\",\"#e5625c\",\"#f9bf76\",\"#8eb2c5\",\"#615375\"],[\"#ffe181\",\"#eee9e5\",\"#fad3b2\",\"#ffba7f\",\"#ff9c97\"],[\"#73c8a9\",\"#dee1b6\",\"#e1b866\",\"#bd5532\",\"#373b44\"],[\"#805841\",\"#dcf7f3\",\"#fffcdd\",\"#ffd8d8\",\"#f5a2a2\"]]");
 
-},{}],"6Z1Qp":[function(require,module,exports) {
+},{}],"6ohNr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -5157,9 +5165,11 @@ parcelHelpers.export(exports, "waves01", ()=>waves01
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _math = require("../lib/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _math = require("../rndrgen/math/math");
+var _random = require("../rndrgen/math/random");
+var _utils = require("../rndrgen/utils");
 /*
 Original inspiration
 Churn by Kenny Vaden
@@ -5181,7 +5191,7 @@ const drawWaveLine = (context)=>(startx, endx, yorigin, height, topWave, bottomW
         let currentY = yorigin;
         const waveColor = color.clone();
         // const highestTop = lowest(topWave);
-        const lineheight = _math.highest(bottomWave) - _math.lowest(topWave) + height;
+        const lineheight = _utils.highest(bottomWave) - _utils.lowest(topWave) + height;
         const gradient = context.createLinearGradient(0, yorigin, 0, yorigin + lineheight);
         gradient.addColorStop(0, waveColor.toRgbString());
         gradient.addColorStop(1, waveColor.darken(20).toRgbString());
@@ -5214,14 +5224,14 @@ const drawWaveLine = (context)=>(startx, endx, yorigin, height, topWave, bottomW
             const dotColor = color.clone();
             topWave.forEach((w)=>{
                 // if (w <= highestTop * 0.5) {
-                const rnd = _math.randomNumberBetween(0, yorigin);
+                const rnd = _random.randomNumberBetween(0, yorigin);
                 if (rnd < 2) {
                     // context.strokeStyle = tinycolor(waveColor).darken(20).toRgbString();
                     // context.lineWidth = 2;
-                    const radius = rnd < 0.008 ? _math.randomNumberBetween(50, 100) : _math.randomNumberBetween(1, 3);
+                    const radius = rnd < 0.008 ? _random.randomNumberBetween(50, 100) : _random.randomNumberBetween(1, 3);
                     context.fillStyle = dotColor.lighten(5).toRgbString();
                     context.beginPath();
-                    context.arc(currentX + _math.randomNumberBetween(-50, 50), w + currentY - _math.randomNumberBetween(5, 50), radius, 0, Math.PI * 2, false);
+                    context.arc(currentX + _random.randomNumberBetween(-50, 50), w + currentY - _random.randomNumberBetween(5, 50), radius, 0, Math.PI * 2, false);
                     context.fill();
                     context.stroke();
                 }
@@ -5259,9 +5269,9 @@ const waves01 = ()=>{
         const distFromCenter = Math.abs(mid - idx);
         angle = _math.mapRange(0, waveRows, 0, 360, idx);
         frequency = _math.mapRange(0, mid, 8, 30, distFromCenter);
-        amplitude = _math.mapRange(0, mid, 15, 20, distFromCenter) + _math.randomNumberBetween(-5, 5);
-        const noise = _math.create2dNoiseAbs(angle, idx, amplitude * 0.5, frequency * _math.randomNumberBetween(0, 2));
-        cosOffset = noise / _math.randomNumberBetween(2, 10);
+        amplitude = _math.mapRange(0, mid, 15, 20, distFromCenter) + _random.randomNumberBetween(-5, 5);
+        const noise = _random.create2dNoiseAbs(angle, idx, amplitude * 0.5, frequency * _random.randomNumberBetween(0, 2));
+        cosOffset = noise / _random.randomNumberBetween(2, 10);
         return {
             top: createWave(waveResolution, angle, frequency, amplitude, cosOffset),
             bottom: createWave(waveResolution, angle, frequency, amplitude, cosOffset)
@@ -5286,7 +5296,7 @@ const waves01 = ()=>{
             const color = _tinycolor2Default.default.mix(colorTop, colorBottom, _math.mapRange(startY, maxY, 0, 100, currentY));
             color.spin(_math.mapRange(0, mid / 2, 60, 0, distFromCenter));
             color.brighten(_math.mapRange(0, mid / 2, 50, 0, distFromCenter));
-            color.darken(_math.mapRange(0, mid, 0, 40, distFromCenter) + _math.randomNumberBetween(0, 30));
+            color.darken(_math.mapRange(0, mid, 0, 40, distFromCenter) + _random.randomNumberBetween(0, 30));
             const height = _math.mapRange(startY, maxY, 50, 0, currentY);
             drawWaveLine(context)(0, canvas.width, currentY, height, waves[i].top, waves[i].bottom, color, true);
             currentY += incrementY;
@@ -5303,17 +5313,18 @@ const waves01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2CMm3":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP","../rndrgen/utils":"1kIwI"}],"2CMm3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "lissajous01", ()=>lissajous01
 );
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
-var _palettes = require("../lib/color/palettes");
-var _sketch = require("../lib/Sketch");
-var _canvasText = require("../lib/canvas/canvas-text");
-var _grids = require("../lib/math/grids");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
+var _palettes = require("../rndrgen/color/palettes");
+var _sketch = require("../rndrgen/Sketch");
+var _canvasText = require("../rndrgen/canvas/canvas-text");
+var _grids = require("../rndrgen/math/grids");
+var _random = require("../rndrgen/math/random");
 class Curve {
     constructor(x, y, radius, angle, speed, noise){
         this.x = x;
@@ -5325,20 +5336,20 @@ class Curve {
         this.angle = angle || 0;
         this.noise = noise;
         // Randomize some noise possibilities
-        this.xa = _math.oneOf([
-            _math.randomWholeBetween(1, 5),
+        this.xa = _random.oneOf([
+            _random.randomWholeBetween(1, 5),
             _math.round2(this.noise)
         ]);
-        this.xb = _math.oneOf([
-            _math.randomWholeBetween(1, 5),
+        this.xb = _random.oneOf([
+            _random.randomWholeBetween(1, 5),
             _math.round2(this.noise)
         ]);
-        this.ya = _math.oneOf([
-            _math.randomWholeBetween(1, 5),
+        this.ya = _random.oneOf([
+            _random.randomWholeBetween(1, 5),
             _math.round2(this.noise)
         ]);
-        this.yb = _math.oneOf([
-            _math.randomWholeBetween(1, 5),
+        this.yb = _random.oneOf([
+            _random.randomWholeBetween(1, 5),
             _math.round2(this.noise)
         ]);
     }
@@ -5391,7 +5402,7 @@ const lissajous01 = ()=>{
             grid.points.forEach((point)=>{
                 const x1 = point[0];
                 const y1 = point[1];
-                curves.push(new Curve(x1, y1, grid.columnWidth / 2, 0, 0.05, _math.create2dNoiseAbs(x1, y1)));
+                curves.push(new Curve(x1, y1, grid.columnWidth / 2, 0, 0.05, _random.create2dNoiseAbs(x1, y1)));
             });
         }
         _canvas.background(canvas, context)(colorBackground);
@@ -5452,7 +5463,7 @@ const lissajous01 = ()=>{
     };
 };
 
-},{"../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../lib/color/palettes":"31bok","../lib/Sketch":"2kdSe","../lib/canvas/canvas-text":"3B3od","../lib/math/grids":"4d6Yp","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3B3od":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/color/palettes":"3qayM","../rndrgen/Sketch":"2OcGA","../rndrgen/canvas/canvas-text":"2bZzd","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2bZzd":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "textStyles", ()=>textStyles
@@ -5497,20 +5508,21 @@ const setTextAlignAllCenter = (context)=>{
     context.textBaseline = 'middle';
 };
 
-},{"tinycolor2":"101FG","./canvas":"pnYxG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldParticles", ()=>flowFieldParticles
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _vector = require("../lib/math/Vector");
-var _attractors = require("../lib/math/attractors");
-var _palettes = require("../lib/color/palettes");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _vector = require("../rndrgen/math/Vector");
+var _attractors = require("../rndrgen/math/attractors");
+var _palettes = require("../rndrgen/color/palettes");
+var _random = require("../rndrgen/math/random");
 const flowFieldParticles = ()=>{
     const config = {
         name: 'flowFieldParticles',
@@ -5523,8 +5535,8 @@ const flowFieldParticles = ()=>{
     let time = 0;
     const createRandomParticle = (canvas)=>{
         const props = _particle.createRandomParticleValues(canvas);
-        props.x = _math.randomWholeBetween(0, canvas.width);
-        props.y = _math.randomWholeBetween(0, canvas.height);
+        props.x = _random.randomWholeBetween(0, canvas.width);
+        props.y = _random.randomWholeBetween(0, canvas.height);
         props.velocityX = 0;
         props.velocityY = 0;
         return new _particle.Particle(props);
@@ -5586,7 +5598,7 @@ const flowFieldParticles = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/math/Vector":"3PiuJ","../lib/math/attractors":"2yHWG","../lib/color/palettes":"31bok","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2yHWG":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"BodqP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "simplexNoise2d", ()=>simplexNoise2d
@@ -5601,25 +5613,21 @@ parcelHelpers.export(exports, "cliffordAttractor", ()=>cliffordAttractor
 );
 parcelHelpers.export(exports, "jongAttractor", ()=>jongAttractor
 );
-parcelHelpers.export(exports, "createFFParticleCoords", ()=>createFFParticleCoords
-);
 var _math = require("./math");
-var _particle = require("../../systems/Particle");
-var _vector = require("./Vector");
-const TAU = Math.PI * 2;
-const simplexNoise2d = (x, y, f = 0.0005)=>_math.create2dNoise(x, y, 1, f) * TAU
+var _random = require("./random");
+const simplexNoise2d = (x, y, f = 0.0005)=>_random.create2dNoise(x, y, 1, f) * _math.TAU
 ;
-const simplexNoise3d = (x, y, t, f = 0.002)=>_math.create3dNoise(x, y, t, 1, f) * TAU
+const simplexNoise3d = (x, y, t, f = 0.002)=>_random.create3dNoise(x, y, t, 1, f) * _math.TAU
 ;
-const diagLines = (x, y)=>(x + y) * 0.01 * TAU
+const diagLines = (x, y)=>(x + y) * 0.01 * _math.TAU
 ;
-const sinField = (x, y)=>(Math.sin(x * 0.01) + Math.sin(y * 0.01)) * TAU
+const sinField = (x, y)=>(Math.sin(x * 0.01) + Math.sin(y * 0.01)) * _math.TAU
 ;
 // random attractor params
-const a = _math.randomNumberBetween(-2, 2);
-const b = _math.randomNumberBetween(-2, 2);
-const c = _math.randomNumberBetween(-2, 2);
-const d = _math.randomNumberBetween(-2, 2);
+const a = _random.randomNumberBetween(-2, 2);
+const b = _random.randomNumberBetween(-2, 2);
+const c = _random.randomNumberBetween(-2, 2);
+const d = _random.randomNumberBetween(-2, 2);
 const cliffordAttractor = (width, height, x, y)=>{
     const scale = 0.01;
     x = (x - width / 2) * scale;
@@ -5635,70 +5643,67 @@ const jongAttractor = (width, height, x, y)=>{
     const x1 = Math.sin(a * y) - Math.cos(b * x);
     const y1 = Math.sin(c * x) - Math.cos(d * y);
     return Math.atan2(y1 - y, x1 - x);
-};
-// Misc formula
-const flowAtPoint = (x, y)=>{
-    const scale = 0.01;
-    const fromCenter = _math.pointDistance({
-        x,
-        y
-    }, {
-        x: canvasMidX,
-        y: canvasMidY
-    });
-    const simplex = simplexNoise2d(x, y, 0.01);
-    // const theta = simplex;
-    const theta = (fromCenter + simplex) / 2; // mostly radial around middle
-    // const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
-    // const r2 = (Math.pow(x, 2) + 0.8 * Math.pow(y, 1 / 2)) * 8 * Math.PI * 4;
-    // const theta = ((r1 + r2 + simplex) / 3) * 0.001;
-    // const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
-    // const theta = Math.atan2(y, x); // cones out from top left
-    // const theta = x + y + Math.cos(x * scale) * Math.sin(x * scale); // bl to tr diag and cross perp lines
-    // const theta = Math.cos(x * scale) * Math.sin(x * scale); // vertical lines
-    // const theta = Math.cos(x) * Math.sin(x) * scale; // horizontal lines
-    // const theta = x * Math.sin(y) * scale; // scribble
-    // const theta = Math.sin(x * scale) + Math.sin(y * scale); // diamonds
-    return theta * TAU;
-};
-const createFFParticleCoords = (fieldFn, startX, startY, length, fMag = 1, vlimit = 1)=>{
-    const props = {
-        x: startX,
-        y: startY,
-        velocityX: 0,
-        velocityY: 0,
-        mass: 1
+}; // const flowAtPoint = (x, y) => {
+ //     const scale = 0.01;
+ //     const fromCenter = pointDistance({ x, y }, { x: canvasMidX, y: canvasMidY });
+ //     const simplex = simplexNoise2d(x, y, 0.01);
+ //     // const theta = simplex;
+ //     const theta = (fromCenter + simplex) / 2; // mostly radial around middle
+ //     // const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
+ //     // const r2 = (Math.pow(x, 2) + 0.8 * Math.pow(y, 1 / 2)) * 8 * Math.PI * 4;
+ //     // const theta = ((r1 + r2 + simplex) / 3) * 0.001;
+ //     // const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
+ //     // const theta = Math.atan2(y, x); // cones out from top left
+ //     // const theta = x + y + Math.cos(x * scale) * Math.sin(x * scale); // bl to tr diag and cross perp lines
+ //     // const theta = Math.cos(x * scale) * Math.sin(x * scale); // vertical lines
+ //     // const theta = Math.cos(x) * Math.sin(x) * scale; // horizontal lines
+ //     // const theta = x * Math.sin(y) * scale; // scribble
+ //     // const theta = Math.sin(x * scale) + Math.sin(y * scale); // diamonds
+ //     return theta * TAU;
+ // };
+ /*
+const plotFFPointLines = (num) => {
+        for (let i = 0; i < num; i++) {
+            const coords = createFFParticleCoords(noise, 0, randomWholeBetween(0, canvasMidY * 2), 2000, 1);
+            drawConnectedPoints(ctx)(coords, tinycolor('rgba(0,0,0,.5'), 1);
+        }
     };
-    const particle = new _particle.Particle(props);
-    const coords = [];
-    for(let i = 0; i < length; i++){
-        const theta = fieldFn(particle.x, particle.y);
-        // theta = quantize(4, theta);
-        const force = _math.uvFromAngle(theta).setMag(fMag);
-        particle.applyForce(force);
-        particle.velocity = particle.velocity.limit(vlimit);
-        particle.updatePosWithVelocity();
-        coords.push([
-            particle.x,
-            particle.y
-        ]);
-        particle.acceleration = new _vector.Vector(0, 0);
-    }
-    return coords;
-};
+ */  // export const createFFParticleCoords = (fieldFn, startX, startY, length, fMag = 1, vlimit = 1) => {
+ //     const props = {
+ //         x: startX,
+ //         y: startY,
+ //         velocityX: 0,
+ //         velocityY: 0,
+ //         mass: 1,
+ //     };
+ //     const particle = new Particle(props);
+ //     const coords = [];
+ //     for (let i = 0; i < length; i++) {
+ //         const theta = fieldFn(particle.x, particle.y);
+ //         // theta = quantize(4, theta);
+ //         const force = uvFromAngle(theta).setMag(fMag);
+ //
+ //         particle.applyForce(force);
+ //         particle.velocity = particle.velocity.limit(vlimit);
+ //         particle.updatePosWithVelocity();
+ //         coords.push([particle.x, particle.y]);
+ //         particle.acceleration = new Vector(0, 0);
+ //     }
+ //     return coords;
+ // };
 
-},{"./math":"jAxxe","../../systems/Particle":"1mD6I","./Vector":"3PiuJ","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Q1u4":[function(require,module,exports) {
+},{"./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./random":"1SLuP"}],"3Q1u4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldArcs", ()=>flowFieldArcs
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _attractors = require("../lib/math/attractors");
-var _math = require("../lib/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _attractors = require("../rndrgen/math/attractors");
+var _math = require("../rndrgen/math/math");
 const TAU = Math.PI * 2;
 const arc = (context, x, y, size, thick, color, theta)=>{
     const startR = _math.snapNumber(Math.PI / 2, theta);
@@ -5766,25 +5771,26 @@ const flowFieldArcs = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/math/attractors":"2yHWG","../lib/math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5P1Ch":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5P1Ch":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldImage", ()=>flowFieldImage
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _vector = require("../lib/math/Vector");
-var _attractors = require("../lib/math/attractors");
-var _palettes = require("../lib/color/palettes");
-var _bitmap = require("../lib/canvas/Bitmap");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _vector = require("../rndrgen/math/Vector");
+var _attractors = require("../rndrgen/math/attractors");
+var _palettes = require("../rndrgen/color/palettes");
+var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
 var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
-var _canvasPaint = require("../lib/canvas/canvas-paint");
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _canvasPaint = require("../rndrgen/canvas/canvas-paint");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
+var _random = require("../rndrgen/math/random");
 /*
 https://marcteyssier.com/projects/flowfield/
 https://larrycarlson.com/collections/wavy-art-prints
@@ -5801,8 +5807,8 @@ const flowFieldImage = ()=>{
     const image = new _bitmap.Bitmap(_kristijanArsovWoman400PngDefault.default);
     const createRandomParticle = (canvas)=>{
         const props = _particle.createRandomParticleValues(canvas);
-        props.x = _math.randomWholeBetween(0, canvas.width);
-        props.y = _math.randomWholeBetween(0, canvas.height);
+        props.x = _random.randomWholeBetween(0, canvas.width);
+        props.y = _random.randomWholeBetween(0, canvas.height);
         props.velocityX = 0;
         props.velocityY = 0;
         return new _particle.Particle(props);
@@ -5844,7 +5850,7 @@ const flowFieldImage = ()=>{
     };
     const drawFibers = ({ canvas , context  })=>{
         const particle = createRandomParticle(canvas);
-        const length = _math.randomWholeBetween(50, 1000);
+        const length = _random.randomWholeBetween(50, 1000);
         for(let i = 0; i < length; i++)drawParticle({
             canvas,
             context
@@ -5864,7 +5870,7 @@ const flowFieldImage = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/math/Vector":"3PiuJ","../lib/math/attractors":"2yHWG","../lib/color/palettes":"31bok","../lib/canvas/Bitmap":"7Gwcu","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../lib/canvas/canvas-paint":"5vTwG","../lib/canvas/rendernoise":"6TnGL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7Gwcu":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/canvas-paint":"32k8N","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Bitmap", ()=>Bitmap
@@ -5882,6 +5888,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("./canvas");
 var _math = require("../math/math");
+var _utils = require("../utils");
 class Bitmap {
     constructor(src){
         this.scaleX = 1;
@@ -5958,28 +5965,28 @@ class Bitmap {
     averageGreyFromCell(x, y, w, h, res = 2) {
         const points = [];
         for(let i = x; i < x + w; i += res)for(let k = y; k < y + h; k += res)points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
-        return _math.averageNumArray(points);
+        return _utils.averageNumArray(points);
     }
 }
 
-},{"tinycolor2":"101FG","./canvas":"pnYxG","../math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2bj6J":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../utils":"1kIwI"}],"2bj6J":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "kristijan-arsov-woman-400.56b3ea5d.png";
 
-},{"./bundle-url":"3seVR"}],"5vTwG":[function(require,module,exports) {
+},{"./bundle-url":"3seVR"}],"32k8N":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "splatter", ()=>splatter
 );
 // "paint splatters" around center point
-var _math = require("../math/math");
 var _canvas = require("./canvas");
+var _random = require("../math/random");
 const TAU = Math.PI * 2;
 const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
         for(let i = 0; i < amount; i++){
-            const s = _math.randomWholeBetween(size * 0.25, size * 3);
+            const s = _random.randomWholeBetween(size * 0.25, size * 3);
             // circle dist
-            const radius = _math.randomWholeBetween(0, range);
-            const angle = _math.randomNumberBetween(0, TAU);
+            const radius = _random.randomWholeBetween(0, range);
+            const angle = _random.randomNumberBetween(0, TAU);
             const xoff = radius * Math.cos(angle);
             const yoff = radius * Math.sin(angle);
             // square dist
@@ -5990,7 +5997,7 @@ const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
     }
 ;
 
-},{"../math/math":"jAxxe","./canvas":"pnYxG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6TnGL":[function(require,module,exports) {
+},{"./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"4SfKr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "renderField", ()=>renderField
@@ -6003,6 +6010,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../math/math");
 var _canvasLinespoints = require("./canvas-linespoints");
+var _random = require("../math/random");
 const renderField = ({ width , height  }, context, fn, color = 'black', resolution = '50', length = 10)=>{
     const xStep = Math.round(width / resolution);
     const yStep = Math.round(height / resolution);
@@ -6041,8 +6049,8 @@ const renderFieldContour = ({ width , height  }, context, fn, min = -8, max = 8,
         const lowPoints = [];
         const highPoints = [];
         for(let i = 0; i < rpoints; i++){
-            const px = _math.randomWholeBetween(0, width);
-            const py = _math.randomWholeBetween(0, height);
+            const px = _random.randomWholeBetween(0, width);
+            const py = _random.randomWholeBetween(0, height);
             const nheight = fn(px, py);
             if (_math.valueCloseTo(n, nheight, varience)) {
                 if (nheight <= 0) lowPoints.push([
@@ -6096,7 +6104,7 @@ function renderNoiseContour(startX, startY, borderVal, fn) {
 }
 */ 
 
-},{"tinycolor2":"101FG","../math/math":"jAxxe","./canvas-linespoints":"5xVqw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5xVqw":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas-linespoints":"6M7Gi","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"6M7Gi":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "turtleLineMode", ()=>turtleLineMode
@@ -6237,18 +6245,19 @@ const drawSegmentTaper = (ctx)=>(segments, color, maxWeight, minWeight = 1, poin
     }
 ;
 
-},{"tinycolor2":"101FG","./canvas":"pnYxG","../math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Qctl":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Qctl":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "radialNoise", ()=>radialNoise
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _attractors = require("../lib/math/attractors");
+var _math = require("../rndrgen/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _attractors = require("../rndrgen/math/attractors");
+var _random = require("../rndrgen/math/random");
 /*
 Started here but took a detour
 https://www.reddit.com/r/creativecoding/comments/lx9prx/audiovisual_sound_of_space_solar_system_david/
@@ -6332,9 +6341,9 @@ const radialNoise = ()=>{
         angle += 3;
         if (angle > 360) {
             angle = 0;
-            currentRadiusSize = _math.randomWholeBetween(100, 360);
+            currentRadiusSize = _random.randomWholeBetween(100, 360);
             radiusScale = 1; // currentRadiusSize / maxRadius;
-            const offs = _math.randomPointAround((canvas.width - maxRadius) * 0.75);
+            const offs = _random.randomPointAround((canvas.width - maxRadius) * 0.75);
             originX = canvasMidX + offs.x;
             originY = canvasMidY + offs.y;
             _canvas.background(canvas, context)(backgroundColor.setAlpha(0.25));
@@ -6347,7 +6356,7 @@ const radialNoise = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/math/attractors":"2yHWG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3hmlu":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"3hmlu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons", ()=>flowFieldRibbons
@@ -6356,14 +6365,15 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _random = require("canvas-sketch-util/random");
 var _randomDefault = parcelHelpers.interopDefault(_random);
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _vector = require("../lib/math/Vector");
-var _attractors = require("../lib/math/attractors");
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _vector = require("../rndrgen/math/Vector");
+var _attractors = require("../rndrgen/math/attractors");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
+var _random1 = require("../rndrgen/math/random");
 /*
 Based on
 https://tylerxhobbs.com/essays/2020/flow-fields
@@ -6445,7 +6455,7 @@ const flowFieldRibbons = ()=>{
     ;
     const jong = (x, y)=>_attractors.jongAttractor(canvas.width, canvas.height, x, y)
     ;
-    const noise = _math.randomBoolean() ? clifford : jong;
+    const noise = _random1.randomBoolean() ? clifford : jong;
     let maxRadius;
     const setup = ({ canvas , context  })=>{
         canvasMidX = canvas.width / 2;
@@ -6454,10 +6464,10 @@ const flowFieldRibbons = ()=>{
         _canvas.background(canvas, context)(backgroundColor);
         _rendernoise.renderField(canvas, context, noise, 'rgba(0,0,0,.15)', canvas.width / 10, 5);
     };
-    const ribbonLen = _math.randomWholeBetween(50, 1000);
-    const ribbonThickness = _math.randomWholeBetween(3, 30);
+    const ribbonLen = _random1.randomWholeBetween(50, 1000);
+    const ribbonThickness = _random1.randomWholeBetween(3, 30);
     const draw = ({ canvas , context  })=>{
-        const color = _math.oneOf(palette);
+        const color = _random1.oneOf(palette);
         const len = maxRadius * 2; // ribbonLen;
         const rpoint = _randomDefault.default.onCircle(maxRadius); // randomPointAround(maxRadius * 0.4);
         const x = rpoint[0] + canvasMidX;
@@ -6476,7 +6486,7 @@ const flowFieldRibbons = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../lib/math/math":"jAxxe","../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/math/Vector":"3PiuJ","../lib/math/attractors":"2yHWG","../lib/canvas/rendernoise":"6TnGL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2IsLg":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"2IsLg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons2", ()=>flowFieldRibbons2
@@ -6485,14 +6495,15 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _random = require("canvas-sketch-util/random");
 var _randomDefault = parcelHelpers.interopDefault(_random);
-var _math = require("../lib/math/math");
+var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _vector = require("../lib/math/Vector");
-var _attractors = require("../lib/math/attractors");
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _vector = require("../rndrgen/math/Vector");
+var _attractors = require("../rndrgen/math/attractors");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
+var _random1 = require("../rndrgen/math/random");
 /*
 Based on
 https://tylerxhobbs.com/essays/2020/flow-fields
@@ -6532,13 +6543,13 @@ const drawRibbonSegment = (context, sideA, sideB, color, stroke = false, thickne
 };
 const drawRibbon = (context)=>(sideA, sideB, color, stroke = false, thickness = 1)=>{
         const segmentGap = 1; // randomWholeBetween(1, 4);
-        const segments = _math.randomWholeBetween(1, 3);
+        const segments = _random1.randomWholeBetween(1, 3);
         // const segmentsStep = Math.ceil((sideA.length - segmentGap * (segments - 1)) / segments);
         const segmentData = [];
         let left = sideA.length;
         let start = 0;
         for(let i = 0; i < segments; i++){
-            const len = _math.randomWholeBetween(1, left / 2);
+            const len = _random1.randomWholeBetween(1, left / 2);
             // const start = i * segmentsStep + segmentGap * i;
             // const len = segmentsStep;
             segmentData.push({
@@ -6598,7 +6609,7 @@ const flowFieldRibbons2 = ()=>{
     ;
     const jong = (x, y)=>_attractors.jongAttractor(canvas.width, canvas.height, x, y)
     ;
-    const noise = _math.randomBoolean() ? clifford : jong;
+    const noise = _random1.randomBoolean() ? clifford : jong;
     let maxRadius;
     const setup = ({ canvas , context  })=>{
         canvasMidX = canvas.width / 2;
@@ -6614,17 +6625,17 @@ const flowFieldRibbons2 = ()=>{
     //     canvas.width / 20
     // );
     };
-    const ribbonLen = _math.randomWholeBetween(200, 500);
-    const ribbonThickness = _math.randomWholeBetween(100, 300);
-    const maxItterations = _math.randomWholeBetween(10, 30);
+    const ribbonLen = _random1.randomWholeBetween(200, 500);
+    const ribbonThickness = _random1.randomWholeBetween(100, 300);
+    const maxItterations = _random1.randomWholeBetween(10, 30);
     let currentItteration = 0;
     const draw = ({ canvas , context  })=>{
-        const color = _math.oneOf(palette);
+        const color = _random1.oneOf(palette);
         const len = ribbonLen;
         // const rpoint = random.onCircle(maxRadius); // randomPointAround(maxRadius * 0.4);
         const rpoint = [
-            _math.randomWholeBetween(0, canvas.width),
-            _math.randomWholeBetween(0, canvas.height)
+            _random1.randomWholeBetween(0, canvas.width),
+            _random1.randomWholeBetween(0, canvas.height)
         ];
         const x = rpoint[0];
         const y = rpoint[1];
@@ -6643,7 +6654,7 @@ const flowFieldRibbons2 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../lib/math/math":"jAxxe","../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/math/Vector":"3PiuJ","../lib/math/attractors":"2yHWG","../lib/canvas/rendernoise":"6TnGL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1wwAx":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"1wwAx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "shadedBoxes", ()=>shadedBoxes
@@ -6651,16 +6662,17 @@ parcelHelpers.export(exports, "shadedBoxes", ()=>shadedBoxes
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _particle = require("../systems/Particle");
-var _canvas = require("../lib/canvas/canvas");
-var _math = require("../lib/math/math");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _box = require("../lib/canvas/Box");
-var _attractors = require("../lib/math/attractors");
-var _vector = require("../lib/math/Vector");
-var _canvasTextures = require("../lib/canvas/canvas-textures");
-var _canvasParticles = require("../lib/canvas/canvas-particles");
-var _grids = require("../lib/math/grids");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _math = require("../rndrgen/math/math");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _box = require("../rndrgen/canvas/Box");
+var _attractors = require("../rndrgen/math/attractors");
+var _vector = require("../rndrgen/math/Vector");
+var _canvasTextures = require("../rndrgen/canvas/canvas-textures");
+var _canvasParticles = require("../rndrgen/canvas/canvas-particles");
+var _grids = require("../rndrgen/math/grids");
+var _random = require("../rndrgen/math/random");
 const shadedBoxes = ()=>{
     const config = {
         name: 'shadedBoxes',
@@ -6749,7 +6761,7 @@ const shadedBoxes = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../systems/Particle":"1mD6I","../lib/canvas/canvas":"pnYxG","../lib/math/math":"jAxxe","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/canvas/Box":"1fzxi","../lib/math/attractors":"2yHWG","../lib/math/Vector":"3PiuJ","../lib/canvas/canvas-textures":"oYAgY","../lib/canvas/canvas-particles":"1vL4T","../lib/math/grids":"4d6Yp","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1fzxi":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Box":"64rI2","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/canvas-textures":"79QHa","../rndrgen/canvas/canvas-particles":"66xFi","../rndrgen/math/grids":"2Wgq0","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"64rI2":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Box", ()=>Box
@@ -6761,10 +6773,10 @@ Border
 Clip to no overflow?
  */ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../math/math");
 var _utils = require("../utils");
 var _canvas = require("./canvas");
 var _point = require("../math/Point");
+var _random = require("../math/random");
 const defaultMP = {
     top: 0,
     right: 0,
@@ -6851,8 +6863,8 @@ class Box {
     }
     randomPointInside(distribution = 'whole') {
         const edgeBuffer = 10;
-        let point = new _point.Point(_math.randomWholeBetween(edgeBuffer, this.width - edgeBuffer), _math.randomWholeBetween(edgeBuffer, this.height - edgeBuffer));
-        if (distribution === 'normal') point = new _point.Point(_math.randomNormalWholeBetween(edgeBuffer, this.width - edgeBuffer), _math.randomNormalWholeBetween(edgeBuffer, this.height - edgeBuffer));
+        let point = new _point.Point(_random.randomWholeBetween(edgeBuffer, this.width - edgeBuffer), _random.randomWholeBetween(edgeBuffer, this.height - edgeBuffer));
+        if (distribution === 'normal') point = new _point.Point(_random.randomNormalWholeBetween(edgeBuffer, this.width - edgeBuffer), _random.randomNormalWholeBetween(edgeBuffer, this.height - edgeBuffer));
         return point;
     }
     isInside(point) {
@@ -6905,7 +6917,7 @@ class Box {
     };
 }
 
-},{"tinycolor2":"101FG","../math/math":"jAxxe","../utils":"0EaEI","./canvas":"pnYxG","../math/Point":"4hX77","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4hX77":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../utils":"1kIwI","./canvas":"73Br1","../math/Point":"3VbqL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"3VbqL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Point", ()=>Point
@@ -6935,7 +6947,7 @@ class Point {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"oYAgY":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"79QHa":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "setTextureClippingMask", ()=>setTextureClippingMask
@@ -6955,6 +6967,7 @@ var _math = require("../math/math");
 var _canvas = require("./canvas");
 var _canvasLinespoints = require("./canvas-linespoints");
 var _utils = require("../utils");
+var _random = require("../math/random");
 const TAU = Math.PI * 2;
 const intervals = _math.logInterval(10, 1, 10);
 let clipping = true;
@@ -6992,21 +7005,21 @@ const texturizeRect = (context)=>(x, y, width, height, color = 'black', amount =
         const maxDim = Math.max(width, height);
         const maxRadius = maxDim * 0.7;
         for(let i = 0; i < numIttr; i++){
-            let tx = _math.randomWholeBetween(x, x + width);
-            let ty = _math.randomWholeBetween(y, y + height);
-            let size = _math.randomWholeBetween(quarter, width);
+            let tx = _random.randomWholeBetween(x, x + width);
+            let ty = _random.randomWholeBetween(y, y + height);
+            let size = _random.randomWholeBetween(quarter, width);
             context.strokeStyle = strokeColor;
             context.lineWidth = lineWidth;
             context.beginPath();
             if (mode === 'circles') context.arc(tx, ty, size, 0, Math.PI * 2, false);
             else if (mode === 'circles2') {
-                tx = _math.randomNormalWholeBetween(x, x + width);
-                ty = _math.randomNormalWholeBetween(y, y + height);
-                size = _math.randomWholeBetween(1, maxRadius);
+                tx = _random.randomNormalWholeBetween(x, x + width);
+                ty = _random.randomNormalWholeBetween(y, y + height);
+                size = _random.randomWholeBetween(1, maxRadius);
                 context.arc(tx, ty, size, 0, Math.PI * 2, false);
             } else if (mode === 'xhatch') {
-                const tx2 = tx + size * _math.randomSign();
-                const ty2 = ty + size * _math.randomSign();
+                const tx2 = tx + size * _random.randomSign();
+                const ty2 = ty + size * _random.randomSign();
                 context.moveTo(tx, ty);
                 context.lineTo(tx2, ty2);
             }
@@ -7035,9 +7048,9 @@ const spiralRect = (context)=>(x, y, width, height, color = 'black', amount = 5,
         context.lineWidth = lineWidth;
         const spirals = intervals[Math.round(amount) - 1] * _math.mapRange(1, 10, 1, 15, amount) * mult;
         for(let s = 0; s < spirals; s++){
-            const ox = _math.randomNormalWholeBetween(x, x + width);
-            const oy = _math.randomNormalWholeBetween(y, y + height);
-            let theta = _math.randomNumberBetween(0, TAU);
+            const ox = _random.randomNormalWholeBetween(x, x + width);
+            const oy = _random.randomNormalWholeBetween(y, y + height);
+            let theta = _random.randomNumberBetween(0, TAU);
             let radius = 0;
             context.beginPath();
             context.moveTo(ox, oy);
@@ -7072,8 +7085,8 @@ const stippleRect = (context)=>(x, y, width, height, color = 'black', amount = 5
         theta = theta === undefined ? Math.PI / 3 : theta;
         for(let i = 0; i < width; i += colStep)for(let j = 0; j < height; j += rowStep){
             // about the middle of the cell
-            const tx = x + _math.randomNormalWholeBetween(i, i + colStep);
-            const ty = y + _math.randomNormalWholeBetween(j, j + rowStep);
+            const tx = x + _random.randomNormalWholeBetween(i, i + colStep);
+            const ty = y + _random.randomNormalWholeBetween(j, j + rowStep);
             const coords = getRotatedYCoords(tx, ty, size, theta);
             const tx2 = coords.x2; // tx + size;
             const ty2 = coords.y2; // ty + size * -1;
@@ -7288,18 +7301,18 @@ const x2 = x1 + length * Math.cos(theta);
 const y2 = y1 + length * Math.sin(theta);
  */ 
 
-},{"tinycolor2":"101FG","../math/math":"jAxxe","./canvas":"pnYxG","./canvas-linespoints":"5xVqw","../utils":"0EaEI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3xaAe":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","./canvas":"73Br1","./canvas-linespoints":"6M7Gi","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/random":"1SLuP"}],"3xaAe":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "larrycarlson02", ()=>larrycarlson02
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _bitmap = require("../lib/canvas/Bitmap");
+var _math = require("../rndrgen/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPng = require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPngDefault = parcelHelpers.interopDefault(_alexanderKrivitskiy2WOEPBkaH7OUnsplashPng);
 const larrycarlson02 = ()=>{
@@ -7441,7 +7454,7 @@ const larrycarlson02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/canvas/Bitmap":"7Gwcu","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "alexander-krivitskiy-2wOEPBkaH7o-unsplash.c33afb25.png";
 
 },{"./bundle-url":"3seVR"}],"6SHt4":[function(require,module,exports) {
@@ -7451,18 +7464,19 @@ parcelHelpers.export(exports, "meanderingRiver02", ()=>meanderingRiver02
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
+var _math = require("../rndrgen/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../systems/MeanderingRiver");
-var _lineSegments = require("../lib/math/lineSegments");
-var _attractors = require("../lib/math/attractors");
-var _canvasLinespoints = require("../lib/canvas/canvas-linespoints");
-var _grids = require("../lib/math/grids");
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _lineSegments = require("../rndrgen/math/lineSegments");
+var _attractors = require("../rndrgen/math/attractors");
+var _canvasLinespoints = require("../rndrgen/canvas/canvas-linespoints");
+var _grids = require("../rndrgen/math/grids");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
+var _random = require("../rndrgen/math/random");
 /*
-Meandering River class at ../lib/MeanderingRiver
+Meandering River class at ../rndrgen/MeanderingRiver
  */ const createHorizontalPath = ({ width , height  }, startX, startY, steps = 20)=>{
     const coords = [];
     const incr = Math.round(width / steps);
@@ -7470,7 +7484,7 @@ Meandering River class at ../lib/MeanderingRiver
     for(let i = startX; i < width; i += incr){
         // greater variation in the middle
         const midDist = Math.round(midx - Math.abs(i - midx));
-        const y = _math.randomNormalWholeBetween(startY - midDist, startY + midDist);
+        const y = _random.randomNormalWholeBetween(startY - midDist, startY + midDist);
         coords.push([
             i,
             y
@@ -7489,7 +7503,7 @@ const createVerticalPath = ({ width , height  }, startX, startY, steps = 20)=>{
     for(let i = startY; i < height; i += incr){
         // greater variation in the middle
         const midDist = Math.round(midy - Math.abs(i - midy));
-        const x = _math.randomNormalWholeBetween(startX - midDist, startX + midDist);
+        const x = _random.randomNormalWholeBetween(startX - midDist, startX + midDist);
         coords.push([
             x,
             i
@@ -7630,7 +7644,7 @@ const meanderingRiver02 = ()=>{
             //     // const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
             //     drawConnectedPoints(ctx)(o.points, c, 1);
             // });
-            const points = _math.chaikin(r.points, 8);
+            const points = _lineSegments.chaikin(r.points, 8);
             if (points.length) _canvasLinespoints.drawConnectedPoints(ctx)(points, c, 2, closed[i]);
         });
         // if (++time > 1000) {
@@ -7645,7 +7659,7 @@ const meanderingRiver02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../systems/MeanderingRiver":"1KEiH","../lib/math/lineSegments":"1Q9W8","../lib/math/attractors":"2yHWG","../lib/canvas/canvas-linespoints":"5xVqw","../lib/math/grids":"4d6Yp","../lib/canvas/rendernoise":"6TnGL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1KEiH":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/lineSegments":"r9YCg","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/canvas-linespoints":"6M7Gi","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"1KEiH":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -7717,10 +7731,10 @@ parcelHelpers.export(exports, "flowRight", ()=>flowRight
 );
 parcelHelpers.export(exports, "flowRightToMiddle", ()=>flowRightToMiddle
 );
-var _lineSegments = require("../lib/math/lineSegments");
-var _utils = require("../lib/utils");
-var _math = require("../lib/math/math");
-var _vector = require("../lib/math/Vector");
+var _lineSegments = require("../rndrgen/math/lineSegments");
+var _utils = require("../rndrgen/utils");
+var _math = require("../rndrgen/math/math");
+var _vector = require("../rndrgen/math/Vector");
 class MeanderingRiver {
     constructor(initPoints, props){
         this.startingPoints = initPoints;
@@ -7937,7 +7951,7 @@ class MeanderingRiver {
                 if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
                     let oxpoints = _lineSegments.va2pA(points.slice(i, j));
-                    oxpoints = _math.chaikin(_lineSegments.trimPoints(oxpoints, 3), 3);
+                    oxpoints = _lineSegments.chaikin(_lineSegments.trimPoints(oxpoints, 3), 3);
                     this.oxbows.push({
                         points: oxpoints,
                         startLength: oxpoints.length
@@ -8004,7 +8018,7 @@ const flowRightToMiddle = (f, mid)=>(p, m)=>{
     }
 ;
 
-},{"../lib/math/lineSegments":"1Q9W8","../lib/utils":"0EaEI","../lib/math/math":"jAxxe","../lib/math/Vector":"3PiuJ","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1Q9W8":[function(require,module,exports) {
+},{"../rndrgen/math/lineSegments":"r9YCg","../rndrgen/utils":"1kIwI","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"r9YCg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "triangleArea2", ()=>triangleArea2
@@ -8063,9 +8077,11 @@ parcelHelpers.export(exports, "reduceLineEqually", ()=>reduceLineEqually
 );
 parcelHelpers.export(exports, "intersect", ()=>intersect
 );
+parcelHelpers.export(exports, "chaikin", ()=>chaikin
+);
 var _vector = require("./Vector");
 var _math = require("./math");
-var _curveCalc = require("../community/curve-calc");
+var _curveCalc = require("./curve-calc");
 var _utils = require("../utils");
 const triangleArea2 = (a, b, c)=>(b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
 ;
@@ -8267,8 +8283,31 @@ const intersect = (x1, y1, x2, y2, x3, y3, x4, y4)=>{
         y
     };
 };
+const chaikin = (input, itr = 1)=>{
+    if (itr === 0) return input;
+    const output = [];
+    for(let i = 0; i < input.length - 1; i++){
+        const p0 = input[i];
+        const p1 = input[i + 1];
+        const p0x = p0[0];
+        const p0y = p0[1];
+        const p1x = p1[0];
+        const p1y = p1[1];
+        const Q = [
+            0.75 * p0x + 0.25 * p1x,
+            0.75 * p0y + 0.25 * p1y
+        ];
+        const R = [
+            0.25 * p0x + 0.75 * p1x,
+            0.25 * p0y + 0.75 * p1y
+        ];
+        output.push(Q);
+        output.push(R);
+    }
+    return itr === 1 ? output : chaikin(output, itr - 1);
+};
 
-},{"./Vector":"3PiuJ","./math":"jAxxe","../community/curve-calc":"6aonj","../utils":"0EaEI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6aonj":[function(require,module,exports) {
+},{"./Vector":"1MSqh","./math":"4t0bw","./curve-calc":"4EuBm","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4EuBm":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getCurvePoints", ()=>getCurvePoints
@@ -8354,18 +8393,19 @@ parcelHelpers.export(exports, "meanderingRiver01", ()=>meanderingRiver01
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../lib/math/math");
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
+var _math = require("../rndrgen/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../systems/MeanderingRiver");
-var _lineSegments = require("../lib/math/lineSegments");
-var _attractors = require("../lib/math/attractors");
-var _canvasLinespoints = require("../lib/canvas/canvas-linespoints");
-var _grids = require("../lib/math/grids");
-var _rendernoise = require("../lib/canvas/rendernoise");
+var _lineSegments = require("../rndrgen/math/lineSegments");
+var _attractors = require("../rndrgen/math/attractors");
+var _canvasLinespoints = require("../rndrgen/canvas/canvas-linespoints");
+var _grids = require("../rndrgen/math/grids");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
+var _random = require("../rndrgen/math/random");
 /*
-Meandering River class at ../lib/MeanderingRiver
+Meandering River class at ../rndrgen/MeanderingRiver
  */ const createHorizontalPath = ({ width , height  }, startX, startY, steps = 20)=>{
     const coords = [];
     const incr = Math.round(width / steps);
@@ -8373,7 +8413,7 @@ Meandering River class at ../lib/MeanderingRiver
     for(let i = startX; i < width; i += incr){
         // greater variation in the middle
         const midDist = Math.round(midx - Math.abs(i - midx));
-        const y = _math.randomNormalWholeBetween(startY - midDist, startY + midDist);
+        const y = _random.randomNormalWholeBetween(startY - midDist, startY + midDist);
         coords.push([
             i,
             y
@@ -8502,7 +8542,7 @@ const meanderingRiver01 = ()=>{
                 const w = Math.abs(_math.mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
                 _canvasLinespoints.drawConnectedPoints(ctx)(o.points, oColor, w + oSize / 2);
             });
-            const points = _math.chaikin(r.points, 5);
+            const points = _lineSegments.chaikin(r.points, 5);
             _canvasLinespoints.drawConnectedPoints(ctx)(points, oColor, riverWeight[i] + oSize);
         });
         // main
@@ -8511,7 +8551,7 @@ const meanderingRiver01 = ()=>{
                 const w = Math.abs(_math.mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
                 _canvasLinespoints.drawConnectedPoints(ctx)(o.points, oxbowColor, w);
             });
-            const points = _math.chaikin(r.points, 5);
+            const points = _lineSegments.chaikin(r.points, 5);
             _canvasLinespoints.drawConnectedPoints(ctx)(points, riverColor, riverWeight[i], false, false);
         // drawPoints(ctx)(r.points, 'red', 1);
         });
@@ -8524,19 +8564,19 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/math/math":"jAxxe","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../systems/MeanderingRiver":"1KEiH","../lib/math/lineSegments":"1Q9W8","../lib/math/attractors":"2yHWG","../lib/canvas/canvas-linespoints":"5xVqw","../lib/math/grids":"4d6Yp","../lib/canvas/rendernoise":"6TnGL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3oo76":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/lineSegments":"r9YCg","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/canvas-linespoints":"6M7Gi","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/rendernoise":"4SfKr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP"}],"3oo76":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "marchingSquares", ()=>marchingSquares
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("../lib/canvas/canvas");
-var _sketch = require("../lib/Sketch");
-var _palettes = require("../lib/color/palettes");
-var _attractors = require("../lib/math/attractors");
-var _rendernoise = require("../lib/canvas/rendernoise");
-var _math = require("../lib/math/math");
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _attractors = require("../rndrgen/math/attractors");
+var _rendernoise = require("../rndrgen/canvas/rendernoise");
+var _math = require("../rndrgen/math/math");
 const marchingSquares = ()=>{
     const config = {
         name: 'marchingSquares',
@@ -8609,6 +8649,6 @@ const marchingSquares = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../lib/canvas/canvas":"pnYxG","../lib/Sketch":"2kdSe","../lib/color/palettes":"31bok","../lib/math/attractors":"2yHWG","../lib/canvas/rendernoise":"6TnGL","../lib/math/math":"jAxxe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/rendernoise":"4SfKr","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

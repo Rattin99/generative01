@@ -1,8 +1,9 @@
 import domokunPng from '../../media/images/domokun.png';
-import { clearCanvas, drawSquareFilled, background } from '../lib/canvas/canvas';
-import { normalizeInverse, pointDistance, randomNumberBetween, scalePointToCanvas } from '../lib/math/math';
+import { clearCanvas, drawSquareFilled, background } from '../rndrgen/canvas/canvas';
+import { normalizeInverse, pointDistance, scalePointToCanvas } from '../rndrgen/math/math';
 import { Particle } from '../systems/Particle';
-import { drawMouse } from '../lib/canvas/canvas-particles';
+import { drawMouse } from '../rndrgen/canvas/canvas-particles';
+import { randomNumberBetween } from '../rndrgen/math/random';
 
 const pointPush = (point, particle, f = 1) => {
     const dx = point.x - particle.x;

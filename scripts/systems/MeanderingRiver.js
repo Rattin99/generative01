@@ -1,7 +1,7 @@
-import { linesIntersect, mCurvature, pa2VA, trimPoints, va2pA } from '../lib/math/lineSegments';
-import { defaultValue, getArrayValuesFromEnd, getArrayValuesFromStart } from '../lib/utils';
-import { chaikin, degreesToRadians, lerp, mapRange, percentage, pointDistance, uvFromAngle } from '../lib/math/math';
-import { Vector } from '../lib/math/Vector';
+import { chaikin, linesIntersect, mCurvature, pa2VA, trimPoints, va2pA } from '../rndrgen/math/lineSegments';
+import { defaultValue, getArrayValuesFromEnd, getArrayValuesFromStart } from '../rndrgen/utils';
+import { degreesToRadians, lerp, mapRange, percentage, pointDistance, uvFromAngle } from '../rndrgen/math/math';
+import { Vector } from '../rndrgen/math/Vector';
 
 /*
 Based on Meander by Robert Hodgin

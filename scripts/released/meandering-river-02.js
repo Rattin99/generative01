@@ -1,17 +1,18 @@
 import tinycolor from 'tinycolor2';
-import { randomNormalWholeBetween, chaikin, mapRange } from '../lib/math/math';
-import { background } from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/Sketch';
-import { bicPenBlue, warmWhite } from '../lib/color/palettes';
+import { mapRange } from '../rndrgen/math/math';
+import { background } from '../rndrgen/canvas/canvas';
+import { ratio, scale } from '../rndrgen/Sketch';
+import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
-import { createSplinePoints, trimPoints } from '../lib/math/lineSegments';
-import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../lib/math/attractors';
-import { drawConnectedPoints, variableCircleAtPoint } from '../lib/canvas/canvas-linespoints';
-import { createCirclePoints } from '../lib/math/grids';
-import { renderField } from '../lib/canvas/rendernoise';
+import { chaikin, createSplinePoints, trimPoints } from '../rndrgen/math/lineSegments';
+import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../rndrgen/math/attractors';
+import { drawConnectedPoints, variableCircleAtPoint } from '../rndrgen/canvas/canvas-linespoints';
+import { createCirclePoints } from '../rndrgen/math/grids';
+import { renderField } from '../rndrgen/canvas/rendernoise';
+import { randomNormalWholeBetween } from '../rndrgen/math/random';
 
 /*
-Meandering River class at ../lib/MeanderingRiver
+Meandering River class at ../rndrgen/MeanderingRiver
  */
 
 const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => {

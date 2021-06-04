@@ -1,17 +1,10 @@
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
 import tinycolor from 'tinycolor2';
-import {
-    logInterval,
-    mapRange,
-    randomNormalWholeBetween,
-    randomNumberBetween,
-    randomSign,
-    randomWholeBetween,
-    round2,
-} from '../math/math';
+import { logInterval, mapRange, round2 } from '../math/math';
 import { drawRectFilled } from './canvas';
 import { plotLines } from './canvas-linespoints';
 import { last } from '../utils';
+import { randomNormalWholeBetween, randomNumberBetween, randomSign, randomWholeBetween } from '../math/random';
 
 const TAU = Math.PI * 2;
 const intervals = logInterval(10, 1, 10);

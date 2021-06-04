@@ -1,8 +1,9 @@
 import { Particle, createRandomParticleValues } from '../systems/Particle';
-import { background, drawCircleFilled } from '../lib/canvas/canvas';
-import { clamp, mapRange, pointDistance, randomNumberBetween } from '../lib/math/math';
-import { Vector } from '../lib/math/Vector';
-import { drawParticlePoint, drawPointTrail } from '../lib/canvas/canvas-particles';
+import { background, drawCircleFilled } from '../rndrgen/canvas/canvas';
+import { clamp, mapRange, pointDistance } from '../rndrgen/math/math';
+import { Vector } from '../rndrgen/math/Vector';
+import { drawParticlePoint, drawPointTrail } from '../rndrgen/canvas/canvas-particles';
+import { randomNumberBetween } from '../rndrgen/math/random';
 
 // Based on Coding Train https://www.youtube.com/watch?v=Iaz9TqYWUmA
 // But it didn't work like his, idk the error - just making it "pretty"

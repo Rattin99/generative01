@@ -32,8 +32,9 @@ TODO
 */
 
 import { isHiDPI, contextScale, resizeCanvas } from './canvas/canvas';
-import { getRandomSeed, golden } from './math/math';
+import { golden } from './math/math';
 import { defaultValue } from './utils';
+import { getRandomSeed } from './math/random';
 
 export const orientation = {
     portrait: 0,

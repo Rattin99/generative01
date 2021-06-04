@@ -1,16 +1,5 @@
 import tinycolor from 'tinycolor2';
-import {
-    mapRange,
-    create2dNoise,
-    randomWholeBetween,
-    uvFromAngle,
-    oneOf,
-    aFromVector,
-    snapNumber,
-    create3dNoise,
-    quantize,
-    houghQuantize,
-} from '../lib/math/math';
+import { mapRange, uvFromAngle, aFromVector, snapNumber, quantize, houghQuantize } from '../rndrgen/math/math';
 import { edgeWrap, Particle, createRandomParticleValues } from '../systems/Particle';
 import {
     background,
@@ -19,10 +8,10 @@ import {
     drawQuadRectFilled,
     drawRectFilled,
     drawRoundRectFilled,
-} from '../lib/canvas/canvas';
-import { ratio, scale } from '../lib/Sketch';
-import { nicePalette, hslFromRange } from '../lib/color/palettes';
-import { Vector } from '../lib/math/Vector';
+} from '../rndrgen/canvas/canvas';
+import { ratio, scale } from '../rndrgen/Sketch';
+import { nicePalette, hslFromRange } from '../rndrgen/color/palettes';
+import { Vector } from '../rndrgen/math/Vector';
 import {
     simplexNoise2d,
     simplexNoise3d,
@@ -30,7 +19,8 @@ import {
     cliffordAttractor,
     jongAttractor,
     diagLines,
-} from '../lib/math/attractors';
+} from '../rndrgen/math/attractors';
+import { create2dNoise, create3dNoise, oneOf, randomWholeBetween } from '../rndrgen/math/random';
 
 const tile = (context, x, y, size, color, heading) => {
     // drawQuadRectFilled(context)(x, y, size, size, color);

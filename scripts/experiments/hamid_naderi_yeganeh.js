@@ -1,7 +1,8 @@
 import tinycolor from 'tinycolor2';
-import { background } from '../lib/canvas/canvas';
-import { create2dNoiseAbs, mapRange, pointDistance, randomNumberBetween } from '../lib/math/math';
-import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../lib/canvas/canvas-particles';
+import { background } from '../rndrgen/canvas/canvas';
+import { mapRange, pointDistance } from '../rndrgen/math/math';
+import { connectParticles, drawMouse, drawParticlePoint, drawPointTrail } from '../rndrgen/canvas/canvas-particles';
+import { create2dNoiseAbs, randomNumberBetween } from '../rndrgen/math/random';
 
 /*
 Based on Coding Challenge #116​: Lissajous Curve Table https://www.youtube.com/watch?v=--6eyLO78CY
