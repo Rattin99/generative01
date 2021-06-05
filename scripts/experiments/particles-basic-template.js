@@ -2,7 +2,7 @@ import { Particle, createRandomParticleValues, edgeWrap } from '../systems/Parti
 import { background } from '../rndrgen/canvas/canvas';
 import { mapRange } from '../rndrgen/math/math';
 import { ratio, scale } from '../rndrgen/Sketch';
-import { drawParticlePoint } from '../rndrgen/canvas/particles';
+import { particlePoint } from '../rndrgen/canvas/particles';
 
 export const particleBasicTemplate = () => {
     const config = {
@@ -46,7 +46,7 @@ export const particleBasicTemplate = () => {
         for (let i = 0; i < numParticles; i++) {
             particlesArray[i].updatePosWithVelocity();
             edgeWrap(canvas, particlesArray[i]);
-            drawParticlePoint(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
         }
     };
 

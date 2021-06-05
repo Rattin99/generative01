@@ -2,7 +2,7 @@ import sourcePng from '../../media/images/hi1.png';
 import { clear, background } from '../rndrgen/canvas/canvas';
 import { createRandomParticleValues, edgeWrap, Particle } from '../systems/Particle';
 import { mapRange } from '../rndrgen/math/math';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
+import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { createGridPointsXY } from '../rndrgen/math/grids';
 import { createRandomNumberArray, randomNumberBetween } from '../rndrgen/math/random';
 import { squareFilled } from '../rndrgen/canvas/primatives';
@@ -74,7 +74,7 @@ export const hiImage01 = (_) => {
                 particlesArray[i].color = particleColor;
             }
 
-            drawParticlePoint(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
         }
     };
 

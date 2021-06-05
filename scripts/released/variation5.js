@@ -1,7 +1,7 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
 import { fill } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
+import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { pointDistance } from '../rndrgen/math/points';
 
@@ -63,7 +63,7 @@ export const variation5 = () => {
             for (let c = 0; c < circles.length; c++) {
                 avoidPoint({ radius: circles[c][2], x: circles[c][0], y: circles[c][1] }, particlesArray[i], 4);
             }
-            drawParticlePoint(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 50);
     };

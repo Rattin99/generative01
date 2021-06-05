@@ -8,7 +8,7 @@ const intervals = logInterval(10, 1, 10);
 
 let clipping = true;
 
-export const setTextureClippingMask = (v = true) => {
+export const setTextureClippingMaskEnabled = (v = true) => {
     clipping = v;
 };
 
@@ -26,7 +26,7 @@ const getRotatedYCoords = (x, y, length, theta) => ({
     y2: y + length * Math.sin(theta),
 });
 
-const drawLines = (context) => (points, color = 'black', width = 1) => {
+const pointLine = (context) => (points, color = 'black', width = 1) => {
     context.beginPath();
     context.strokeStyle = tinycolor(color).toRgbString();
     context.lineWidth = width;
@@ -43,7 +43,8 @@ const drawLines = (context) => (points, color = 'black', width = 1) => {
     context.stroke();
 };
 
-export const texturizeRect = (context) => (
+// TODO split this fn up
+export const textureRect = (context) => (
     x,
     y,
     width,
@@ -102,7 +103,7 @@ export const texturizeRect = (context) => (
     }
 };
 
-export const spiralRect = (context) => (x, y, width, height, color = 'black', amount = 5, mult = 1) => {
+export const textureRectSprials = (context) => (x, y, width, height, color = 'black', amount = 5, mult = 1) => {
     if (amount <= 0) return;
 
     const maxDim = Math.max(width, height);
@@ -153,7 +154,7 @@ export const spiralRect = (context) => (x, y, width, height, color = 'black', am
     }
 };
 
-export const stippleRect = (context) => (x, y, width, height, color = 'black', amount = 5, theta) => {
+export const textureRectStipple = (context) => (x, y, width, height, color = 'black', amount = 5, theta) => {
     if (amount <= 0) return;
     // amount = Math.min(amount, 10);
     if (clipping) {
@@ -198,7 +199,17 @@ export const stippleRect = (context) => (x, y, width, height, color = 'black', a
 };
 
 // TODO needs to getLineIntersectPoint "nicely" at the rect area boundaries
-export const linesRect = (context) => (x, y, width, height, color = 'black', amount = 5, theta = 0, mult = 1) => {
+// needs to do a turtle plot since this was based on a plotter effect
+export const textureRectZigZag = (context) => (
+    x,
+    y,
+    width,
+    height,
+    color = 'black',
+    amount = 5,
+    theta = 0,
+    mult = 1
+) => {
     if (amount <= 0) return;
 
     if (clipping) {
@@ -260,139 +271,9 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
         last(points)[1] = y + height;
     }
 
-    drawLines(context)(points, strokeColor, lineWidth);
+    pointLine(context)(points, strokeColor, lineWidth);
 
     if (clipping) {
         context.restore();
     }
 };
-
-/*
-export const linesRect = (context) => (x, y, width, height, color = 'black', amount = 5, theta = 0, mult = 1) => {
-    if (amount <= 0) return;
-
-    if (clipping) {
-        context.save();
-        const region = new Path2D();
-        region.rect(x, y, width, height);
-        context.clip(region);
-    }
-
-    // theta = 0.5;
-
-    const centerH = Math.round(width / 2);
-    const centerV = Math.round(height / 2);
-    const quarter = width / 4;
-    const strokeColor = tinycolor(color).toRgbString();
-    const lineWidth = 1;
-    // const numIttr = mapRange(1, 10, 1, height / 2, amount);
-    const numIttr = (intervals[Math.round(amount) - 1] * mapRange(1, 10, 1, 15, amount) * mult) / 1;
-
-    const yDelta = width * Math.sin(theta); // height of angle line
-    const steps = height / amount / 2;
-    // keep centered
-    const yOff = steps / 2 - yDelta / 2;
-    let connectSide = -1;
-    let coords = { x1: x, y1: y, x2: x, y2: y };
-    let lastCoords = { x1: x, y1: Math.min(y, y + yOff), x2: x, y2: Math.min(y, y + yOff) };
-
-    rectFilled(context)(x, y, width, height, '#ddd');
-
-    // const maxx = x + width;
-    // const maxy = y + height;
-
-    const points = [];
-
-    for (let i = 0; i < height; i += steps) {
-        coords = getRotatedYCoords(x, yOff + y + i, width, theta);
-
-        // if (coords.y1 < y) {
-        //     const a = coords.y1 - y;
-        //     const b = a / Math.atan(round2(theta));
-        //
-        //     context.beginPath();
-        //     context.strokeStyle = 'red';
-        //     // context.moveTo(x, y);
-        //     // context.lineTo(x, y + a);
-        //     context.moveTo(coords.x1, y);
-        //     context.lineTo(coords.x1 - b, y);
-        //     context.stroke();
-        // }
-        //
-        // if (coords.y2 > maxy) {
-        //     const a = coords.y2 - maxy;
-        //     const b = a / Math.atan(round2(theta));
-        //
-        //     context.beginPath();
-        //     context.strokeStyle = 'green';
-        //     // context.moveTo(maxx, maxy);
-        //     // context.lineTo(maxx, maxy + a);
-        //     context.moveTo(maxx, maxy);
-        //     context.lineTo(maxx - b, maxy);
-        //     context.stroke();
-        // }
-
-        // draw bar
-        context.beginPath();
-        context.strokeStyle = strokeColor;
-        context.lineWidth = lineWidth;
-        if(i === 0) {
-            context.moveTo(coords.x1, coords.y1);
-        } else {
-            context.moveTo(coords.x1, coords.y1);
-        }
-        context.moveTo(coords.x1, coords.y1);
-        context.lineTo(coords.x2, coords.y2);
-        points.push([coords.x1, coords.y1]);
-        points.push([coords.x2, coords.y2]);
-        context.stroke();
-
-        context.beginPath();
-        if (connectSide === -1) {
-            // left
-            context.moveTo(lastCoords.x1, lastCoords.y1);
-            context.lineTo(coords.x1, coords.y1);
-            points.push([lastCoords.x1, lastCoords.y1]);
-            points.push([coords.x1, coords.y1]);
-        } else {
-            // right
-            context.moveTo(lastCoords.x2, lastCoords.y2);
-            context.lineTo(coords.x2, coords.y2);
-            points.push([lastCoords.x2, lastCoords.y2]);
-            points.push([coords.x2, coords.y2]);
-        }
-        context.stroke();
-
-        connectSide *= -1;
-        lastCoords = coords;
-    }
-
-    context.beginPath();
-    if (connectSide === -1) {
-        // left
-        context.moveTo(lastCoords.x1, lastCoords.y1);
-        context.lineTo(x, y + height);
-        points.push([lastCoords.x1, lastCoords.y1]);
-        points.push([x, y + height]);
-    } else {
-        // right
-        context.moveTo(lastCoords.x2, lastCoords.y2);
-        context.lineTo(x + width, Math.max(coords.y2, y + height));
-        points.push([lastCoords.x2, lastCoords.y2]);
-        points.push([x + width, Math.max(coords.y2, y + height)]);
-    }
-    context.stroke();
-
-    // plotPoints(context)(points);
-
-    if (clipping) {
-        context.restore();
-    }
-};
- */
-
-/*
-const theta = (Math.PI * angle) / 180.0;
-const x2 = x1 + length * Math.cos(theta);
-const y2 = y1 + length * Math.sin(theta);
- */

@@ -1,11 +1,17 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale, orientation } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import { createGridCellsXY } from '../rndrgen/math/grids';
-import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect, linesRect } from '../rndrgen/canvas/textures';
+import {
+    setTextureClippingMaskEnabled,
+    textureRectSprials,
+    textureRectStipple,
+    textureRect,
+    textureRectZigZag,
+} from '../rndrgen/canvas/textures';
 
 // import sourcePng from '../../media/images/hi1.png';
 import sourcePng from '../../media/images/hayley-catherine-CRporLYp750-unsplash.png';
@@ -19,7 +25,6 @@ export const gridDitherImage = () => {
         // ratio: ratio.poster,
         // orientation: orientation.portrait,
         scale: scale.standard,
-        fps: 1,
     };
 
     let ctx;
@@ -71,19 +76,17 @@ export const gridDitherImage = () => {
     const draw = ({ canvas, context }) => {
         background(canvas, context)(backgroundColor);
 
-        setTextureClippingMask(false);
+        setTextureClippingMaskEnabled(false);
 
         grid.points.forEach((p, i) => {
-            // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, randomWholeBetween(1, 10));
-
             const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
             const theta = grey / 256;
+            const amount = mapRange(50, 255, 1, 8, 255 - grey) / 3;
 
-            const amount = mapRange(50, 255, 1, 8, 255 - grey);
-            // spiralRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
-            // stippleRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount);
-            // texturizeRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, 'circles2', 10);
-            linesRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, foreColor, amount, theta);
+            textureRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'blue', amount, 'circles2', 3);
+            textureRectSprials(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'red', amount);
+            textureRectStipple(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'green', amount);
+            textureRectZigZag(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'yellow', amount, theta);
         });
 
         return -1;

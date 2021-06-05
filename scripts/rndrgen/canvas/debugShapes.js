@@ -47,3 +47,14 @@ export const drawTestPoint = (context) => ({ x, y, radius, color }) => {
     context.stroke();
     line(context)(x, y, x + radius, y, 1);
 };
+
+export const debugShowMouse = (context) => ({ x, y, radius }) => {
+    if (x === undefined || y === undefined) return;
+    context.strokeStyle = 'rgba(255,255,255,.25)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    context.fill();
+    context.stroke();
+};

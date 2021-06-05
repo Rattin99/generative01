@@ -3,14 +3,17 @@ Explorations with generative code
 */
 
 import normalize from 'normalize.css';
-import { getQueryVariable } from './rndrgen/utils';
-import { sketch } from './rndrgen/sketch';
 import { variationsIndex } from './variationsIndex';
 
-const s = sketch('canvas');
+import * as rndrgen from './rndrgen/rndrgen';
+import { gridDitherImage } from './experiments/grid-dither-image';
+
+console.log(rndrgen);
+
+const s = rndrgen.sketch('canvas');
 
 const experimentalVariation = undefined;
-// const experimentalVariation = marchingSquares;
+// const experimentalVariation = gridDitherImage;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
@@ -19,16 +22,15 @@ const runVariation = (v) => {
     s.run(v.sketch);
 };
 
-let variationKey = getQueryVariable('variation');
-const variationKeys = Object.keys(variationsIndex);
-variationKey = variationKey || variationKeys[variationKeys.length - 1];
+const variationMapKeys = Object.keys(variationsIndex);
+const urlKey = rndrgen.utils.getQueryVariable('variation') || variationMapKeys[variationMapKeys.length - 1];
 
-if (getQueryVariable('variation') && variationsIndex.hasOwnProperty(variationKey)) {
-    runVariation(variationsIndex[variationKey]);
-} else if (experimentalVariation !== undefined) {
+if (experimentalVariation !== undefined) {
     runVariation({ sketch: experimentalVariation, note: 'Current experiment ...' });
+} else if (urlKey && variationsIndex.hasOwnProperty(urlKey)) {
+    runVariation(variationsIndex[urlKey]);
 } else {
-    runVariation(variationsIndex[variationKeys.length]);
+    runVariation(variationsIndex[variationMapKeys.length]);
 }
 
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);

@@ -1,12 +1,12 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
-import { drawParticlePoint, drawRotatedParticle } from '../rndrgen/canvas/particles';
+import { particlePoint, particleRotated } from '../rndrgen/canvas/particles';
 
 const drawRake = (context) => ({ x, y, radius, color }, spacing) => {
     const points = 5;
     spacing |= radius * 3;
     for (let i = 0; i < points; i++) {
-        drawParticlePoint(context)({ x: x + spacing * i, y, radius, color });
+        particlePoint(context)({ x: x + spacing * i, y, radius, color });
     }
 };
 
@@ -71,7 +71,7 @@ export const rainbowRakeOrbit = () => {
             particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
             particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
-            drawRotatedParticle(context, drawRake, particlesArray[i]);
+            particleRotated(context, drawRake, particlesArray[i]);
             particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };

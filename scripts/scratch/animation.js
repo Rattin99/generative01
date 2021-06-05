@@ -1,6 +1,6 @@
 /*
 Todo
-Installed https://www.npmjs.com/package/eases paged
+Installhttps://www.npmjs.com/package/eases
 
 Ex
 All ease fn's have the same signature, take time value from 0-1 as input

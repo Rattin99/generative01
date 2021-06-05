@@ -7,8 +7,8 @@ import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } f
 import { Box } from '../systems/Box';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { Vector } from '../rndrgen/math/Vector';
-import { linesRect, stippleRect, texturizeRect } from '../rndrgen/canvas/textures';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
+import { textureRectZigZag, textureRectStipple, textureRect } from '../rndrgen/canvas/textures';
+import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { createGridCellsXY } from '../rndrgen/math/grids';
 import { oneOf } from '../rndrgen/math/random';
 import { pixel } from '../rndrgen/canvas/primatives';
@@ -80,7 +80,7 @@ export const shadedBoxes = () => {
             }
             b.children = particles;
 
-            stippleRect(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1);
+            textureRectStipple(context)(b.x, b.y, b.width, b.height, b.backgroundColor, bidx + 1);
         });
 
         // boxes.forEach((b) => {

@@ -1,9 +1,10 @@
 import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { clear } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
-import { connectParticles, drawMouse, drawParticlePoint } from '../rndrgen/canvas/particles';
+import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { pointDistance } from '../rndrgen/math/points';
+import { debugShowMouse } from '../rndrgen/canvas/debugShapes';
 
 const gravityPoint = (mult = 0.2, f = 1) => (x, y, radius, particle) => {
     const distance = pointDistance({ x, y }, particle);
@@ -67,11 +68,11 @@ export const variation2 = () => {
 
             avoidPoint(mouse, particlesArray[i]);
             // attractPoint(psMouseCoords(), particlesArray[i]);
-            drawParticlePoint(context)(particlesArray[i]);
-            // drawPointTrail(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
+            // particleHistoryTrail(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 100);
-        drawMouse(context)(mouse);
+        debugShowMouse(context)(mouse);
 
         return 1;
     };

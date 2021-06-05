@@ -5,6 +5,12 @@ import { oneOf, randomWholeBetween } from '../math/random';
 
 export const arrayToTinyColor = (arry) => arry.map((c) => tinycolor(c));
 
+/*
+TODO - fn for this from grid-dither-image
+const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
+const amount = mapRange(0, 255, 1, 10, 255 - grey);
+ */
+
 // hslFromRange(50, 90,270, v);
 export const hslFromRange = (y1, x2, y2, v) => {
     const h = mapRange(0, y1, x2, y2, v);

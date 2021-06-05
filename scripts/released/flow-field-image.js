@@ -12,7 +12,7 @@ import { renderField } from '../rndrgen/canvas/fields';
 import {randomNumberBetween, randomWholeBetween} from '../rndrgen/math/random';
 import { circleFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
-import { splatter } from '../scratch/complexShapes';
+import { splatter } from '../scratch/shapes';
 
 /*
 https://marcteyssier.com/projects/flowfield/

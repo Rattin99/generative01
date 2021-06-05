@@ -458,7 +458,7 @@ const domokun = (_) => {
                 particlesArray[i].color
             );
         }
-        // drawMouse(context)(mouse);
+        // debugShowMouse(context)(mouse);
     };
 
     return {

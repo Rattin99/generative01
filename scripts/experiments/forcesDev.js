@@ -1,9 +1,25 @@
+import tinycolor from 'tinycolor2';
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { Vector } from '../rndrgen/math/Vector';
-import { drawParticleVectors, drawRotatedParticle } from '../rndrgen/canvas/particles';
+import { particleRotated } from '../rndrgen/canvas/particles';
 import { drawTestPoint } from '../rndrgen/canvas/debugShapes';
-import { rectFilled } from '../rndrgen/canvas/primatives';
+import { line, rectFilled } from '../rndrgen/canvas/primatives';
+
+const debugParticleVectors = (context) => (particle) => {
+    const vmult = 5;
+    const amult = 100;
+    const vel = 'green';
+    const acc = 'yellow';
+    const { velocity } = particle;
+    const { acceleration } = particle;
+
+    context.strokeStyle = tinycolor(vel).toRgbString();
+    line(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
+
+    context.strokeStyle = tinycolor(acc).toRgbString();
+    line(context)(particle.x, particle.y, particle.x + acceleration.x * amult, particle.y + acceleration.y * amult, 1);
+};
 
 export const forcesDev = () => {
     const config = {
@@ -62,8 +78,8 @@ export const forcesDev = () => {
 
             particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
-            drawRotatedParticle(context, drawTestPoint, particlesArray[i]);
-            drawParticleVectors(context)(particlesArray[i]);
+            particleRotated(context, drawTestPoint, particlesArray[i]);
+            debugParticleVectors(context)(particlesArray[i]);
             particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };

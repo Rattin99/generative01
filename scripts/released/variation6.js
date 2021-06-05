@@ -1,6 +1,6 @@
 import { Particle, createRandomParticleValues, edgeBounce } from '../systems/Particle';
 import { fill } from '../rndrgen/canvas/canvas';
-import { drawParticlePoint } from '../rndrgen/canvas/particles';
+import { particlePoint } from '../rndrgen/canvas/particles';
 import { normalizeInverse, mapRange } from '../rndrgen/math/math';
 import { pointDistance } from '../rndrgen/math/points';
 
@@ -53,7 +53,7 @@ export const variation6 = () => {
 
             gravityPoint()(canvas.width / 2, canvas.height, 2000, particlesArray[i]);
             // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
-            drawParticlePoint(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
         }
         // connectParticles(context)(particlesArray, 100);
         return 1;

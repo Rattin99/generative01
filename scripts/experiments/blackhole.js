@@ -2,7 +2,7 @@ import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { clamp, mapRange } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';
-import { drawParticlePoint, drawPointTrail } from '../rndrgen/canvas/particles';
+import { particlePoint, particleHistoryTrail } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { circleFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
@@ -104,8 +104,8 @@ export const blackhole = () => {
             const a = mapRange(hole.rs, hole.rs * 1.5, 0.1, 1, distFromCenter); // 50;
             particlesArray[i].color = `hsla(${h},${s}%,${l}%,${a})`;
 
-            // drawPointTrail(context)(particlesArray[i]);
-            drawParticlePoint(context)(particlesArray[i]);
+            // particleHistoryTrail(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
             particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };

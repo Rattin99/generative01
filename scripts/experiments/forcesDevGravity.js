@@ -1,6 +1,6 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
 import { background, drawRake } from '../rndrgen/canvas/canvas';
-import { drawRotatedParticle } from '../rndrgen/canvas/particles';
+import { particleRotated } from '../rndrgen/canvas/particles';
 
 export const forcesDevGravity = () => {
     const config = {
@@ -63,7 +63,7 @@ export const forcesDevGravity = () => {
             particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
             particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);
-            drawRotatedParticle(context, drawRake, particlesArray[i]);
+            particleRotated(context, drawRake, particlesArray[i]);
             particlesArray[i].acceleration = { x: 0, y: 0 };
         }
     };

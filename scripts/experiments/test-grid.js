@@ -1,7 +1,7 @@
 import { mapRange } from '../rndrgen/math/math';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
+import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { createGridPointsXY } from '../rndrgen/math/grids';
 import { createRandomNumberArray } from '../rndrgen/math/random';
 
@@ -88,14 +88,14 @@ export const testGrid = () => {
             particlesArray[i].updatePosWithVelocity();
             // edgeBounce(canvas, particlesArray[i]);
             // edgeWrap(canvas, particlesArray[i]);
-            drawParticlePoint(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
 
             // spikedCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
         }
         connectParticles(context)(particlesArray, 50, false);
-        // drawAttractor(context)(leftattractor, -1, attractorDist);
-        // drawAttractor(context)(midattractor, 1, attractorDist);
-        // drawAttractor(context)(rightattractor, -1, attractorDist);
+        // debugShowAttractor(context)(leftattractor, -1, attractorDist);
+        // debugShowAttractor(context)(midattractor, 1, attractorDist);
+        // debugShowAttractor(context)(rightattractor, -1, attractorDist);
     };
 
     return {

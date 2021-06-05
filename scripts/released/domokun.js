@@ -2,10 +2,10 @@ import domokunPng from '../../media/images/domokun.png';
 import { clear, background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { Particle } from '../systems/Particle';
-import { drawMouse } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { squareFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance, scalePointToCanvas } from '../rndrgen/math/points';
+import { debugShowMouse } from '../rndrgen/canvas/debugShapes';
 
 const pointPush = (point, particle, f = 1) => {
     const dx = point.x - particle.x;
@@ -101,7 +101,7 @@ export const domokun = (_) => {
                 particlesArray[i].color
             );
         }
-        // drawMouse(context)(mouse);
+        // debugShowMouse(context)(mouse);
     };
 
     return {

@@ -1,7 +1,7 @@
 import { mapRange } from '../rndrgen/math/math';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
-import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
+import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { createGridPointsXY } from '../rndrgen/math/grids';
 import { createRandomNumberArray } from '../rndrgen/math/random';
 
@@ -76,7 +76,7 @@ export const threeAttractors = () => {
 
             particlesArray[i].updatePosWithVelocity();
             // edgeBounce(canvas, particlesArray[i]);
-            drawParticlePoint(context)(particlesArray[i]);
+            particlePoint(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 50, false);
     };

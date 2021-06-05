@@ -3,6 +3,25 @@ import { clear } from './canvas';
 import { mapRange } from '../math/math';
 import { averageNumArray } from '../utils';
 
+// const createColorArrayFromImageData = (imageData) => {
+//     const data = [];
+//     for (let y = 0, { height } = imageData; y < height; y++) {
+//         for (let x = 0, { width } = imageData; x < width; x++) {
+//             data.push({ x, y, ...getImageColor(imageData, x, y) });
+//         }
+//     }
+//     return data;
+// };
+
+// const renderImage = () => {
+//     for (let x = startX; x < maxX; x++) {
+//         for (let y = startY; y < maxY; y++) {
+//             const color = image.pixelColorFromCanvas(x, y);
+//             pixel(ctx)(x, y, color, 'square', 1);
+//         }
+//     }
+// };
+
 export class Bitmap {
     constructor(src) {
         this.scaleX = 1;
@@ -102,24 +121,3 @@ export class Bitmap {
         return averageNumArray(points);
     }
 }
-
-// const createColorArrayFromImageData = (imageData) => {
-//     const data = [];
-//     for (let y = 0, { height } = imageData; y < height; y++) {
-//         for (let x = 0, { width } = imageData; x < width; x++) {
-//             data.push({ x, y, ...getImageColor(imageData, x, y) });
-//         }
-//     }
-//     return data;
-// };
-
-/*
-const renderImage = () => {
-        for (let x = startX; x < maxX; x++) {
-            for (let y = startY; y < maxY; y++) {
-                const color = image.pixelColorFromCanvas(x, y);
-                pixel(ctx)(x, y, color, 'square', 1);
-            }
-        }
-    };
- */

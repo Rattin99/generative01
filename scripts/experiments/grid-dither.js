@@ -5,7 +5,13 @@ import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import { createGridCellsXY } from '../rndrgen/math/grids';
-import { setTextureClippingMask, spiralRect, stippleRect, texturizeRect, linesRect } from '../rndrgen/canvas/textures';
+import {
+    setTextureClippingMaskEnabled,
+    textureRectSprials,
+    textureRectStipple,
+    textureRect,
+    textureRectZigZag,
+} from '../rndrgen/canvas/textures';
 
 import sourcePng from '../../media/images/hi1.png';
 import { randomWholeBetween } from '../rndrgen/math/random';
