@@ -4,9 +4,9 @@ import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 
 import { simplexNoise2d } from '../rndrgen/math/attractors';
-import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/rendernoise';
+import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/fields';
 import { mapRange } from '../rndrgen/math/math';
-import { drawCircleFilled, pixel } from '../rndrgen/canvas/primatives';
+import { circleFilled, pixel } from '../rndrgen/canvas/primatives';
 
 // https://www.youtube.com/watch?v=0ZONMNUKTfU&t=2s
 
@@ -77,7 +77,7 @@ export const marchingSquares = () => {
                 const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
                 context.fillStyle = tinycolor(fillColor).toRgbString();
                 context.fillRect(x, y, x + xStep, y + yStep);
-                drawCircleFilled(context)(x, y, 3, 'red');
+                circleFilled(context)(x, y, 3, 'red');
             }
         }
 

@@ -2,10 +2,10 @@ import { background, contextScale } from '../rndrgen/canvas/canvas';
 import { round2 } from '../rndrgen/math/math';
 import { brightest, darkest, nicePalette } from '../rndrgen/color/palettes';
 import { ratio, scale } from '../rndrgen/Sketch';
-import { drawTextFilled, setTextAlignLeftTop, textStyles } from '../rndrgen/canvas/text';
+import { textFilled, setTextAlignLeftTop, textStyles } from '../rndrgen/canvas/text';
 import { createGridCellsXY } from '../rndrgen/math/grids';
 import { create2dNoiseAbs, oneOf, randomWholeBetween } from '../rndrgen/math/random';
-import { drawRect, pixel } from '../rndrgen/canvas/primatives';
+import { rect, pixel } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
 
 class Curve {
@@ -102,7 +102,7 @@ export const lissajous01 = () => {
 
     const draw = ({ context }) => {
         grid.points.forEach((point) => {
-            drawRect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
+            rect(context)(point[0], point[1], grid.columnWidth, grid.rowHeight, 1, colorText);
         });
         for (let b = 0; b < renderBatch; b++) {
             for (let i = 0; i < curves.length; i++) {
@@ -136,7 +136,7 @@ export const lissajous01 = () => {
                 pixel(context)(c.x + c.centerX, c.y + c.centerY, colorCurve);
 
                 setTextAlignLeftTop(context);
-                drawTextFilled(context)(
+                textFilled(context)(
                     `k=${k}, ${xa}, ${xb}, ${ya}, ${yb}`,
                     c.originX,
                     c.originY + c.size + 10,

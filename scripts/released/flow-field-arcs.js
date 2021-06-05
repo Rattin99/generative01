@@ -12,7 +12,7 @@ import {
     diagLines,
 } from '../rndrgen/math/attractors';
 import { mapRange, snapNumber } from '../rndrgen/math/math';
-import { drawLineAngle } from '../rndrgen/canvas/primatives';
+import { lineAtAngle } from '../rndrgen/canvas/primatives';
 
 const TAU = Math.PI * 2;
 
@@ -44,7 +44,7 @@ const circle = (context, x, y, size, color, theta) => {
 const line = (context, x, y, size, thick, color, theta) => {
     const startR = snapNumber(Math.PI / 2, theta) + Math.PI / 2;
     context.strokeStyle = tinycolor(color).toRgbString();
-    drawLineAngle(context)(x + size, y + size, startR, size * 2, thick, 'round');
+    lineAtAngle(context)(x + size, y + size, startR, size * 2, thick, 'round');
 };
 
 export const flowFieldArcs = () => {

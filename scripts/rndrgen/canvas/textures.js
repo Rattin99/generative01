@@ -1,13 +1,11 @@
 // More detailed implementation https://blog.wolfram.com/2016/05/06/computational-stippling-can-machines-do-as-well-as-humans/
 import tinycolor from 'tinycolor2';
-import { logInterval, mapRange, round2 } from '../math/math';
-import { plotLines } from './segments';
+import { logInterval, mapRange, TAU } from '../math/math';
 import { last } from '../utils';
 import { randomNormalWholeBetween, randomNumberBetween, randomSign, randomWholeBetween } from '../math/random';
-import { drawRectFilled } from './primatives';
 
-const TAU = Math.PI * 2;
 const intervals = logInterval(10, 1, 10);
+
 let clipping = true;
 
 export const setTextureClippingMask = (v = true) => {
@@ -27,6 +25,23 @@ const getRotatedYCoords = (x, y, length, theta) => ({
     x2: x + length, // * Math.cos(theta),
     y2: y + length * Math.sin(theta),
 });
+
+const drawLines = (context) => (points, color = 'black', width = 1) => {
+    context.beginPath();
+    context.strokeStyle = tinycolor(color).toRgbString();
+    context.lineWidth = width;
+    context.lineCap = 'butt';
+    context.lineJoin = 'miter';
+
+    points.forEach((coords, i) => {
+        if (i === 0) {
+            context.moveTo(coords[0], coords[1]);
+        } else {
+            context.lineTo(coords[0], coords[1]);
+        }
+    });
+    context.stroke();
+};
 
 export const texturizeRect = (context) => (
     x,
@@ -210,7 +225,7 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
     let coords = { x1: x, y1: y, x2: x, y2: y };
     let lastCoords = { x1: x, y1: Math.min(y, y + yOff), x2: x, y2: Math.min(y, y + yOff) };
 
-    // drawRectFilled(context)(x, y, width, height, '#ddd');
+    // rectFilled(context)(x, y, width, height, '#ddd');
 
     for (let i = 0; i < loops; i++) {
         coords = getRotatedYCoords(x, yOff + y + yincr, width, theta);
@@ -245,7 +260,7 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
         last(points)[1] = y + height;
     }
 
-    plotLines(context)(points, strokeColor, lineWidth);
+    drawLines(context)(points, strokeColor, lineWidth);
 
     if (clipping) {
         context.restore();
@@ -281,7 +296,7 @@ export const linesRect = (context) => (x, y, width, height, color = 'black', amo
     let coords = { x1: x, y1: y, x2: x, y2: y };
     let lastCoords = { x1: x, y1: Math.min(y, y + yOff), x2: x, y2: Math.min(y, y + yOff) };
 
-    drawRectFilled(context)(x, y, width, height, '#ddd');
+    rectFilled(context)(x, y, width, height, '#ddd');
 
     // const maxx = x + width;
     // const maxy = y + height;

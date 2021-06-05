@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { normalizeInverse } from '../math/math';
 import { resetStyles } from './canvas';
-import { drawLine } from './primatives';
+import { line } from './primatives';
 import { pointDistance } from '../math/points';
 
 export const drawParticlePoint = (context) => ({ x, y, radius, color }) => {
@@ -39,7 +39,7 @@ export const connectParticles = (context) => (pArray, proximity, useAlpha = true
                     pColor.setAlpha(normalizeInverse(0, proximity, distance));
                 }
                 context.strokeStyle = pColor.toHslString();
-                drawLine(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
+                line(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
             }
         }
     }
@@ -57,7 +57,7 @@ export const drawPointTrail = (context) => (particle) => {
     for (let i = 0; i < trailLen; i++) {
         const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
         const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-        drawLine(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
+        line(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
         pColor.setAlpha(alpha);
         context.strokeStyle = pColor.toRgbString();
         alpha -= aFade;
@@ -74,16 +74,10 @@ export const drawParticleVectors = (context) => (particle) => {
     const { acceleration } = particle;
 
     context.strokeStyle = tinycolor(vel).toRgbString();
-    drawLine(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
+    line(context)(particle.x, particle.y, particle.x + velocity.x * vmult, particle.y + velocity.y * vmult, 1);
 
     context.strokeStyle = tinycolor(acc).toRgbString();
-    drawLine(context)(
-        particle.x,
-        particle.y,
-        particle.x + acceleration.x * amult,
-        particle.y + acceleration.y * amult,
-        1
-    );
+    line(context)(particle.x, particle.y, particle.x + acceleration.x * amult, particle.y + acceleration.y * amult, 1);
 };
 
 export const drawMouse = (context) => ({ x, y, radius }) => {

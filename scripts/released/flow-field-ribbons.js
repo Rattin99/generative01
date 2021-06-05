@@ -7,7 +7,7 @@ import { ratio, scale } from '../rndrgen/Sketch';
 import { palettes } from '../rndrgen/color/palettes';
 import { Vector } from '../rndrgen/math/Vector';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../rndrgen/math/attractors';
-import { renderField } from '../rndrgen/canvas/rendernoise';
+import { renderField } from '../rndrgen/canvas/fields';
 import { oneOf, randomBoolean, randomPointAround, randomWholeBetween } from '../rndrgen/math/random';
 
 /*

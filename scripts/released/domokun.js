@@ -1,10 +1,10 @@
 import domokunPng from '../../media/images/domokun.png';
-import { clearCanvas, background } from '../rndrgen/canvas/canvas';
+import { clear, background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { Particle } from '../systems/Particle';
 import { drawMouse } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
-import { drawSquareFilled } from '../rndrgen/canvas/primatives';
+import { squareFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance, scalePointToCanvas } from '../rndrgen/math/points';
 
 const pointPush = (point, particle, f = 1) => {
@@ -58,7 +58,7 @@ export const domokun = (_) => {
 
     const setup = ({ canvas, context }) => {
         const imageData = getImageDataFromImage(context)(png);
-        clearCanvas(canvas, context)();
+        clear(canvas, context)();
 
         const imageZoomFactor = canvas.width / imageSize;
         const cropColor = 255 / 2;
@@ -94,7 +94,7 @@ export const domokun = (_) => {
 
         for (let i = 0; i < numParticles; i++) {
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-            drawSquareFilled(context)(
+            squareFilled(context)(
                 particlesArray[i].x,
                 particlesArray[i].y,
                 particlesArray[i].radius,

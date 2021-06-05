@@ -6,11 +6,9 @@ Clip to no overflow?
  */
 
 import tinycolor from 'tinycolor2';
-import { defaultValue } from '../utils';
-import { resetStyles } from './canvas';
-import { Point } from '../math/Point';
-import { randomNormalWholeBetween, randomWholeBetween } from '../math/random';
-import { drawRect, drawRectFilled } from './primatives';
+import { defaultValue } from '../rndrgen/utils';
+import { randomNormalWholeBetween, randomWholeBetween } from '../rndrgen/math/random';
+import { rectFilled } from '../rndrgen/canvas/primatives';
 
 const defaultMP = {
     top: 0,
@@ -22,6 +20,30 @@ const defaultMP = {
 const defaultFlow = (x, y) => 0;
 
 let boxIndex = 0;
+
+class Point {
+    constructor(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    get toArray() {
+        return [this.x, this.y, this.z];
+    }
+
+    get toObject() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z,
+        };
+    }
+
+    clone() {
+        return new Point(this.x, this.y, this.z);
+    }
+}
 
 export class Box {
     #backgroundColor;
@@ -72,7 +94,7 @@ export class Box {
 
     fill(color) {
         color = color || this.backgroundColor;
-        drawRectFilled(this.context)(this.x, this.y, this.width, this.height, color);
+        rectFilled(this.context)(this.x, this.y, this.width, this.height, color);
     }
 
     erase() {

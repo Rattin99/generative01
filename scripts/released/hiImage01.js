@@ -1,11 +1,11 @@
 import sourcePng from '../../media/images/hi1.png';
-import { clearCanvas, background } from '../rndrgen/canvas/canvas';
+import { clear, background } from '../rndrgen/canvas/canvas';
 import { createRandomParticleValues, edgeWrap, Particle } from '../systems/Particle';
 import { mapRange } from '../rndrgen/math/math';
 import { connectParticles, drawParticlePoint } from '../rndrgen/canvas/particles';
 import { createGridPointsXY } from '../rndrgen/math/grids';
 import { createRandomNumberArray, randomNumberBetween } from '../rndrgen/math/random';
-import { drawSquareFilled } from '../rndrgen/canvas/primatives';
+import { squareFilled } from '../rndrgen/canvas/primatives';
 
 const getImageDataFromImage = (context) => (image) => {
     context.drawImage(image, 0, 0);
@@ -36,7 +36,7 @@ export const hiImage01 = (_) => {
 
     const setup = ({ canvas, context }) => {
         imageData = getImageDataFromImage(context)(png);
-        clearCanvas(canvas, context)();
+        clear(canvas, context)();
         imageZoomFactor = canvas.width / imageData.width;
 
         for (let i = 0; i < numParticles; i++) {

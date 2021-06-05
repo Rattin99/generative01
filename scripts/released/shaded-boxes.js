@@ -4,7 +4,7 @@ import { background, resetStyles } from '../rndrgen/canvas/canvas';
 import { mapRange, uvFromAngle } from '../rndrgen/math/math';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../rndrgen/color/palettes';
-import { Box } from '../rndrgen/canvas/Box';
+import { Box } from '../systems/Box';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { Vector } from '../rndrgen/math/Vector';
 import { linesRect, stippleRect, texturizeRect } from '../rndrgen/canvas/textures';

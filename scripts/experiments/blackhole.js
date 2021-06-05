@@ -4,7 +4,7 @@ import { clamp, mapRange } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';
 import { drawParticlePoint, drawPointTrail } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
-import { drawCircleFilled } from '../rndrgen/canvas/primatives';
+import { circleFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
 
 // Based on Coding Train https://www.youtube.com/watch?v=Iaz9TqYWUmA
@@ -80,9 +80,9 @@ export const blackhole = () => {
 
         let mode = 1;
 
-        drawCircleFilled(context)(hole.pos.x, hole.pos.y, hole.rs * 5, 'rgba(20,0,0,.05)');
-        drawCircleFilled(context)(hole.pos.x, hole.pos.y, hole.rs * 2, 'rgba(30,0,0,.2)');
-        drawCircleFilled(context)(hole.pos.x, hole.pos.y, hole.rs, 'black');
+        circleFilled(context)(hole.pos.x, hole.pos.y, hole.rs * 5, 'rgba(20,0,0,.05)');
+        circleFilled(context)(hole.pos.x, hole.pos.y, hole.rs * 2, 'rgba(30,0,0,.2)');
+        circleFilled(context)(hole.pos.x, hole.pos.y, hole.rs, 'black');
 
         for (let i = 0; i < numParticles; i++) {
             if (mouse.isDown) {

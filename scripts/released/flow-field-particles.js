@@ -7,7 +7,7 @@ import { Vector } from '../rndrgen/math/Vector';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { hslFromRange } from '../rndrgen/color/palettes';
 import { randomWholeBetween } from '../rndrgen/math/random';
-import { drawCircleFilled } from '../rndrgen/canvas/primatives';
+import { circleFilled } from '../rndrgen/canvas/primatives';
 
 export const flowFieldParticles = () => {
     const config = {
@@ -47,7 +47,7 @@ export const flowFieldParticles = () => {
         const pcolor = color || particle.color;
         const x = snapNumber(maxSize * 2, particle.x);
         const y = snapNumber(maxSize * 2, particle.y);
-        drawCircleFilled(context)(x, y, rad, pcolor);
+        circleFilled(context)(x, y, rad, pcolor);
         return true;
     };
 

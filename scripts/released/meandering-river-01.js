@@ -4,13 +4,13 @@ import { background } from '../rndrgen/canvas/canvas';
 import { orientation, ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
-import { chaikin } from '../rndrgen/math/segments';
+import { chaikinSmooth } from '../rndrgen/math/segments';
 import { simplexNoise2d } from '../rndrgen/math/attractors';
-import { drawConnectedPoints } from '../rndrgen/canvas/segments';
 import { createCirclePoints } from '../rndrgen/math/grids';
-import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/rendernoise';
+import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/fields';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
 import { createSplineFromPointArray } from '../rndrgen/math/points';
+import { pointPath } from '../rndrgen/canvas/primatives';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -177,21 +177,21 @@ export const meanderingRiver01 = () => {
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
-                drawConnectedPoints(ctx)(o.points, oColor, w + oSize / 2);
+                pointPath(ctx)(o.points, oColor, w + oSize / 2);
             });
-            const points = chaikin(r.points, 5);
-            drawConnectedPoints(ctx)(points, oColor, riverWeight[i] + oSize);
+            const points = chaikinSmooth(r.points, 5);
+            pointPath(ctx)(points, oColor, riverWeight[i] + oSize);
         });
 
         // main
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-                drawConnectedPoints(ctx)(o.points, oxbowColor, w);
+                pointPath(ctx)(o.points, oxbowColor, w);
             });
-            const points = chaikin(r.points, 5);
-            drawConnectedPoints(ctx)(points, riverColor, riverWeight[i], false, false);
-            // drawPoints(ctx)(r.points, 'red', 1);
+            const points = chaikinSmooth(r.points, 5);
+            pointPath(ctx)(points, riverColor, riverWeight[i], false, false);
+            // pixelAtPoints(ctx)(r.points, 'red', 1);
         });
 
         time++;

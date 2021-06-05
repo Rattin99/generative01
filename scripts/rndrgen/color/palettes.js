@@ -3,10 +3,18 @@ import * as nicepalettes from 'nice-color-palettes';
 import { mapRange } from '../math/math';
 import { oneOf, randomWholeBetween } from '../math/random';
 
-export const asTinyColor = (arry) => arry.map((c) => tinycolor(c));
+export const arrayToTinyColor = (arry) => arry.map((c) => tinycolor(c));
+
+// hslFromRange(50, 90,270, v);
+export const hslFromRange = (y1, x2, y2, v) => {
+    const h = mapRange(0, y1, x2, y2, v);
+    const s = 100;
+    const l = 50;
+    return tinycolor(`hsl(${h},${s}%,${l}%)`);
+};
 
 export const brightest = (arry) => {
-    const colors = asTinyColor(arry);
+    const colors = arrayToTinyColor(arry);
     return colors.reduce((acc, c) => {
         if (c.getBrightness() > acc.getBrightness()) {
             acc = c;
@@ -16,7 +24,7 @@ export const brightest = (arry) => {
 };
 
 export const darkest = (arry) => {
-    const colors = asTinyColor(arry);
+    const colors = arrayToTinyColor(arry);
     return colors.reduce((acc, c) => {
         if (c.getBrightness() < acc.getBrightness()) {
             acc = c;
@@ -31,7 +39,6 @@ export const paperWhite = tinycolor('hsl(53,3,100)').clone();
 export const warmWhite = tinycolor('hsl(42, 14%, 86%)').clone();
 export const warmPink = tinycolor('hsl(29, 42%, 86%)').clone();
 
-// greys from https://uxdesign.cc/dark-mode-ui-design-the-definitive-guide-part-1-color-53dcfaea5129
 export const coolGreyDark = tinycolor('#1f2933').clone();
 export const warmGreyDark = tinycolor('#27241d').clone();
 
@@ -78,36 +85,5 @@ export const palettes = {
     ],
 };
 
-// colors sampled from http://roberthodgin.com/project/meander
-// const agedWarmWhite = tinycolor('hsl(42, 43%, 76%)');
-// const tintingColor = tinycolor('hsl(38, 38%, 64%)');
-// const palette = [
-//     tinycolor('hsl(97, 9%, 73%)'),
-//     tinycolor('hsl(51, 7%, 38%)'),
-//     tinycolor('hsl(19, 39%, 47%)'),
-//     tinycolor('hsl(166, 39%, 59%)'),
-// ];
-
 export const nicePalette = (_) => nicepalettes[randomWholeBetween(0, 99)];
 export const palette = (_) => palettes[oneOf(Object.keys(palettes))];
-
-// hslFromRange(50, 90,270, v);
-export const hslFromRange = (y1, x2, y2, v) => {
-    const h = mapRange(0, y1, x2, y2, v);
-    const s = 100;
-    const l = 50;
-    return tinycolor(`hsl(${h},${s}%,${l}%)`);
-};
-
-/*
-Color between 2 defined and a hue spin in the middle to introduce a 3rd
-// Palette from https://www.colourlovers.com/palette/694737/Thought_Provoking
-
-const colorTop = 'hsl(350, 65%, 46%)';
-const colorBottom = 'hsl(185, 19%, 40%)';
-const distFromCenter = Math.abs(mid - currentY);
-const color = tinycolor.mix(colorTop, colorBottom, mapRange(startY, maxY, 0, 100, currentY));
-color.spin(mapRange(0, mid / 2, 60, 0, distFromCenter));
-color.brighten(mapRange(0, mid / 2, 50, 0, distFromCenter));
-color.darken(mapRange(0, mid, 0, 40, distFromCenter) + randomNumberBetween(0, 30));
- */

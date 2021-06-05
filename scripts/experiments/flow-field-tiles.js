@@ -14,21 +14,15 @@ import {
     diagLines,
 } from '../rndrgen/math/attractors';
 import { create2dNoise, create3dNoise, oneOf, randomWholeBetween } from '../rndrgen/math/random';
-import {
-    drawCircleFilled,
-    drawLineAngle,
-    drawQuadRectFilled,
-    drawRectFilled,
-    drawRoundRectFilled,
-} from '../rndrgen/canvas/primatives';
+import { circleFilled, lineAtAngle, quadRectFilled, rectFilled, roundRectFilled } from '../rndrgen/canvas/primatives';
 
 const tile = (context, x, y, size, color, heading) => {
-    // drawQuadRectFilled(context)(x, y, size, size, color);
+    // quadRectFilled(context)(x, y, size, size, color);
 
     context.save();
     context.translate(x - size / 2, y - size / 2);
     context.rotate(heading);
-    drawRoundRectFilled(context)(0, 0, size, size, 3, color);
+    roundRectFilled(context)(0, 0, size, size, 3, color);
     context.restore();
 };
 
@@ -76,7 +70,7 @@ export const flowFieldTiles = () => {
         for (let x = 0; x < width; x += cell) {
             for (let y = 0; y < height; y += cell) {
                 const theta = fn(x, y);
-                drawLineAngle(context)(x + mid, y + mid, theta, mid);
+                lineAtAngle(context)(x + mid, y + mid, theta, mid);
             }
         }
     };

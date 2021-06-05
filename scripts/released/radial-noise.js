@@ -5,7 +5,7 @@ import { ratio, scale } from '../rndrgen/Sketch';
 import { brightest, darkest, hslFromRange, nicePalette } from '../rndrgen/color/palettes';
 import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import { randomPointAround, randomWholeBetween } from '../rndrgen/math/random';
-import { drawCircleFilled } from '../rndrgen/canvas/primatives';
+import { circleFilled } from '../rndrgen/canvas/primatives';
 
 /*
 Started here but took a detour
@@ -53,14 +53,14 @@ export const radialNoise = () => {
         originY = canvasMidY;
 
         // imageData = getImageDataFromImage(context)(png);
-        // clearCanvas(canvas, context)();
+        // clear(canvas, context)();
         // imageZoomFactor = 360 / imageData.width;
 
         background(canvas, context)(backgroundColor);
     };
 
     const drawPixel = (context, x, y, color, size = 1, heading = 0) => {
-        drawCircleFilled(context)(x, y, size, color);
+        circleFilled(context)(x, y, size, color);
     };
 
     const drawLine = (context, x1, y1, x2, y2, color, strokeWidth = 1) => {

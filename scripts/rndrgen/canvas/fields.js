@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { mapRange, uvFromAngle, isValueInRange } from '../math/math';
-import { drawPoints } from './segments';
 import { randomWholeBetween } from '../math/random';
+import { pixelAtPoints } from './primatives';
 
 export const renderField = ({ width, height }, context, fn, color = 'black', resolution = '50', length = 10) => {
     const xStep = Math.round(width / resolution);
@@ -87,8 +87,8 @@ export const renderFieldContour = (
                 // context.stroke();
             }
         }
-        drawPoints(context)(lowPoints, lowColor, 1);
-        drawPoints(context)(highPoints, highColor, 1);
+        pixelAtPoints(context)(lowPoints, lowColor, 1);
+        pixelAtPoints(context)(highPoints, highColor, 1);
     }
 };
 

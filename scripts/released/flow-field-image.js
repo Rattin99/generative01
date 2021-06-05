@@ -8,11 +8,11 @@ import { diagLines, simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attra
 import { hslFromRange, warmWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
-import { splatter } from '../rndrgen/canvas/paint';
-import { renderField } from '../rndrgen/canvas/rendernoise';
-import { randomWholeBetween } from '../rndrgen/math/random';
-import { drawCircleFilled } from '../rndrgen/canvas/primatives';
+import { renderField } from '../rndrgen/canvas/fields';
+import {randomNumberBetween, randomWholeBetween} from '../rndrgen/math/random';
+import { circleFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
+import { splatter } from '../scratch/complexShapes';
 
 /*
 https://marcteyssier.com/projects/flowfield/
@@ -20,6 +20,21 @@ https://larrycarlson.com/collections/wavy-art-prints
  */
 
 const TAU = Math.PI * 2;
+
+const splatter = (context) => (x, y, color, size, amount = 3, range = 20) => {
+    for (let i = 0; i < amount; i++) {
+        const s = randomWholeBetween(size * 0.25, size * 3);
+        // circle dist
+        const radius = randomWholeBetween(0, range);
+        const angle = randomNumberBetween(0, TAU);
+        const xoff = radius * Math.cos(angle);
+        const yoff = radius * Math.sin(angle);
+        // square dist
+        // const xoff = randomWholeBetween(-range, range);
+        // const yoff = randomWholeBetween(-range, range);
+        circleFilled(context)(x + xoff, y + yoff, s, color);
+    }
+};
 
 export const flowFieldImage = () => {
     const config = {
@@ -54,7 +69,7 @@ export const flowFieldImage = () => {
         const pcolor = color || particle.color;
         const { x } = particle;
         const { y } = particle;
-        drawCircleFilled(context)(x, y, rad, pcolor);
+        circleFilled(context)(x, y, rad, pcolor);
         return true;
     };
 

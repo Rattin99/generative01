@@ -13,7 +13,7 @@ export const pixel = (context) => (x, y, color = 'black', mode = 'square', size)
     }
 };
 // linecap = butt, round, square
-export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt') => {
+export const line = (context) => (x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt') => {
     // color = 'black',
     // context.strokeStyle = tinycolor(color).toRgbString();
     context.lineWidth = strokeWidth;
@@ -23,13 +23,13 @@ export const drawLine = (context) => (x1, y1, x2, y2, strokeWidth = 1, linecap =
     context.lineTo(x2, y2);
     context.stroke();
 };
-export const drawLineAngle = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
+export const lineAtAngle = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
     const theta = (Math.PI * angle) / 180.0;
     const x2 = x1 + length * Math.cos(theta);
     const y2 = y1 + length * Math.sin(theta);
-    drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
+    line(context)(x1, y1, x2, y2, strokeWidth, linecap);
 };
-export const drawCircle = (context) => (strokeWidth, x, y, radius, color) => {
+export const circle = (context) => (strokeWidth, x, y, radius, color) => {
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
     }
@@ -40,13 +40,13 @@ export const drawCircle = (context) => (strokeWidth, x, y, radius, color) => {
     // context.fill();
     context.stroke();
 };
-export const drawCircleFilled = (context) => (x, y, radius, color) => {
+export const circleFilled = (context) => (x, y, radius, color) => {
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = color;
     context.fill();
 };
-export const drawRect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
+export const rect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
     }
@@ -54,12 +54,12 @@ export const drawRect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
     context.rect(x, y, w, h);
     context.stroke();
 };
-export const drawRectFilled = (context) => (x, y, w, h, color = 'white') => {
+export const rectFilled = (context) => (x, y, w, h, color = 'white') => {
     context.fillStyle = tinycolor(color).toRgbString();
     context.fillRect(x, y, w, h);
 };
-export const drawSquareFilled = (context) => (x, y, size, color) => {
-    drawRectFilled(context)(x, y, size, size, color);
+export const squareFilled = (context) => (x, y, size, color) => {
+    rectFilled(context)(x, y, size, size, color);
 };
 export const drawTriangleFilled = (context) => (x, y, size, color) => {
     const half = size / 2;
@@ -72,7 +72,7 @@ export const drawTriangleFilled = (context) => (x, y, size, color) => {
 };
 // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
 // TODO center on x,y
-export const drawQuadRectFilled = (context) => (x, y, w, h, color) => {
+export const quadRectFilled = (context) => (x, y, w, h, color) => {
     const mx = x + w / 2;
     const my = y + h / 2;
     context.beginPath();
@@ -89,7 +89,7 @@ export const drawQuadRectFilled = (context) => (x, y, w, h, color) => {
 };
 // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
 // TODO center on x,y
-export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
+export const roundRectFilled = (context) => (x, y, w, h, corner, color) => {
     if (w < corner || h < corner) {
         corner = Math.min(w, h);
     }
@@ -111,4 +111,34 @@ export const drawRoundRectFilled = (context) => (x, y, w, h, corner, color) => {
     context.quadraticCurveTo(x, y, x + corner, y);
     // context.stroke();
     context.fill();
+};
+
+export const pixelAtPoints = (ctx) => (points, color = 'black', width = 1) => {
+    points.forEach((coords, i) => {
+        pixel(ctx)(coords[0], coords[1], color, 'circle', width);
+    });
+};
+
+export const pointPath = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
+    ctx.beginPath();
+    ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    points.forEach((coords, i) => {
+        if (i === 0) {
+            ctx.moveTo(coords[0], coords[1]);
+        } else {
+            ctx.lineTo(coords[0], coords[1]);
+        }
+        if (drawPoint) {
+            circleFilled(ctx)(coords[0], coords[1], 1, 'red');
+        }
+    });
+    if (close) {
+        ctx.lineTo(points[0][0], points[0][1]);
+    }
+    ctx.stroke();
 };

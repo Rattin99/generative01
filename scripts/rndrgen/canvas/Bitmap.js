@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { clearCanvas } from './canvas';
+import { clear } from './canvas';
 import { mapRange } from '../math/math';
 import { averageNumArray } from '../utils';
 
@@ -33,14 +33,14 @@ export class Bitmap {
         return Math.round(y * this.scaley);
     }
 
-    init(canvas, context, clear = true) {
+    init(canvas, context, wipe = true) {
         this.canvas = canvas;
         this.context = context;
         this.context.drawImage(this.image, 0, 0);
         this.imageData = context.getImageData(0, 0, this.image.width, this.image.width);
         this.scaleX = canvas.width / this.imageData.width;
         this.scaleY = canvas.height / this.imageData.height;
-        if (clear) clearCanvas(canvas, context);
+        if (wipe) clear(canvas, context);
     }
 
     pixelColorRaw(x, y) {
@@ -101,17 +101,17 @@ export class Bitmap {
         }
         return averageNumArray(points);
     }
-
-    // const createColorArrayFromImageData = (imageData) => {
-    //     const data = [];
-    //     for (let y = 0, { height } = imageData; y < height; y++) {
-    //         for (let x = 0, { width } = imageData; x < width; x++) {
-    //             data.push({ x, y, ...getImageColor(imageData, x, y) });
-    //         }
-    //     }
-    //     return data;
-    // };
 }
+
+// const createColorArrayFromImageData = (imageData) => {
+//     const data = [];
+//     for (let y = 0, { height } = imageData; y < height; y++) {
+//         for (let x = 0, { width } = imageData; x < width; x++) {
+//             data.push({ x, y, ...getImageColor(imageData, x, y) });
+//         }
+//     }
+//     return data;
+// };
 
 /*
 const renderImage = () => {

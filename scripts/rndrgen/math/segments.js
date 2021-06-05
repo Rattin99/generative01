@@ -1,5 +1,4 @@
 import { Vector } from './Vector';
-import { last } from '../utils';
 import { pointDistance, pointsOrientation } from './points';
 
 // https://www.xarg.org/2010/02/reduce-the-length-of-a-line-segment-by-a-certain-amount/
@@ -43,7 +42,7 @@ export const reduceLineEqually = (p1, p2, r) => {
 export const lineSlope = (p1, p2) => (p2.y - p1.y) / (p2.x - p1.x);
 
 // https://github.com/Jam3/chaikin-smooth/blob/master/index.js
-export const chaikin = (input, itr = 1) => {
+export const chaikinSmooth = (input, itr = 1) => {
     if (itr === 0) return input;
     const output = [];
 
@@ -61,7 +60,7 @@ export const chaikin = (input, itr = 1) => {
         output.push(R);
     }
 
-    return itr === 1 ? output : chaikin(output, itr - 1);
+    return itr === 1 ? output : chaikinSmooth(output, itr - 1);
 };
 
 // https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
@@ -141,20 +140,6 @@ export const segmentFromPoints = (points) => {
 export const segmentsIntersect = (a, b) =>
     linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y);
 
-export const connectSegments = (segs) =>
-    segs.map((s, i) => {
-        if (i === segs.length - 1) {
-            return s;
-        }
-        const next = segs[i + 1];
-
-        const distance = pointDistance({ x: s.end.x, y: s.end.y }, { x: next.start.x, y: s.start.y });
-        if (distance > 1) {
-            s.end = new Vector(next.start.x, next.start.y);
-        }
-        return s;
-    });
-
 // Remove every skip points from a segment to simplify
 export const trimSegments = (segs, skip = 2) =>
     segs.reduce((acc, s, i) => {
@@ -166,21 +151,35 @@ export const trimSegments = (segs, skip = 2) =>
         return acc;
     }, []);
 
+// export const connectSegments = (segs) =>
+//     segs.map((s, i) => {
+//         if (i === segs.length - 1) {
+//             return s;
+//         }
+//         const next = segs[i + 1];
+//
+//         const distance = pointDistance({ x: s.end.x, y: s.end.y }, { x: next.start.x, y: s.start.y });
+//         if (distance > 1) {
+//             s.end = new Vector(next.start.x, next.start.y);
+//         }
+//         return s;
+//     });
+
 // For array of points from segments, return the mid point of the segment
-export const getSegPointsMid = (points) => {
-    const p = [];
-    for (let i = 0; i < points.length; i += 2) {
-        const s = points[i];
-        const e = points[i + 1];
-        if (e) {
-            const midX = s[0] + (e[0] - s[0]) * 0.5;
-            const midY = s[1] + (e[1] - s[1]) * 0.5;
-            p.push([midX, midY]);
-        } else {
-            p.push(s);
-        }
-    }
-    // last end point
-    p.push(last(points));
-    return p;
-};
+// export const getSegPointsMid = (points) => {
+//     const p = [];
+//     for (let i = 0; i < points.length; i += 2) {
+//         const s = points[i];
+//         const e = points[i + 1];
+//         if (e) {
+//             const midX = s[0] + (e[0] - s[0]) * 0.5;
+//             const midY = s[1] + (e[1] - s[1]) * 0.5;
+//             p.push([midX, midY]);
+//         } else {
+//             p.push(s);
+//         }
+//     }
+//     // last end point
+//     p.push(last(points));
+//     return p;
+// };

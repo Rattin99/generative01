@@ -24,24 +24,15 @@ export const resizeCanvas = (canvas, context, width, height, scale) => {
     }
 };
 
-export const clearCanvas = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
-
-export const fillCanvas = (canvas, context) => (opacity = 1, color = '0,0,0') => {
-    context.fillStyle = `rgba(${color},${opacity})`;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-};
-
-export const background = (canvas, context) => (color = 'black') => {
-    context.fillStyle = tinycolor(color).toRgbString();
-    context.fillRect(0, 0, canvas.width, canvas.height);
-};
-
 export const resetStyles = (context) => {
     context.strokeStyle = '#000';
-    context.fillStyle = '#fff';
+    context.fillStyle = '#000';
     context.lineWidth = 1;
     context.setLineDash([]);
     context.lineCap = 'butt';
+    context.lineJoin = 'miter';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
 };
 
 // https://www.rgraph.net/canvas/howto-antialias.html
@@ -54,15 +45,12 @@ export const blendMode = (context) => (mode = 'source-over') => (context.globalC
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
 export const filter = (context) => (f = '') => (context.filter = f);
 
-export const setStokeColor = (context) => (color) => (context.strokeStyle = tinycolor(color).toRgbString());
+export const stokeColor = (context) => (color) => (context.strokeStyle = tinycolor(color).toRgbString());
+export const fillColor = (context) => (color) => (context.fillStyle = tinycolor(color).toRgbString());
 
-//----------------------------------------------------------------------------------------------------------------------
-// PRIMITIVES
-//----------------------------------------------------------------------------------------------------------------------
+export const clear = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
-// export const drawLineAngleV = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
-//     const vect = uvFromAngle(angle).setMag(length);
-//     const x2 = x1 + vect.x;
-//     const y2 = y1 + vect.y;
-//     drawLine(context)(x1, y1, x2, y2, strokeWidth, linecap);
-// };
+export const background = (canvas, context) => (color = 'black') => {
+    context.fillStyle = tinycolor(color).toRgbString();
+    context.fillRect(0, 0, canvas.width, canvas.height);
+};

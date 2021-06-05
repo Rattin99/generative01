@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { uvFromAngle } from '../math/math';
-import { drawLine } from './primatives';
+import { line } from './primatives';
 
 const debugDrawVectors = (segments) => {
     const tmult = 50;
@@ -24,16 +24,16 @@ const debugDrawVectors = (segments) => {
             console.log(ucurve);
 
             // ctx.strokeStyle = tinycolor(tan).toRgbString();
-            // drawLine(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
+            // line(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
             //
             // ctx.strokeStyle = tinycolor(bitan).toRgbString();
-            // drawLine(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
+            // line(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
             //
             ctx.strokeStyle = tinycolor(mx).toRgbString();
-            drawLine(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 0.5);
+            line(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 0.5);
 
             // ctx.strokeStyle = tinycolor(mx).toRgbString();
-            // drawLine(ctx)(x, y, x + ucurve.x * cmult, y + ucurve.y * cmult, 0.5);
+            // line(ctx)(x, y, x + ucurve.x * cmult, y + ucurve.y * cmult, 0.5);
         }
     });
 };
@@ -45,5 +45,5 @@ export const drawTestPoint = (context) => ({ x, y, radius, color }) => {
     context.fillStyle = 'rgba(255,255,255,.1)';
     context.fill();
     context.stroke();
-    drawLine(context)(x, y, x + radius, y, 1);
+    line(context)(x, y, x + radius, y, 1);
 };

@@ -14,13 +14,7 @@ import {
     diagLines,
 } from '../rndrgen/math/attractors';
 import { create2dNoise, create3dNoise, oneOf, randomWholeBetween } from '../rndrgen/math/random';
-import {
-    drawCircleFilled,
-    drawLineAngle,
-    drawQuadRectFilled,
-    drawRectFilled,
-    drawRoundRectFilled,
-} from '../rndrgen/canvas/primatives';
+import { circleFilled, lineAtAngle, quadRectFilled, rectFilled, roundRectFilled } from '../rndrgen/canvas/primatives';
 
 /*
 https://www.khanacademy.org/math/multivariable-calculus/thinking-about-multivariable-function/visualizing-vector-valued-functions/v/parametric-curves
@@ -34,14 +28,14 @@ https://tylerxhobbs.com/essays/2020/flow-fields
 const TAU = Math.PI * 2;
 
 const tile = (context, x, y, size, color, heading) => {
-    drawRoundRectFilled(context)(x, y, size - 2, size - 2, 3, color);
+    roundRectFilled(context)(x, y, size - 2, size - 2, 3, color);
 
     // context.save();
     // context.translate(x, y);
     // context.rotate(heading);
-    // // drawQuadRectFilled(context)(0, 0, size, size, color);
-    // drawRoundRectFilled(context)(0, 0, size - 2, size - 2, 3, color);
-    // // drawRectFilled(context)(0, 0, size, size, color);
+    // // quadRectFilled(context)(0, 0, size, size, color);
+    // roundRectFilled(context)(0, 0, size - 2, size - 2, 3, color);
+    // // rectFilled(context)(0, 0, size, size, color);
     // context.restore();
 };
 
@@ -121,7 +115,7 @@ export const flowFieldBasic = () => {
         const pcolor = color || particle.color;
         const x = snapNumber(rad * 2, particle.x);
         const y = snapNumber(rad * 2, particle.y);
-        drawCircleFilled(context)(x, y, rad, pcolor);
+        circleFilled(context)(x, y, rad, pcolor);
         return true;
     };
 
@@ -130,7 +124,7 @@ export const flowFieldBasic = () => {
         for (let x = 0; x < width; x += cell) {
             for (let y = 0; y < height; y += cell) {
                 const theta = fn(x, y);
-                drawLineAngle(context)(x + mid, y + mid, theta, mid);
+                lineAtAngle(context)(x + mid, y + mid, theta, mid);
             }
         }
     };
@@ -262,10 +256,10 @@ const drawNoiseField = (context, field) => {
         const midX = field.columnWidth / 2;
         const midY = field.rowHeight / 2;
 
-        // drawRectFilled(context)(x, y, grid.columnWidth, grid.rowHeight, `hsl(${360 * (n * 2)},100,50)`);
-        drawRectFilled(context)(x, y, field.columnWidth, field.rowHeight, `rgba(0,0,0,${n / 2 + 0.5}`);
-        drawLineAngle(context)(x + midX, y + midY, n * TAU, midY);
-        // drawTextFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
+        // rectFilled(context)(x, y, grid.columnWidth, grid.rowHeight, `hsl(${360 * (n * 2)},100,50)`);
+        rectFilled(context)(x, y, field.columnWidth, field.rowHeight, `rgba(0,0,0,${n / 2 + 0.5}`);
+        lineAtAngle(context)(x + midX, y + midY, n * TAU, midY);
+        // textFilled(context)(n, x + midX, y + midY, 'black', textStyles.size(10));
     });
 };
 */

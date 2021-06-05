@@ -1,9 +1,9 @@
-import { background, setStokeColor } from '../rndrgen/canvas/canvas';
+import { background, stokeColor } from '../rndrgen/canvas/canvas';
 import { nicePalette } from '../rndrgen/color/palettes';
 import { toSinValue, uvFromAngle } from '../rndrgen/math/math';
 import { Timeline } from '../rndrgen/animation/Timeline';
 import { create2dNoiseAbs, create3dNoiseAbs, oneOf } from '../rndrgen/math/random';
-import { drawLineAngle } from '../rndrgen/canvas/primatives';
+import { lineAtAngle } from '../rndrgen/canvas/primatives';
 import { uvPointToCanvas } from '../rndrgen/math/points';
 
 // -> [{radius, rotation, position:[u,v]}, ...]
@@ -61,8 +61,8 @@ export const windLines = () => {
             const t = toSinValue(timeline.playhead) * 0.1;
             const wave = create3dNoiseAbs(u, v, counter, 3 * t) * 10;
             const startvect = uvFromAngle((rotation + wave) * -1).setMag(25);
-            setStokeColor(context)(color);
-            drawLineAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
+            stokeColor(context)(color);
+            lineAtAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
         });
 
         counter += 0.01;

@@ -1,5 +1,5 @@
-import { chaikin, linesIntersect, mengerCurvature } from '../rndrgen/math/segments';
-import { defaultValue, getArrayValuesFromEnd, getArrayValuesFromStart } from '../rndrgen/utils';
+import { chaikinSmooth, linesIntersect, mengerCurvature } from '../rndrgen/math/segments';
+import { defaultValue } from '../rndrgen/utils';
 import { degreesToRadians, lerp, mapRange, percentage, uvFromAngle } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';
 import {
@@ -72,7 +72,7 @@ const mediumRiver = new MeanderingRiver(points, {
 //         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
 //         // const hcolor = riverColor.clone().darken(b);
 //         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
-//         drawConnectedPoints(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+//         pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
 //     }
 // });
 
@@ -350,7 +350,7 @@ export class MeanderingRiver {
                 if (dist < this.oxbowProx && Math.abs(i - j) > this.oxbowPointIndexProx) {
                     newPoints.push(next);
                     let oxpoints = arrayVectorToPointArray(points.slice(i, j));
-                    oxpoints = chaikin(trimPointArray(oxpoints, 3), 3);
+                    oxpoints = chaikinSmooth(trimPointArray(oxpoints, 3), 3);
                     this.oxbows.push({ points: oxpoints, startLength: oxpoints.length });
                     // Skip i ahead to j since these points were removed
                     i = j;

@@ -1,5 +1,5 @@
 import { Particle, createRandomParticleValues } from '../systems/Particle';
-import { clearCanvas } from '../rndrgen/canvas/canvas';
+import { clear } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { connectParticles, drawMouse, drawParticlePoint } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
@@ -46,7 +46,7 @@ export const variation2 = () => {
     };
 
     const draw = ({ canvas, context, mouse }) => {
-        clearCanvas(canvas, context)();
+        clear(canvas, context)();
 
         for (let i = 0; i < config.numParticles; i++) {
             particlesArray[i].radius -= config.decay;

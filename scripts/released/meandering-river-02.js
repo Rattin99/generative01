@@ -1,16 +1,14 @@
 import tinycolor from 'tinycolor2';
-import { mapRange } from '../rndrgen/math/math';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
-import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
-import { chaikin } from '../rndrgen/math/segments';
-import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../rndrgen/math/attractors';
-import { drawConnectedPoints, variableCircleAtPoint } from '../rndrgen/canvas/segments';
+import { MeanderingRiver } from '../systems/MeanderingRiver';
+import { chaikinSmooth } from '../rndrgen/math/segments';
+import { simplexNoise2d } from '../rndrgen/math/attractors';
 import { createCirclePoints } from '../rndrgen/math/grids';
-import { renderField } from '../rndrgen/canvas/rendernoise';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
-import { createSplineFromPointArray, trimPointArray } from '../rndrgen/math/points';
+import { createSplineFromPointArray } from '../rndrgen/math/points';
+import { pointPath } from '../rndrgen/canvas/primatives';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -194,11 +192,11 @@ export const meanderingRiver02 = () => {
 
             // r.oxbows.forEach((o) => {
             //     // const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-            //     drawConnectedPoints(ctx)(o.points, c, 1);
+            //     pointPath(ctx)(o.points, c, 1);
             // });
 
-            const points = chaikin(r.points, 8);
-            if (points.length) drawConnectedPoints(ctx)(points, c, 2, closed[i]);
+            const points = chaikinSmooth(r.points, 8);
+            if (points.length) pointPath(ctx)(points, c, 2, closed[i]);
         });
 
         // if (++time > 1000) {

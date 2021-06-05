@@ -1,10 +1,10 @@
 import sourcePng from '../../media/images/hi1.png';
-import { clearCanvas, background } from '../rndrgen/canvas/canvas';
+import { clear, background } from '../rndrgen/canvas/canvas';
 import { mapRange } from '../rndrgen/math/math';
 import { createRandomParticleValues, edgeBounce, Particle } from '../systems/Particle';
 import { connectParticles, drawMouse } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
-import { drawSquareFilled } from '../rndrgen/canvas/primatives';
+import { squareFilled } from '../rndrgen/canvas/primatives';
 import { scalePointToCanvas } from '../rndrgen/math/points';
 
 const getImageDataFromImage = (context) => (image) => {
@@ -47,7 +47,7 @@ export const hiImage01 = (_) => {
 
     const setup = ({ canvas, context }) => {
         imageData = getImageDataFromImage(context)(png);
-        clearCanvas(canvas, context)();
+        clear(canvas, context)();
 
         imageZoomFactor = canvas.width / imageSize;
 
@@ -82,7 +82,7 @@ export const hiImage01 = (_) => {
             // particlesArray[i].color = `rgb(${pxColor.r},${pxColor.g},${pxColor.b})`;
             particlesArray[i].color = `rgba(${pxColor.r},${pxColor.g},${pxColor.b}, ${pxColor.a})`;
 
-            drawSquareFilled(context)(particlesArray[i]);
+            squareFilled(context)(particlesArray[i]);
         }
         connectParticles(context)(particlesArray, 100, true);
     };

@@ -90,7 +90,7 @@ export const testGrid = () => {
             // edgeWrap(canvas, particlesArray[i]);
             drawParticlePoint(context)(particlesArray[i]);
 
-            // drawSpikeCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
+            // spikedCircle(context)(particlesArray[i], particlesArray[i].props.spikes);
         }
         connectParticles(context)(particlesArray, 50, false);
         // drawAttractor(context)(leftattractor, -1, attractorDist);

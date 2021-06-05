@@ -1,12 +1,12 @@
 import tinycolor from 'tinycolor2';
 import { degreesToRadians, quantize } from '../rndrgen/math/math';
-import { background, clearCanvas } from '../rndrgen/canvas/canvas';
+import { background, clear } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { brightest, darkest, hslFromRange, nicePalette } from '../rndrgen/color/palettes';
 import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import sourcePng from '../../media/images/gaetano-cessati-waves-400.png';
 import { randomPointAround, randomWholeBetween } from '../rndrgen/math/random';
-import { drawCircleFilled } from '../rndrgen/canvas/primatives';
+import { circleFilled } from '../rndrgen/canvas/primatives';
 
 /*
 Started here but took a detour
@@ -66,7 +66,7 @@ export const radialImage = () => {
         originY = canvasMidY;
 
         imageData = getImageDataFromImage(context)(png);
-        clearCanvas(canvas, context)();
+        clear(canvas, context)();
         imageZoomFactor = currentRadiusSize / imageData.width;
 
         background(canvas, context)(backgroundColor);
@@ -87,7 +87,7 @@ export const radialImage = () => {
     };
 
     const drawPixel = (context, x, y, color, size = 1, heading = 0) => {
-        drawCircleFilled(context)(x, y, size, color);
+        circleFilled(context)(x, y, size, color);
     };
 
     const drawLine = (context, x1, y1, x2, y2, color, strokeWidth = 1) => {

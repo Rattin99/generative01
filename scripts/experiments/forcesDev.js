@@ -3,7 +3,7 @@ import { background } from '../rndrgen/canvas/canvas';
 import { Vector } from '../rndrgen/math/Vector';
 import { drawParticleVectors, drawRotatedParticle } from '../rndrgen/canvas/particles';
 import { drawTestPoint } from '../rndrgen/canvas/debugShapes';
-import { drawRectFilled } from '../rndrgen/canvas/primatives';
+import { rectFilled } from '../rndrgen/canvas/primatives';
 
 export const forcesDev = () => {
     const config = {
@@ -39,7 +39,7 @@ export const forcesDev = () => {
 
     const draw = ({ canvas, context, mouse }) => {
         background(canvas, context)({ r: 0, g: 0, b: 50, a: 0.5 });
-        drawRectFilled(context)(0, canvas.height / 2, canvas.width, canvas.height / 2, 'rgba(255,255,255,.1');
+        rectFilled(context)(0, canvas.height / 2, canvas.width, canvas.height / 2, 'rgba(255,255,255,.1');
         for (let i = 0; i < numParticles; i++) {
             const gravity = new Vector(0, 0.25);
             const wind = new Vector(1, 0);
