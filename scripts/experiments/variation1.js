@@ -1,5 +1,5 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
-import { clear, fill } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { connectParticles, particlePoint, particleHistoryTrail } from '../rndrgen/canvas/particles';
 import { pointDistance } from '../rndrgen/math/points';
@@ -52,7 +52,7 @@ export const variation1 = () => {
     };
 
     const draw = ({ canvas, context, mouse }) => {
-        fill(canvas, context)();
+        background(canvas, context)();
 
         for (let i = 0; i < numParticles; i++) {
             particlesArray[i].updatePosWithVelocity();

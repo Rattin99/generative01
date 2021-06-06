@@ -52,14 +52,19 @@ export const oneOf = (arry) => {
 };
 export const createRandomNumberArray = (len, min, max) =>
     Array.from(new Array(len)).map(() => randomNumberBetween(min, max));
+
 export const create2dNoise = (u, v, amplitude = 1, frequency = 0.5) =>
     random.noise2D(u * frequency, v * frequency) * amplitude;
+
 export const create2dNoiseAbs = (u, v, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise2D(u * frequency, v * frequency)) * amplitude;
+
 export const create3dNoise = (u, v, t, amplitude = 1, frequency = 0.5) =>
     random.noise3D(u * frequency, v * frequency, t * frequency) * amplitude;
+
 export const create3dNoiseAbs = (u, v, t, amplitude = 1, frequency = 0.5) =>
     Math.abs(random.noise3D(u * frequency, v * frequency, t * frequency)) * amplitude;
+
 export const randomPointAround = (range = 20) => {
     const radius = randomWholeBetween(0, range);
     const angle = randomNumberBetween(0, TAU);

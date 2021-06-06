@@ -1,5 +1,5 @@
 import { createRandomParticleValues, Particle } from '../systems/Particle';
-import { fill } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { pointDistance } from '../rndrgen/math/points';
@@ -56,12 +56,12 @@ export const variation4 = () => {
             particlesArray.push(new Particle(props));
         }
         config.numParticles = particlesArray.length;
-        fill(canvas, context)(1, '255,255,255');
+        background(canvas, context)('rgba(255,255,255,1)');
     };
 
     // will run every frame
     const draw = ({ canvas, context, mouse }) => {
-        fill(canvas, context)(0.005, '255,255,255');
+        background(canvas, context)('rgba(255,255,255,.05)');
         for (let i = 0; i < config.numParticles; i++) {
             pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
             particlePoint(context)(particlesArray[i]);

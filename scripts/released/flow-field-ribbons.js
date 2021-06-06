@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
-import { uvFromAngle } from '../rndrgen/math/math';
+import { uvFromAngle, quantize } from '../rndrgen/math/math';
 import { Particle } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
@@ -18,9 +18,7 @@ https://tylerxhobbs.com/essays/2020/flow-fields
 const drawRibbonPoint = (context, point, i, thickness = 0, height = 0) => {
     const x = point[0];
     const y = point[1];
-    const jitterX = 0; // Math.cos(i * 0.05) * height;
-    const jitterY = 0; // Math.sin(i * 0.05) * height;
-    context.lineTo(x + thickness + jitterX, y + thickness + jitterY);
+    context.lineTo(x + thickness, y + thickness);
 };
 
 const drawRibbon = (context) => (sideA, sideB, color, stroke = false, thickness = 1) => {
@@ -61,6 +59,8 @@ export const flowFieldRibbons = () => {
         scale: scale.standard,
     };
 
+    let canvasWidth;
+    let canvasHeight;
     let canvasMidX;
     let canvasMidY;
     const palette = palettes.pop;
@@ -80,7 +80,7 @@ export const flowFieldRibbons = () => {
         const coords = [];
         for (let i = 0; i < length; i++) {
             const theta = fieldFn(particle.x, particle.y);
-            // theta = quantize(4, theta);
+            // theta = quantize(360, theta);
             const force = uvFromAngle(theta);
             particle.applyForce(force);
             particle.velocity = particle.velocity.limit(vlimit);
@@ -93,13 +93,15 @@ export const flowFieldRibbons = () => {
 
     const simplex2d = (x, y) => simplexNoise2d(x, y, 0.0005);
     const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
-    const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
-    const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
+    const clifford = (x, y) => cliffordAttractor(canvasWidth, canvasHeight, x, y);
+    const jong = (x, y) => jongAttractor(canvasWidth, canvasHeight, x, y);
     const noise = randomBoolean() ? clifford : jong;
 
     let maxRadius;
 
     const setup = ({ canvas, context }) => {
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         maxRadius = canvas.width * 0.4;

@@ -1,5 +1,5 @@
 import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
-import { fill } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
@@ -52,11 +52,10 @@ export const variation5 = () => {
             const y = Math.sin(rad) * diameter + centerY;
             circles.push([x, y, randomNumberBetween(20, 100)]);
         }
-        fill(canvas, context)(1, '255,255,255');
+        background(canvas, context)('white');
     };
 
     const draw = ({ canvas, context, mouse }) => {
-        // fill(canvas, context)(.005,'255,255,255');
         for (let i = 0; i < config.numParticles; i++) {
             particlesArray[i].updatePosWithVelocity();
             edgeBounce(canvas, particlesArray[i]);

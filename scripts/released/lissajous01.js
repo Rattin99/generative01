@@ -1,4 +1,4 @@
-import { background, contextScale } from '../rndrgen/canvas/canvas';
+import { background, currentContextScale } from '../rndrgen/canvas/canvas';
 import { round2 } from '../rndrgen/math/math';
 import { brightest, darkest, nicePalette } from '../rndrgen/color/palettes';
 import { ratio, scale } from '../rndrgen/Sketch';
@@ -68,7 +68,7 @@ export const lissajous01 = () => {
         canvasCenterX = canvas.width / 2;
         canvasCenterY = canvas.height / 2;
         centerRadius = canvas.height / 4;
-        margin = 50 * contextScale;
+        margin = 50 * currentContextScale();
         if (columns === 1) {
             curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
         } else {
@@ -82,9 +82,6 @@ export const lissajous01 = () => {
 
         background(canvas, context)(colorBackground);
     };
-
-    const circleX = (curve, v = 1) => curve.radius * Math.cos(curve.angle * v);
-    const circleY = (curve, v = 1) => curve.radius * Math.sin(curve.angle * v);
 
     // k is # of petals
     // https://en.wikipedia.org/wiki/Rose_(mathematics)

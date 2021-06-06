@@ -28,9 +28,10 @@ const urlKey = rndrgen.utils.getQueryVariable('variation') || variationMapKeys[v
 if (experimentalVariation !== undefined) {
     runVariation({ sketch: experimentalVariation, note: 'Current experiment ...' });
 } else if (urlKey && variationsIndex.hasOwnProperty(urlKey)) {
+    console.log(urlKey, variationsIndex.hasOwnProperty(urlKey));
     runVariation(variationsIndex[urlKey]);
 } else {
-    runVariation(variationsIndex[variationMapKeys.length]);
+    runVariation(variationsIndex[variationMapKeys[variationMapKeys.length - 1]]);
 }
 
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);

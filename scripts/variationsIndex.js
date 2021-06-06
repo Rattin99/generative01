@@ -1,13 +1,6 @@
-import { variation1 } from './released/variation1';
-import { variation2 } from './released/variation2';
-import { domokun } from './released/domokun';
-import { variation4 } from './released/variation4';
 import { variation5 } from './released/variation5';
-import { variation6 } from './released/variation6';
-import { rainbowRakeOrbit } from './released/rainbow-rake-orbit-mouse';
 import { threeAttractors } from './released/threeAttractors';
 import { hiImage01 } from './released/hiImage01';
-import { windLines } from './released/windLines';
 import { waves01 } from './released/waves01';
 import { lissajous01 } from './released/lissajous01';
 import { flowFieldParticles } from './released/flow-field-particles';
@@ -22,33 +15,9 @@ import { meanderingRiver02 } from './released/meandering-river-02';
 import { meanderingRiver01 } from './released/meandering-river-01';
 
 export const variationsIndex = {
-    1: {
-        note: 'Particles are attracted to the pointer. Press to repel.',
-        sketch: variation1,
-    },
-    2: {
-        note: 'Press to increase speed.',
-        sketch: variation2,
-    },
-    3: {
-        note: 'Particles are repelled from the pointer. Press to attract.',
-        sketch: domokun,
-    },
-    4: {
-        note: 'Particles are repelled from the pointer. Press to attract.',
-        sketch: variation4,
-    },
     5: {
         note: 'Sit back and watch.',
         sketch: variation5,
-    },
-    6: {
-        note: 'Move the mouse',
-        sketch: variation6,
-    },
-    7: {
-        note: 'Rakes orbit center and the mouse. Click to repel.',
-        sketch: rainbowRakeOrbit,
     },
     8: {
         note: 'One attractor in the center, two on the sides.',
@@ -57,10 +26,6 @@ export const variationsIndex = {
     9: {
         note: 'Say Hi',
         sketch: hiImage01,
-    },
-    10: {
-        note: 'In the breeze',
-        sketch: windLines,
     },
     11: {
         note: 'Inspired by Churn, Kenny Vaden https://www.reddit.com/r/generative/comments/lq8r11/churn_r_code/',

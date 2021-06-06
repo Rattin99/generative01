@@ -1,5 +1,5 @@
 import { Particle, createRandomParticleValues, edgeBounce } from '../systems/Particle';
-import { fill } from '../rndrgen/canvas/canvas';
+import { background } from '../rndrgen/canvas/canvas';
 import { particlePoint } from '../rndrgen/canvas/particles';
 import { normalizeInverse, mapRange } from '../rndrgen/math/math';
 import { pointDistance } from '../rndrgen/math/points';
@@ -34,7 +34,7 @@ export const variation6 = () => {
     };
 
     const draw = ({ canvas, context, mouse }) => {
-        fill(canvas, context)(0.08);
+        background(canvas, context)('rgab(255,255,255,.8)');
         if (hue++ > 361) hue = 0;
         for (let i = 0; i < numParticles; i++) {
             particlesArray[i].radius -= 0.05;
