@@ -4,7 +4,7 @@ import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
-import { createGridCellsXY } from '../rndrgen/math/grids';
+import { getGridCells } from '../rndrgen/math/grids';
 import {
     setTextureClippingMaskEnabled,
     textureRectSprials,

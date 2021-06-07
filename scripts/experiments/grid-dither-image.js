@@ -4,7 +4,7 @@ import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
-import { createGridCellsXY } from '../rndrgen/math/grids';
+import { getGridCells } from '../rndrgen/math/grids';
 import {
     setTextureClippingMaskEnabled,
     textureRectSprials,
@@ -69,7 +69,7 @@ export const gridDitherImage = () => {
 
         numCells = 30; // Math.ceil(canvas.width / 40);
 
-        grid = createGridCellsXY(canvas.width, canvas.height, numCells, numCells, 0);
+        grid = getGridCells(canvas.width, canvas.height, numCells, numCells, 0);
         background(canvas, context)(backgroundColor);
     };
 

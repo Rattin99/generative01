@@ -1,7 +1,5 @@
-import { create2dNoiseAbs } from './random';
-
 // [[x,y], ...]
-export const createCirclePoints = (offsetX, offsetY, radius, steps, close = true) => {
+export const getPointsOnCircle = (offsetX, offsetY, radius, steps, close = false) => {
     const startAngle = 270;
     const maxAngle = 360 + startAngle;
     const points = [];
@@ -11,7 +9,7 @@ export const createCirclePoints = (offsetX, offsetY, radius, steps, close = true
         const y = Math.sin(theta) * radius + offsetY;
         points.push([x, y]);
     }
-    if (false && close) {
+    if (close) {
         const theta = maxAngle - 1 * (Math.PI / 180);
         const x = Math.cos(theta) * radius + offsetX;
         const y = Math.sin(theta) * radius + offsetY;
@@ -20,24 +18,7 @@ export const createCirclePoints = (offsetX, offsetY, radius, steps, close = true
     return points;
 };
 
-export const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows) => {
-    const gridPoints = [];
-
-    const colStep = Math.round((width - xMargin * 2) / (columns - 1));
-    const rowStep = Math.round((height - yMargin * 2) / (rows - 1));
-
-    for (let col = 0; col < columns; col++) {
-        const x = xMargin + col * colStep;
-        for (let row = 0; row < rows; row++) {
-            const y = yMargin + row * rowStep;
-            gridPoints.push([x, y]);
-        }
-    }
-
-    return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
-};
-
-export const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0) => {
+export const getGridCells = (width, height, columns, rows, margin = 0, gutter = 0) => {
     const points = [];
 
     const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);

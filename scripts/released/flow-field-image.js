@@ -4,15 +4,13 @@ import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { Vector } from '../rndrgen/math/Vector';
-import { diagLines, simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import { hslFromRange, warmWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
 import { renderField } from '../rndrgen/canvas/fields';
-import {randomNumberBetween, randomWholeBetween} from '../rndrgen/math/random';
+import { randomNumberBetween, randomWholeBetween } from '../rndrgen/math/random';
 import { circleFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
-import { splatter } from '../scratch/shapes';
 
 /*
 https://marcteyssier.com/projects/flowfield/
@@ -36,6 +34,15 @@ const splatter = (context) => (x, y, color, size, amount = 3, range = 20) => {
     }
 };
 
+const createRandomParticle = (canvas) => {
+    const props = createRandomParticleValues(canvas);
+    props.x = randomWholeBetween(0, canvas.width);
+    props.y = randomWholeBetween(0, canvas.height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    return new Particle(props);
+};
+
 export const flowFieldImage = () => {
     const config = {
         name: 'flowFieldImage',
@@ -47,15 +54,6 @@ export const flowFieldImage = () => {
     let time = 0;
     const backgroundColor = warmWhite;
     const image = new Bitmap(sourcePng);
-
-    const createRandomParticle = (canvas) => {
-        const props = createRandomParticleValues(canvas);
-        props.x = randomWholeBetween(0, canvas.width);
-        props.y = randomWholeBetween(0, canvas.height);
-        props.velocityX = 0;
-        props.velocityY = 0;
-        return new Particle(props);
-    };
 
     const imageFlow = (x, y) => image.pixelThetaFromCanvas(x, y) * TAU;
 

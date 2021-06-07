@@ -5,7 +5,7 @@ import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver } from '../systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';
 import { simplexNoise2d } from '../rndrgen/math/attractors';
-import { createCirclePoints } from '../rndrgen/math/grids';
+import { getPointsOnCircle } from '../rndrgen/math/grids';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
 import { createSplineFromPointArray } from '../rndrgen/math/points';
 import { pointPath } from '../rndrgen/canvas/primatives';
@@ -87,7 +87,7 @@ export const meanderingRiver02 = () => {
         background(canvas, context)(backgroundColor);
         const horizontal = createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 40));
         const vertical = createSplineFromPointArray(createVerticalPath(canvas, canvasMidX, 0, 40));
-        const circle = createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
+        const circle = getPointsOnCircle(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, false);
 
         const cs = {
             mixTangentRatio: 0.45,

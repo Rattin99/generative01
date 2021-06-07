@@ -416,16 +416,9 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
 );
-var _variation1 = require("./experiments/variation1");
-var _variation2 = require("./experiments/variation2");
-var _domokun = require("./released/domokun");
-var _variation4 = require("./experiments/variation4");
 var _variation5 = require("./released/variation5");
-var _variation6 = require("./experiments/variation6");
-var _rainbowRakeOrbitMouse = require("./experiments/rainbow-rake-orbit-mouse");
 var _threeAttractors = require("./released/threeAttractors");
 var _hiImage01 = require("./released/hiImage01");
-var _windLines = require("./experiments/windLines");
 var _waves01 = require("./released/waves01");
 var _lissajous01 = require("./released/lissajous01");
 var _flowFieldParticles = require("./released/flow-field-particles");
@@ -440,7 +433,7 @@ var _meanderingRiver02 = require("./released/meandering-river-02");
 var _meanderingRiver01 = require("./released/meandering-river-01");
 const variationsIndex = {
     5: {
-        note: 'Sit back and watch.',
+        note: 'Like spider webs',
         sketch: _variation5.variation5
     },
     8: {
@@ -501,92 +494,86 @@ const variationsIndex = {
     }
 };
 
-},{"./released/domokun":"2ZQOQ","./released/variation5":"1i6Vo","./released/threeAttractors":"4FjQ0","./released/hiImage01":"7fBhq","./released/waves01":"4kPMC","./released/lissajous01":"2CMm3","./released/flow-field-particles":"omRBU","./released/flow-field-arcs":"3Q1u4","./released/flow-field-image":"5P1Ch","./released/radial-noise":"3Qctl","./released/flow-field-ribbons":"3hmlu","./released/flow-field-ribbons-2":"2IsLg","./released/shaded-boxes":"1wwAx","./released/larrycarlson02":"3xaAe","./released/meandering-river-02":"6SHt4","./released/meandering-river-01":"2elLt","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/windLines":"37LyA","./experiments/variation1":"oKqaG","./experiments/variation2":"7MS6j","./experiments/variation4":"34OpC","./experiments/variation6":"1tjdW","./experiments/rainbow-rake-orbit-mouse":"aJbxJ"}],"2ZQOQ":[function(require,module,exports) {
+},{"./released/variation5":"1i6Vo","./released/threeAttractors":"4FjQ0","./released/hiImage01":"7fBhq","./released/waves01":"4kPMC","./released/lissajous01":"2CMm3","./released/flow-field-particles":"omRBU","./released/flow-field-arcs":"3Q1u4","./released/flow-field-image":"5P1Ch","./released/radial-noise":"3Qctl","./released/flow-field-ribbons":"3hmlu","./released/flow-field-ribbons-2":"2IsLg","./released/shaded-boxes":"1wwAx","./released/larrycarlson02":"3xaAe","./released/meandering-river-02":"6SHt4","./released/meandering-river-01":"2elLt","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1i6Vo":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "domokun", ()=>domokun
+parcelHelpers.export(exports, "variation5", ()=>variation5
 );
-var _domokunPng = require("../../media/images/domokun.png");
-var _domokunPngDefault = parcelHelpers.interopDefault(_domokunPng);
+var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
-var _particle = require("../systems/Particle");
+var _particles = require("../rndrgen/canvas/particles");
 var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
 var _points = require("../rndrgen/math/points");
-var _debugShapes = require("../rndrgen/canvas/debugShapes");
-const pointPush = (point, particle, f = 1)=>{
-    const dx = point.x - particle.x;
-    const dy = point.y - particle.y;
-    const distance = _points.pointDistance(point, particle);
-    const forceDirectionX = dx / distance;
-    const forceDirectionY = dy / distance;
-    const force = _math.normalizeInverse(0, point.radius, distance) * f;
-    particle.velocityX = forceDirectionX * force * particle.mass * 0.8;
-    particle.velocityY = forceDirectionY * force * particle.mass * 0.8;
-    if (distance < point.radius) {
-        particle.x -= particle.velocityX;
-        particle.y -= particle.velocityY;
-    } else {
-        // TODO if < 1 then snap to 0
-        if (particle.x !== particle.oX) particle.x -= (particle.x - particle.oX) * 0.1;
-        if (particle.y !== particle.oY) particle.y -= (particle.y - particle.oY) * 0.1;
-    }
-};
-const getImageDataFromImage = (context)=>(image)=>{
-        context.drawImage(image, 0, 0);
-        return context.getImageData(0, 0, image.width, image.width);
-    }
-;
-const getImageDataColor = (imageData, x, y)=>({
-        r: imageData.data[y * 4 * imageData.width + x * 4],
-        g: imageData.data[y * 4 * imageData.width + x * 4 + 1],
-        b: imageData.data[y * 4 * imageData.width + x * 4 + 2],
-        a: imageData.data[y * 4 * imageData.width + x * 4 + 3]
-    })
-;
-const domokun = (_)=>{
-    const config = {
-        width: 600,
-        height: 600
-    };
-    let numParticles;
-    const imageSize = 100; // square
-    const png = new Image();
-    png.src = _domokunPngDefault.default;
-    const particlesArray = [];
-    const setup = ({ canvas , context  })=>{
-        const imageData = getImageDataFromImage(context)(png);
-        _canvas.clear(canvas, context)();
-        const imageZoomFactor = canvas.width / imageSize;
-        const cropColor = 127.5;
-        for(let y = 0, { height  } = imageData; y < height; y++)for(let x = 0, { width  } = imageData; x < width; x++){
-            const pxColor = getImageDataColor(imageData, x, y);
-            if (pxColor.a > cropColor) {
-                const points = _points.scalePointToCanvas(canvas.width, canvas.height, imageData.width, imageData.height, imageZoomFactor, x, y);
-                const pX = points.x;
-                const pY = points.y;
-                const mass = _random.randomNumberBetween(2, 12);
-                const color = pxColor;
-                const radius = imageZoomFactor;
-                particlesArray.push(new _particle.Particle({
-                    x: pX,
-                    y: pY,
-                    mass,
-                    color,
-                    radius
-                }));
-            }
+const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
+        const distance = _points.pointDistance({
+            x,
+            y
+        }, particle);
+        if (distance < radius) {
+            const dx = x - particle.x;
+            const dy = y - particle.y;
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = _math.normalizeInverse(0, radius, distance) * f * mult;
+            const tempX = forceDirectionX * force * particle.radius * 2;
+            const tempY = forceDirectionY * force * particle.radius * 2;
+            particle.x += tempX;
+            particle.y += tempY;
         }
-        numParticles = particlesArray.length;
+    }
+;
+// for moving points, push away/around from point
+const avoidPoint = (point, particle, f = 1)=>{
+    gravityPoint(1, f *= -1)(point.x, point.y, point.radius, particle);
+};
+const variation5 = ()=>{
+    const config = {
+        numParticles: 50
+    };
+    const particlesArray = [];
+    const circles = [];
+    const setup = ({ canvas , context  })=>{
+        for(let i = 0; i < config.numParticles; i++){
+            const props = _particle.createRandomParticleValues(canvas);
+            props.x = canvas.width / 2;
+            props.y = canvas.height / 2;
+            props.color = {
+                r: 0,
+                g: 0,
+                b: 0
+            };
+            props.radius = 0.5;
+            particlesArray.push(new _particle.Particle(props));
+        }
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const diameter = canvas.height / 4;
+        const steps = 30;
+        for(let theta = 0; theta < 360; theta += steps){
+            const rad = theta * (Math.PI / 180);
+            const x = Math.cos(rad) * diameter + centerX;
+            const y = Math.sin(rad) * diameter + centerY;
+            circles.push([
+                x,
+                y,
+                _random.randomNumberBetween(20, 100)
+            ]);
+        }
+        _canvas.background(canvas, context)('white');
     };
     const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)('yellow');
-        for(let i = 0; i < numParticles; i++){
-            pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-            _primatives.squareFilled(context)(particlesArray[i].x, particlesArray[i].y, particlesArray[i].radius, particlesArray[i].color);
+        for(let i = 0; i < config.numParticles; i++){
+            particlesArray[i].updatePosWithVelocity();
+            _particle.edgeBounce(canvas, particlesArray[i]);
+            for(let c = 0; c < circles.length; c++)avoidPoint({
+                radius: circles[c][2],
+                x: circles[c][0],
+                y: circles[c][1]
+            }, particlesArray[i], 4);
+            _particles.particlePoint(context)(particlesArray[i]);
         }
-    // debugShowMouse(context)(mouse);
+        _particles.connectParticles(context)(particlesArray, 50);
     };
     return {
         config,
@@ -595,111 +582,221 @@ const domokun = (_)=>{
     };
 };
 
-},{"../../media/images/domokun.png":"2oLZU","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/debugShapes":"5Ll52"}],"2oLZU":[function(require,module,exports) {
-module.exports = require('./bundle-url').getBundleURL() + "domokun.01fc712a.png";
-
-},{"./bundle-url":"3seVR"}],"3seVR":[function(require,module,exports) {
-"use strict";
-/* globals document:readonly */ var bundleURL = null;
-function getBundleURLCached() {
-    if (!bundleURL) bundleURL = getBundleURL();
-    return bundleURL;
-}
-function getBundleURL() {
-    try {
-        throw new Error();
-    } catch (err) {
-        var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
-        if (matches) return getBaseURL(matches[0]);
-    }
-    return '/';
-}
-function getBaseURL(url) {
-    return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
-} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
-function getOrigin(url) {
-    let matches = ('' + url).match(/(https?|file|ftp):\/\/[^/]+/);
-    if (!matches) throw new Error('Origin not found');
-    return matches[0];
-}
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-exports.getOrigin = getOrigin;
-
-},{}],"73Br1":[function(require,module,exports) {
+},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mD6I":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isHiDPICanvas", ()=>isHiDPICanvas
+parcelHelpers.export(exports, "Particle", ()=>Particle
 );
-parcelHelpers.export(exports, "currentContextScale", ()=>currentContextScale
+parcelHelpers.export(exports, "createRandomParticleValues", ()=>createRandomParticleValues
 );
-parcelHelpers.export(exports, "resizeCanvas", ()=>resizeCanvas
+parcelHelpers.export(exports, "createRandomStaticParticle", ()=>createRandomStaticParticle
 );
-parcelHelpers.export(exports, "resetStyles", ()=>resetStyles
+parcelHelpers.export(exports, "edgeBounce", ()=>edgeBounce
 );
-parcelHelpers.export(exports, "sharpLines", ()=>sharpLines
-);
-parcelHelpers.export(exports, "blendMode", ()=>blendMode
-);
-parcelHelpers.export(exports, "filter", ()=>filter
-);
-parcelHelpers.export(exports, "stokeColor", ()=>stokeColor
-);
-parcelHelpers.export(exports, "fillColor", ()=>fillColor
-);
-parcelHelpers.export(exports, "clear", ()=>clear
-);
-parcelHelpers.export(exports, "background", ()=>background
+parcelHelpers.export(exports, "edgeWrap", ()=>edgeWrap
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-let isHiDPI = false;
-let contextScale = 1;
-const isHiDPICanvas = (_)=>isHiDPI
-;
-const currentContextScale = (_)=>contextScale
-;
-const resizeCanvas = (canvas, context, width, height, scale)=>{
-    contextScale = scale || window.devicePixelRatio;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = Math.floor(width * contextScale);
-    canvas.height = Math.floor(height * contextScale);
-    if (contextScale === 2) {
-        isHiDPI = true;
-        context.scale(1, 1);
-    // context.scale(2, 2); // not working
-    } else context.scale(contextScale, contextScale);
-};
-const resetStyles = (context)=>{
-    context.strokeStyle = '#000';
-    context.fillStyle = '#000';
-    context.lineWidth = 1;
-    context.setLineDash([]);
-    context.lineCap = 'butt';
-    context.lineJoin = 'miter';
-    context.textAlign = 'left';
-    context.textBaseline = 'top';
-};
-const sharpLines = (context)=>context.translate(0.5, 0.5)
-;
-const blendMode = (context)=>(mode = 'source-over')=>context.globalCompositeOperation = mode
-;
-const filter = (context)=>(f = '')=>context.filter = f
-;
-const stokeColor = (context)=>(color)=>context.strokeStyle = _tinycolor2Default.default(color).toRgbString()
-;
-const fillColor = (context)=>(color)=>context.fillStyle = _tinycolor2Default.default(color).toRgbString()
-;
-const clear = (canvas, context)=>(_)=>context.clearRect(0, 0, canvas.width, canvas.height)
-;
-const background = (canvas, context)=>(color = 'black')=>{
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.fillRect(0, 0, canvas.width, canvas.height);
+var _math = require("../rndrgen/math/math");
+var _vector = require("../rndrgen/math/Vector");
+var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
+/*
+This class is a mess 😅
+ */ const maxParticleHistory = 30;
+class Particle {
+    #x;
+    #y;
+    #color;
+    constructor({ index , x: x1 , y: y1 , velocityX , velocityY , accelerationX , accelerationY , radius , mass: mass1 , color , alpha , rotation , lifetime , drawFn , updateFn , colorFn , ...rest }){
+        this.props = rest;
+        this.index = index || 0;
+        this.#x = x1 || 0;
+        this.#y = y1 || 0;
+        this.xHistory = [
+            x1
+        ];
+        this.yHistory = [
+            y1
+        ];
+        this.oX = x1 || this.oX;
+        this.oY = y1 || this.oY;
+        this.velocityX = velocityX || 0;
+        this.velocityY = velocityY || 0;
+        this.accelerationX = accelerationX || 0;
+        this.accelerationY = accelerationY || 0;
+        this.mass = mass1 || 1;
+        this.radius = radius || 1;
+        this.#color = color ? _tinycolor2Default.default(color) : _tinycolor2Default.default({
+            r: 255,
+            g: 255,
+            b: 255
+        });
+        this.rotation = rotation || 0;
+        this.lifetime = lifetime || 1;
+        // must always return a string
+        this.colorFn = colorFn;
     }
-;
+    get color() {
+        if (this.colorFn) return _tinycolor2Default.default(this.colorFn(this));
+        return this.#color;
+    }
+    set color(value) {
+        this.#color = _tinycolor2Default.default(value);
+    }
+    get colorStr() {
+        if (this.colorFn) {
+            const res = this.colorFn(this);
+            if (typeof res !== 'string') {
+                console.warn('Particle color fn must return a string!');
+                return '#ff0000';
+            }
+            return res;
+        }
+        return this.#color.toRgbString();
+    }
+    get x() {
+        return this.#x;
+    }
+    set x(value) {
+        this.#x = value;
+        this.xHistory.unshift(value);
+        if (this.xHistory.length > maxParticleHistory) this.xHistory = this.xHistory.slice(0, maxParticleHistory);
+    }
+    get y() {
+        return this.#y;
+    }
+    set y(value) {
+        this.#y = value;
+        this.yHistory.unshift(value);
+        if (this.yHistory.length > maxParticleHistory) this.yHistory = this.yHistory.slice(0, maxParticleHistory);
+    }
+    get velocity() {
+        return new _vector.Vector(this.velocityX, this.velocityY, 0);
+    }
+    set velocity({ x , y  }) {
+        this.velocityX = x;
+        this.velocityY = y;
+    }
+    get acceleration() {
+        return new _vector.Vector(this.accelerationX, this.accelerationY, 0);
+    }
+    set acceleration({ x , y  }) {
+        this.accelerationX = x;
+        this.accelerationY = y;
+    }
+    // Rotation angle to point in direction of velocity
+    get heading() {
+        return _points.pointAngleFromVelocity(this);
+    }
+    reverseVelocityX() {
+        this.velocityX *= -1;
+    }
+    reverseVelocityY() {
+        this.velocityY *= -1;
+    }
+    updatePosWithVelocity() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+    }
+    applyForce(fVect) {
+        const fV = fVect.div(this.mass);
+        const aV = this.acceleration.add(fV);
+        const pV = this.velocity.add(aV);
+        this.acceleration = aV;
+        this.velocity = pV;
+    }
+    // https://www.youtube.com/watch?v=WBdhAuWS6X8
+    friction(mu = 0.1) {
+        const normal = this.mass;
+        const vfriction = this.velocity.normalize().mult(-1).setMag(mu * normal);
+        this.applyForce(vfriction);
+    }
+    // https://www.youtube.com/watch?v=DxFDgOYEoy8
+    drag(coefficent = 0.1) {
+        const area = 1; // this.radius;
+        const velUnit = this.velocity.normalize().mult(-1);
+        const speed = this.velocity.magSq() * area * coefficent;
+        const vdrag = velUnit.setMag(speed);
+        this.applyForce(vdrag);
+    }
+    // https://www.youtube.com/watch?v=EpgB3cNhKPM
+    // mode 1 is attract, -1 is repel
+    // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
+    attract({ x , y , mass , g  }, mode = 1, affectDist = 1000) {
+        if (_points.pointDistance({
+            x,
+            y
+        }, {
+            x: this.x,
+            y: this.y
+        }) < affectDist) {
+            g = g || 1;
+            const dir = new _vector.Vector(x, y).sub(new _vector.Vector(this.x, this.y));
+            const distanceSq = _math.clamp(50, 5000, dir.magSq());
+            const strength = mode * (g * (mass * this.mass)) / distanceSq;
+            const force = dir.setMag(strength);
+            this.applyForce(force);
+        }
+    }
+}
+const createRandomParticleValues = ({ width , height  })=>{
+    const vel = 2;
+    const radius1 = _random.randomNumberBetween(5, 10);
+    return {
+        radius: radius1,
+        x: _random.randomNumberBetween(0, width),
+        y: _random.randomNumberBetween(0, height),
+        mass: _random.randomNumberBetween(1, 10),
+        velocityX: _random.randomNumberBetween(-vel, vel),
+        velocityY: _random.randomNumberBetween(-vel, vel),
+        accelerationX: 0,
+        accelerationY: 0,
+        rotation: _random.randomNumberBetween(-180, 180),
+        color: {
+            r: _random.randomNumberBetween(100, 255),
+            g: _random.randomNumberBetween(100, 255),
+            b: _random.randomNumberBetween(100, 255)
+        }
+    };
+};
+const createRandomStaticParticle = ({ width , height  })=>{
+    const props = createRandomParticleValues({
+        width,
+        height
+    });
+    props.x = _random.randomWholeBetween(0, width);
+    props.y = _random.randomWholeBetween(0, height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    return new Particle(props);
+};
+const edgeBounce = ({ width , height  }, particle)=>{
+    if (particle.x + particle.radius > width) {
+        particle.reverseVelocityX();
+        particle.x = width - particle.radius;
+    }
+    if (particle.x - particle.radius < 0) {
+        particle.reverseVelocityX();
+        particle.x = particle.radius;
+    }
+    if (particle.y + particle.radius > height) {
+        particle.reverseVelocityY();
+        particle.y = height - particle.radius;
+    }
+    if (particle.y - particle.radius < 0) {
+        particle.reverseVelocityY();
+        particle.y = particle.radius;
+    }
+};
+const edgeWrap = ({ width , height  }, particle)=>{
+    if (particle.x + particle.radius > width) particle.x = 0 + particle.radius;
+    else if (particle.x - particle.radius < 0) particle.x = width - particle.radius;
+    if (particle.y + particle.radius > height) particle.y = 0 + particle.radius;
+    else if (particle.y - particle.radius < 0) particle.y = height - particle.radius;
+};
 
-},{"tinycolor2":"101FG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
 // TinyColor v1.4.2
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -1796,38 +1893,6 @@ const background = (canvas, context)=>(color = 'black')=>{
     else window.tinycolor = tinycolor;
 })(Math);
 
-},{}],"367CR":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule') return;
-        // Skip duplicate re-exports when they have the same value.
-        if (key in dest && dest[key] === source[key]) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
 },{}],"4t0bw":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -2205,211 +2270,39 @@ const unit = (a, b)=>{
     return b;
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mD6I":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Particle", ()=>Particle
-);
-parcelHelpers.export(exports, "createRandomParticleValues", ()=>createRandomParticleValues
-);
-parcelHelpers.export(exports, "edgeBounce", ()=>edgeBounce
-);
-parcelHelpers.export(exports, "edgeWrap", ()=>edgeWrap
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../rndrgen/math/math");
-var _vector = require("../rndrgen/math/Vector");
-var _random = require("../rndrgen/math/random");
-var _points = require("../rndrgen/math/points");
-const MAX_COORD_HISTORY = 30;
-class Particle {
-    #x;
-    #y;
-    #color;
-    constructor(values){
-        this.initValues(values);
-    }
-    initValues({ index , x , y , velocityX , velocityY , accelerationX , accelerationY , radius , mass , color , alpha , rotation , lifetime , drawFn , updateFn , colorFn , ...rest }) {
-        this.props = rest;
-        this.index = index || 0;
-        this.#x = x || 0;
-        this.#y = y || 0;
-        this.xHistory = [
-            x
-        ];
-        this.yHistory = [
-            y
-        ];
-        this.oX = x || this.oX;
-        this.oY = y || this.oY;
-        this.velocityX = velocityX || 0;
-        this.velocityY = velocityY || 0;
-        this.accelerationX = accelerationX || 0;
-        this.accelerationY = accelerationY || 0;
-        this.mass = mass || 1;
-        this.radius = radius || 1;
-        this.#color = color ? _tinycolor2Default.default(color) : _tinycolor2Default.default({
-            r: 255,
-            g: 255,
-            b: 255
-        });
-        this.rotation = rotation || 0;
-        this.lifetime = lifetime || 1;
-        // this.drawFn = drawFn;
-        // this.updateFn = updateFn;
-        // must always return a string
-        this.colorFn = colorFn;
-    }
-    get color() {
-        if (this.colorFn) return _tinycolor2Default.default(this.colorFn(this));
-        return this.#color;
-    }
-    set color(value) {
-        this.#color = _tinycolor2Default.default(value);
-    }
-    get colorStr() {
-        if (this.colorFn) {
-            const res = this.colorFn(this);
-            if (typeof res !== 'string') {
-                console.warn('Particle color fn must return a string!');
-                return '#ff0000';
-            }
-            return res;
-        }
-        return this.#color.toRgbString();
-    }
-    get x() {
-        return this.#x;
-    }
-    set x(value) {
-        this.#x = value;
-        this.xHistory.unshift(value);
-        if (this.xHistory.length > MAX_COORD_HISTORY) this.xHistory = this.xHistory.slice(0, MAX_COORD_HISTORY);
-    }
-    get y() {
-        return this.#y;
-    }
-    set y(value) {
-        this.#y = value;
-        this.yHistory.unshift(value);
-        if (this.yHistory.length > MAX_COORD_HISTORY) this.yHistory = this.yHistory.slice(0, MAX_COORD_HISTORY);
-    }
-    get velocity() {
-        return new _vector.Vector(this.velocityX, this.velocityY, 0);
-    }
-    set velocity({ x , y  }) {
-        this.velocityX = x;
-        this.velocityY = y;
-    }
-    get acceleration() {
-        return new _vector.Vector(this.accelerationX, this.accelerationY, 0);
-    }
-    set acceleration({ x , y  }) {
-        this.accelerationX = x;
-        this.accelerationY = y;
-    }
-    // Rotation angle to point in direction of velocity
-    get heading() {
-        return _points.pointAngleFromVelocity(this);
-    }
-    reverseVelocityX() {
-        this.velocityX *= -1;
-    }
-    reverseVelocityY() {
-        this.velocityY *= -1;
-    }
-    updatePosWithVelocity() {
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
-    }
-    applyForce(fVect) {
-        const fV = fVect.div(this.mass);
-        const aV = this.acceleration.add(fV);
-        const pV = this.velocity.add(aV);
-        this.acceleration = aV;
-        this.velocity = pV;
-    }
-    // https://www.youtube.com/watch?v=WBdhAuWS6X8
-    friction(mu = 0.1) {
-        const normal = this.mass;
-        const vfriction = this.velocity.normalize().mult(-1).setMag(mu * normal);
-        this.applyForce(vfriction);
-    }
-    // https://www.youtube.com/watch?v=DxFDgOYEoy8
-    drag(coefficent = 0.1) {
-        const area = 1; // this.radius;
-        const velUnit = this.velocity.normalize().mult(-1);
-        const speed = this.velocity.magSq() * area * coefficent;
-        const vdrag = velUnit.setMag(speed);
-        this.applyForce(vdrag);
-    }
-    // https://www.youtube.com/watch?v=EpgB3cNhKPM
-    // mode 1 is attract, -1 is repel
-    // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
-    attract({ x , y , mass , g  }, mode = 1, affectDist = 1000) {
-        if (_points.pointDistance({
-            x,
-            y
-        }, {
-            x: this.x,
-            y: this.y
-        }) < affectDist) {
-            g = g || 1;
-            const dir = new _vector.Vector(x, y).sub(new _vector.Vector(this.x, this.y));
-            const distanceSq = _math.clamp(50, 5000, dir.magSq());
-            const strength = mode * (g * (mass * this.mass)) / distanceSq;
-            const force = dir.setMag(strength);
-            this.applyForce(force);
-        }
-    }
-}
-const createRandomParticleValues = ({ width , height  })=>{
-    const vel = 2;
-    const radius = _random.randomNumberBetween(5, 10);
-    return {
-        radius,
-        x: _random.randomNumberBetween(0, width),
-        y: _random.randomNumberBetween(0, height),
-        mass: _random.randomNumberBetween(1, 10),
-        velocityX: _random.randomNumberBetween(-vel, vel),
-        velocityY: _random.randomNumberBetween(-vel, vel),
-        accelerationX: 0,
-        accelerationY: 0,
-        rotation: _random.randomNumberBetween(-180, 180),
-        color: {
-            r: _random.randomNumberBetween(100, 255),
-            g: _random.randomNumberBetween(100, 255),
-            b: _random.randomNumberBetween(100, 255)
-        }
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"367CR":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
     };
 };
-const edgeBounce = ({ width , height  }, particle)=>{
-    if (particle.x + particle.radius > width) {
-        particle.reverseVelocityX();
-        particle.x = width - particle.radius;
-    }
-    if (particle.x - particle.radius < 0) {
-        particle.reverseVelocityX();
-        particle.x = particle.radius;
-    }
-    if (particle.y + particle.radius > height) {
-        particle.reverseVelocityY();
-        particle.y = height - particle.radius;
-    }
-    if (particle.y - particle.radius < 0) {
-        particle.reverseVelocityY();
-        particle.y = particle.radius;
-    }
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
 };
-const edgeWrap = ({ width , height  }, particle)=>{
-    if (particle.x + particle.radius > width) particle.x = 0 + particle.radius;
-    else if (particle.x - particle.radius < 0) particle.x = width - particle.radius;
-    if (particle.y + particle.radius > height) particle.y = 0 + particle.radius;
-    else if (particle.y - particle.radius < 0) particle.y = height - particle.radius;
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule') return;
+        // Skip duplicate re-exports when they have the same value.
+        if (key in dest && dest[key] === source[key]) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1SLuP":[function(require,module,exports) {
+},{}],"1SLuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getRandomSeed", ()=>getRandomSeed
@@ -3764,7 +3657,152 @@ const getCurvePoints = (points, tension, numOfSeg, close)=>{
     return res;
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6MM7x":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"73Br1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isHiDPICanvas", ()=>isHiDPICanvas
+);
+parcelHelpers.export(exports, "currentContextScale", ()=>currentContextScale
+);
+parcelHelpers.export(exports, "resizeCanvas", ()=>resizeCanvas
+);
+parcelHelpers.export(exports, "resetStyles", ()=>resetStyles
+);
+parcelHelpers.export(exports, "sharpLines", ()=>sharpLines
+);
+parcelHelpers.export(exports, "blendMode", ()=>blendMode
+);
+parcelHelpers.export(exports, "filter", ()=>filter
+);
+parcelHelpers.export(exports, "stokeColor", ()=>stokeColor
+);
+parcelHelpers.export(exports, "fillColor", ()=>fillColor
+);
+parcelHelpers.export(exports, "clear", ()=>clear
+);
+parcelHelpers.export(exports, "background", ()=>background
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+let isHiDPI = false;
+let contextScale = 1;
+const isHiDPICanvas = (_)=>isHiDPI
+;
+const currentContextScale = (_)=>contextScale
+;
+const resizeCanvas = (canvas, context, width, height, scale)=>{
+    contextScale = scale || window.devicePixelRatio;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = Math.floor(width * contextScale);
+    canvas.height = Math.floor(height * contextScale);
+    if (contextScale === 2) {
+        isHiDPI = true;
+        context.scale(1, 1);
+    // context.scale(2, 2); // not working
+    } else context.scale(contextScale, contextScale);
+};
+const resetStyles = (context)=>{
+    context.strokeStyle = '#000';
+    context.fillStyle = '#000';
+    context.lineWidth = 1;
+    context.setLineDash([]);
+    context.lineCap = 'butt';
+    context.lineJoin = 'miter';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+};
+const sharpLines = (context)=>context.translate(0.5, 0.5)
+;
+const blendMode = (context)=>(mode = 'source-over')=>context.globalCompositeOperation = mode
+;
+const filter = (context)=>(f = '')=>context.filter = f
+;
+const stokeColor = (context)=>(color)=>context.strokeStyle = _tinycolor2Default.default(color).toRgbString()
+;
+const fillColor = (context)=>(color)=>context.fillStyle = _tinycolor2Default.default(color).toRgbString()
+;
+const clear = (canvas, context)=>(_)=>context.clearRect(0, 0, canvas.width, canvas.height)
+;
+const background = (canvas, context)=>(color = 'black')=>{
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+;
+
+},{"tinycolor2":"101FG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"33yaF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "particlePoint", ()=>particlePoint
+);
+parcelHelpers.export(exports, "particleRotated", ()=>particleRotated
+);
+parcelHelpers.export(exports, "particleHistoryTrail", ()=>particleHistoryTrail
+);
+parcelHelpers.export(exports, "connectParticles", ()=>connectParticles
+);
+var _math = require("../math/math");
+var _canvas = require("./canvas");
+var _primatives = require("./primatives");
+var _points = require("../math/points");
+const particlePoint = (context)=>({ x , y , radius , color  })=>{
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        context.fillStyle = color.toRgbString();
+        context.fill();
+    }
+;
+const particleRotated = (ctx, drawFn, particle, ...args)=>{
+    const pSaveX = particle.x;
+    const pSaveY = particle.y;
+    particle.x = 0;
+    particle.y = 0;
+    ctx.save();
+    ctx.translate(pSaveX, pSaveY);
+    ctx.rotate(particle.heading);
+    drawFn(ctx)(particle, args);
+    ctx.restore();
+    particle.x = pSaveX;
+    particle.y = pSaveY;
+};
+const particleHistoryTrail = (context)=>(particle)=>{
+        const trailLen = particle.xHistory.length;
+        context.lineWidth = particle.radius;
+        const pColor = particle.color;
+        const aFade = 100 / trailLen * 0.01;
+        let alpha = 1;
+        const sFade = particle.radius * 2 / trailLen;
+        let stroke = particle.radius * 2;
+        for(let i = 0; i < trailLen; i++){
+            const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
+            const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
+            _primatives.line(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
+            pColor.setAlpha(alpha);
+            context.strokeStyle = pColor.toRgbString();
+            alpha -= aFade;
+            stroke -= sFade;
+        }
+    }
+;
+const connectParticles = (context)=>(pArray, proximity, useAlpha = true)=>{
+        const len = pArray.length;
+        for(let a = 0; a < len; a++)// all consecutive particles
+        for(let b = a; b < len; b++){
+            const pA = pArray[a];
+            const pB = pArray[b];
+            const distance = _points.pointDistance(pA, pB);
+            if (distance < proximity) {
+                const pColor = pA.color;
+                if (useAlpha) pColor.setAlpha(_math.normalizeInverse(0, proximity, distance));
+                context.strokeStyle = pColor.toHslString();
+                _primatives.line(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
+            }
+        }
+        _canvas.resetStyles(context);
+    }
+;
+
+},{"../math/math":"4t0bw","./canvas":"73Br1","./primatives":"6MM7x","../math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6MM7x":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "pixel", ()=>pixel
@@ -3926,232 +3964,7 @@ const pointPath = (ctx)=>(points, color = 'black', width = 1, close = false, dra
     }
 ;
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5Ll52":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "drawTestPoint", ()=>drawTestPoint
-);
-parcelHelpers.export(exports, "debugShowMouse", ()=>debugShowMouse
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../math/math");
-var _primatives = require("./primatives");
-const debugDrawVectors = (segments)=>{
-    const tmult = 50;
-    const bmult = 50;
-    const mmult = 20;
-    const cmult = 50;
-    const tan = 'red';
-    const bitan = 'blue';
-    const mx = 'purple';
-    segments.forEach((seg, i)=>{
-        if (seg.hasOwnProperty('tangent') && seg.hasOwnProperty('bitangent') && seg.hasOwnProperty('mix')) {
-            const { x  } = seg.start;
-            const { y  } = seg.start;
-            const { tangent , bitangent , mix , curvature  } = seg;
-            const utan = tangent.setMag(1);
-            const ubitan = bitangent.setMag(1);
-            const umix = bitangent.setMag(1);
-            const ucurve = _math.uvFromAngle(curvature);
-            console.log(ucurve);
-            // ctx.strokeStyle = tinycolor(tan).toRgbString();
-            // line(ctx)(x, y, x + utan.x * tmult, y + utan.y * tmult, 0.25);
-            //
-            // ctx.strokeStyle = tinycolor(bitan).toRgbString();
-            // line(ctx)(x, y, x + ubitan.x * bmult, y + ubitan.y * bmult, 0.25);
-            //
-            ctx.strokeStyle = _tinycolor2Default.default(mx).toRgbString();
-            _primatives.line(ctx)(x, y, x + mix.x * mmult, y + mix.y * mmult, 0.5);
-        // ctx.strokeStyle = tinycolor(mx).toRgbString();
-        // line(ctx)(x, y, x + ucurve.x * cmult, y + ucurve.y * cmult, 0.5);
-        }
-    });
-};
-const drawTestPoint = (context)=>({ x , y , radius , color  })=>{
-        context.strokeStyle = color.toRgbString();
-        context.lineWidth = 1;
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = 'rgba(255,255,255,.1)';
-        context.fill();
-        context.stroke();
-        _primatives.line(context)(x, y, x + radius, y, 1);
-    }
-;
-const debugShowMouse = (context)=>({ x , y , radius  })=>{
-        if (x === undefined || y === undefined) return;
-        context.strokeStyle = 'rgba(255,255,255,.25)';
-        context.lineWidth = 1;
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = 'rgba(255,255,255,.1)';
-        context.fill();
-        context.stroke();
-    }
-;
-
-},{"tinycolor2":"101FG","../math/math":"4t0bw","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1i6Vo":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "variation5", ()=>variation5
-);
-var _particle = require("../systems/Particle");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _math = require("../rndrgen/math/math");
-var _particles = require("../rndrgen/canvas/particles");
-var _random = require("../rndrgen/math/random");
-var _points = require("../rndrgen/math/points");
-const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _points.pointDistance({
-            x,
-            y
-        }, particle);
-        if (distance < radius) {
-            const dx = x - particle.x;
-            const dy = y - particle.y;
-            const forceDirectionX = dx / distance;
-            const forceDirectionY = dy / distance;
-            const force = _math.normalizeInverse(0, radius, distance) * f * mult;
-            const tempX = forceDirectionX * force * particle.radius * 2;
-            const tempY = forceDirectionY * force * particle.radius * 2;
-            particle.x += tempX;
-            particle.y += tempY;
-        }
-    }
-;
-// for moving points, push away/around from point
-const avoidPoint = (point, particle, f = 1)=>{
-    gravityPoint(1, f *= -1)(point.x, point.y, point.radius, particle);
-};
-const variation5 = ()=>{
-    const config = {
-        numParticles: 50
-    };
-    const particlesArray = [];
-    const circles = [];
-    const setup = ({ canvas , context  })=>{
-        for(let i = 0; i < config.numParticles; i++){
-            const props = _particle.createRandomParticleValues(canvas);
-            props.x = canvas.width / 2;
-            props.y = canvas.height / 2;
-            props.color = {
-                r: 0,
-                g: 0,
-                b: 0
-            };
-            props.radius = 0.5;
-            particlesArray.push(new _particle.Particle(props));
-        }
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const diameter = canvas.height / 4;
-        const steps = 30;
-        for(let theta = 0; theta < 360; theta += steps){
-            const rad = theta * (Math.PI / 180);
-            const x = Math.cos(rad) * diameter + centerX;
-            const y = Math.sin(rad) * diameter + centerY;
-            circles.push([
-                x,
-                y,
-                _random.randomNumberBetween(20, 100)
-            ]);
-        }
-        _canvas.background(canvas, context)('white');
-    };
-    const draw = ({ canvas , context , mouse  })=>{
-        for(let i = 0; i < config.numParticles; i++){
-            particlesArray[i].updatePosWithVelocity();
-            _particle.edgeBounce(canvas, particlesArray[i]);
-            for(let c = 0; c < circles.length; c++)avoidPoint({
-                radius: circles[c][2],
-                x: circles[c][0],
-                y: circles[c][1]
-            }, particlesArray[i], 4);
-            _particles.particlePoint(context)(particlesArray[i]);
-        }
-        _particles.connectParticles(context)(particlesArray, 50);
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"33yaF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "particlePoint", ()=>particlePoint
-);
-parcelHelpers.export(exports, "particleRotated", ()=>particleRotated
-);
-parcelHelpers.export(exports, "particleHistoryTrail", ()=>particleHistoryTrail
-);
-parcelHelpers.export(exports, "connectParticles", ()=>connectParticles
-);
-var _math = require("../math/math");
-var _canvas = require("./canvas");
-var _primatives = require("./primatives");
-var _points = require("../math/points");
-const particlePoint = (context)=>({ x , y , radius , color  })=>{
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = color.toRgbString();
-        context.fill();
-    }
-;
-const particleRotated = (ctx, drawFn, particle, ...args)=>{
-    const pSaveX = particle.x;
-    const pSaveY = particle.y;
-    particle.x = 0;
-    particle.y = 0;
-    ctx.save();
-    ctx.translate(pSaveX, pSaveY);
-    ctx.rotate(particle.heading);
-    drawFn(ctx)(particle, args);
-    ctx.restore();
-    particle.x = pSaveX;
-    particle.y = pSaveY;
-};
-const particleHistoryTrail = (context)=>(particle)=>{
-        const trailLen = particle.xHistory.length;
-        context.lineWidth = particle.radius;
-        const pColor = particle.color;
-        const aFade = 100 / trailLen * 0.01;
-        let alpha = 1;
-        const sFade = particle.radius * 2 / trailLen;
-        let stroke = particle.radius * 2;
-        for(let i = 0; i < trailLen; i++){
-            const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
-            const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-            _primatives.line(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
-            pColor.setAlpha(alpha);
-            context.strokeStyle = pColor.toRgbString();
-            alpha -= aFade;
-            stroke -= sFade;
-        }
-    }
-;
-const connectParticles = (context)=>(pArray, proximity, useAlpha = true)=>{
-        const len = pArray.length;
-        for(let a = 0; a < len; a++)// all consecutive particles
-        for(let b = a; b < len; b++){
-            const pA = pArray[a];
-            const pB = pArray[b];
-            const distance = _points.pointDistance(pA, pB);
-            if (distance < proximity) {
-                const pColor = pA.color;
-                if (useAlpha) pColor.setAlpha(_math.normalizeInverse(0, proximity, distance));
-                context.strokeStyle = pColor.toHslString();
-                _primatives.line(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
-            }
-        }
-        _canvas.resetStyles(context);
-    }
-;
-
-},{"../math/math":"4t0bw","./canvas":"73Br1","./primatives":"6MM7x","../math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "threeAttractors", ()=>threeAttractors
@@ -4160,8 +3973,27 @@ var _math = require("../rndrgen/math/math");
 var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _particles = require("../rndrgen/canvas/particles");
-var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
+const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows)=>{
+    const gridPoints = [];
+    const colStep = Math.round((width - xMargin * 2) / (columns - 1));
+    const rowStep = Math.round((height - yMargin * 2) / (rows - 1));
+    for(let col = 0; col < columns; col++){
+        const x = xMargin + col * colStep;
+        for(let row = 0; row < rows; row++){
+            const y = yMargin + row * rowStep;
+            gridPoints.push([
+                x,
+                y
+            ]);
+        }
+    }
+    return {
+        points: gridPoints,
+        columnWidth: colStep,
+        rowHeight: rowStep
+    };
+};
 const threeAttractors = ()=>{
     const config = {
     };
@@ -4199,7 +4031,7 @@ const threeAttractors = ()=>{
             mass: 10,
             g: 3
         };
-        gridPoints = _grids.createGridPointsXY(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50).points;
+        gridPoints = createGridPointsXY(canvas.width, canvas.height, 100, 100, canvas.width / 50, canvas.height / 50).points;
         numParticles = gridPoints.length;
         for(let i = 0; i < numParticles; i++){
             const props = _particle.createRandomParticleValues(canvas);
@@ -4239,73 +4071,7 @@ const threeAttractors = ()=>{
     };
 };
 
-},{"../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Wgq0":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createCirclePoints", ()=>createCirclePoints
-);
-parcelHelpers.export(exports, "createGridPointsXY", ()=>createGridPointsXY
-);
-parcelHelpers.export(exports, "createGridCellsXY", ()=>createGridCellsXY
-);
-var _random = require("./random");
-const createCirclePoints = (offsetX, offsetY, radius, steps, close = true)=>{
-    const startAngle = 270;
-    const maxAngle = 360 + startAngle;
-    const points = [];
-    for(let angle = startAngle; angle < maxAngle; angle += steps){
-        const theta = angle * (Math.PI / 180);
-        const x = Math.cos(theta) * radius + offsetX;
-        const y = Math.sin(theta) * radius + offsetY;
-        points.push([
-            x,
-            y
-        ]);
-    }
-    return points;
-};
-const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows)=>{
-    const gridPoints = [];
-    const colStep = Math.round((width - xMargin * 2) / (columns - 1));
-    const rowStep = Math.round((height - yMargin * 2) / (rows - 1));
-    for(let col = 0; col < columns; col++){
-        const x = xMargin + col * colStep;
-        for(let row = 0; row < rows; row++){
-            const y = yMargin + row * rowStep;
-            gridPoints.push([
-                x,
-                y
-            ]);
-        }
-    }
-    return {
-        points: gridPoints,
-        columnWidth: colStep,
-        rowHeight: rowStep
-    };
-};
-const createGridCellsXY = (width, height, columns, rows, margin = 0, gutter = 0)=>{
-    const points = [];
-    const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
-    const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
-    for(let row = 0; row < rows; row++){
-        const y = margin + row * rowStep + gutter * row;
-        for(let col = 0; col < columns; col++){
-            const x = margin + col * colStep + gutter * col;
-            points.push([
-                x,
-                y
-            ]);
-        }
-    }
-    return {
-        points,
-        columnWidth: colStep,
-        rowHeight: rowStep
-    };
-};
-
-},{"./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7fBhq":[function(require,module,exports) {
+},{"../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7fBhq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "hiImage01", ()=>hiImage01
@@ -4314,11 +4080,8 @@ var _hi1Png = require("../../media/images/hi1.png");
 var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
 var _canvas = require("../rndrgen/canvas/canvas");
 var _particle = require("../systems/Particle");
-var _math = require("../rndrgen/math/math");
 var _particles = require("../rndrgen/canvas/particles");
-var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
 const getImageDataFromImage = (context)=>(image)=>{
         context.drawImage(image, 0, 0);
         return context.getImageData(0, 0, image.width, image.width);
@@ -4394,10 +4157,38 @@ const hiImage01 = (_)=>{
     };
 };
 
-},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../systems/Particle":"1mD6I","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Mkol":[function(require,module,exports) {
+},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../systems/Particle":"1mD6I","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Mkol":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "hi1.b86a235f.png";
 
-},{"./bundle-url":"3seVR"}],"4kPMC":[function(require,module,exports) {
+},{"./bundle-url":"3seVR"}],"3seVR":[function(require,module,exports) {
+"use strict";
+/* globals document:readonly */ var bundleURL = null;
+function getBundleURLCached() {
+    if (!bundleURL) bundleURL = getBundleURL();
+    return bundleURL;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
+        if (matches) return getBaseURL(matches[0]);
+    }
+    return '/';
+}
+function getBaseURL(url) {
+    return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
+} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    let matches = ('' + url).match(/(https?|file|ftp):\/\/[^/]+/);
+    if (!matches) throw new Error('Origin not found');
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
+
+},{}],"4kPMC":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "waves01", ()=>waves01
@@ -4968,7 +4759,7 @@ const lissajous01 = ()=>{
         margin = 50 * _canvas.currentContextScale();
         if (columns === 1) curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
         else {
-            grid = _grids.createGridCellsXY(canvas.width, canvas.width, columns, columns, margin, margin / 2);
+            grid = _grids.getGridCells(canvas.width, canvas.width, columns, columns, margin, margin / 2);
             grid.points.forEach((point)=>{
                 const x1 = point[0];
                 const y1 = point[1];
@@ -5237,7 +5028,59 @@ const textFilled = (context)=>(text, x, y, color, style)=>{
     }
 ;
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Wgq0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getPointsOnCircle", ()=>getPointsOnCircle
+);
+parcelHelpers.export(exports, "getGridCells", ()=>getGridCells
+);
+const getPointsOnCircle = (offsetX, offsetY, radius, steps, close = false)=>{
+    const startAngle = 270;
+    const maxAngle = 360 + startAngle;
+    const points = [];
+    for(let angle = startAngle; angle < maxAngle; angle += steps){
+        const theta = angle * (Math.PI / 180);
+        const x = Math.cos(theta) * radius + offsetX;
+        const y = Math.sin(theta) * radius + offsetY;
+        points.push([
+            x,
+            y
+        ]);
+    }
+    if (close) {
+        const theta = maxAngle - 1 * (Math.PI / 180);
+        const x = Math.cos(theta) * radius + offsetX;
+        const y = Math.sin(theta) * radius + offsetY;
+        points.push([
+            x,
+            y
+        ]);
+    }
+    return points;
+};
+const getGridCells = (width, height, columns, rows, margin = 0, gutter = 0)=>{
+    const points = [];
+    const colStep = Math.ceil((width - margin * 2 - gutter * (columns - 1)) / columns);
+    const rowStep = Math.ceil((height - margin * 2 - gutter * (rows - 1)) / rows);
+    for(let row = 0; row < rows; row++){
+        const y = margin + row * rowStep + gutter * row;
+        for(let col = 0; col < columns; col++){
+            const x = margin + col * colStep + gutter * col;
+            points.push([
+                x,
+                y
+            ]);
+        }
+    }
+    return {
+        points,
+        columnWidth: colStep,
+        rowHeight: rowStep
+    };
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldParticles", ()=>flowFieldParticles
@@ -5343,7 +5186,7 @@ parcelHelpers.export(exports, "cliffordAttractor", ()=>cliffordAttractor
 );
 parcelHelpers.export(exports, "jongAttractor", ()=>jongAttractor
 );
-parcelHelpers.export(exports, "flowAtPoint", ()=>flowAtPoint
+parcelHelpers.export(exports, "fieldFlowAtPoint", ()=>fieldFlowAtPoint
 );
 var _math = require("./math");
 var _random = require("./random");
@@ -5355,32 +5198,26 @@ const diagLines = (x, y)=>(x + y) * 0.01 * _math.TAU
 ;
 const sinField = (x, y)=>(Math.sin(x * 0.01) + Math.sin(y * 0.01)) * _math.TAU
 ;
+const attractorScale = 0.01;
+const attractorVarA = _random.randomNumberBetween(-2, 2);
+const attractorVarB = _random.randomNumberBetween(-2, 2);
+const attractorVarC = _random.randomNumberBetween(-2, 2);
+const attractorVarD = _random.randomNumberBetween(-2, 2);
 const cliffordAttractor = (width, height, x, y)=>{
-    const a = _random.randomNumberBetween(-2, 2);
-    const b = _random.randomNumberBetween(-2, 2);
-    const c = _random.randomNumberBetween(-2, 2);
-    const d = _random.randomNumberBetween(-2, 2);
-    const scale = 0.01;
-    x = (x - width / 2) * scale;
-    y = (y - height / 2) * scale;
-    const x1 = Math.sin(a * y) + c * Math.cos(a * x);
-    const y1 = Math.sin(b * x) + d * Math.cos(b * y);
+    x = (x - width / 2) * attractorScale;
+    y = (y - height / 2) * attractorScale;
+    const x1 = Math.sin(attractorVarA * y) + attractorVarC * Math.cos(attractorVarA * x);
+    const y1 = Math.sin(attractorVarB * x) + attractorVarD * Math.cos(attractorVarB * y);
     return Math.atan2(y1 - y, x1 - x);
 };
 const jongAttractor = (width, height, x, y)=>{
-    const a = _random.randomNumberBetween(-2, 2);
-    const b = _random.randomNumberBetween(-2, 2);
-    const c = _random.randomNumberBetween(-2, 2);
-    const d = _random.randomNumberBetween(-2, 2);
-    const scale = 0.01;
-    x = (x - width / 2) * scale;
-    y = (y - height / 2) * scale;
-    const x1 = Math.sin(a * y) - Math.cos(b * x);
-    const y1 = Math.sin(c * x) - Math.cos(d * y);
+    x = (x - width / 2) * attractorScale;
+    y = (y - height / 2) * attractorScale;
+    const x1 = Math.sin(attractorVarA * y) - Math.cos(attractorVarB * x);
+    const y1 = Math.sin(attractorVarC * x) - Math.cos(attractorVarD * y);
     return Math.atan2(y1 - y, x1 - x);
 };
-const flowAtPoint = (x, y)=>{
-    const scale = 0.01;
+const fieldFlowAtPoint = (x, y)=>{
     const simplex = simplexNoise2d(x, y, 0.01);
     const theta = simplex;
     // const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
@@ -5388,42 +5225,13 @@ const flowAtPoint = (x, y)=>{
     // const theta = ((r1 + r2 + simplex) / 3) * 0.001;
     // const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
     // const theta = Math.atan2(y, x); // cones out from top left
-    // const theta = x + y + Math.cos(x * scale) * Math.sin(x * scale); // bl to tr diag and cross perp lines
-    // const theta = Math.cos(x * scale) * Math.sin(x * scale); // vertical lines
-    // const theta = Math.cos(x) * Math.sin(x) * scale; // horizontal lines
-    // const theta = x * Math.sin(y) * scale; // scribble
-    // const theta = Math.sin(x * scale) + Math.sin(y * scale); // diamonds
+    // const theta = x + y + Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // bl to tr diag and cross perp lines
+    // const theta = Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // vertical lines
+    // const theta = Math.cos(x) * Math.sin(x) * attractorScale; // horizontal lines
+    // const theta = x * Math.sin(y) * attractorScale; // scribble
+    // const theta = Math.sin(x * attractorScale) + Math.sin(y * attractorScale); // diamonds
     return theta * _math.TAU;
-}; /*
-const plotFFPointLines = (num) => {
-        for (let i = 0; i < num; i++) {
-            const coords = createFFParticleCoords(noise, 0, randomWholeBetween(0, canvasMidY * 2), 2000, 1);
-            pointPath(ctx)(coords, tinycolor('rgba(0,0,0,.5'), 1);
-        }
-    };
- */  // export const createFFParticleCoords = (fieldFn, startX, startY, length, fMag = 1, vlimit = 1) => {
- //     const props = {
- //         x: startX,
- //         y: startY,
- //         velocityX: 0,
- //         velocityY: 0,
- //         mass: 1,
- //     };
- //     const particle = new Particle(props);
- //     const coords = [];
- //     for (let i = 0; i < length; i++) {
- //         const theta = fieldFn(particle.x, particle.y);
- //         // theta = quantize(4, theta);
- //         const force = uvFromAngle(theta).setMag(fMag);
- //
- //         particle.applyForce(force);
- //         particle.velocity = particle.velocity.limit(vlimit);
- //         particle.updatePosWithVelocity();
- //         coords.push([particle.x, particle.y]);
- //         particle.acceleration = new Vector(0, 0);
- //     }
- //     return coords;
- // };
+};
 
 },{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Q1u4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -5517,7 +5325,6 @@ var _particle = require("../systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _vector = require("../rndrgen/math/Vector");
-var _attractors = require("../rndrgen/math/attractors");
 var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
@@ -5526,7 +5333,6 @@ var _fields = require("../rndrgen/canvas/fields");
 var _random = require("../rndrgen/math/random");
 var _primatives = require("../rndrgen/canvas/primatives");
 var _points = require("../rndrgen/math/points");
-var _shapes = require("../scratch/shapes");
 /*
 https://marcteyssier.com/projects/flowfield/
 https://larrycarlson.com/collections/wavy-art-prints
@@ -5546,6 +5352,14 @@ const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
         }
     }
 ;
+const createRandomParticle = (canvas)=>{
+    const props = _particle.createRandomParticleValues(canvas);
+    props.x = _random.randomWholeBetween(0, canvas.width);
+    props.y = _random.randomWholeBetween(0, canvas.height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    return new _particle.Particle(props);
+};
 const flowFieldImage = ()=>{
     const config = {
         name: 'flowFieldImage',
@@ -5556,14 +5370,6 @@ const flowFieldImage = ()=>{
     let time = 0;
     const backgroundColor = _palettes.warmWhite;
     const image = new _bitmap.Bitmap(_kristijanArsovWoman400PngDefault.default);
-    const createRandomParticle = (canvas)=>{
-        const props = _particle.createRandomParticleValues(canvas);
-        props.x = _random.randomWholeBetween(0, canvas.width);
-        props.y = _random.randomWholeBetween(0, canvas.height);
-        props.velocityX = 0;
-        props.velocityY = 0;
-        return new _particle.Particle(props);
-    };
     const imageFlow = (x, y)=>image.pixelThetaFromCanvas(x, y) * TAU
     ;
     const setup = ({ canvas , context  })=>{
@@ -5596,7 +5402,7 @@ const flowFieldImage = ()=>{
         const size = _math.mapRange(0, 255, 0, maxSize, imagePixelBrightness);
         const sizeMult = _math.mapRange(canvas.width / 3, canvas.width / 2, 1, 5, fromCenter);
         drawPixel(canvas, context, particle, particleColor, size * sizeMult);
-        if (Math.abs(theta) >= 5.7) _shapes.splatter(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
+        if (Math.abs(theta) >= 5.7) splatter(context)(particle.x, particle.y, particleColor.brighten(10), 1, 3, 100);
         particle.acceleration = new _vector.Vector(0, 0);
     };
     const drawFibers = ({ canvas , context  })=>{
@@ -5621,7 +5427,7 @@ const flowFieldImage = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../scratch/shapes":"7F0mj"}],"17J8Q":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 // const createColorArrayFromImageData = (imageData) => {
@@ -5838,240 +5644,7 @@ function renderNoiseContour(startX, startY, borderVal, fn) {
 }
 */ 
 
-},{"tinycolor2":"101FG","../math/math":"4t0bw","../math/random":"1SLuP","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7F0mj":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "spikedCircle", ()=>spikedCircle
-);
-parcelHelpers.export(exports, "pathRibbon", ()=>pathRibbon
-);
-parcelHelpers.export(exports, "splatter", ()=>splatter
-);
-parcelHelpers.export(exports, "turtleLineMode", ()=>turtleLineMode
-);
-parcelHelpers.export(exports, "drawPointsTaper", ()=>drawPointsTaper
-);
-parcelHelpers.export(exports, "circleAtPoint", ()=>circleAtPoint
-);
-parcelHelpers.export(exports, "variableCircleAtPoint", ()=>variableCircleAtPoint
-);
-parcelHelpers.export(exports, "drawSegment", ()=>drawSegment
-);
-parcelHelpers.export(exports, "drawSegmentTaper", ()=>drawSegmentTaper
-);
-parcelHelpers.export(exports, "debugShowAttractor", ()=>debugShowAttractor
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../rndrgen/math/math");
-var _primatives = require("../rndrgen/canvas/primatives");
-var _random = require("../rndrgen/math/random");
-const spikedCircle = (context)=>({ x , y , radius , color  }, spikes, spikeLength = 5)=>{
-        const circleStroke = 1;
-        const spikeStroke = 2;
-        context.strokeStyle = color.toRgbString();
-        context.lineWidth = circleStroke;
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        // context.fillStyle = 'rgba(255,255,255,.1)';
-        // context.fill();
-        context.stroke();
-        for(let s = 0; s < spikes.length; s++){
-            const pointA = _math.pointOnCircle(x, y, radius, spikes[s]);
-            const pointB = _math.pointOnCircle(x, y, radius + spikeLength, spikes[s]);
-            context.strokeStyle = color.toRgbString();
-            _primatives.line(context)(pointA.x, pointA.y, pointB.x, pointB.y, spikeStroke);
-        }
-    }
-;
-const pathRibbon = (context)=>(path, color, thickness = 1, stroke = false)=>{
-        // const rColor = tinycolor(color).clone();
-        // const gradient = context.createLinearGradient(0, startY, 0, maxY);
-        // gradient.addColorStop(0, colorLinesTop.toRgbString());
-        // gradient.addColorStop(1, colorLinesBottom.toRgbString());
-        context.beginPath();
-        context.moveTo(path[0], path[0]);
-        path.forEach((point, i)=>{
-            const x = point[0];
-            const y = point[1];
-            context.lineTo(x, y);
-        });
-        path.reverse().forEach((point, i)=>{
-            const x = point[0];
-            const y = point[1];
-            const distFromCenter = Math.abs(path.length / 2 - i);
-            const size = _math.mapRange(0, path.length / 2, 1, thickness, distFromCenter);
-            context.lineTo(x + size, y + size);
-        });
-        context.closePath();
-        // if (stroke) {
-        //     context.strokeStyle = rColor.darken(70).toRgbString();
-        //     context.lineWidth = 0.75;
-        //     context.stroke();
-        // }
-        // context.fillStyle = gradient;
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.fill();
-    }
-;
-const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
-        for(let i = 0; i < amount; i++){
-            const s = _random.randomWholeBetween(size * 0.25, size * 3);
-            // circle dist
-            const radius = _random.randomWholeBetween(0, range);
-            const angle = _random.randomNumberBetween(0, _math.TAU);
-            const xoff = radius * Math.cos(angle);
-            const yoff = radius * Math.sin(angle);
-            // square dist
-            // const xoff = randomWholeBetween(-range, range);
-            // const yoff = randomWholeBetween(-range, range);
-            _primatives.circleFilled(context)(x + xoff, y + yoff, s, color);
-        }
-    }
-;
-const lineCap = 'butt';
-const lineJoin = 'miter';
-const turtleLineMode = (m = 'butt')=>{
-    if (m === 'butt') {
-        lineCap = 'butt';
-        lineJoin = 'miter';
-    } else if (m === 'round') {
-        lineCap = 'round';
-        lineJoin = 'round';
-    }
-};
-const drawPointsTaper = (ctx)=>(points, color = 'black', width = 1)=>{
-        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
-        const mid = points.length / 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        points.forEach((coords, i)=>{
-            const dist = Math.abs(mid - i);
-            const w = _math.mapRange(0, mid, width, 1, dist);
-            ctx.lineWidth = w;
-            ctx.beginPath();
-            ctx.moveTo(coords[0], coords[1]);
-            ctx.lineTo(coords[0], coords[1]);
-            ctx.stroke();
-        });
-    }
-;
-const circleAtPoint = (context)=>(points, color = 'black', radius = 5)=>{
-        points.forEach((coords)=>{
-            _primatives.circleFilled(context)(coords[0], coords[1], radius, color);
-        });
-    }
-;
-const variableCircleAtPoint = (context)=>(points, color = 'black', radius = 5, freq = 10, amp = 2)=>{
-        points.forEach((coords)=>{
-            const v = Math.sin(coords[0] / freq) * amp;
-            _primatives.circleFilled(context)(coords[0], coords[1], Math.abs(radius - v), color);
-        });
-    }
-;
-const drawSegment = (ctx)=>(segments, color, weight, points = false)=>{
-        ctx.lineCap = 'round';
-        // ctx.lineJoin = 'round';
-        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
-        ctx.lineWidth = weight;
-        ctx.beginPath();
-        segments.forEach((seg, i)=>{
-            if (i === 0) ctx.moveTo(seg.start.x, seg.start.y);
-            else ctx.lineTo(seg.start.x, seg.start.y);
-            ctx.lineTo(seg.end.x, seg.end.y);
-        });
-        ctx.stroke();
-        if (points) segments.forEach((seg, i)=>{
-            const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
-            _primatives.circleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
-            _primatives.circleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
-        });
-    }
-;
-const drawSegmentTaper = (ctx)=>(segments, color, maxWeight, minWeight = 1, points = false)=>{
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
-        const mid = segments.length / 2;
-        segments.forEach((seg, i)=>{
-            const dist = Math.abs(mid - i);
-            const w = _math.mapRange(0, mid, maxWeight, minWeight, dist);
-            ctx.beginPath();
-            ctx.lineWidth = w;
-            if (i === 0) ctx.moveTo(seg.start.x, seg.start.y);
-            else ctx.lineTo(seg.start.x, seg.start.y);
-            ctx.lineTo(seg.end.x, seg.end.y);
-            ctx.stroke();
-        });
-        if (points) segments.forEach((seg, i)=>{
-            const rad = i === 0 || i === segments.length - 1 ? 3 : 1;
-            _primatives.circleFilled(ctx)(seg.start.x, seg.start.y, rad, 'green');
-            _primatives.circleFilled(ctx)(seg.end.x, seg.end.y, rad, 'red');
-        });
-    }
-;
-const horizontalSinWave = (ctx, startX, maxX, yoffset, pixelColor)=>{
-    const freq = 5;
-    const amp = 15;
-    const step = 2;
-    let theta = 0;
-    for(let x = startX; x < maxX; x += step){
-        const y = _math.circleY(theta, amp, freq) + yoffset;
-        _primatives.pixel(ctx)(x, y, pixelColor, 'circle', 2);
-        theta++;
-    }
-};
-const verticalSinWave = (ctx, startX, maxX, yoffset, pixelColor)=>{
-    const freq = 5;
-    const amp = 15;
-    const step = 2;
-    let theta = 0;
-    for(let y = startY; y < maxY; y += step){
-        const x = _math.circleY(theta, amp, freq) + xoffset;
-        _primatives.pixel(ctx)(x, y, pixelColor, 'circle', 2);
-        theta++;
-    }
-};
-const fullScreenSin = (xoffset, yoffset)=>{
-    const freq = 30;
-    const amp = 5;
-    const step = 5;
-    let theta = 0;
-    for(let sx = startX; sx < maxX; sx += step)for(let sy = startY; sy < maxY; sy += step){
-        const x = _math.circleX(theta, amp, freq) + xoffset + sx;
-        const y = _math.circleY(theta, amp, freq) + yoffset + sy;
-        plot(x + xoffset, y + yoffset);
-        theta++;
-    }
-};
-/*
-    https://www.desmos.com/calculator/rzwar3xxpy
-    y-x = amp * Math.sin((y+x)/freq)
-     */ const plotDiagSinWave = (xoffset, yoffset)=>{
-    const freq = 30; // 30
-    const amp = 5; // 5
-    let y = 0;
-    const a = Math.PI / 3; // angle of the wave, 1 is 45
-    for(let x = 0; x < canvasWidth + 10; x++){
-        const b = Math.sin(x / Math.PI) * 5;
-        // x = y - Math.sin(y+x)
-        y = amp * Math.sin((y + b) / freq) + x * a;
-        plot(x + xoffset, y + yoffset);
-    }
-};
-const debugShowAttractor = (context)=>({ x , y , mass , g  }, mode, radius)=>{
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = 'rgba(0,0,0,.1)';
-        context.fill();
-        context.beginPath();
-        context.arc(x, y, Math.sqrt(mass) * g, 0, Math.PI * 2, false);
-        context.fillStyle = mode === 1 ? 'rgba(0,255,0,.25)' : 'rgba(255,0,0,.25)';
-        context.fill();
-    }
-;
-
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Qctl":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","../math/random":"1SLuP","./primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Qctl":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "radialNoise", ()=>radialNoise
@@ -6529,7 +6102,7 @@ const shadedBoxes = ()=>{
         ];
         const gridMargin = Math.round(canvas.width / 10);
         const gridGutter = Math.round(gridMargin / 4);
-        grid = _grids.createGridCellsXY(canvas.width, canvas.height, 1, 10, gridMargin, gridGutter);
+        grid = _grids.getGridCells(canvas.width, canvas.height, 1, 10, gridMargin, gridGutter);
         grid.points.forEach((p, i)=>{
             boxes.push(new _box.Box({
                 canvas,
@@ -7259,7 +6832,7 @@ const meanderingRiver02 = ()=>{
         _canvas.background(canvas, context)(backgroundColor);
         const horizontal = _points.createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 40));
         const vertical = _points.createSplineFromPointArray(createVerticalPath(canvas, canvasMidX, 0, 40));
-        const circle = _grids.createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
+        const circle = _grids.getPointsOnCircle(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, false);
         const cs = {
             mixTangentRatio: 0.45,
             mixMagnitude: 1.25,
@@ -7999,7 +7572,7 @@ const meanderingRiver01 = ()=>{
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         const horizpoints = _points.createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 15));
-        const circlepoints = _grids.createCirclePoints(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
+        const circlepoints = _grids.getPointsOnCircle(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
         const cs = {
             mixTangentRatio: 0.6,
             mixMagnitude: 1.25,
@@ -8090,86 +7663,48 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"37LyA":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "windLines", ()=>windLines
+parcelHelpers.export(exports, "version", ()=>version
 );
-var _canvas = require("../rndrgen/canvas/canvas");
-var _palettes = require("../rndrgen/color/palettes");
-var _math = require("../rndrgen/math/math");
-var _timeline = require("../rndrgen/animation/Timeline");
-var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
-var _points = require("../rndrgen/math/points");
-// -> [{radius, rotation, position:[u,v]}, ...]
-const createGridPointsUV = (columns, rows)=>{
-    rows = rows || columns;
-    const points = [];
-    const amplitude = 0.1;
-    const frequency = 1;
-    for(let x = 0; x < columns; x++)for(let y = 0; y < rows; y++){
-        const u = columns <= 1 ? 0.5 : x / (columns - 1);
-        const v = columns <= 1 ? 0.5 : y / (rows - 1);
-        // const radius = Math.abs(random.gaussian() * 0.02);
-        const radius = _random.create2dNoiseAbs(u, v);
-        const rotation = _random.create2dNoiseAbs(u, v);
-        points.push({
-            radius,
-            rotation,
-            position: [
-                u,
-                v
-            ]
-        });
-    }
-    return points;
+parcelHelpers.export(exports, "utils", ()=>_utils
+);
+parcelHelpers.export(exports, "sketch", ()=>_sketch.sketch
+);
+parcelHelpers.export(exports, "animation", ()=>animation
+);
+parcelHelpers.export(exports, "canvas", ()=>canvas
+);
+parcelHelpers.export(exports, "color", ()=>color
+);
+var _sketch = require("./sketch");
+var _timeline = require("./animation/Timeline");
+var _timelineDefault = parcelHelpers.interopDefault(_timeline);
+var _bitmap = require("./canvas/Bitmap");
+var _bitmapDefault = parcelHelpers.interopDefault(_bitmap);
+var _canvas = require("./canvas/canvas");
+var _primatives = require("./canvas/primatives");
+var _textures = require("./canvas/textures");
+var _text = require("./canvas/text");
+var _palettes = require("./color/palettes");
+var _utils = require("./utils");
+const version = '0.1.0';
+const animation = {
+    Timeline: _timelineDefault.default
 };
-const windLines = ()=>{
-    const config = {
-        width: 600,
-        height: 600,
-        fps: 60
-    };
-    let counter = 0;
-    let grid = createGridPointsUV(15, 15);
-    const timeline = new _timeline.Timeline(config.fps, 0, 5);
-    const setup = ({ canvas , context  })=>{
-        const colors = _palettes.nicePalette();
-        grid = grid.map((g)=>{
-            g.color = _random.oneOf(colors);
-            return g;
-        });
-        _canvas.background(canvas, context)('rgba(255,255,255,1');
-    };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)('rgba(255,255,255,.1');
-        grid.forEach(({ position , rotation , color  })=>{
-            const [u, v] = position;
-            const { x , y  } = _points.uvPointToCanvas({
-                margin: 100,
-                u,
-                v,
-                width: canvas.width,
-                height: canvas.height
-            });
-            const t = _math.toSinValue(timeline.playhead) * 0.1;
-            const wave = _random.create3dNoiseAbs(u, v, counter, 3 * t) * 10;
-            const startvect = _math.uvFromAngle((rotation + wave) * -1).setMag(25);
-            _canvas.stokeColor(context)(color);
-            _primatives.lineAtAngle(context)(x + startvect.x, y + startvect.y, rotation + wave, 25, 4, 'round');
-        });
-        counter += 0.01;
-        return timeline.onFrame();
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
+const canvas = {
+    Bitmap: _bitmapDefault.default,
+    cntx: _canvas,
+    primatives: _primatives,
+    texture: _textures,
+    text: _text
+};
+const color = {
+    palette: _palettes
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/math":"4t0bw","../rndrgen/animation/Timeline":"6ohNr","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6ohNr":[function(require,module,exports) {
+},{"./sketch":"2OcGA","./animation/Timeline":"6ohNr","./canvas/Bitmap":"17J8Q","./utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./color/palettes":"3qayM","./canvas/textures":"73mfQ","./canvas/text":"3weRL","./canvas/canvas":"73Br1","./canvas/primatives":"6MM7x"}],"6ohNr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -8224,448 +7759,7 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"oKqaG":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "variation1", ()=>variation1
-);
-var _particle = require("../systems/Particle");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _math = require("../rndrgen/math/math");
-var _particles = require("../rndrgen/canvas/particles");
-var _points = require("../rndrgen/math/points");
-var _debugShapes = require("../rndrgen/canvas/debugShapes");
-const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _points.pointDistance({
-            x,
-            y
-        }, particle);
-        if (distance < radius) {
-            const dx = x - particle.x;
-            const dy = y - particle.y;
-            const forceDirectionX = dx / distance;
-            const forceDirectionY = dy / distance;
-            const force = _math.normalizeInverse(0, radius, distance) * f * mult;
-            const tempX = forceDirectionX * force * particle.radius * 2;
-            const tempY = forceDirectionY * force * particle.radius * 2;
-            particle.x += tempX;
-            particle.y += tempY;
-        }
-    }
-;
-// for moving points, push away/around from point
-const avoidPoint = (point, particle, f = 1)=>{
-    gravityPoint(1, f *= -1)(point.x, point.y, point.radius, particle);
-};
-// for moving points, pull towards point
-const attractPoint = (point, particle, f = 1)=>{
-    gravityPoint(1, f)(point.x, point.y, point.radius, particle);
-};
-const variation1 = ()=>{
-    const numParticles = 100;
-    const particlesArray = [];
-    let canvasCenterX;
-    let canvasCenterY;
-    let centerRadius;
-    const setup = ({ canvas , context  })=>{
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        centerRadius = canvas.height / 4;
-        for(let i = 0; i < numParticles; i++){
-            const props = _particle.createRandomParticleValues(canvas);
-            props.radius = 5;
-            particlesArray.push(new _particle.Particle(props));
-        }
-    };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)();
-        for(let i = 0; i < numParticles; i++){
-            particlesArray[i].updatePosWithVelocity();
-            _particle.edgeBounce(canvas, particlesArray[i]);
-            avoidPoint({
-                radius: centerRadius,
-                x: canvasCenterX,
-                y: canvasCenterY
-            }, particlesArray[i], 4);
-            attractPoint(mouse, particlesArray[i], mouse.isDown ? -1 : 1);
-            _particles.particlePoint(context)(particlesArray[i]);
-            _particles.particleHistoryTrail(context)(particlesArray[i]);
-        }
-        _particles.connectParticles(context)(particlesArray, 200);
-        _debugShapes.debugShowMouse(context)(mouse);
-    };
-    return {
-        setup,
-        draw
-    };
-};
-
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/debugShapes":"5Ll52","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7MS6j":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "variation2", ()=>variation2
-);
-var _particle = require("../systems/Particle");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _math = require("../rndrgen/math/math");
-var _particles = require("../rndrgen/canvas/particles");
-var _random = require("../rndrgen/math/random");
-var _points = require("../rndrgen/math/points");
-var _debugShapes = require("../rndrgen/canvas/debugShapes");
-const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _points.pointDistance({
-            x,
-            y
-        }, particle);
-        if (distance < radius) {
-            const dx = x - particle.x;
-            const dy = y - particle.y;
-            const forceDirectionX = dx / distance;
-            const forceDirectionY = dy / distance;
-            const force = _math.normalizeInverse(0, radius, distance) * f * mult;
-            const tempX = forceDirectionX * force * particle.radius * 2;
-            const tempY = forceDirectionY * force * particle.radius * 2;
-            particle.x += tempX;
-            particle.y += tempY;
-        }
-    }
-;
-// for moving points, push away/around from point
-const avoidPoint = (point, particle, f = 1)=>{
-    gravityPoint(1, f *= -1)(point.x, point.y, point.radius, particle);
-};
-const variation2 = ()=>{
-    const config = {
-        friction: 0.8,
-        gravity: 1,
-        decay: 0.05,
-        tweenDamp: 0.1,
-        margin: 50,
-        intensity: 0,
-        numParticles: 200
-    };
-    const particlesArray = [];
-    const setup = ({ canvas , context  })=>{
-        for(let i = 0; i < config.numParticles; i++)particlesArray.push(new _particle.Particle(_particle.createRandomParticleValues(canvas)));
-    };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.clear(canvas, context)();
-        for(let i = 0; i < config.numParticles; i++){
-            particlesArray[i].radius -= config.decay;
-            if (particlesArray[i].radius <= 0) {
-                const props = _particle.createRandomParticleValues(canvas);
-                props.x = mouse.x + _random.randomNumberBetween(-10, 10);
-                props.y = mouse.y + _random.randomNumberBetween(-10, 10);
-                particlesArray[i].initValues(props);
-            }
-            particlesArray[i].y += particlesArray[i].mass * (mouse.isDown ? 1 : 0.2);
-            particlesArray[i].mass += 0.2 * config.gravity;
-            if (particlesArray[i].y + particlesArray[i].radius > canvas.height || particlesArray[i].y - particlesArray[i].radius < 0) particlesArray[i].mass *= -1;
-            avoidPoint(mouse, particlesArray[i]);
-            // attractPoint(psMouseCoords(), particlesArray[i]);
-            _particles.particlePoint(context)(particlesArray[i]);
-        // particleHistoryTrail(context)(particlesArray[i]);
-        }
-        _particles.connectParticles(context)(particlesArray, 100);
-        _debugShapes.debugShowMouse(context)(mouse);
-        return 1;
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/debugShapes":"5Ll52","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"34OpC":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "variation4", ()=>variation4
-);
-var _particle = require("../systems/Particle");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _math = require("../rndrgen/math/math");
-var _particles = require("../rndrgen/canvas/particles");
-var _points = require("../rndrgen/math/points");
-const pointPush = (point, particle, f = 1)=>{
-    const dx = point.x - particle.x;
-    const dy = point.y - particle.y;
-    const distance = _points.pointDistance(point, particle);
-    const forceDirectionX = dx / distance;
-    const forceDirectionY = dy / distance;
-    const force = _math.normalizeInverse(0, point.radius, distance) * f;
-    particle.velocityX = forceDirectionX * force * particle.mass * 0.8;
-    particle.velocityY = forceDirectionY * force * particle.mass * 0.8;
-    if (distance < point.radius) {
-        particle.x -= particle.velocityX;
-        particle.y -= particle.velocityY;
-    } else {
-        // TODO if < 1 then snap to 0
-        if (particle.x !== particle.oX) particle.x -= (particle.x - particle.oX) * 0.1;
-        if (particle.y !== particle.oY) particle.y -= (particle.y - particle.oY) * 0.1;
-    }
-};
-const variation4 = ()=>{
-    const config = {
-        numParticles: 0
-    };
-    const particlesArray = [];
-    const circles = [];
-    const setup = ({ canvas , context  })=>{
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const diameter = canvas.height / 4;
-        const steps = 10;
-        for(let theta = 0; theta < 360; theta += steps){
-            const rad = theta * (Math.PI / 180);
-            const x = Math.cos(rad) * diameter + centerX;
-            const y = Math.sin(rad) * diameter + centerY;
-            circles.push([
-                x,
-                y
-            ]);
-            const props = _particle.createRandomParticleValues(canvas);
-            props.x = x;
-            props.y = y;
-            props.radius = 1;
-            props.color = {
-                r: 0,
-                g: 0,
-                b: 0
-            };
-            props.index = circles.length - 1;
-            particlesArray.push(new _particle.Particle(props));
-        }
-        config.numParticles = particlesArray.length;
-        _canvas.background(canvas, context)('rgba(255,255,255,1)');
-    };
-    // will run every frame
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)('rgba(255,255,255,.05)');
-        for(let i = 0; i < config.numParticles; i++){
-            pointPush(mouse, particlesArray[i], mouse.isDown ? -1 : 5);
-            _particles.particlePoint(context)(particlesArray[i]);
-        // let index = particlesArray[i].index + 1;
-        // if(index === circles.length) {
-        //     index = 0;
-        // }
-        // particlesArray[i].x = circles[index][0];
-        // particlesArray[i].y = circles[index][1];
-        // particlesArray.index = index;
-        }
-        _particles.connectParticles(context)(particlesArray, 200);
-        return 1; // -1 to exit animation loop
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1tjdW":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "variation6", ()=>variation6
-);
-var _particle = require("../systems/Particle");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _particles = require("../rndrgen/canvas/particles");
-var _math = require("../rndrgen/math/math");
-var _points = require("../rndrgen/math/points");
-const gravityPoint = (mult = 0.2, f = 1)=>(x, y, radius, particle)=>{
-        const distance = _points.pointDistance({
-            x,
-            y
-        }, particle);
-        if (distance < radius) {
-            const dx = x - particle.x;
-            const dy = y - particle.y;
-            const forceDirectionX = dx / distance;
-            const forceDirectionY = dy / distance;
-            const force = _math.normalizeInverse(0, radius, distance) * f * mult;
-            const tempX = forceDirectionX * force * particle.radius * 2;
-            const tempY = forceDirectionY * force * particle.radius * 2;
-            particle.x += tempX;
-            particle.y += tempY;
-        }
-    }
-;
-const variation6 = ()=>{
-    const numParticles = 200;
-    const particlesArray = [];
-    let hue = 0;
-    const setup = ({ canvas , context  })=>{
-        for(let i = 0; i < numParticles; i++){
-            const props = _particle.createRandomParticleValues(canvas);
-            props.color = {
-                r: 255,
-                g: 255,
-                b: 255
-            };
-            particlesArray.push(new _particle.Particle(props));
-        }
-    };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)('rgab(255,255,255,.8)');
-        if ((hue++) > 361) hue = 0;
-        for(let i = 0; i < numParticles; i++){
-            particlesArray[i].radius -= 0.05;
-            if (particlesArray[i].radius <= 0) {
-                const initValues = _particle.createRandomParticleValues(canvas);
-                initValues.x = mouse.x ? mouse.x : canvas.width / 2;
-                initValues.y = mouse.y ? mouse.y : canvas.height / 2;
-                // let h = lerpRange(0,canvas.width,100,200,initValues.x);
-                const s = _math.mapRange(0, 10, 0, 100, initValues.radius);
-                const l = _math.mapRange(0, 10, 25, 75, initValues.radius);
-                initValues.color = `hsl(${hue},${s}%,${l}%)`;
-                particlesArray[i].initValues(initValues);
-            }
-            particlesArray[i].updatePosWithVelocity();
-            _particle.edgeBounce(canvas, particlesArray[i]);
-            gravityPoint()(canvas.width / 2, canvas.height, 2000, particlesArray[i]);
-            // gravityPoint({x:canvas.width/2, y:canvas.height}, particlesArray[i])
-            _particles.particlePoint(context)(particlesArray[i]);
-        }
-        // connectParticles(context)(particlesArray, 100);
-        return 1;
-    };
-    return {
-        setup,
-        draw
-    };
-};
-
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/math":"4t0bw","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"aJbxJ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "rainbowRakeOrbit", ()=>rainbowRakeOrbit
-);
-var _particle = require("../systems/Particle");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _particles = require("../rndrgen/canvas/particles");
-const drawRake = (context)=>({ x , y , radius , color  }, spacing)=>{
-        const points = 5;
-        spacing |= radius * 3;
-        for(let i = 0; i < points; i++)_particles.particlePoint(context)({
-            x: x + spacing * i,
-            y,
-            radius,
-            color
-        });
-    }
-;
-const rainbowRakeOrbit = ()=>{
-    const config = {
-    };
-    const numParticles = 50;
-    const particlesArray = [];
-    const attractor = {
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        mass: 100,
-        g: 20
-    };
-    let canvasCenterX;
-    let canvasCenterY;
-    let centerRadius;
-    const setup = ({ canvas , context  })=>{
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        centerRadius = canvas.height / 4;
-        for(let i = 0; i < numParticles; i++){
-            const props = _particle.createRandomParticleValues(canvas);
-            props.radius = 1; // Math.sqrt(props.mass);
-            particlesArray.push(new _particle.Particle(props));
-        }
-    };
-    // const targetX = mouse.x ? mouse.x : canvas.width / 2;
-    // const targetY = mouse.y ? mouse.y : canvas.height / 2;
-    // accelerateToPoint(targetX, targetY, particlesArray[i]);
-    // https://www.youtube.com/watch?v=T84AWnntxZA
-    // const accelerateToPoint = (targetX, targetY, particle) => {
-    //     const magnitude = 0.001;
-    //     const vLimit = 5;
-    //     const accX = ((targetX - particle.x) * magnitude) / particle.mass;
-    //     const accY = ((targetY - particle.y) * magnitude) / particle.mass;
-    //     particle.velocityX += accX;
-    //     particle.velocityY += accY;
-    //     particle.velocityX = clamp(-vLimit, vLimit, particle.velocityX);
-    //     particle.velocityY = clamp(-vLimit, vLimit, particle.velocityY);
-    // };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)({
-            r: 0,
-            g: 0,
-            b: 50,
-            a: 0.01
-        });
-        let mode = 1;
-        attractor.x = mouse.x ? mouse.x : canvasCenterX;
-        attractor.y = mouse.y ? mouse.y : canvasCenterY;
-        for(let i = 0; i < numParticles; i++){
-            if (mouse.isDown) mode = -1;
-            else mode = 1;
-            particlesArray[i].attract(attractor, mode, 2000);
-            particlesArray[i].velocity = particlesArray[i].velocity.limit(20);
-            particlesArray[i].updatePosWithVelocity();
-            _particle.edgeBounce(canvas, particlesArray[i]);
-            _particles.particleRotated(context, drawRake, particlesArray[i]);
-            particlesArray[i].acceleration = {
-                x: 0,
-                y: 0
-            };
-        }
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "version", ()=>version
-);
-parcelHelpers.export(exports, "utils", ()=>_utils
-);
-parcelHelpers.export(exports, "sketch", ()=>_sketch.sketch
-);
-parcelHelpers.export(exports, "animation", ()=>animation
-);
-parcelHelpers.export(exports, "canvas", ()=>canvas
-);
-parcelHelpers.export(exports, "color", ()=>color
-);
-var _sketch = require("./sketch");
-var _timeline = require("./animation/Timeline");
-var _timelineDefault = parcelHelpers.interopDefault(_timeline);
-var _bitmap = require("./canvas/Bitmap");
-var _bitmapDefault = parcelHelpers.interopDefault(_bitmap);
-var _canvas = require("./canvas/canvas");
-var _primatives = require("./canvas/primatives");
-var _textures = require("./canvas/textures");
-var _text = require("./canvas/text");
-var _palettes = require("./color/palettes");
-var _utils = require("./utils");
-const version = '0.1.0';
-const animation = {
-    Timeline: _timelineDefault.default
-};
-const canvas = {
-    Bitmap: _bitmapDefault.default,
-    cntx: _canvas,
-    primatives: _primatives,
-    texture: _textures,
-    text: _text
-};
-const color = {
-    palette: _palettes
-};
-
-},{"./sketch":"2OcGA","./animation/Timeline":"6ohNr","./canvas/Bitmap":"17J8Q","./utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./color/palettes":"3qayM","./canvas/textures":"73mfQ","./canvas/text":"3weRL","./canvas/canvas":"73Br1","./canvas/primatives":"6MM7x"}],"6i1tm":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6i1tm":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gridDitherImage", ()=>gridDitherImage
@@ -8727,7 +7821,7 @@ const gridDitherImage = ()=>{
         startY = margin;
         maxY = canvas.height - margin;
         numCells = 30; // Math.ceil(canvas.width / 40);
-        grid = _grids.createGridCellsXY(canvas.width, canvas.height, numCells, numCells, 0);
+        grid = _grids.getGridCells(canvas.width, canvas.height, numCells, numCells, 0);
         _canvas.background(canvas, context)(backgroundColor);
     };
     const draw = ({ canvas , context  })=>{

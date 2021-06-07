@@ -1,10 +1,14 @@
 import tinycolor from 'tinycolor2';
-import { lerp, clamp } from '../rndrgen/math/math';
+import { clamp } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';
-import { randomNumberBetween } from '../rndrgen/math/random';
+import { randomNumberBetween, randomWholeBetween } from '../rndrgen/math/random';
 import { pointAngleFromVelocity, pointDistance } from '../rndrgen/math/points';
 
-const MAX_COORD_HISTORY = 30;
+/*
+This class is a mess 😅
+ */
+
+const maxParticleHistory = 30;
 
 export class Particle {
     #x;
@@ -13,11 +17,7 @@ export class Particle {
 
     #color;
 
-    constructor(values) {
-        this.initValues(values);
-    }
-
-    initValues({
+    constructor({
         index,
         x,
         y,
@@ -53,8 +53,6 @@ export class Particle {
         this.#color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
         this.rotation = rotation || 0;
         this.lifetime = lifetime || 1;
-        // this.drawFn = drawFn;
-        // this.updateFn = updateFn;
         // must always return a string
         this.colorFn = colorFn;
     }
@@ -89,8 +87,8 @@ export class Particle {
     set x(value) {
         this.#x = value;
         this.xHistory.unshift(value);
-        if (this.xHistory.length > MAX_COORD_HISTORY) {
-            this.xHistory = this.xHistory.slice(0, MAX_COORD_HISTORY);
+        if (this.xHistory.length > maxParticleHistory) {
+            this.xHistory = this.xHistory.slice(0, maxParticleHistory);
         }
     }
 
@@ -101,8 +99,8 @@ export class Particle {
     set y(value) {
         this.#y = value;
         this.yHistory.unshift(value);
-        if (this.yHistory.length > MAX_COORD_HISTORY) {
-            this.yHistory = this.yHistory.slice(0, MAX_COORD_HISTORY);
+        if (this.yHistory.length > maxParticleHistory) {
+            this.yHistory = this.yHistory.slice(0, maxParticleHistory);
         }
     }
 
@@ -182,15 +180,6 @@ export class Particle {
             this.applyForce(force);
         }
     }
-
-    // draw() {
-    //     this.drawFn(this);
-    // }
-    //
-    // update() {
-    //     this.updateFn(this);
-    //     this.draw(this);
-    // }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -211,6 +200,15 @@ export const createRandomParticleValues = ({ width, height }) => {
         rotation: randomNumberBetween(-180, 180),
         color: { r: randomNumberBetween(100, 255), g: randomNumberBetween(100, 255), b: randomNumberBetween(100, 255) },
     };
+};
+
+export const createRandomStaticParticle = ({ width, height }) => {
+    const props = createRandomParticleValues({ width, height });
+    props.x = randomWholeBetween(0, width);
+    props.y = randomWholeBetween(0, height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    return new Particle(props);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

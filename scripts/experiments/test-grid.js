@@ -2,8 +2,24 @@ import { mapRange } from '../rndrgen/math/math';
 import { Particle, createRandomParticleValues } from '../systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
-import { createGridPointsXY } from '../rndrgen/math/grids';
 import { createRandomNumberArray } from '../rndrgen/math/random';
+
+const createGridPointsXY = (width, height, xMargin, yMargin, columns, rows) => {
+    const gridPoints = [];
+
+    const colStep = Math.round((width - xMargin * 2) / (columns - 1));
+    const rowStep = Math.round((height - yMargin * 2) / (rows - 1));
+
+    for (let col = 0; col < columns; col++) {
+        const x = xMargin + col * colStep;
+        for (let row = 0; row < rows; row++) {
+            const y = yMargin + row * rowStep;
+            gridPoints.push([x, y]);
+        }
+    }
+
+    return { points: gridPoints, columnWidth: colStep, rowHeight: rowStep };
+};
 
 export const testGrid = () => {
     const config = {

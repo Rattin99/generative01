@@ -9,7 +9,7 @@ import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { Vector } from '../rndrgen/math/Vector';
 import { textureRectZigZag, textureRectStipple, textureRect } from '../rndrgen/canvas/textures';
 import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
-import { createGridCellsXY } from '../rndrgen/math/grids';
+import { getGridCells } from '../rndrgen/math/grids';
 import { oneOf } from '../rndrgen/math/random';
 import { pixel } from '../rndrgen/canvas/primatives';
 
@@ -44,7 +44,7 @@ export const shadedBoxes = () => {
         const gridMargin = Math.round(canvas.width / 10);
         const gridGutter = Math.round(gridMargin / 4);
 
-        grid = createGridCellsXY(canvas.width, canvas.height, 1, 10, gridMargin, gridGutter);
+        grid = getGridCells(canvas.width, canvas.height, 1, 10, gridMargin, gridGutter);
 
         grid.points.forEach((p, i) => {
             boxes.push(

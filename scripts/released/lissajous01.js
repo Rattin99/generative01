@@ -3,7 +3,7 @@ import { round2 } from '../rndrgen/math/math';
 import { brightest, darkest, nicePalette } from '../rndrgen/color/palettes';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { textFilled, setTextAlignLeftTop, textStyles } from '../rndrgen/canvas/text';
-import { createGridCellsXY } from '../rndrgen/math/grids';
+import { getGridCells } from '../rndrgen/math/grids';
 import { create2dNoiseAbs, oneOf, randomWholeBetween } from '../rndrgen/math/random';
 import { rect, pixel } from '../rndrgen/canvas/primatives';
 import { pointDistance } from '../rndrgen/math/points';
@@ -72,7 +72,7 @@ export const lissajous01 = () => {
         if (columns === 1) {
             curves.push(new Curve(canvasCenterX, canvasCenterY, centerRadius, 0, 0.05));
         } else {
-            grid = createGridCellsXY(canvas.width, canvas.width, columns, columns, margin, margin / 2);
+            grid = getGridCells(canvas.width, canvas.width, columns, columns, margin, margin / 2);
             grid.points.forEach((point) => {
                 const x = point[0];
                 const y = point[1];

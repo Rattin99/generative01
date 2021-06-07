@@ -16,7 +16,7 @@ import { meanderingRiver01 } from './released/meandering-river-01';
 
 export const variationsIndex = {
     5: {
-        note: 'Sit back and watch.',
+        note: 'Like spider webs',
         sketch: variation5,
     },
     8: {
