@@ -6,9 +6,9 @@ Clip to no overflow?
  */
 
 import tinycolor from 'tinycolor2';
-import { defaultValue } from '../rndrgen/utils';
-import { randomNormalWholeBetween, randomWholeBetween } from '../rndrgen/math/random';
-import { rectFilled } from '../rndrgen/canvas/primatives';
+import { defaultValue } from '../utils';
+import { randomNormalWholeBetween, randomWholeBetween } from '../math/random';
+import { rectFilled } from '../canvas/primatives';
 
 const defaultMP = {
     top: 0,

@@ -1,5 +1,5 @@
 import { mapRange } from '../rndrgen/math/math';
-import { Particle, createRandomParticleValues } from '../systems/Particle';
+import { Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';
 import { createRandomNumberArray } from '../rndrgen/math/random';

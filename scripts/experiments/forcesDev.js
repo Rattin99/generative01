@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
+import { edgeBounce, Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { Vector } from '../rndrgen/math/Vector';
 import { particleRotated } from '../rndrgen/canvas/particles';

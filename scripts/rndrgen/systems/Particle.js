@@ -1,8 +1,8 @@
 import tinycolor from 'tinycolor2';
-import { clamp } from '../rndrgen/math/math';
-import { Vector } from '../rndrgen/math/Vector';
-import { randomNumberBetween, randomWholeBetween } from '../rndrgen/math/random';
-import { pointAngleFromVelocity, pointDistance } from '../rndrgen/math/points';
+import { clamp } from '../math/math';
+import { Vector } from '../math/Vector';
+import { randomNumberBetween, randomWholeBetween } from '../math/random';
+import { pointAngleFromVelocity, pointDistance } from '../math/points';
 
 /*
 This class is a mess 😅
@@ -30,7 +30,6 @@ export class Particle {
         color,
         alpha,
         rotation,
-        lifetime,
         drawFn,
         updateFn,
         colorFn,
@@ -38,6 +37,8 @@ export class Particle {
     }) {
         this.props = rest;
         this.index = index || 0;
+
+        // TODO remove separate x/y and just use a vector
         this.#x = x || 0;
         this.#y = y || 0;
         this.xHistory = [x];
@@ -48,17 +49,17 @@ export class Particle {
         this.velocityY = velocityY || 0;
         this.accelerationX = accelerationX || 0;
         this.accelerationY = accelerationY || 0;
+
         this.mass = mass || 1;
         this.radius = radius || 1;
         this.#color = color ? tinycolor(color) : tinycolor({ r: 255, g: 255, b: 255 });
         this.rotation = rotation || 0;
-        this.lifetime = lifetime || 1;
-        // must always return a string
         this.colorFn = colorFn;
     }
 
     get color() {
         if (this.colorFn) {
+            // TODO type check to enforce string?
             return tinycolor(this.colorFn(this));
         }
         return this.#color;

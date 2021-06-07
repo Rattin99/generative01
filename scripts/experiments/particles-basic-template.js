@@ -1,4 +1,4 @@
-import { Particle, createRandomParticleValues, edgeWrap } from '../systems/Particle';
+import { Particle, createRandomParticleValues, edgeWrap } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { mapRange } from '../rndrgen/math/math';
 import { ratio, scale } from '../rndrgen/Sketch';

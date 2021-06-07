@@ -1,4 +1,4 @@
-import { Particle, createRandomParticleValues } from '../systems/Particle';
+import { Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { clamp, mapRange } from '../rndrgen/math/math';
 import { Vector } from '../rndrgen/math/Vector';

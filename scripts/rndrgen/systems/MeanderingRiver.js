@@ -1,13 +1,8 @@
-import { chaikinSmooth, linesIntersect, mengerCurvature } from '../rndrgen/math/segments';
-import { defaultValue } from '../rndrgen/utils';
-import { degreesToRadians, lerp, mapRange, percentage, uvFromAngle } from '../rndrgen/math/math';
-import { Vector } from '../rndrgen/math/Vector';
-import {
-    arrayPointArrayToVectorArray,
-    pointDistance,
-    arrayVectorToPointArray,
-    trimPointArray,
-} from '../rndrgen/math/points';
+import { chaikinSmooth, linesIntersect, mengerCurvature } from '../math/segments';
+import { defaultValue } from '../utils';
+import { degreesToRadians, lerp, mapRange, percentage, uvFromAngle } from '../math/math';
+import { Vector } from '../math/Vector';
+import { arrayPointArrayToVectorArray, pointDistance, arrayVectorToPointArray, trimPointArray } from '../math/points';
 
 /*
 Based on Meander by Robert Hodgin
@@ -65,16 +60,16 @@ const mediumRiver = new MeanderingRiver(points, {
 });
 
 // history
-// rivers.forEach((r, i) => {
-//     for (let h = r.history.length - 1; h >= 0; h--) {
-//         // const a = mapRange(0, maxHistory, 0.35, 0.1, h);
-//         const b = mapRange(0, maxHistory, 5, 20, h);
-//         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
-//         // const hcolor = riverColor.clone().darken(b);
-//         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
-//         pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
-//     }
-// });
+rivers.forEach((r, i) => {
+    for (let h = r.history.length - 1; h >= 0; h--) {
+        // const a = mapRange(0, maxHistory, 0.35, 0.1, h);
+        const b = mapRange(0, maxHistory, 5, 20, h);
+        const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
+        // const hcolor = riverColor.clone().darken(b);
+        const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
+        pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+    }
+});
 
  */
 
@@ -418,10 +413,10 @@ export class MeanderingRiver {
     }
 }
 
-// Push the flow right
 export const flowRight = (p, m) => new Vector(1, 0);
 
-// Push right and towards the middle
+export const flowDown = (p, m) => new Vector(0, 1);
+
 export const flowRightToMiddle = (f, mid) => (p, m) => {
     const dist = Math.abs(mid - p.y);
     let y = mapRange(0, mid / 2, 0, f, dist);

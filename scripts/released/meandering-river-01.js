@@ -3,7 +3,7 @@ import { mapRange } from '../rndrgen/math/math';
 import { background } from '../rndrgen/canvas/canvas';
 import { orientation, ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
-import { MeanderingRiver, flowRightToMiddle } from '../systems/MeanderingRiver';
+import { MeanderingRiver, flowRightToMiddle } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';
 import { simplexNoise2d } from '../rndrgen/math/attractors';
 import { getPointsOnCircle } from '../rndrgen/math/grids';

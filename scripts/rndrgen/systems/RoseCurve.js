@@ -1,6 +1,6 @@
-import { create2dNoiseAbs, oneOf, randomWholeBetween } from '../rndrgen/math/random';
-import { round2 } from '../rndrgen/math/math';
-import { pointDistance } from '../rndrgen/math/points';
+import { create2dNoiseAbs, oneOf, randomWholeBetween } from '../math/random';
+import { round2 } from '../math/math';
+import { pointDistance } from '../math/points';
 
 export class RoseCurve {
     constructor(x, y, radius, angle, speed, noise) {

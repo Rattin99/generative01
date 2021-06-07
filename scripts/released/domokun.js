@@ -1,7 +1,7 @@
 import domokunPng from '../../media/images/domokun.png';
 import { clear, background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
-import { Particle } from '../systems/Particle';
+import { Particle } from '../rndrgen/systems/Particle';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { squareFilled } from '../rndrgen/canvas/primatives';
 import { pointDistance, scalePointToCanvas } from '../rndrgen/math/points';

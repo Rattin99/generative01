@@ -1,4 +1,4 @@
-import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
+import { edgeBounce, Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { normalizeInverse } from '../rndrgen/math/math';
 import { connectParticles, particlePoint } from '../rndrgen/canvas/particles';

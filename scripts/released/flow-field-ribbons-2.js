@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import random from 'canvas-sketch-util/random';
 import { uvFromAngle } from '../rndrgen/math/math';
-import { Particle } from '../systems/Particle';
+import { Particle } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { palettes } from '../rndrgen/color/palettes';

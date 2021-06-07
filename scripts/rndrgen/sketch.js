@@ -53,7 +53,13 @@ export const scale = {
     hidpi: 2,
 };
 
-export const sketch = (canvasElId) => {
+export const sketchSizeMode = {
+    js: 0,
+    css: 1,
+    sketch: 2,
+};
+
+export const sketch = (canvasElId, smode = 0) => {
     const mouse = {
         x: undefined,
         y: undefined,
@@ -61,12 +67,10 @@ export const sketch = (canvasElId) => {
         radius: 100,
     };
 
+    const sizeMode = smode;
     let hasStarted = false;
-
     let fps = 0;
-
     let drawRuns = 0;
-
     let currentVariationFn;
     let currentVariationRes;
     let animationId;
@@ -101,6 +105,12 @@ export const sketch = (canvasElId) => {
     };
 
     const applyCanvasSize = (config, fraction) => {
+        if (sizeMode === sketchSizeMode.css) {
+            const s = canvas.getBoundingClientRect();
+            resizeCanvas(canvas, context, s.width, s.height, 1);
+            return;
+        }
+
         const width = defaultValue(config, 'width', window.innerWidth);
         const height = defaultValue(config, 'height', window.innerHeight);
         let finalWidth = width;
@@ -165,6 +175,7 @@ export const sketch = (canvasElId) => {
                 currentDrawLimit = config.drawLimit;
             }
         } else {
+            // TODO check for sizeMode
             resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
         }
 

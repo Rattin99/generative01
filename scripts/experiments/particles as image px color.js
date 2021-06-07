@@ -1,7 +1,7 @@
 import sourcePng from '../../media/images/hi1.png';
 import { clear, background } from '../rndrgen/canvas/canvas';
 import { mapRange } from '../rndrgen/math/math';
-import { createRandomParticleValues, edgeBounce, Particle } from '../systems/Particle';
+import { createRandomParticleValues, edgeBounce, Particle } from '../rndrgen/systems/Particle';
 import { connectParticles } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { squareFilled } from '../rndrgen/canvas/primatives';

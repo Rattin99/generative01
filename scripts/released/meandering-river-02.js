@@ -2,7 +2,7 @@ import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
-import { MeanderingRiver } from '../systems/MeanderingRiver';
+import { MeanderingRiver } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';
 import { simplexNoise2d } from '../rndrgen/math/attractors';
 import { getPointsOnCircle } from '../rndrgen/math/grids';

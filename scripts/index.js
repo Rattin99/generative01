@@ -10,7 +10,7 @@ import { gridDitherImage } from './experiments/grid-dither-image';
 
 console.log(rndrgen);
 
-const s = rndrgen.sketch('canvas');
+const s = rndrgen.sketch('canvas', 0);
 
 const experimentalVariation = undefined;
 // const experimentalVariation = gridDitherImage;

@@ -390,7 +390,7 @@ var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _gridDitherImage = require("./experiments/grid-dither-image");
 console.log(_rndrgen);
-const s = _rndrgen.sketch('canvas');
+const s = _rndrgen.sketch('canvas', 0);
 const experimentalVariation = undefined;
 // const experimentalVariation = gridDitherImage;
 const setNote = (note)=>document.getElementById('note').innerText = note
@@ -499,7 +499,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variation5", ()=>variation5
 );
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
 var _particles = require("../rndrgen/canvas/particles");
@@ -582,221 +582,80 @@ const variation5 = ()=>{
     };
 };
 
-},{"../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mD6I":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"73Br1":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Particle", ()=>Particle
+parcelHelpers.export(exports, "isHiDPICanvas", ()=>isHiDPICanvas
 );
-parcelHelpers.export(exports, "createRandomParticleValues", ()=>createRandomParticleValues
+parcelHelpers.export(exports, "currentContextScale", ()=>currentContextScale
 );
-parcelHelpers.export(exports, "createRandomStaticParticle", ()=>createRandomStaticParticle
+parcelHelpers.export(exports, "resizeCanvas", ()=>resizeCanvas
 );
-parcelHelpers.export(exports, "edgeBounce", ()=>edgeBounce
+parcelHelpers.export(exports, "resetStyles", ()=>resetStyles
 );
-parcelHelpers.export(exports, "edgeWrap", ()=>edgeWrap
+parcelHelpers.export(exports, "sharpLines", ()=>sharpLines
+);
+parcelHelpers.export(exports, "blendMode", ()=>blendMode
+);
+parcelHelpers.export(exports, "filter", ()=>filter
+);
+parcelHelpers.export(exports, "stokeColor", ()=>stokeColor
+);
+parcelHelpers.export(exports, "fillColor", ()=>fillColor
+);
+parcelHelpers.export(exports, "clear", ()=>clear
+);
+parcelHelpers.export(exports, "background", ()=>background
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../rndrgen/math/math");
-var _vector = require("../rndrgen/math/Vector");
-var _random = require("../rndrgen/math/random");
-var _points = require("../rndrgen/math/points");
-/*
-This class is a mess 😅
- */ const maxParticleHistory = 30;
-class Particle {
-    #x;
-    #y;
-    #color;
-    constructor({ index , x: x1 , y: y1 , velocityX , velocityY , accelerationX , accelerationY , radius , mass: mass1 , color , alpha , rotation , lifetime , drawFn , updateFn , colorFn , ...rest }){
-        this.props = rest;
-        this.index = index || 0;
-        this.#x = x1 || 0;
-        this.#y = y1 || 0;
-        this.xHistory = [
-            x1
-        ];
-        this.yHistory = [
-            y1
-        ];
-        this.oX = x1 || this.oX;
-        this.oY = y1 || this.oY;
-        this.velocityX = velocityX || 0;
-        this.velocityY = velocityY || 0;
-        this.accelerationX = accelerationX || 0;
-        this.accelerationY = accelerationY || 0;
-        this.mass = mass1 || 1;
-        this.radius = radius || 1;
-        this.#color = color ? _tinycolor2Default.default(color) : _tinycolor2Default.default({
-            r: 255,
-            g: 255,
-            b: 255
-        });
-        this.rotation = rotation || 0;
-        this.lifetime = lifetime || 1;
-        // must always return a string
-        this.colorFn = colorFn;
-    }
-    get color() {
-        if (this.colorFn) return _tinycolor2Default.default(this.colorFn(this));
-        return this.#color;
-    }
-    set color(value) {
-        this.#color = _tinycolor2Default.default(value);
-    }
-    get colorStr() {
-        if (this.colorFn) {
-            const res = this.colorFn(this);
-            if (typeof res !== 'string') {
-                console.warn('Particle color fn must return a string!');
-                return '#ff0000';
-            }
-            return res;
-        }
-        return this.#color.toRgbString();
-    }
-    get x() {
-        return this.#x;
-    }
-    set x(value) {
-        this.#x = value;
-        this.xHistory.unshift(value);
-        if (this.xHistory.length > maxParticleHistory) this.xHistory = this.xHistory.slice(0, maxParticleHistory);
-    }
-    get y() {
-        return this.#y;
-    }
-    set y(value) {
-        this.#y = value;
-        this.yHistory.unshift(value);
-        if (this.yHistory.length > maxParticleHistory) this.yHistory = this.yHistory.slice(0, maxParticleHistory);
-    }
-    get velocity() {
-        return new _vector.Vector(this.velocityX, this.velocityY, 0);
-    }
-    set velocity({ x , y  }) {
-        this.velocityX = x;
-        this.velocityY = y;
-    }
-    get acceleration() {
-        return new _vector.Vector(this.accelerationX, this.accelerationY, 0);
-    }
-    set acceleration({ x , y  }) {
-        this.accelerationX = x;
-        this.accelerationY = y;
-    }
-    // Rotation angle to point in direction of velocity
-    get heading() {
-        return _points.pointAngleFromVelocity(this);
-    }
-    reverseVelocityX() {
-        this.velocityX *= -1;
-    }
-    reverseVelocityY() {
-        this.velocityY *= -1;
-    }
-    updatePosWithVelocity() {
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
-    }
-    applyForce(fVect) {
-        const fV = fVect.div(this.mass);
-        const aV = this.acceleration.add(fV);
-        const pV = this.velocity.add(aV);
-        this.acceleration = aV;
-        this.velocity = pV;
-    }
-    // https://www.youtube.com/watch?v=WBdhAuWS6X8
-    friction(mu = 0.1) {
-        const normal = this.mass;
-        const vfriction = this.velocity.normalize().mult(-1).setMag(mu * normal);
-        this.applyForce(vfriction);
-    }
-    // https://www.youtube.com/watch?v=DxFDgOYEoy8
-    drag(coefficent = 0.1) {
-        const area = 1; // this.radius;
-        const velUnit = this.velocity.normalize().mult(-1);
-        const speed = this.velocity.magSq() * area * coefficent;
-        const vdrag = velUnit.setMag(speed);
-        this.applyForce(vdrag);
-    }
-    // https://www.youtube.com/watch?v=EpgB3cNhKPM
-    // mode 1 is attract, -1 is repel
-    // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
-    attract({ x , y , mass , g  }, mode = 1, affectDist = 1000) {
-        if (_points.pointDistance({
-            x,
-            y
-        }, {
-            x: this.x,
-            y: this.y
-        }) < affectDist) {
-            g = g || 1;
-            const dir = new _vector.Vector(x, y).sub(new _vector.Vector(this.x, this.y));
-            const distanceSq = _math.clamp(50, 5000, dir.magSq());
-            const strength = mode * (g * (mass * this.mass)) / distanceSq;
-            const force = dir.setMag(strength);
-            this.applyForce(force);
-        }
-    }
-}
-const createRandomParticleValues = ({ width , height  })=>{
-    const vel = 2;
-    const radius1 = _random.randomNumberBetween(5, 10);
-    return {
-        radius: radius1,
-        x: _random.randomNumberBetween(0, width),
-        y: _random.randomNumberBetween(0, height),
-        mass: _random.randomNumberBetween(1, 10),
-        velocityX: _random.randomNumberBetween(-vel, vel),
-        velocityY: _random.randomNumberBetween(-vel, vel),
-        accelerationX: 0,
-        accelerationY: 0,
-        rotation: _random.randomNumberBetween(-180, 180),
-        color: {
-            r: _random.randomNumberBetween(100, 255),
-            g: _random.randomNumberBetween(100, 255),
-            b: _random.randomNumberBetween(100, 255)
-        }
-    };
+let isHiDPI = false;
+let contextScale = 1;
+const isHiDPICanvas = (_)=>isHiDPI
+;
+const currentContextScale = (_)=>contextScale
+;
+const resizeCanvas = (canvas, context, width, height, scale)=>{
+    contextScale = scale || window.devicePixelRatio;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = Math.floor(width * contextScale);
+    canvas.height = Math.floor(height * contextScale);
+    if (contextScale === 2) {
+        isHiDPI = true;
+        context.scale(1, 1);
+    // context.scale(2, 2); // not working
+    } else context.scale(contextScale, contextScale);
 };
-const createRandomStaticParticle = ({ width , height  })=>{
-    const props = createRandomParticleValues({
-        width,
-        height
-    });
-    props.x = _random.randomWholeBetween(0, width);
-    props.y = _random.randomWholeBetween(0, height);
-    props.velocityX = 0;
-    props.velocityY = 0;
-    return new Particle(props);
+const resetStyles = (context)=>{
+    context.strokeStyle = '#000';
+    context.fillStyle = '#000';
+    context.lineWidth = 1;
+    context.setLineDash([]);
+    context.lineCap = 'butt';
+    context.lineJoin = 'miter';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
 };
-const edgeBounce = ({ width , height  }, particle)=>{
-    if (particle.x + particle.radius > width) {
-        particle.reverseVelocityX();
-        particle.x = width - particle.radius;
+const sharpLines = (context)=>context.translate(0.5, 0.5)
+;
+const blendMode = (context)=>(mode = 'source-over')=>context.globalCompositeOperation = mode
+;
+const filter = (context)=>(f = '')=>context.filter = f
+;
+const stokeColor = (context)=>(color)=>context.strokeStyle = _tinycolor2Default.default(color).toRgbString()
+;
+const fillColor = (context)=>(color)=>context.fillStyle = _tinycolor2Default.default(color).toRgbString()
+;
+const clear = (canvas, context)=>(_)=>context.clearRect(0, 0, canvas.width, canvas.height)
+;
+const background = (canvas, context)=>(color = 'black')=>{
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.fillRect(0, 0, canvas.width, canvas.height);
     }
-    if (particle.x - particle.radius < 0) {
-        particle.reverseVelocityX();
-        particle.x = particle.radius;
-    }
-    if (particle.y + particle.radius > height) {
-        particle.reverseVelocityY();
-        particle.y = height - particle.radius;
-    }
-    if (particle.y - particle.radius < 0) {
-        particle.reverseVelocityY();
-        particle.y = particle.radius;
-    }
-};
-const edgeWrap = ({ width , height  }, particle)=>{
-    if (particle.x + particle.radius > width) particle.x = 0 + particle.radius;
-    else if (particle.x - particle.radius < 0) particle.x = width - particle.radius;
-    if (particle.y + particle.radius > height) particle.y = 0 + particle.radius;
-    else if (particle.y - particle.radius < 0) particle.y = height - particle.radius;
-};
+;
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
+},{"tinycolor2":"101FG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"101FG":[function(require,module,exports) {
 // TinyColor v1.4.2
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -1893,6 +1752,38 @@ const edgeWrap = ({ width , height  }, particle)=>{
     else window.tinycolor = tinycolor;
 })(Math);
 
+},{}],"367CR":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule') return;
+        // Skip duplicate re-exports when they have the same value.
+        if (key in dest && dest[key] === source[key]) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
 },{}],"4t0bw":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -2270,39 +2161,457 @@ const unit = (a, b)=>{
     return b;
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"367CR":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"33yaF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "particlePoint", ()=>particlePoint
+);
+parcelHelpers.export(exports, "particleRotated", ()=>particleRotated
+);
+parcelHelpers.export(exports, "particleHistoryTrail", ()=>particleHistoryTrail
+);
+parcelHelpers.export(exports, "connectParticles", ()=>connectParticles
+);
+var _math = require("../math/math");
+var _canvas = require("./canvas");
+var _primatives = require("./primatives");
+var _points = require("../math/points");
+const particlePoint = (context)=>({ x , y , radius , color  })=>{
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        context.fillStyle = color.toRgbString();
+        context.fill();
+    }
+;
+const particleRotated = (ctx, drawFn, particle, ...args)=>{
+    const pSaveX = particle.x;
+    const pSaveY = particle.y;
+    particle.x = 0;
+    particle.y = 0;
+    ctx.save();
+    ctx.translate(pSaveX, pSaveY);
+    ctx.rotate(particle.heading);
+    drawFn(ctx)(particle, args);
+    ctx.restore();
+    particle.x = pSaveX;
+    particle.y = pSaveY;
+};
+const particleHistoryTrail = (context)=>(particle)=>{
+        const trailLen = particle.xHistory.length;
+        context.lineWidth = particle.radius;
+        const pColor = particle.color;
+        const aFade = 100 / trailLen * 0.01;
+        let alpha = 1;
+        const sFade = particle.radius * 2 / trailLen;
+        let stroke = particle.radius * 2;
+        for(let i = 0; i < trailLen; i++){
+            const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
+            const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
+            _primatives.line(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
+            pColor.setAlpha(alpha);
+            context.strokeStyle = pColor.toRgbString();
+            alpha -= aFade;
+            stroke -= sFade;
+        }
+    }
+;
+const connectParticles = (context)=>(pArray, proximity, useAlpha = true)=>{
+        const len = pArray.length;
+        for(let a = 0; a < len; a++)// all consecutive particles
+        for(let b = a; b < len; b++){
+            const pA = pArray[a];
+            const pB = pArray[b];
+            const distance = _points.pointDistance(pA, pB);
+            if (distance < proximity) {
+                const pColor = pA.color;
+                if (useAlpha) pColor.setAlpha(_math.normalizeInverse(0, proximity, distance));
+                context.strokeStyle = pColor.toHslString();
+                _primatives.line(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
+            }
+        }
+        _canvas.resetStyles(context);
+    }
+;
+
+},{"../math/math":"4t0bw","./canvas":"73Br1","./primatives":"6MM7x","../math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6MM7x":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "pixel", ()=>pixel
+);
+parcelHelpers.export(exports, "line", ()=>line
+);
+parcelHelpers.export(exports, "lineAtAngle", ()=>lineAtAngle
+);
+parcelHelpers.export(exports, "circle", ()=>circle
+);
+parcelHelpers.export(exports, "circleFilled", ()=>circleFilled
+);
+parcelHelpers.export(exports, "rect", ()=>rect
+);
+parcelHelpers.export(exports, "rectFilled", ()=>rectFilled
+);
+parcelHelpers.export(exports, "squareFilled", ()=>squareFilled
+);
+parcelHelpers.export(exports, "drawTriangleFilled", ()=>drawTriangleFilled
+);
+parcelHelpers.export(exports, "quadRectFilled", ()=>quadRectFilled
+);
+parcelHelpers.export(exports, "roundRectFilled", ()=>roundRectFilled
+);
+parcelHelpers.export(exports, "pixelAtPoints", ()=>pixelAtPoints
+);
+parcelHelpers.export(exports, "pointPath", ()=>pointPath
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _canvas = require("./canvas");
+const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
+        size = size || _canvas.currentContextScale();
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        if (mode === 'circle') {
+            context.beginPath();
+            context.arc(x, y, size, 0, Math.PI * 2, false);
+            context.fill();
+        } else context.fillRect(x, y, size, size);
+    }
+;
+const line = (context)=>(x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt')=>{
+        // color = 'black',
+        // context.strokeStyle = tinycolor(color).toRgbString();
+        context.lineWidth = strokeWidth;
+        context.lineCap = linecap;
+        context.beginPath();
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.stroke();
+    }
+;
+const lineAtAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
+        const theta = Math.PI * angle / 180;
+        const x2 = x1 + length * Math.cos(theta);
+        const y2 = y1 + length * Math.sin(theta);
+        line(context)(x1, y1, x2, y2, strokeWidth, linecap);
+    }
+;
+const circle = (context)=>(strokeWidth, x, y, radius, color)=>{
+        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        context.lineWidth = strokeWidth;
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        // context.fillStyle = 'rgba(255,255,255,.1)';
+        // context.fill();
+        context.stroke();
+    }
+;
+const circleFilled = (context)=>(x, y, radius, color)=>{
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        context.fillStyle = color;
+        context.fill();
+    }
+;
+const rect = (context)=>(x, y, w, h, strokeWidth = 1, color)=>{
+        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        context.lineWidth = strokeWidth;
+        context.rect(x, y, w, h);
+        context.stroke();
+    }
+;
+const rectFilled = (context)=>(x, y, w, h, color = 'white')=>{
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.fillRect(x, y, w, h);
+    }
+;
+const squareFilled = (context)=>(x, y, size, color)=>{
+        rectFilled(context)(x, y, size, size, color);
+    }
+;
+const drawTriangleFilled = (context)=>(x, y, size, color)=>{
+        const half = size / 2;
+        context.beginPath();
+        context.moveTo(x - half, y - half);
+        context.lineTo(x + half, y);
+        context.lineTo(x - half, y + half);
+        context.fillStyle = color.toRgbString();
+        context.fill();
+    }
+;
+const quadRectFilled = (context)=>(x, y, w, h, color)=>{
+        const mx = x + w / 2;
+        const my = y + h / 2;
+        context.beginPath();
+        // context.strokeStyle = 'green';
+        // context.lineWidth = '4';
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.moveTo(x, my);
+        context.quadraticCurveTo(x, y, mx, y);
+        context.quadraticCurveTo(x + w, y, x + w, my);
+        context.quadraticCurveTo(x + w, y + h, mx, y + h);
+        context.quadraticCurveTo(x, y + h, x, my);
+        // context.stroke();
+        context.fill();
+    }
+;
+const roundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
+        if (w < corner || h < corner) corner = Math.min(w, h);
+        const r = x + w;
+        const b = y + h;
+        context.beginPath();
+        // context.strokeStyle = 'green';
+        // context.lineWidth = '4';
+        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
+        context.moveTo(x + corner, y);
+        context.lineTo(r - corner, y);
+        context.quadraticCurveTo(r, y, r, y + corner);
+        context.lineTo(r, y + h - corner);
+        context.quadraticCurveTo(r, b, r - corner, b);
+        context.lineTo(x + corner, b);
+        context.quadraticCurveTo(x, b, x, b - corner);
+        context.lineTo(x, y + corner);
+        context.quadraticCurveTo(x, y, x + corner, y);
+        // context.stroke();
+        context.fill();
+    }
+;
+const pixelAtPoints = (ctx)=>(points, color = 'black', width = 1)=>{
+        points.forEach((coords, i)=>{
+            pixel(ctx)(coords[0], coords[1], color, 'circle', width);
+        });
+    }
+;
+const pointPath = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
+        ctx.beginPath();
+        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        points.forEach((coords, i)=>{
+            if (i === 0) ctx.moveTo(coords[0], coords[1]);
+            else ctx.lineTo(coords[0], coords[1]);
+            if (drawPoint) circleFilled(ctx)(coords[0], coords[1], 1, 'red');
+        });
+        if (close) ctx.lineTo(points[0][0], points[0][1]);
+        ctx.stroke();
+    }
+;
+
+},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4RQVg":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "pointArrayToPointObject", ()=>pointArrayToPointObject
+);
+parcelHelpers.export(exports, "pointArrayToVector", ()=>pointArrayToVector
+);
+parcelHelpers.export(exports, "vectorToPointArray", ()=>vectorToPointArray
+);
+parcelHelpers.export(exports, "arrayPointArrayToObjectArray", ()=>arrayPointArrayToObjectArray
+);
+parcelHelpers.export(exports, "arrayPointArrayToVectorArray", ()=>arrayPointArrayToVectorArray
+);
+parcelHelpers.export(exports, "arrayVectorToPointArray", ()=>arrayVectorToPointArray
+);
+parcelHelpers.export(exports, "flattenPointArray", ()=>flattenPointArray
+);
+parcelHelpers.export(exports, "unflattenPointArray", ()=>unflattenPointArray
+);
+parcelHelpers.export(exports, "uvPointToCanvas", ()=>uvPointToCanvas
+);
+parcelHelpers.export(exports, "pointDistance", ()=>pointDistance
+);
+parcelHelpers.export(exports, "pointRotateCoord", ()=>pointRotateCoord
+);
+parcelHelpers.export(exports, "pointAngleFromVelocity", ()=>pointAngleFromVelocity
+);
+parcelHelpers.export(exports, "scalePointToCanvas", ()=>scalePointToCanvas
+);
+parcelHelpers.export(exports, "pointsOrientation", ()=>pointsOrientation
+);
+parcelHelpers.export(exports, "pointsFromSegment", ()=>pointsFromSegment
+);
+parcelHelpers.export(exports, "trimPointArray", ()=>trimPointArray
+);
+parcelHelpers.export(exports, "createSplineFromPointArray", ()=>createSplineFromPointArray
+);
+var _vector = require("./Vector");
+var _math = require("./math");
+var _curveCalc = require("./curve-calc");
+const pointArrayToPointObject = (a)=>({
+        x: a[0],
+        y: a[1]
+    })
+;
+const pointArrayToVector = (a)=>new _vector.Vector(a[0], a[1])
+;
+const vectorToPointArray = (v)=>[
+        v.x,
+        v.y
+    ]
+;
+const arrayPointArrayToObjectArray = (arry)=>arry.map((a)=>pointArrayToPointObject(a)
+    )
+;
+const arrayPointArrayToVectorArray = (arry)=>arry.map((a)=>pointArrayToVector(a)
+    )
+;
+const arrayVectorToPointArray = (arry)=>arry.map((a)=>vectorToPointArray(a)
+    )
+;
+const flattenPointArray = (arry)=>arry.reduce((acc, p)=>{
+        if (p) {
+            acc.push(p[0]);
+            acc.push(p[1]);
+        }
+        return acc;
+    }, [])
+;
+const unflattenPointArray = (arry)=>{
+    const points = [];
+    for(let i = 0; i < arry.length; i += 2)points.push([
+        arry[i],
+        arry[i + 1]
+    ]);
+    return points;
+};
+const uvPointToCanvas = ({ margin =0 , u , v , width , height  })=>({
+        x: _math.lerp(margin, width - margin, u),
+        y: _math.lerp(margin, height - margin, v)
+    })
+;
+const pointDistance = (pointA, pointB)=>{
+    const dx = pointA.x - pointB.x;
+    const dy = pointA.y - pointB.y;
+    return Math.sqrt(dx * dx + dy * dy);
+};
+const pointRotateCoord = (point, angle)=>({
+        x: point.x * _math.cos(angle) - point.y * _math.sin(angle),
+        y: point.y * _math.cos(angle) + point.x * _math.sin(angle)
+    })
+;
+const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
+;
+const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y)=>{
+    const particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
+    const particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
+    return {
+        x: x * zoomFactor + particleXOffset,
+        y: y * zoomFactor + particleYOffset
     };
 };
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
+const pointsOrientation = (a, b)=>Math.atan2(b.y - a.y, b.x - a.x)
+;
+const pointsFromSegment = (seg)=>{
+    const points = [];
+    for(let i = 0; i < seg.length; i++){
+        points.push([
+            seg[i].start.x,
+            seg[i].start.y
+        ]);
+        points.push([
+            seg[i].end.x,
+            seg[i].end.y
+        ]);
+    }
+    return points;
 };
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule') return;
-        // Skip duplicate re-exports when they have the same value.
-        if (key in dest && dest[key] === source[key]) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
+const trimPointArray = (points, skip = 2)=>points.reduce((acc, s, i)=>{
+        if (i === 0 || i === points.length - 1) acc.push(s);
+        else if (i % skip === 0) acc.push(s);
+        return acc;
+    }, [])
+;
+const createSplineFromPointArray = (points)=>unflattenPointArray(_curveCalc.getCurvePoints(flattenPointArray(points)))
+; // // For array of points from segments, take only the first start
+ // export const startPointsOnly = (points) => {
+ //     const p = [];
+ //     for (let i = 0; i < points.length; i += 2) {
+ //         p.push(points[i]);
+ //     }
+ //     // last end point
+ //     p.push(last(points));
+ //     return p;
+ // };
+ // Using https://github.com/gdenisov/cardinal-spline-js
+
+},{"./Vector":"1MSqh","./math":"4t0bw","./curve-calc":"4EuBm","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4EuBm":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getCurvePoints", ()=>getCurvePoints
+);
+const getCurvePoints = (points, tension, numOfSeg, close)=>{
+    // options or defaults
+    tension = typeof tension === 'number' ? tension : 0.5;
+    numOfSeg = numOfSeg || 25;
+    let pts; // for cloning point array
+    let i = 1;
+    let l = points.length;
+    let rPos = 0;
+    const rLen = (l - 2) * numOfSeg + 2 + (close ? 2 * numOfSeg : 0);
+    if (rLen < 0) return [];
+    const res = new Float32Array(rLen);
+    const cache = new Float32Array((numOfSeg + 2) * 4);
+    let cachePtr = 4;
+    pts = points.slice(0);
+    if (close) {
+        pts.unshift(points[l - 1]); // insert end point as first point
+        pts.unshift(points[l - 2]);
+        pts.push(points[0], points[1]); // first point as last point
+    } else {
+        pts.unshift(points[1]); // copy 1. point and insert at beginning
+        pts.unshift(points[0]);
+        pts.push(points[l - 2], points[l - 1]); // duplicate end-points
+    }
+    // cache inner-loop calculations as they are based on t alone
+    cache[0] = 1; // 1,0,0,0
+    for(; i < numOfSeg; i++){
+        const st = i / numOfSeg;
+        const st2 = st * st;
+        const st3 = st2 * st;
+        const st23 = st3 * 2;
+        const st32 = st2 * 3;
+        cache[cachePtr++] = st23 - st32 + 1; // c1
+        cache[cachePtr++] = st32 - st23; // c2
+        cache[cachePtr++] = st3 - 2 * st2 + st; // c3
+        cache[cachePtr++] = st3 - st2; // c4
+    }
+    cache[++cachePtr] = 1; // 0,1,0,0
+    // calc. points
+    parse(pts, cache, l);
+    if (close) {
+        // l = points.length;
+        pts = [];
+        pts.push(points[l - 4], points[l - 3], points[l - 2], points[l - 1]); // second last and last
+        pts.push(points[0], points[1], points[2], points[3]); // first and second
+        parse(pts, cache, 4);
+    }
+    function parse(pts1, cache1, l1) {
+        for(var i1 = 2, t; i1 < l1; i1 += 2){
+            const pt1 = pts1[i1];
+            const pt2 = pts1[i1 + 1];
+            const pt3 = pts1[i1 + 2];
+            const pt4 = pts1[i1 + 3];
+            const t1x = (pt3 - pts1[i1 - 2]) * tension;
+            const t1y = (pt4 - pts1[i1 - 1]) * tension;
+            const t2x = (pts1[i1 + 4] - pt1) * tension;
+            const t2y = (pts1[i1 + 5] - pt2) * tension;
+            for(t = 0; t < numOfSeg; t++){
+                const c = t << 2; // t * 4;
+                const c1 = cache1[c];
+                const c2 = cache1[c + 1];
+                const c3 = cache1[c + 2];
+                const c4 = cache1[c + 3];
+                res[rPos++] = c1 * pt1 + c2 * pt3 + c3 * t1x + c4 * t2x;
+                res[rPos++] = c1 * pt2 + c2 * pt4 + c3 * t1y + c4 * t2y;
             }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
+        }
+    }
+    // add last point
+    l = close ? 0 : points.length - 2;
+    res[rPos++] = points[l];
+    res[rPos] = points[l + 1];
+    return res;
 };
 
-},{}],"1SLuP":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1SLuP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getRandomSeed", ()=>getRandomSeed
@@ -3441,536 +3750,227 @@ module.exports = function() {
     }
 };
 
-},{}],"4RQVg":[function(require,module,exports) {
+},{}],"344El":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "pointArrayToPointObject", ()=>pointArrayToPointObject
+parcelHelpers.export(exports, "Particle", ()=>Particle
 );
-parcelHelpers.export(exports, "pointArrayToVector", ()=>pointArrayToVector
+parcelHelpers.export(exports, "createRandomParticleValues", ()=>createRandomParticleValues
 );
-parcelHelpers.export(exports, "vectorToPointArray", ()=>vectorToPointArray
+parcelHelpers.export(exports, "createRandomStaticParticle", ()=>createRandomStaticParticle
 );
-parcelHelpers.export(exports, "arrayPointArrayToObjectArray", ()=>arrayPointArrayToObjectArray
+parcelHelpers.export(exports, "edgeBounce", ()=>edgeBounce
 );
-parcelHelpers.export(exports, "arrayPointArrayToVectorArray", ()=>arrayPointArrayToVectorArray
+parcelHelpers.export(exports, "edgeWrap", ()=>edgeWrap
 );
-parcelHelpers.export(exports, "arrayVectorToPointArray", ()=>arrayVectorToPointArray
-);
-parcelHelpers.export(exports, "flattenPointArray", ()=>flattenPointArray
-);
-parcelHelpers.export(exports, "unflattenPointArray", ()=>unflattenPointArray
-);
-parcelHelpers.export(exports, "uvPointToCanvas", ()=>uvPointToCanvas
-);
-parcelHelpers.export(exports, "pointDistance", ()=>pointDistance
-);
-parcelHelpers.export(exports, "pointRotateCoord", ()=>pointRotateCoord
-);
-parcelHelpers.export(exports, "pointAngleFromVelocity", ()=>pointAngleFromVelocity
-);
-parcelHelpers.export(exports, "scalePointToCanvas", ()=>scalePointToCanvas
-);
-parcelHelpers.export(exports, "pointsOrientation", ()=>pointsOrientation
-);
-parcelHelpers.export(exports, "pointsFromSegment", ()=>pointsFromSegment
-);
-parcelHelpers.export(exports, "trimPointArray", ()=>trimPointArray
-);
-parcelHelpers.export(exports, "createSplineFromPointArray", ()=>createSplineFromPointArray
-);
-var _vector = require("./Vector");
-var _math = require("./math");
-var _curveCalc = require("./curve-calc");
-const pointArrayToPointObject = (a)=>({
-        x: a[0],
-        y: a[1]
-    })
-;
-const pointArrayToVector = (a)=>new _vector.Vector(a[0], a[1])
-;
-const vectorToPointArray = (v)=>[
-        v.x,
-        v.y
-    ]
-;
-const arrayPointArrayToObjectArray = (arry)=>arry.map((a)=>pointArrayToPointObject(a)
-    )
-;
-const arrayPointArrayToVectorArray = (arry)=>arry.map((a)=>pointArrayToVector(a)
-    )
-;
-const arrayVectorToPointArray = (arry)=>arry.map((a)=>vectorToPointArray(a)
-    )
-;
-const flattenPointArray = (arry)=>arry.reduce((acc, p)=>{
-        if (p) {
-            acc.push(p[0]);
-            acc.push(p[1]);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _math = require("../math/math");
+var _vector = require("../math/Vector");
+var _random = require("../math/random");
+var _points = require("../math/points");
+/*
+This class is a mess 😅
+ */ const maxParticleHistory = 30;
+class Particle {
+    #x;
+    #y;
+    #color;
+    constructor({ index , x: x1 , y: y1 , velocityX , velocityY , accelerationX , accelerationY , radius , mass: mass1 , color , alpha , rotation , drawFn , updateFn , colorFn , ...rest }){
+        this.props = rest;
+        this.index = index || 0;
+        // TODO remove separate x/y and just use a vector
+        this.#x = x1 || 0;
+        this.#y = y1 || 0;
+        this.xHistory = [
+            x1
+        ];
+        this.yHistory = [
+            y1
+        ];
+        this.oX = x1 || this.oX;
+        this.oY = y1 || this.oY;
+        this.velocityX = velocityX || 0;
+        this.velocityY = velocityY || 0;
+        this.accelerationX = accelerationX || 0;
+        this.accelerationY = accelerationY || 0;
+        this.mass = mass1 || 1;
+        this.radius = radius || 1;
+        this.#color = color ? _tinycolor2Default.default(color) : _tinycolor2Default.default({
+            r: 255,
+            g: 255,
+            b: 255
+        });
+        this.rotation = rotation || 0;
+        this.colorFn = colorFn;
+    }
+    get color() {
+        if (this.colorFn) // TODO type check to enforce string?
+        return _tinycolor2Default.default(this.colorFn(this));
+        return this.#color;
+    }
+    set color(value) {
+        this.#color = _tinycolor2Default.default(value);
+    }
+    get colorStr() {
+        if (this.colorFn) {
+            const res = this.colorFn(this);
+            if (typeof res !== 'string') {
+                console.warn('Particle color fn must return a string!');
+                return '#ff0000';
+            }
+            return res;
         }
-        return acc;
-    }, [])
-;
-const unflattenPointArray = (arry)=>{
-    const points = [];
-    for(let i = 0; i < arry.length; i += 2)points.push([
-        arry[i],
-        arry[i + 1]
-    ]);
-    return points;
-};
-const uvPointToCanvas = ({ margin =0 , u , v , width , height  })=>({
-        x: _math.lerp(margin, width - margin, u),
-        y: _math.lerp(margin, height - margin, v)
-    })
-;
-const pointDistance = (pointA, pointB)=>{
-    const dx = pointA.x - pointB.x;
-    const dy = pointA.y - pointB.y;
-    return Math.sqrt(dx * dx + dy * dy);
-};
-const pointRotateCoord = (point, angle)=>({
-        x: point.x * _math.cos(angle) - point.y * _math.sin(angle),
-        y: point.y * _math.cos(angle) + point.x * _math.sin(angle)
-    })
-;
-const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
-;
-const scalePointToCanvas = (canvasWidth, canvasHeight, width, height, zoomFactor, x, y)=>{
-    const particleXOffset = canvasWidth / 2 - width * zoomFactor / 2;
-    const particleYOffset = canvasHeight / 2 - height * zoomFactor / 2;
+        return this.#color.toRgbString();
+    }
+    get x() {
+        return this.#x;
+    }
+    set x(value) {
+        this.#x = value;
+        this.xHistory.unshift(value);
+        if (this.xHistory.length > maxParticleHistory) this.xHistory = this.xHistory.slice(0, maxParticleHistory);
+    }
+    get y() {
+        return this.#y;
+    }
+    set y(value) {
+        this.#y = value;
+        this.yHistory.unshift(value);
+        if (this.yHistory.length > maxParticleHistory) this.yHistory = this.yHistory.slice(0, maxParticleHistory);
+    }
+    get velocity() {
+        return new _vector.Vector(this.velocityX, this.velocityY, 0);
+    }
+    set velocity({ x , y  }) {
+        this.velocityX = x;
+        this.velocityY = y;
+    }
+    get acceleration() {
+        return new _vector.Vector(this.accelerationX, this.accelerationY, 0);
+    }
+    set acceleration({ x , y  }) {
+        this.accelerationX = x;
+        this.accelerationY = y;
+    }
+    // Rotation angle to point in direction of velocity
+    get heading() {
+        return _points.pointAngleFromVelocity(this);
+    }
+    reverseVelocityX() {
+        this.velocityX *= -1;
+    }
+    reverseVelocityY() {
+        this.velocityY *= -1;
+    }
+    updatePosWithVelocity() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+    }
+    applyForce(fVect) {
+        const fV = fVect.div(this.mass);
+        const aV = this.acceleration.add(fV);
+        const pV = this.velocity.add(aV);
+        this.acceleration = aV;
+        this.velocity = pV;
+    }
+    // https://www.youtube.com/watch?v=WBdhAuWS6X8
+    friction(mu = 0.1) {
+        const normal = this.mass;
+        const vfriction = this.velocity.normalize().mult(-1).setMag(mu * normal);
+        this.applyForce(vfriction);
+    }
+    // https://www.youtube.com/watch?v=DxFDgOYEoy8
+    drag(coefficent = 0.1) {
+        const area = 1; // this.radius;
+        const velUnit = this.velocity.normalize().mult(-1);
+        const speed = this.velocity.magSq() * area * coefficent;
+        const vdrag = velUnit.setMag(speed);
+        this.applyForce(vdrag);
+    }
+    // https://www.youtube.com/watch?v=EpgB3cNhKPM
+    // mode 1 is attract, -1 is repel
+    // const attractor = { x: canvas.width / 2, y: canvas.height / 2, mass: 50, g: 1 };
+    attract({ x , y , mass , g  }, mode = 1, affectDist = 1000) {
+        if (_points.pointDistance({
+            x,
+            y
+        }, {
+            x: this.x,
+            y: this.y
+        }) < affectDist) {
+            g = g || 1;
+            const dir = new _vector.Vector(x, y).sub(new _vector.Vector(this.x, this.y));
+            const distanceSq = _math.clamp(50, 5000, dir.magSq());
+            const strength = mode * (g * (mass * this.mass)) / distanceSq;
+            const force = dir.setMag(strength);
+            this.applyForce(force);
+        }
+    }
+}
+const createRandomParticleValues = ({ width , height  })=>{
+    const vel = 2;
+    const radius1 = _random.randomNumberBetween(5, 10);
     return {
-        x: x * zoomFactor + particleXOffset,
-        y: y * zoomFactor + particleYOffset
+        radius: radius1,
+        x: _random.randomNumberBetween(0, width),
+        y: _random.randomNumberBetween(0, height),
+        mass: _random.randomNumberBetween(1, 10),
+        velocityX: _random.randomNumberBetween(-vel, vel),
+        velocityY: _random.randomNumberBetween(-vel, vel),
+        accelerationX: 0,
+        accelerationY: 0,
+        rotation: _random.randomNumberBetween(-180, 180),
+        color: {
+            r: _random.randomNumberBetween(100, 255),
+            g: _random.randomNumberBetween(100, 255),
+            b: _random.randomNumberBetween(100, 255)
+        }
     };
 };
-const pointsOrientation = (a, b)=>Math.atan2(b.y - a.y, b.x - a.x)
-;
-const pointsFromSegment = (seg)=>{
-    const points = [];
-    for(let i = 0; i < seg.length; i++){
-        points.push([
-            seg[i].start.x,
-            seg[i].start.y
-        ]);
-        points.push([
-            seg[i].end.x,
-            seg[i].end.y
-        ]);
-    }
-    return points;
+const createRandomStaticParticle = ({ width , height  })=>{
+    const props = createRandomParticleValues({
+        width,
+        height
+    });
+    props.x = _random.randomWholeBetween(0, width);
+    props.y = _random.randomWholeBetween(0, height);
+    props.velocityX = 0;
+    props.velocityY = 0;
+    return new Particle(props);
 };
-const trimPointArray = (points, skip = 2)=>points.reduce((acc, s, i)=>{
-        if (i === 0 || i === points.length - 1) acc.push(s);
-        else if (i % skip === 0) acc.push(s);
-        return acc;
-    }, [])
-;
-const createSplineFromPointArray = (points)=>unflattenPointArray(_curveCalc.getCurvePoints(flattenPointArray(points)))
-; // // For array of points from segments, take only the first start
- // export const startPointsOnly = (points) => {
- //     const p = [];
- //     for (let i = 0; i < points.length; i += 2) {
- //         p.push(points[i]);
- //     }
- //     // last end point
- //     p.push(last(points));
- //     return p;
- // };
- // Using https://github.com/gdenisov/cardinal-spline-js
-
-},{"./Vector":"1MSqh","./math":"4t0bw","./curve-calc":"4EuBm","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4EuBm":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getCurvePoints", ()=>getCurvePoints
-);
-const getCurvePoints = (points, tension, numOfSeg, close)=>{
-    // options or defaults
-    tension = typeof tension === 'number' ? tension : 0.5;
-    numOfSeg = numOfSeg || 25;
-    let pts; // for cloning point array
-    let i = 1;
-    let l = points.length;
-    let rPos = 0;
-    const rLen = (l - 2) * numOfSeg + 2 + (close ? 2 * numOfSeg : 0);
-    if (rLen < 0) return [];
-    const res = new Float32Array(rLen);
-    const cache = new Float32Array((numOfSeg + 2) * 4);
-    let cachePtr = 4;
-    pts = points.slice(0);
-    if (close) {
-        pts.unshift(points[l - 1]); // insert end point as first point
-        pts.unshift(points[l - 2]);
-        pts.push(points[0], points[1]); // first point as last point
-    } else {
-        pts.unshift(points[1]); // copy 1. point and insert at beginning
-        pts.unshift(points[0]);
-        pts.push(points[l - 2], points[l - 1]); // duplicate end-points
+const edgeBounce = ({ width , height  }, particle)=>{
+    if (particle.x + particle.radius > width) {
+        particle.reverseVelocityX();
+        particle.x = width - particle.radius;
     }
-    // cache inner-loop calculations as they are based on t alone
-    cache[0] = 1; // 1,0,0,0
-    for(; i < numOfSeg; i++){
-        const st = i / numOfSeg;
-        const st2 = st * st;
-        const st3 = st2 * st;
-        const st23 = st3 * 2;
-        const st32 = st2 * 3;
-        cache[cachePtr++] = st23 - st32 + 1; // c1
-        cache[cachePtr++] = st32 - st23; // c2
-        cache[cachePtr++] = st3 - 2 * st2 + st; // c3
-        cache[cachePtr++] = st3 - st2; // c4
+    if (particle.x - particle.radius < 0) {
+        particle.reverseVelocityX();
+        particle.x = particle.radius;
     }
-    cache[++cachePtr] = 1; // 0,1,0,0
-    // calc. points
-    parse(pts, cache, l);
-    if (close) {
-        // l = points.length;
-        pts = [];
-        pts.push(points[l - 4], points[l - 3], points[l - 2], points[l - 1]); // second last and last
-        pts.push(points[0], points[1], points[2], points[3]); // first and second
-        parse(pts, cache, 4);
+    if (particle.y + particle.radius > height) {
+        particle.reverseVelocityY();
+        particle.y = height - particle.radius;
     }
-    function parse(pts1, cache1, l1) {
-        for(var i1 = 2, t; i1 < l1; i1 += 2){
-            const pt1 = pts1[i1];
-            const pt2 = pts1[i1 + 1];
-            const pt3 = pts1[i1 + 2];
-            const pt4 = pts1[i1 + 3];
-            const t1x = (pt3 - pts1[i1 - 2]) * tension;
-            const t1y = (pt4 - pts1[i1 - 1]) * tension;
-            const t2x = (pts1[i1 + 4] - pt1) * tension;
-            const t2y = (pts1[i1 + 5] - pt2) * tension;
-            for(t = 0; t < numOfSeg; t++){
-                const c = t << 2; // t * 4;
-                const c1 = cache1[c];
-                const c2 = cache1[c + 1];
-                const c3 = cache1[c + 2];
-                const c4 = cache1[c + 3];
-                res[rPos++] = c1 * pt1 + c2 * pt3 + c3 * t1x + c4 * t2x;
-                res[rPos++] = c1 * pt2 + c2 * pt4 + c3 * t1y + c4 * t2y;
-            }
-        }
+    if (particle.y - particle.radius < 0) {
+        particle.reverseVelocityY();
+        particle.y = particle.radius;
     }
-    // add last point
-    l = close ? 0 : points.length - 2;
-    res[rPos++] = points[l];
-    res[rPos] = points[l + 1];
-    return res;
+};
+const edgeWrap = ({ width , height  }, particle)=>{
+    if (particle.x + particle.radius > width) particle.x = 0 + particle.radius;
+    else if (particle.x - particle.radius < 0) particle.x = width - particle.radius;
+    if (particle.y + particle.radius > height) particle.y = 0 + particle.radius;
+    else if (particle.y - particle.radius < 0) particle.y = height - particle.radius;
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"73Br1":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isHiDPICanvas", ()=>isHiDPICanvas
-);
-parcelHelpers.export(exports, "currentContextScale", ()=>currentContextScale
-);
-parcelHelpers.export(exports, "resizeCanvas", ()=>resizeCanvas
-);
-parcelHelpers.export(exports, "resetStyles", ()=>resetStyles
-);
-parcelHelpers.export(exports, "sharpLines", ()=>sharpLines
-);
-parcelHelpers.export(exports, "blendMode", ()=>blendMode
-);
-parcelHelpers.export(exports, "filter", ()=>filter
-);
-parcelHelpers.export(exports, "stokeColor", ()=>stokeColor
-);
-parcelHelpers.export(exports, "fillColor", ()=>fillColor
-);
-parcelHelpers.export(exports, "clear", ()=>clear
-);
-parcelHelpers.export(exports, "background", ()=>background
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-let isHiDPI = false;
-let contextScale = 1;
-const isHiDPICanvas = (_)=>isHiDPI
-;
-const currentContextScale = (_)=>contextScale
-;
-const resizeCanvas = (canvas, context, width, height, scale)=>{
-    contextScale = scale || window.devicePixelRatio;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = Math.floor(width * contextScale);
-    canvas.height = Math.floor(height * contextScale);
-    if (contextScale === 2) {
-        isHiDPI = true;
-        context.scale(1, 1);
-    // context.scale(2, 2); // not working
-    } else context.scale(contextScale, contextScale);
-};
-const resetStyles = (context)=>{
-    context.strokeStyle = '#000';
-    context.fillStyle = '#000';
-    context.lineWidth = 1;
-    context.setLineDash([]);
-    context.lineCap = 'butt';
-    context.lineJoin = 'miter';
-    context.textAlign = 'left';
-    context.textBaseline = 'top';
-};
-const sharpLines = (context)=>context.translate(0.5, 0.5)
-;
-const blendMode = (context)=>(mode = 'source-over')=>context.globalCompositeOperation = mode
-;
-const filter = (context)=>(f = '')=>context.filter = f
-;
-const stokeColor = (context)=>(color)=>context.strokeStyle = _tinycolor2Default.default(color).toRgbString()
-;
-const fillColor = (context)=>(color)=>context.fillStyle = _tinycolor2Default.default(color).toRgbString()
-;
-const clear = (canvas, context)=>(_)=>context.clearRect(0, 0, canvas.width, canvas.height)
-;
-const background = (canvas, context)=>(color = 'black')=>{
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.fillRect(0, 0, canvas.width, canvas.height);
-    }
-;
-
-},{"tinycolor2":"101FG","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"33yaF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "particlePoint", ()=>particlePoint
-);
-parcelHelpers.export(exports, "particleRotated", ()=>particleRotated
-);
-parcelHelpers.export(exports, "particleHistoryTrail", ()=>particleHistoryTrail
-);
-parcelHelpers.export(exports, "connectParticles", ()=>connectParticles
-);
-var _math = require("../math/math");
-var _canvas = require("./canvas");
-var _primatives = require("./primatives");
-var _points = require("../math/points");
-const particlePoint = (context)=>({ x , y , radius , color  })=>{
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = color.toRgbString();
-        context.fill();
-    }
-;
-const particleRotated = (ctx, drawFn, particle, ...args)=>{
-    const pSaveX = particle.x;
-    const pSaveY = particle.y;
-    particle.x = 0;
-    particle.y = 0;
-    ctx.save();
-    ctx.translate(pSaveX, pSaveY);
-    ctx.rotate(particle.heading);
-    drawFn(ctx)(particle, args);
-    ctx.restore();
-    particle.x = pSaveX;
-    particle.y = pSaveY;
-};
-const particleHistoryTrail = (context)=>(particle)=>{
-        const trailLen = particle.xHistory.length;
-        context.lineWidth = particle.radius;
-        const pColor = particle.color;
-        const aFade = 100 / trailLen * 0.01;
-        let alpha = 1;
-        const sFade = particle.radius * 2 / trailLen;
-        let stroke = particle.radius * 2;
-        for(let i = 0; i < trailLen; i++){
-            const startX = i === 0 ? particle.x : particle.xHistory[i - 1];
-            const startY = i === 0 ? particle.y : particle.yHistory[i - 1];
-            _primatives.line(context)(startX, startY, particle.xHistory[i], particle.yHistory[i], stroke);
-            pColor.setAlpha(alpha);
-            context.strokeStyle = pColor.toRgbString();
-            alpha -= aFade;
-            stroke -= sFade;
-        }
-    }
-;
-const connectParticles = (context)=>(pArray, proximity, useAlpha = true)=>{
-        const len = pArray.length;
-        for(let a = 0; a < len; a++)// all consecutive particles
-        for(let b = a; b < len; b++){
-            const pA = pArray[a];
-            const pB = pArray[b];
-            const distance = _points.pointDistance(pA, pB);
-            if (distance < proximity) {
-                const pColor = pA.color;
-                if (useAlpha) pColor.setAlpha(_math.normalizeInverse(0, proximity, distance));
-                context.strokeStyle = pColor.toHslString();
-                _primatives.line(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
-            }
-        }
-        _canvas.resetStyles(context);
-    }
-;
-
-},{"../math/math":"4t0bw","./canvas":"73Br1","./primatives":"6MM7x","../math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6MM7x":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "pixel", ()=>pixel
-);
-parcelHelpers.export(exports, "line", ()=>line
-);
-parcelHelpers.export(exports, "lineAtAngle", ()=>lineAtAngle
-);
-parcelHelpers.export(exports, "circle", ()=>circle
-);
-parcelHelpers.export(exports, "circleFilled", ()=>circleFilled
-);
-parcelHelpers.export(exports, "rect", ()=>rect
-);
-parcelHelpers.export(exports, "rectFilled", ()=>rectFilled
-);
-parcelHelpers.export(exports, "squareFilled", ()=>squareFilled
-);
-parcelHelpers.export(exports, "drawTriangleFilled", ()=>drawTriangleFilled
-);
-parcelHelpers.export(exports, "quadRectFilled", ()=>quadRectFilled
-);
-parcelHelpers.export(exports, "roundRectFilled", ()=>roundRectFilled
-);
-parcelHelpers.export(exports, "pixelAtPoints", ()=>pixelAtPoints
-);
-parcelHelpers.export(exports, "pointPath", ()=>pointPath
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("./canvas");
-const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
-        size = size || _canvas.currentContextScale();
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        if (mode === 'circle') {
-            context.beginPath();
-            context.arc(x, y, size, 0, Math.PI * 2, false);
-            context.fill();
-        } else context.fillRect(x, y, size, size);
-    }
-;
-const line = (context)=>(x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt')=>{
-        // color = 'black',
-        // context.strokeStyle = tinycolor(color).toRgbString();
-        context.lineWidth = strokeWidth;
-        context.lineCap = linecap;
-        context.beginPath();
-        context.moveTo(x1, y1);
-        context.lineTo(x2, y2);
-        context.stroke();
-    }
-;
-const lineAtAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
-        const theta = Math.PI * angle / 180;
-        const x2 = x1 + length * Math.cos(theta);
-        const y2 = y1 + length * Math.sin(theta);
-        line(context)(x1, y1, x2, y2, strokeWidth, linecap);
-    }
-;
-const circle = (context)=>(strokeWidth, x, y, radius, color)=>{
-        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        context.lineWidth = strokeWidth;
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        // context.fillStyle = 'rgba(255,255,255,.1)';
-        // context.fill();
-        context.stroke();
-    }
-;
-const circleFilled = (context)=>(x, y, radius, color)=>{
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
-        context.fillStyle = color;
-        context.fill();
-    }
-;
-const rect = (context)=>(x, y, w, h, strokeWidth = 1, color)=>{
-        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        context.lineWidth = strokeWidth;
-        context.rect(x, y, w, h);
-        context.stroke();
-    }
-;
-const rectFilled = (context)=>(x, y, w, h, color = 'white')=>{
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.fillRect(x, y, w, h);
-    }
-;
-const squareFilled = (context)=>(x, y, size, color)=>{
-        rectFilled(context)(x, y, size, size, color);
-    }
-;
-const drawTriangleFilled = (context)=>(x, y, size, color)=>{
-        const half = size / 2;
-        context.beginPath();
-        context.moveTo(x - half, y - half);
-        context.lineTo(x + half, y);
-        context.lineTo(x - half, y + half);
-        context.fillStyle = color.toRgbString();
-        context.fill();
-    }
-;
-const quadRectFilled = (context)=>(x, y, w, h, color)=>{
-        const mx = x + w / 2;
-        const my = y + h / 2;
-        context.beginPath();
-        // context.strokeStyle = 'green';
-        // context.lineWidth = '4';
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.moveTo(x, my);
-        context.quadraticCurveTo(x, y, mx, y);
-        context.quadraticCurveTo(x + w, y, x + w, my);
-        context.quadraticCurveTo(x + w, y + h, mx, y + h);
-        context.quadraticCurveTo(x, y + h, x, my);
-        // context.stroke();
-        context.fill();
-    }
-;
-const roundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
-        if (w < corner || h < corner) corner = Math.min(w, h);
-        const r = x + w;
-        const b = y + h;
-        context.beginPath();
-        // context.strokeStyle = 'green';
-        // context.lineWidth = '4';
-        context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        context.moveTo(x + corner, y);
-        context.lineTo(r - corner, y);
-        context.quadraticCurveTo(r, y, r, y + corner);
-        context.lineTo(r, y + h - corner);
-        context.quadraticCurveTo(r, b, r - corner, b);
-        context.lineTo(x + corner, b);
-        context.quadraticCurveTo(x, b, x, b - corner);
-        context.lineTo(x, y + corner);
-        context.quadraticCurveTo(x, y, x + corner, y);
-        // context.stroke();
-        context.fill();
-    }
-;
-const pixelAtPoints = (ctx)=>(points, color = 'black', width = 1)=>{
-        points.forEach((coords, i)=>{
-            pixel(ctx)(coords[0], coords[1], color, 'circle', width);
-        });
-    }
-;
-const pointPath = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
-        ctx.beginPath();
-        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
-        ctx.lineWidth = width;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        points.forEach((coords, i)=>{
-            if (i === 0) ctx.moveTo(coords[0], coords[1]);
-            else ctx.lineTo(coords[0], coords[1]);
-            if (drawPoint) circleFilled(ctx)(coords[0], coords[1], 1, 'red');
-        });
-        if (close) ctx.lineTo(points[0][0], points[0][1]);
-        ctx.stroke();
-    }
-;
-
-},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","../math/Vector":"1MSqh","../math/random":"1SLuP","../math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4FjQ0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "threeAttractors", ()=>threeAttractors
 );
 var _math = require("../rndrgen/math/math");
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _particles = require("../rndrgen/canvas/particles");
 var _random = require("../rndrgen/math/random");
@@ -4071,7 +4071,7 @@ const threeAttractors = ()=>{
     };
 };
 
-},{"../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7fBhq":[function(require,module,exports) {
+},{"../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"7fBhq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "hiImage01", ()=>hiImage01
@@ -4079,7 +4079,7 @@ parcelHelpers.export(exports, "hiImage01", ()=>hiImage01
 var _hi1Png = require("../../media/images/hi1.png");
 var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
 var _canvas = require("../rndrgen/canvas/canvas");
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _particles = require("../rndrgen/canvas/particles");
 var _random = require("../rndrgen/math/random");
 const getImageDataFromImage = (context)=>(image)=>{
@@ -4157,7 +4157,7 @@ const hiImage01 = (_)=>{
     };
 };
 
-},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../systems/Particle":"1mD6I","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2Mkol":[function(require,module,exports) {
+},{"../../media/images/hi1.png":"2Mkol","../rndrgen/canvas/canvas":"73Br1","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"2Mkol":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "hi1.b86a235f.png";
 
 },{"./bundle-url":"3seVR"}],"3seVR":[function(require,module,exports) {
@@ -4352,6 +4352,8 @@ parcelHelpers.export(exports, "ratio", ()=>ratio
 );
 parcelHelpers.export(exports, "scale", ()=>scale
 );
+parcelHelpers.export(exports, "sketchSizeMode", ()=>sketchSizeMode
+);
 parcelHelpers.export(exports, "sketch", ()=>sketch
 );
 /*
@@ -4403,13 +4405,19 @@ const scale = {
     standard: 1,
     hidpi: 2
 };
-const sketch = (canvasElId)=>{
+const sketchSizeMode = {
+    js: 0,
+    css: 1,
+    sketch: 2
+};
+const sketch = (canvasElId, smode = 0)=>{
     const mouse = {
         x: undefined,
         y: undefined,
         isDown: false,
         radius: 100
     };
+    const sizeMode = smode;
     let hasStarted = false;
     let fps = 0;
     let drawRuns = 0;
@@ -4443,6 +4451,11 @@ const sketch = (canvasElId)=>{
         mouse.isDown = false;
     };
     const applyCanvasSize = (config, fraction)=>{
+        if (sizeMode === sketchSizeMode.css) {
+            const s = canvas.getBoundingClientRect();
+            _canvas.resizeCanvas(canvas, context, s.width, s.height, 1);
+            return;
+        }
         const width = _utils.defaultValue(config, 'width', window.innerWidth);
         const height = _utils.defaultValue(config, 'height', window.innerHeight);
         let finalWidth = width;
@@ -4494,7 +4507,8 @@ const sketch = (canvasElId)=>{
             applyCanvasSize(config, canvasSizeFraction);
             if (config.fps) fps = config.fps;
             if (config.drawLimit > 0) currentDrawLimit = config.drawLimit;
-        } else _canvas.resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
+        } else // TODO check for sizeMode
+        _canvas.resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
         const checkDrawLimit = ()=>{
             if (currentDrawLimit) return drawRuns < currentDrawLimit;
             return true;
@@ -5088,7 +5102,7 @@ parcelHelpers.export(exports, "flowFieldParticles", ()=>flowFieldParticles
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _vector = require("../rndrgen/math/Vector");
@@ -5171,7 +5185,7 @@ const flowFieldParticles = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"BodqP":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"BodqP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "simplexNoise2d", ()=>simplexNoise2d
@@ -5321,7 +5335,7 @@ parcelHelpers.export(exports, "flowFieldImage", ()=>flowFieldImage
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _vector = require("../rndrgen/math/Vector");
@@ -5427,7 +5441,7 @@ const flowFieldImage = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"17J8Q":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 // const createColorArrayFromImageData = (imageData) => {
@@ -5766,7 +5780,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _random = require("canvas-sketch-util/random");
 var _randomDefault = parcelHelpers.interopDefault(_random);
 var _math = require("../rndrgen/math/math");
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
@@ -5888,7 +5902,7 @@ const flowFieldRibbons = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2IsLg":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"2IsLg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons2", ()=>flowFieldRibbons2
@@ -5898,7 +5912,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _random = require("canvas-sketch-util/random");
 var _randomDefault = parcelHelpers.interopDefault(_random);
 var _math = require("../rndrgen/math/math");
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
@@ -6056,19 +6070,19 @@ const flowFieldRibbons2 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1wwAx":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El"}],"1wwAx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "shadedBoxes", ()=>shadedBoxes
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _particle = require("../systems/Particle");
+var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
-var _box = require("../systems/Box");
+var _box = require("../rndrgen/systems/Box");
 var _attractors = require("../rndrgen/math/attractors");
 var _vector = require("../rndrgen/math/Vector");
 var _textures = require("../rndrgen/canvas/textures");
@@ -6164,186 +6178,7 @@ const shadedBoxes = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../systems/Particle":"1mD6I","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/Box":"2CNLf","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/textures":"73mfQ","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2CNLf":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Box", ()=>Box
-);
-/*
-Flow field inside?
-Particle physics inside
-Border
-Clip to no overflow?
- */ var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _utils = require("../rndrgen/utils");
-var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
-const defaultMP = {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-};
-const defaultFlow = (x, y)=>0
-;
-let boxIndex = 0;
-class Point {
-    constructor(x1, y1, z){
-        this.x = x1;
-        this.y = y1;
-        this.z = z;
-    }
-    get toArray() {
-        return [
-            this.x,
-            this.y,
-            this.z
-        ];
-    }
-    get toObject() {
-        return {
-            x: this.x,
-            y: this.y,
-            z: this.z
-        };
-    }
-    clone() {
-        return new Point(this.x, this.y, this.z);
-    }
-}
-class Box {
-    #backgroundColor;
-    constructor(props, children = []){
-        this.name = `box${boxIndex++}`;
-        this.canvas = props.canvas;
-        this.context = props.context;
-        this.x = props.x;
-        this.y = props.y;
-        this.width = props.width;
-        this.height = props.height;
-        this.rotation = _utils.defaultValue(props, 'rotation', 0);
-        this.#backgroundColor = _tinycolor2Default.default(_utils.defaultValue(props, 'backgroundColor', 'white'));
-        this.padding = _utils.defaultValue(props, 'padding', defaultMP);
-        this.clip = _utils.defaultValue(props, 'clip', true);
-        this.flowField = _utils.defaultValue(props, 'flowField', defaultFlow);
-        this.children = children;
-    }
-    get x2() {
-        return this.x + this.width;
-    }
-    get y2() {
-        return this.y + this.height;
-    }
-    get innerWidth() {
-        return this.width - this.padding.left - this.padding.right;
-    }
-    get innerHeight() {
-        return this.height - this.padding.top - this.padding.bottom;
-    }
-    get centerPoint() {
-        return new Point(this.x + Math.round(this.width / 2), this.y + Math.round(this.height / 2));
-    }
-    get backgroundColor() {
-        return this.#backgroundColor.clone();
-    }
-    set backgroundColor(c) {
-        this.#backgroundColor = _tinycolor2Default.default(c);
-    }
-    fill(color) {
-        color = color || this.backgroundColor;
-        _primatives.rectFilled(this.context)(this.x, this.y, this.width, this.height, color);
-    }
-    erase() {
-        this.context.clearRect(this.x, this.y, this.width, this.height);
-    }
-    outline(thickness, color) {
-        this.context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        this.context.lineWidth = thickness;
-        this.context.rect(this.x, this.y, this.width, this.height);
-        this.context.stroke();
-    }
-    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clip
-    // https://dustinpfister.github.io/2019/08/14/canvas-save/
-    // https://dustinpfister.github.io/2019/10/08/canvas-clip/
-    createClip() {
-        this.context.save();
-        const region = new Path2D();
-        region.rect(this.x, this.y, this.width, this.height);
-        this.context.clip(region);
-    }
-    removeClip() {
-        this.context.restore();
-    }
-    translateX(x) {
-        return this.x + x;
-    }
-    translateY(y) {
-        return this.y + y;
-    }
-    translateInto(point) {
-        return new Point(this.translateX(point.x), this.translateY(point.y));
-    }
-    translateOut(point) {
-        return new Point(point.x - this.x, point.y - this.y);
-    }
-    randomPointInside(distribution = 'whole') {
-        const edgeBuffer = 10;
-        let point = new Point(_random.randomWholeBetween(edgeBuffer, this.width - edgeBuffer), _random.randomWholeBetween(edgeBuffer, this.height - edgeBuffer));
-        if (distribution === 'normal') point = new Point(_random.randomNormalWholeBetween(edgeBuffer, this.width - edgeBuffer), _random.randomNormalWholeBetween(edgeBuffer, this.height - edgeBuffer));
-        return point;
-    }
-    isInside(point) {
-        return point.x >= this.x && point.x <= this.x2 && point.y >= this.y && point.y <= this.y2;
-    }
-    isOutside(point) {
-        return !this.isInside(point);
-    }
-    clipPoint(point) {
-        const np = new Point(point.x, point.y);
-        if (point.x < this.x) np.x = this.x;
-        if (point.x > this.x2) np.x = this.x2;
-        if (point.y < this.y) np.y = this.y;
-        if (point.y > this.y2) np.y = this.y2;
-        return np;
-    }
-    wrapPoint(point) {
-        const np = new Point(point.x, point.y);
-        if (point.x < this.x) np.x = this.x2;
-        if (point.x > this.x2) np.x = this.x;
-        if (point.y < this.y) np.y = this.y2;
-        if (point.y > this.y2) np.y = this.y;
-        return np;
-    }
-    particleEdgeBounce = (particle)=>{
-        const psize = particle.radius;
-        if (particle.x + psize > this.x2) {
-            particle.x = this.x2 - psize;
-            particle.reverseVelocityX();
-        }
-        if (particle.x - psize < this.x) {
-            particle.x = this.x + psize;
-            particle.reverseVelocityX();
-        }
-        if (particle.y + psize > this.y2) {
-            particle.y = this.y2 - psize;
-            particle.reverseVelocityY();
-        }
-        if (particle.y - psize < this.y) {
-            particle.y = this.y + psize;
-            particle.reverseVelocityY();
-        }
-    };
-    particleEdgeWrap = (particle)=>{
-        const psize = particle.radius;
-        if (particle.x + psize > this.x2) particle.x = this.x + psize;
-        if (particle.x - psize < this.x) particle.x = this.x2 - psize;
-        if (particle.y + psize > this.y2) particle.y = this.y + psize;
-        if (particle.y - psize < this.y) particle.y = this.y2 - psize;
-    };
-}
-
-},{"tinycolor2":"101FG","../rndrgen/utils":"1kIwI","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"73mfQ":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/textures":"73mfQ","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/Particle":"344El","../rndrgen/systems/Box":"5o59H"}],"73mfQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "setTextureClippingMaskEnabled", ()=>setTextureClippingMaskEnabled
@@ -6581,7 +6416,186 @@ const textureRectZigZag = (context)=>(x, y, width, height, color = 'black', amou
     }
 ;
 
-},{"tinycolor2":"101FG","../math/math":"4t0bw","../utils":"1kIwI","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3xaAe":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/math":"4t0bw","../utils":"1kIwI","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5o59H":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Box", ()=>Box
+);
+/*
+Flow field inside?
+Particle physics inside
+Border
+Clip to no overflow?
+ */ var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _utils = require("../utils");
+var _random = require("../math/random");
+var _primatives = require("../canvas/primatives");
+const defaultMP = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+};
+const defaultFlow = (x, y)=>0
+;
+let boxIndex = 0;
+class Point {
+    constructor(x1, y1, z){
+        this.x = x1;
+        this.y = y1;
+        this.z = z;
+    }
+    get toArray() {
+        return [
+            this.x,
+            this.y,
+            this.z
+        ];
+    }
+    get toObject() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z
+        };
+    }
+    clone() {
+        return new Point(this.x, this.y, this.z);
+    }
+}
+class Box {
+    #backgroundColor;
+    constructor(props, children = []){
+        this.name = `box${boxIndex++}`;
+        this.canvas = props.canvas;
+        this.context = props.context;
+        this.x = props.x;
+        this.y = props.y;
+        this.width = props.width;
+        this.height = props.height;
+        this.rotation = _utils.defaultValue(props, 'rotation', 0);
+        this.#backgroundColor = _tinycolor2Default.default(_utils.defaultValue(props, 'backgroundColor', 'white'));
+        this.padding = _utils.defaultValue(props, 'padding', defaultMP);
+        this.clip = _utils.defaultValue(props, 'clip', true);
+        this.flowField = _utils.defaultValue(props, 'flowField', defaultFlow);
+        this.children = children;
+    }
+    get x2() {
+        return this.x + this.width;
+    }
+    get y2() {
+        return this.y + this.height;
+    }
+    get innerWidth() {
+        return this.width - this.padding.left - this.padding.right;
+    }
+    get innerHeight() {
+        return this.height - this.padding.top - this.padding.bottom;
+    }
+    get centerPoint() {
+        return new Point(this.x + Math.round(this.width / 2), this.y + Math.round(this.height / 2));
+    }
+    get backgroundColor() {
+        return this.#backgroundColor.clone();
+    }
+    set backgroundColor(c) {
+        this.#backgroundColor = _tinycolor2Default.default(c);
+    }
+    fill(color) {
+        color = color || this.backgroundColor;
+        _primatives.rectFilled(this.context)(this.x, this.y, this.width, this.height, color);
+    }
+    erase() {
+        this.context.clearRect(this.x, this.y, this.width, this.height);
+    }
+    outline(thickness, color) {
+        this.context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        this.context.lineWidth = thickness;
+        this.context.rect(this.x, this.y, this.width, this.height);
+        this.context.stroke();
+    }
+    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clip
+    // https://dustinpfister.github.io/2019/08/14/canvas-save/
+    // https://dustinpfister.github.io/2019/10/08/canvas-clip/
+    createClip() {
+        this.context.save();
+        const region = new Path2D();
+        region.rect(this.x, this.y, this.width, this.height);
+        this.context.clip(region);
+    }
+    removeClip() {
+        this.context.restore();
+    }
+    translateX(x) {
+        return this.x + x;
+    }
+    translateY(y) {
+        return this.y + y;
+    }
+    translateInto(point) {
+        return new Point(this.translateX(point.x), this.translateY(point.y));
+    }
+    translateOut(point) {
+        return new Point(point.x - this.x, point.y - this.y);
+    }
+    randomPointInside(distribution = 'whole') {
+        const edgeBuffer = 10;
+        let point = new Point(_random.randomWholeBetween(edgeBuffer, this.width - edgeBuffer), _random.randomWholeBetween(edgeBuffer, this.height - edgeBuffer));
+        if (distribution === 'normal') point = new Point(_random.randomNormalWholeBetween(edgeBuffer, this.width - edgeBuffer), _random.randomNormalWholeBetween(edgeBuffer, this.height - edgeBuffer));
+        return point;
+    }
+    isInside(point) {
+        return point.x >= this.x && point.x <= this.x2 && point.y >= this.y && point.y <= this.y2;
+    }
+    isOutside(point) {
+        return !this.isInside(point);
+    }
+    clipPoint(point) {
+        const np = new Point(point.x, point.y);
+        if (point.x < this.x) np.x = this.x;
+        if (point.x > this.x2) np.x = this.x2;
+        if (point.y < this.y) np.y = this.y;
+        if (point.y > this.y2) np.y = this.y2;
+        return np;
+    }
+    wrapPoint(point) {
+        const np = new Point(point.x, point.y);
+        if (point.x < this.x) np.x = this.x2;
+        if (point.x > this.x2) np.x = this.x;
+        if (point.y < this.y) np.y = this.y2;
+        if (point.y > this.y2) np.y = this.y;
+        return np;
+    }
+    particleEdgeBounce = (particle)=>{
+        const psize = particle.radius;
+        if (particle.x + psize > this.x2) {
+            particle.x = this.x2 - psize;
+            particle.reverseVelocityX();
+        }
+        if (particle.x - psize < this.x) {
+            particle.x = this.x + psize;
+            particle.reverseVelocityX();
+        }
+        if (particle.y + psize > this.y2) {
+            particle.y = this.y2 - psize;
+            particle.reverseVelocityY();
+        }
+        if (particle.y - psize < this.y) {
+            particle.y = this.y + psize;
+            particle.reverseVelocityY();
+        }
+    };
+    particleEdgeWrap = (particle)=>{
+        const psize = particle.radius;
+        if (particle.x + psize > this.x2) particle.x = this.x + psize;
+        if (particle.x - psize < this.x) particle.x = this.x2 - psize;
+        if (particle.y + psize > this.y2) particle.y = this.y + psize;
+        if (particle.y - psize < this.y) particle.y = this.y2 - psize;
+    };
+}
+
+},{"tinycolor2":"101FG","../utils":"1kIwI","../math/random":"1SLuP","../canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3xaAe":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "larrycarlson02", ()=>larrycarlson02
@@ -6748,7 +6762,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
-var _meanderingRiver = require("../systems/MeanderingRiver");
+var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
 var _attractors = require("../rndrgen/math/attractors");
 var _grids = require("../rndrgen/math/grids");
@@ -6939,7 +6953,191 @@ const meanderingRiver02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1KEiH":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/MeanderingRiver":"7Bn1Y"}],"5KdqE":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "reduceLineFromStart", ()=>reduceLineFromStart
+);
+parcelHelpers.export(exports, "reduceLineFromEnd", ()=>reduceLineFromEnd
+);
+parcelHelpers.export(exports, "reduceLineEqually", ()=>reduceLineEqually
+);
+parcelHelpers.export(exports, "lineSlope", ()=>lineSlope
+);
+parcelHelpers.export(exports, "chaikinSmooth", ()=>chaikinSmooth
+);
+parcelHelpers.export(exports, "linesIntersect", ()=>linesIntersect
+);
+parcelHelpers.export(exports, "getLineIntersectPoint", ()=>getLineIntersectPoint
+);
+parcelHelpers.export(exports, "mengerCurvature", ()=>mengerCurvature
+);
+parcelHelpers.export(exports, "segment", ()=>segment
+);
+parcelHelpers.export(exports, "segmentOrientation", ()=>segmentOrientation
+);
+parcelHelpers.export(exports, "segmentFromPoints", ()=>segmentFromPoints
+);
+parcelHelpers.export(exports, "segmentsIntersect", ()=>segmentsIntersect
+);
+parcelHelpers.export(exports, "trimSegments", ()=>trimSegments
+);
+var _vector = require("./Vector");
+var _points = require("./points");
+const reduceLineFromStart = (p1, p2, r)=>{
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    return {
+        x: p1.x + r * dx / mag,
+        y: p1.y + r * dy / mag
+    };
+};
+const reduceLineFromEnd = (p1, p2, r)=>{
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    return {
+        x: p2.x - r * dx / mag,
+        y: p2.y - r * dy / mag
+    };
+};
+const reduceLineEqually = (p1, p2, r)=>{
+    const r2 = r / 2;
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    return [
+        {
+            x: p1.x + r2 * dx / mag,
+            y: p1.y + r2 * dy / mag
+        },
+        {
+            x: p2.x - r2 * dx / mag,
+            y: p2.y - r2 * dy / mag
+        }, 
+    ];
+};
+const lineSlope = (p1, p2)=>(p2.y - p1.y) / (p2.x - p1.x)
+;
+const chaikinSmooth = (input, itr = 1)=>{
+    if (itr === 0) return input;
+    const output = [];
+    for(let i = 0; i < input.length - 1; i++){
+        const p0 = input[i];
+        const p1 = input[i + 1];
+        const p0x = p0[0];
+        const p0y = p0[1];
+        const p1x = p1[0];
+        const p1y = p1[1];
+        const Q = [
+            0.75 * p0x + 0.25 * p1x,
+            0.75 * p0y + 0.25 * p1y
+        ];
+        const R = [
+            0.25 * p0x + 0.75 * p1x,
+            0.25 * p0y + 0.75 * p1y
+        ];
+        output.push(Q);
+        output.push(R);
+    }
+    return itr === 1 ? output : chaikinSmooth(output, itr - 1);
+};
+const linesIntersect = (a, b, c, d, p, q, r, s)=>{
+    const det = (c - a) * (s - q) - (r - p) * (d - b);
+    if (det === 0) return false;
+    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    return lambda > 0 && lambda < 1 && gamma > 0 && gamma < 1;
+};
+const getLineIntersectPoint = (x1, y1, x2, y2, x3, y3, x4, y4)=>{
+    // Check if none of the lines are of length 0
+    if (x1 === x2 && y1 === y2 || x3 === x4 && y3 === y4) return false;
+    const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+    // Lines are parallel
+    if (denominator === 0) return false;
+    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
+    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
+    // is the intersection along the segments
+    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return false;
+    // Return a object with the x and y coordinates of the intersection
+    const x = x1 + ua * (x2 - x1);
+    const y = y1 + ua * (y2 - y1);
+    return {
+        x,
+        y
+    };
+};
+const mengerCurvature = (p1, p2, p3)=>{
+    // https://stackoverflow.com/questions/41144224/calculate-curvature-for-3-points-x-y
+    // possible alternate https://www.mathsisfun.com/geometry/herons-formula.html
+    const triangleArea2 = (a, b, c)=>(b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+    ;
+    const t4 = 2 * triangleArea2(p1, p2, p3);
+    const la = _points.pointDistance(p1, p2);
+    const lb = _points.pointDistance(p2, p3);
+    const lc = _points.pointDistance(p3, p1);
+    return t4 / (la * lb * lc);
+};
+const segment = (x1, y1, x2, y2)=>{
+    const start = new _vector.Vector(x1, y1);
+    const end = new _vector.Vector(x2, y2);
+    return {
+        start,
+        end
+    };
+};
+const segmentOrientation = ({ start , end  })=>_points.pointsOrientation(start, end)
+;
+const segmentFromPoints = (points)=>{
+    const seg = [];
+    for(let i = 0; i < points.length; i += 2){
+        // if it's an uneven number, dupe the last point
+        const next = i + 1 === points.length ? i : i + 1;
+        seg.push(segment(points[i][0], points[i][1], points[next][0], points[next][1]));
+    }
+    return seg;
+};
+const segmentsIntersect = (a, b)=>linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y)
+;
+const trimSegments = (segs, skip = 2)=>segs.reduce((acc, s, i)=>{
+        if (i === 0 || i === segs.length - 1) acc.push(s);
+        else if (i % skip === 0) acc.push(s);
+        return acc;
+    }, [])
+; // export const connectSegments = (segs) =>
+ //     segs.map((s, i) => {
+ //         if (i === segs.length - 1) {
+ //             return s;
+ //         }
+ //         const next = segs[i + 1];
+ //
+ //         const distance = pointDistance({ x: s.end.x, y: s.end.y }, { x: next.start.x, y: s.start.y });
+ //         if (distance > 1) {
+ //             s.end = new Vector(next.start.x, next.start.y);
+ //         }
+ //         return s;
+ //     });
+ // For array of points from segments, return the mid point of the segment
+ // export const getSegPointsMid = (points) => {
+ //     const p = [];
+ //     for (let i = 0; i < points.length; i += 2) {
+ //         const s = points[i];
+ //         const e = points[i + 1];
+ //         if (e) {
+ //             const midX = s[0] + (e[0] - s[0]) * 0.5;
+ //             const midY = s[1] + (e[1] - s[1]) * 0.5;
+ //             p.push([midX, midY]);
+ //         } else {
+ //             p.push(s);
+ //         }
+ //     }
+ //     // last end point
+ //     p.push(last(points));
+ //     return p;
+ // };
+
+},{"./Vector":"1MSqh","./points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7Bn1Y":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -6994,28 +7192,30 @@ const mediumRiver = new MeanderingRiver(points, {
 });
 
 // history
-// rivers.forEach((r, i) => {
-//     for (let h = r.history.length - 1; h >= 0; h--) {
-//         // const a = mapRange(0, maxHistory, 0.35, 0.1, h);
-//         const b = mapRange(0, maxHistory, 5, 20, h);
-//         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
-//         // const hcolor = riverColor.clone().darken(b);
-//         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
-//         pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
-//     }
-// });
+rivers.forEach((r, i) => {
+    for (let h = r.history.length - 1; h >= 0; h--) {
+        // const a = mapRange(0, maxHistory, 0.35, 0.1, h);
+        const b = mapRange(0, maxHistory, 5, 20, h);
+        const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
+        // const hcolor = riverColor.clone().darken(b);
+        const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
+        pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+    }
+});
 
  */ parcelHelpers.export(exports, "MeanderingRiver", ()=>MeanderingRiver
 );
 parcelHelpers.export(exports, "flowRight", ()=>flowRight
 );
+parcelHelpers.export(exports, "flowDown", ()=>flowDown
+);
 parcelHelpers.export(exports, "flowRightToMiddle", ()=>flowRightToMiddle
 );
-var _segments = require("../rndrgen/math/segments");
-var _utils = require("../rndrgen/utils");
-var _math = require("../rndrgen/math/math");
-var _vector = require("../rndrgen/math/Vector");
-var _points = require("../rndrgen/math/points");
+var _segments = require("../math/segments");
+var _utils = require("../utils");
+var _math = require("../math/math");
+var _vector = require("../math/Vector");
+var _points = require("../math/points");
 class MeanderingRiver {
     constructor(initPoints, props){
         this.startingPoints = initPoints;
@@ -7291,6 +7491,8 @@ class MeanderingRiver {
 }
 const flowRight = (p, m)=>new _vector.Vector(1, 0)
 ;
+const flowDown = (p, m)=>new _vector.Vector(0, 1)
+;
 const flowRightToMiddle = (f, mid)=>(p, m)=>{
         const dist = Math.abs(mid - p.y);
         let y = _math.mapRange(0, mid / 2, 0, f, dist);
@@ -7299,191 +7501,7 @@ const flowRightToMiddle = (f, mid)=>(p, m)=>{
     }
 ;
 
-},{"../rndrgen/math/segments":"5KdqE","../rndrgen/utils":"1kIwI","../rndrgen/math/math":"4t0bw","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5KdqE":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "reduceLineFromStart", ()=>reduceLineFromStart
-);
-parcelHelpers.export(exports, "reduceLineFromEnd", ()=>reduceLineFromEnd
-);
-parcelHelpers.export(exports, "reduceLineEqually", ()=>reduceLineEqually
-);
-parcelHelpers.export(exports, "lineSlope", ()=>lineSlope
-);
-parcelHelpers.export(exports, "chaikinSmooth", ()=>chaikinSmooth
-);
-parcelHelpers.export(exports, "linesIntersect", ()=>linesIntersect
-);
-parcelHelpers.export(exports, "getLineIntersectPoint", ()=>getLineIntersectPoint
-);
-parcelHelpers.export(exports, "mengerCurvature", ()=>mengerCurvature
-);
-parcelHelpers.export(exports, "segment", ()=>segment
-);
-parcelHelpers.export(exports, "segmentOrientation", ()=>segmentOrientation
-);
-parcelHelpers.export(exports, "segmentFromPoints", ()=>segmentFromPoints
-);
-parcelHelpers.export(exports, "segmentsIntersect", ()=>segmentsIntersect
-);
-parcelHelpers.export(exports, "trimSegments", ()=>trimSegments
-);
-var _vector = require("./Vector");
-var _points = require("./points");
-const reduceLineFromStart = (p1, p2, r)=>{
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    const mag = Math.sqrt(dx * dx + dy * dy);
-    return {
-        x: p1.x + r * dx / mag,
-        y: p1.y + r * dy / mag
-    };
-};
-const reduceLineFromEnd = (p1, p2, r)=>{
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    const mag = Math.sqrt(dx * dx + dy * dy);
-    return {
-        x: p2.x - r * dx / mag,
-        y: p2.y - r * dy / mag
-    };
-};
-const reduceLineEqually = (p1, p2, r)=>{
-    const r2 = r / 2;
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    const mag = Math.sqrt(dx * dx + dy * dy);
-    return [
-        {
-            x: p1.x + r2 * dx / mag,
-            y: p1.y + r2 * dy / mag
-        },
-        {
-            x: p2.x - r2 * dx / mag,
-            y: p2.y - r2 * dy / mag
-        }, 
-    ];
-};
-const lineSlope = (p1, p2)=>(p2.y - p1.y) / (p2.x - p1.x)
-;
-const chaikinSmooth = (input, itr = 1)=>{
-    if (itr === 0) return input;
-    const output = [];
-    for(let i = 0; i < input.length - 1; i++){
-        const p0 = input[i];
-        const p1 = input[i + 1];
-        const p0x = p0[0];
-        const p0y = p0[1];
-        const p1x = p1[0];
-        const p1y = p1[1];
-        const Q = [
-            0.75 * p0x + 0.25 * p1x,
-            0.75 * p0y + 0.25 * p1y
-        ];
-        const R = [
-            0.25 * p0x + 0.75 * p1x,
-            0.25 * p0y + 0.75 * p1y
-        ];
-        output.push(Q);
-        output.push(R);
-    }
-    return itr === 1 ? output : chaikinSmooth(output, itr - 1);
-};
-const linesIntersect = (a, b, c, d, p, q, r, s)=>{
-    const det = (c - a) * (s - q) - (r - p) * (d - b);
-    if (det === 0) return false;
-    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
-    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
-    return lambda > 0 && lambda < 1 && gamma > 0 && gamma < 1;
-};
-const getLineIntersectPoint = (x1, y1, x2, y2, x3, y3, x4, y4)=>{
-    // Check if none of the lines are of length 0
-    if (x1 === x2 && y1 === y2 || x3 === x4 && y3 === y4) return false;
-    const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-    // Lines are parallel
-    if (denominator === 0) return false;
-    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
-    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
-    // is the intersection along the segments
-    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return false;
-    // Return a object with the x and y coordinates of the intersection
-    const x = x1 + ua * (x2 - x1);
-    const y = y1 + ua * (y2 - y1);
-    return {
-        x,
-        y
-    };
-};
-const mengerCurvature = (p1, p2, p3)=>{
-    // https://stackoverflow.com/questions/41144224/calculate-curvature-for-3-points-x-y
-    // possible alternate https://www.mathsisfun.com/geometry/herons-formula.html
-    const triangleArea2 = (a, b, c)=>(b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
-    ;
-    const t4 = 2 * triangleArea2(p1, p2, p3);
-    const la = _points.pointDistance(p1, p2);
-    const lb = _points.pointDistance(p2, p3);
-    const lc = _points.pointDistance(p3, p1);
-    return t4 / (la * lb * lc);
-};
-const segment = (x1, y1, x2, y2)=>{
-    const start = new _vector.Vector(x1, y1);
-    const end = new _vector.Vector(x2, y2);
-    return {
-        start,
-        end
-    };
-};
-const segmentOrientation = ({ start , end  })=>_points.pointsOrientation(start, end)
-;
-const segmentFromPoints = (points)=>{
-    const seg = [];
-    for(let i = 0; i < points.length; i += 2){
-        // if it's an uneven number, dupe the last point
-        const next = i + 1 === points.length ? i : i + 1;
-        seg.push(segment(points[i][0], points[i][1], points[next][0], points[next][1]));
-    }
-    return seg;
-};
-const segmentsIntersect = (a, b)=>linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y)
-;
-const trimSegments = (segs, skip = 2)=>segs.reduce((acc, s, i)=>{
-        if (i === 0 || i === segs.length - 1) acc.push(s);
-        else if (i % skip === 0) acc.push(s);
-        return acc;
-    }, [])
-; // export const connectSegments = (segs) =>
- //     segs.map((s, i) => {
- //         if (i === segs.length - 1) {
- //             return s;
- //         }
- //         const next = segs[i + 1];
- //
- //         const distance = pointDistance({ x: s.end.x, y: s.end.y }, { x: next.start.x, y: s.start.y });
- //         if (distance > 1) {
- //             s.end = new Vector(next.start.x, next.start.y);
- //         }
- //         return s;
- //     });
- // For array of points from segments, return the mid point of the segment
- // export const getSegPointsMid = (points) => {
- //     const p = [];
- //     for (let i = 0; i < points.length; i += 2) {
- //         const s = points[i];
- //         const e = points[i + 1];
- //         if (e) {
- //             const midX = s[0] + (e[0] - s[0]) * 0.5;
- //             const midY = s[1] + (e[1] - s[1]) * 0.5;
- //             p.push([midX, midY]);
- //         } else {
- //             p.push(s);
- //         }
- //     }
- //     // last end point
- //     p.push(last(points));
- //     return p;
- // };
-
-},{"./Vector":"1MSqh","./points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2elLt":[function(require,module,exports) {
+},{"../math/segments":"5KdqE","../utils":"1kIwI","../math/math":"4t0bw","../math/Vector":"1MSqh","../math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2elLt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "meanderingRiver01", ()=>meanderingRiver01
@@ -7494,7 +7512,7 @@ var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
-var _meanderingRiver = require("../systems/MeanderingRiver");
+var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
 var _attractors = require("../rndrgen/math/attractors");
 var _grids = require("../rndrgen/math/grids");
@@ -7663,7 +7681,7 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../systems/MeanderingRiver":"1KEiH","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/MeanderingRiver":"7Bn1Y"}],"7oc4r":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "version", ()=>version

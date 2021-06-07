@@ -1,4 +1,4 @@
-import { edgeBounce, Particle, createRandomParticleValues } from '../systems/Particle';
+import { edgeBounce, Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background, drawRake } from '../rndrgen/canvas/canvas';
 import { particleRotated } from '../rndrgen/canvas/particles';
 

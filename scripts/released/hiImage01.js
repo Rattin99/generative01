@@ -1,6 +1,6 @@
 import sourcePng from '../../media/images/hi1.png';
 import { clear, background } from '../rndrgen/canvas/canvas';
-import { createRandomParticleValues, edgeWrap, Particle } from '../systems/Particle';
+import { createRandomParticleValues, edgeWrap, Particle } from '../rndrgen/systems/Particle';
 import { particlePoint } from '../rndrgen/canvas/particles';
 import { randomNumberBetween } from '../rndrgen/math/random';
 

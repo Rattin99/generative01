@@ -1,10 +1,10 @@
 import tinycolor from 'tinycolor2';
-import { Particle, createRandomParticleValues } from '../systems/Particle';
+import { Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background, resetStyles } from '../rndrgen/canvas/canvas';
 import { mapRange, uvFromAngle } from '../rndrgen/math/math';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../rndrgen/color/palettes';
-import { Box } from '../systems/Box';
+import { Box } from '../rndrgen/systems/Box';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { Vector } from '../rndrgen/math/Vector';
 import { textureRectZigZag, textureRectStipple, textureRect } from '../rndrgen/canvas/textures';
