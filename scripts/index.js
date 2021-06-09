@@ -6,14 +6,12 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
-import { gridDitherImage } from './experiments/grid-dither-image';
-
-console.log(rndrgen);
+import { marchingSquares } from './experiments/marching-squares';
 
 const s = rndrgen.sketch('canvas', 0);
 
-const experimentalVariation = undefined;
-// const experimentalVariation = gridDitherImage;
+// const experimentalVariation = undefined;
+const experimentalVariation = marchingSquares;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

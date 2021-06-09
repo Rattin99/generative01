@@ -1,8 +1,8 @@
 import tinycolor from 'tinycolor2';
-import { currentContextScale } from './canvas';
+import * as cnvs from './canvas';
 
 export const pixel = (context) => (x, y, color = 'black', mode = 'square', size) => {
-    size = size || currentContextScale();
+    size = size || cnvs.currentContextScale();
     context.fillStyle = tinycolor(color).toRgbString();
     if (mode === 'circle') {
         context.beginPath();
@@ -13,11 +13,11 @@ export const pixel = (context) => (x, y, color = 'black', mode = 'square', size)
     }
 };
 // linecap = butt, round, square
-export const line = (context) => (x1, y1, x2, y2, strokeWidth = 1, linecap = 'butt') => {
+export const line = (context) => (x1, y1, x2, y2, strokeWidth, linecap) => {
     // color = 'black',
     // context.strokeStyle = tinycolor(color).toRgbString();
-    context.lineWidth = strokeWidth;
-    context.lineCap = linecap;
+    if (strokeWidth) context.lineWidth = strokeWidth;
+    if (linecap) context.lineCap = linecap;
     context.beginPath();
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);

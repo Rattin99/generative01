@@ -106,8 +106,11 @@ export const sketch = (canvasElId, smode = 0) => {
 
     const applyCanvasSize = (config, fraction) => {
         if (sizeMode === sketchSizeMode.css) {
-            const s = canvas.getBoundingClientRect();
-            resizeCanvas(canvas, context, s.width, s.height, 1);
+            // const s = canvas.getBoundingClientRect();
+            // resizeCanvas(canvas, context, s.width, s.height, 1);
+            return;
+        }
+        if (sizeMode == sketchSizeMode.sketch) {
             return;
         }
 

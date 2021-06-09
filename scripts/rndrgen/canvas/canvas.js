@@ -24,15 +24,21 @@ export const resizeCanvas = (canvas, context, width, height, scale) => {
     }
 };
 
+const contextDefaults = {
+    strokeStyle: '#000',
+    fillStyle: '#000',
+    lineWidth: 1,
+    lineCap: 'butt',
+    lineJoin: 'miter',
+    textAlign: 'left',
+    textBaseline: 'top',
+};
+
 export const resetStyles = (context) => {
-    context.strokeStyle = '#000';
-    context.fillStyle = '#000';
-    context.lineWidth = 1;
+    Object.keys(contextDefaults).forEach((k) => {
+        context[k] = contextDefaults[k];
+    });
     context.setLineDash([]);
-    context.lineCap = 'butt';
-    context.lineJoin = 'miter';
-    context.textAlign = 'left';
-    context.textBaseline = 'top';
 };
 
 // https://www.rgraph.net/canvas/howto-antialias.html
@@ -45,12 +51,13 @@ export const blendMode = (context) => (mode = 'source-over') => (context.globalC
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
 export const filter = (context) => (f = '') => (context.filter = f);
 
-export const stokeColor = (context) => (color) => (context.strokeStyle = tinycolor(color).toRgbString());
-export const fillColor = (context) => (color) => (context.fillStyle = tinycolor(color).toRgbString());
+export const strokeWeight = (context) => (w = 1) => (context.lineWidth = w);
+export const stokeColor = (context) => (color = '#000') => (context.strokeStyle = tinycolor(color).toRgbString());
+export const fillColor = (context) => (color = '#000') => (context.fillStyle = tinycolor(color).toRgbString());
 
 export const clear = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
 
-export const background = (canvas, context) => (color = 'black') => {
+export const background = ({ width, height }, context) => (color = 'black') => {
     context.fillStyle = tinycolor(color).toRgbString();
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, width, height);
 };

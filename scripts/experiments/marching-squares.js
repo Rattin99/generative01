@@ -3,12 +3,12 @@ import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 
-import { simplexNoise2d } from '../rndrgen/math/attractors';
+import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/fields';
-import { mapRange } from '../rndrgen/math/math';
-import { circleFilled, pixel } from '../rndrgen/canvas/primatives';
-
-// https://www.youtube.com/watch?v=0ZONMNUKTfU&t=2s
+import { mapRange, lerp } from '../rndrgen/math/math';
+import { circleFilled, line, pixel } from '../rndrgen/canvas/primatives';
+import { Matrix } from '../rndrgen/math/Matrix';
+import { isoline } from '../rndrgen/systems/marchingSquares';
 
 export const marchingSquares = () => {
     const config = {
@@ -17,73 +17,63 @@ export const marchingSquares = () => {
         scale: scale.standard,
     };
 
-    let ctx;
     let canvasWidth;
     let canvasHeight;
-    let canvasCenterX;
-    let canvasCenterY;
-    let centerRadius;
-    let imageWidth;
-    let imageHeight;
-    let startX;
-    let maxX;
-    let startY;
-    let maxY;
-    const margin = 50;
 
     const backgroundColor = paperWhite.clone();
     const foreColor = bicPenBlue.clone();
 
-    const noise = (x, y) => simplexNoise2d(x, y, 0.004);
+    const resolution = 50;
+    const lowColor = backgroundColor.clone().darken(25);
+    const highColor = backgroundColor.clone().brighten(25);
+
+    let cols = Math.ceil(canvasWidth / resolution) + 1;
+    let rows = Math.ceil(canvasHeight / resolution) + 1;
+    let field = new Matrix(rows, cols);
+
+    let z = 0;
 
     const setup = ({ canvas, context }) => {
-        ctx = context;
-
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        centerRadius = canvas.height / 4;
 
-        imageWidth = canvas.width - margin * 2;
-        imageHeight = canvas.height - margin * 2;
-
-        startX = margin;
-        maxX = canvas.width - margin;
-        startY = margin;
-        maxY = canvas.height - margin;
+        cols = Math.ceil(canvasWidth / resolution) + 1;
+        rows = Math.ceil(canvasHeight / resolution) + 1;
+        field = new Matrix(rows, cols);
 
         background(canvas, context)(backgroundColor);
     };
 
-    const getTile = (num) => {};
-
     const draw = ({ canvas, context }) => {
-        const { width, height } = canvas;
-        const resolution = 10;
-        const lowColor = backgroundColor.clone().darken(25);
-        const highColor = backgroundColor.clone().brighten(25);
-        const noiseMax = 8;
-        const xStep = Math.round(width / resolution) + 1;
-        const yStep = Math.round(height / resolution) + 1;
-
-        const field = [];
-
-        for (let x = 0; x <= width; x += xStep) {
-            for (let y = 0; y <= height; y += yStep) {
-                const theta = noise(x, y);
-                const normalized = mapRange(-5, 5, 0, 1, theta);
-                field.push({ x, y, val: normalized });
-                const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
-                context.fillStyle = tinycolor(fillColor).toRgbString();
-                context.fillRect(x, y, x + xStep, y + yStep);
-                circleFilled(context)(x, y, 3, 'red');
+        background(canvas, context)('rgba(255,255,255,.1');
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                const x = i * resolution;
+                const y = j * resolution;
+                const theta = simplexNoise3d(x, y, z, 0.006);
+                const normalized = mapRange(-7, 7, -1, 1, theta);
+                field.data[j][i] = normalized;
+                // const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
+                // context.fillStyle = tinycolor(fillColor).toRgbString();
+                // context.fillRect(x, y, x + resolution, y + resolution);
             }
         }
 
-        // console.log(field);
+        for (let i = 0; i < cols - 1; i++) {
+            for (let j = 0; j < rows - 1; j++) {
+                const x = i * resolution;
+                const y = j * resolution;
+                const a = field.data[j][i];
+                const b = field.data[j][i + 1];
+                const c = field.data[j + 1][i + 1];
+                const d = field.data[j + 1][i];
+                isoline(context, x, y, x + resolution, y + resolution, a, b, c, d, true);
+            }
+        }
 
-        return -1;
+        z += 0.7;
+
+        return 1;
     };
     return {
         config,
