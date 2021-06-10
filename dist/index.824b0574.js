@@ -2270,9 +2270,12 @@ parcelHelpers.export(exports, "pixelAtPoints", ()=>pixelAtPoints
 );
 parcelHelpers.export(exports, "pointPath", ()=>pointPath
 );
+parcelHelpers.export(exports, "arc", ()=>arc
+);
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("./canvas");
+var _math = require("../math/math");
 const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
         size = size || _canvas.currentContextScale();
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
@@ -2402,8 +2405,19 @@ const pointPath = (ctx)=>(points, color = 'black', width = 1, close = false, dra
         ctx.stroke();
     }
 ;
+const arc = (context)=>(x, y, radius, thickness, color, theta, clockWise = false)=>{
+        const startR = _math.snapNumber(Math.PI / 2, theta);
+        const endR = startR + Math.PI / 2;
+        context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        context.lineCap = 'butt';
+        context.lineWidth = thickness;
+        context.beginPath();
+        context.arc(x, y, radius, startR, endR, clockWise);
+        context.stroke();
+    }
+;
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4RQVg":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/math":"4t0bw"}],"4RQVg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "pointArrayToPointObject", ()=>pointArrayToPointObject
@@ -7795,9 +7809,7 @@ var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
-var _fields = require("../rndrgen/canvas/fields");
 var _math = require("../rndrgen/math/math");
-var _primatives = require("../rndrgen/canvas/primatives");
 var _matrix = require("../rndrgen/math/Matrix");
 var _marchingSquares = require("../rndrgen/systems/marchingSquares");
 const marchingSquares = ()=>{
@@ -7810,13 +7822,17 @@ const marchingSquares = ()=>{
     let canvasHeight;
     const backgroundColor = _palettes.paperWhite.clone();
     const foreColor = _palettes.bicPenBlue.clone();
-    const resolution = 50;
+    const resolution = 40;
     const lowColor = backgroundColor.clone().darken(25);
     const highColor = backgroundColor.clone().brighten(25);
     let cols = Math.ceil(canvasWidth / resolution) + 1;
     let rows = Math.ceil(canvasHeight / resolution) + 1;
     let field = new _matrix.Matrix(rows, cols);
     let z = 0;
+    const lineWidth = 2;
+    const lineColor = 'black';
+    const lineJoin = 'round';
+    const lineCap = 'round';
     const setup = ({ canvas , context  })=>{
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
@@ -7824,18 +7840,23 @@ const marchingSquares = ()=>{
         rows = Math.ceil(canvasHeight / resolution) + 1;
         field = new _matrix.Matrix(rows, cols);
         _canvas.background(canvas, context)(backgroundColor);
+        context.lineWidth = lineWidth;
+        context.lineCap = lineCap;
+        context.lineJoin = lineJoin;
+        context.strokeStyle = _tinycolor2Default.default(lineColor);
     };
     const draw = ({ canvas , context  })=>{
         _canvas.background(canvas, context)('rgba(255,255,255,.1');
+        const sq = [];
         for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
             const x = i * resolution;
             const y = j * resolution;
-            const theta = _attractors.simplexNoise3d(x, y, z, 0.006);
-            const normalized = _math.mapRange(-7, 7, -1, 1, theta);
+            const noise = _attractors.simplexNoise3d(x, y, z, 0.004);
+            const normalized = _math.mapRange(-7, 7, -1, 1, noise);
             field.data[j][i] = normalized;
-        // const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
-        // context.fillStyle = tinycolor(fillColor).toRgbString();
-        // context.fillRect(x, y, x + resolution, y + resolution);
+            const fillColor = _tinycolor2Default.default.mix(lowColor, highColor, normalized * 100);
+            context.fillStyle = _tinycolor2Default.default(fillColor).toRgbString();
+            context.fillRect(x, y, x + resolution, y + resolution);
         }
         for(let i1 = 0; i1 < cols - 1; i1++)for(let j1 = 0; j1 < rows - 1; j1++){
             const x = i1 * resolution;
@@ -7844,8 +7865,12 @@ const marchingSquares = ()=>{
             const b = field.data[j1][i1 + 1];
             const c = field.data[j1 + 1][i1 + 1];
             const d = field.data[j1 + 1][i1];
-            _marchingSquares.isoline(context, x, y, x + resolution, y + resolution, a, b, c, d, true);
+            sq.push(new _marchingSquares.mSquare(x, y, resolution, a, b, c, d));
         }
+        sq.forEach((s)=>_marchingSquares.truchet(context, s)
+        );
+        sq.forEach((s)=>_marchingSquares.isoline(context, s, true)
+        );
         z += 0.7;
         return 1;
     };
@@ -7856,7 +7881,7 @@ const marchingSquares = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/Matrix":"FKKRL","../rndrgen/systems/marchingSquares":"5BOkN"}],"FKKRL":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/Matrix":"FKKRL","../rndrgen/systems/marchingSquares":"5BOkN"}],"FKKRL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -7970,6 +7995,12 @@ class Matrix {
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5BOkN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+/*
+  a---b
+  |   |
+  d---c
+ */ parcelHelpers.export(exports, "mSquare", ()=>mSquare
+);
 parcelHelpers.export(exports, "isoline", ()=>isoline
 );
 parcelHelpers.export(exports, "truchet", ()=>truchet
@@ -7978,6 +8009,8 @@ parcelHelpers.export(exports, "truchet", ()=>truchet
 // https://editor.p5js.org/codingtrain/sketches/18cjVoAX1
 // http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
 // https://en.wikipedia.org/wiki/Marching_squares#/media/File:Marching_squares_algorithm.svg
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _primatives = require("../canvas/primatives");
 var _math = require("../math/math");
 const point = (x, y)=>({
@@ -7993,56 +8026,94 @@ const getState = (a, b, c, d)=>a * 8 + b * 4 + c * 2 + d * 1
 // a and b are -1 to 1
 const lerpAmt = (a, b)=>(1 - (a + 1)) / (b + 1 - (a + 1))
 ;
-const isoline = (context, x, y, x2, y2, a, b, c, d, smooth = false)=>{
-    const state = getState(Math.ceil(a), Math.ceil(b), Math.ceil(c), Math.ceil(d));
+class mSquare {
+    constructor(x, y, size, a, b, c, d){
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.x2 = x + size;
+        this.y2 = y + size;
+        this.mx = midPoint(this.x, this.x2);
+        this.my = midPoint(this.y, this.y2);
+        // -1 to 1 noise values
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
+        // 0 to 15
+        this.state = getState(Math.ceil(a), Math.ceil(b), Math.ceil(c), Math.ceil(d));
+    }
+    get midTop() {
+        return point(this.mx, this.y);
+    }
+    get midRight() {
+        return point(this.x2, this.my);
+    }
+    get midBottom() {
+        return point(this.mx, this.y2);
+    }
+    get midLeft() {
+        return point(this.x, this.my);
+    }
+    get lerpTop() {
+        return point(_math.lerp(this.x, this.x2, lerpAmt(this.a, this.b)), this.y);
+    }
+    get lerpRight() {
+        return point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.b, this.c)));
+    }
+    get lerpBottom() {
+        return point(_math.lerp(this.x, this.x2, lerpAmt(this.d, this.c)), this.y2);
+    }
+    get lerpLeft() {
+        return point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.a, this.d)));
+    }
+    getSides(smooth) {
+        return {
+            top: smooth ? this.lerpTop : this.midTop,
+            right: smooth ? this.lerpRight : this.midRight,
+            bottom: smooth ? this.lerpBottom : this.midBottom,
+            left: smooth ? this.lerpLeft : this.midLeft
+        };
+    }
+}
+const isoline = (context, square, smooth = false)=>{
     const drawLine = (p1, p2)=>_primatives.line(context)(p1.x, p1.y, p2.x, p2.y)
     ;
-    const mx = midPoint(x, x2);
-    const my = midPoint(y, y2);
-    const midTop = point(mx, y);
-    const midRight = point(x2, my);
-    const midBottom = point(mx, y2);
-    const midLeft = point(x, my);
-    if (smooth) {
-        midTop.x = _math.lerp(x, x2, lerpAmt(a, b));
-        midRight.y = _math.lerp(y, y2, lerpAmt(b, c));
-        midBottom.x = _math.lerp(x, x2, lerpAmt(d, c));
-        midLeft.y = _math.lerp(y, y2, lerpAmt(a, d));
-    }
-    switch(state){
+    const sides = square.getSides(smooth);
+    switch(square.state){
         case 1:
         case 14:
-            drawLine(midLeft, midBottom);
+            drawLine(sides.left, sides.bottom);
             break;
         case 2:
         case 13:
-            drawLine(midBottom, midRight);
+            drawLine(sides.bottom, sides.right);
             break;
         case 3:
         case 12:
-            drawLine(midLeft, midRight);
+            drawLine(sides.left, sides.right);
             break;
         case 4:
-            drawLine(midTop, midRight);
+            drawLine(sides.top, sides.right);
             break;
         case 5:
-            drawLine(midLeft, midTop);
-            drawLine(midBottom, midRight);
+            drawLine(sides.left, sides.top);
+            drawLine(sides.bottom, sides.right);
             break;
         case 6:
         case 9:
-            drawLine(midTop, midBottom);
+            drawLine(sides.top, sides.bottom);
             break;
         case 7:
         case 8:
-            drawLine(midLeft, midTop);
+            drawLine(sides.left, sides.top);
             break;
         case 10:
-            drawLine(midLeft, midBottom);
-            drawLine(midTop, midRight);
+            drawLine(sides.left, sides.bottom);
+            drawLine(sides.top, sides.right);
             break;
         case 11:
-            drawLine(midTop, midRight);
+            drawLine(sides.top, sides.right);
             break;
         case 0:
         case 15:
@@ -8050,9 +8121,94 @@ const isoline = (context, x, y, x2, y2, a, b, c, d, smooth = false)=>{
             break;
     }
 };
-const truchet = ()=>{
+/*
+// tl
+arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
+// tr
+arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
+// bl
+arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
+// br
+arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
+ */ const arc = (context, x1, y1, radius, thick, color, theta, clockWise = false)=>{
+    const startR = _math.snapNumber(Math.PI / 2, theta);
+    const endR = startR + Math.PI / 2;
+    context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+    context.lineCap = 'butt';
+    context.lineWidth = thick;
+    context.beginPath();
+    context.arc(x1, y1, radius, startR, endR, clockWise);
+    context.stroke();
+};
+const truchet = (context, square)=>{
+    const foreColor = 'black';
+    const backColor = 'white';
+    const scale = square.size / 3;
+    const arcRad = square.size / 2;
+    const arcSize = scale;
+    // rectFilled(context)(square.x, square.y, square.size, square.size, backColor);
+    switch(square.state){
+        case 0:
+            arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
+            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
+            break;
+        case 1:
+            arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
+            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
+            break;
+        case 2:
+            _primatives.rectFilled(context)(square.x, square.y + scale, square.size, scale, foreColor);
+            break;
+        case 3:
+            _primatives.rectFilled(context)(square.x + scale, square.y, scale, square.size, foreColor);
+            break;
+        case 4:
+            _primatives.rectFilled(context)(square.x, square.y + scale, square.size, scale, foreColor);
+            _primatives.rectFilled(context)(square.x + scale, square.y, scale, square.size, foreColor);
+            break;
+        case 6:
+            _primatives.rectFilled(context)(square.x, square.y, square.size, square.size, foreColor);
+            break;
+        case 7:
+            arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
+            break;
+        case 8:
+            arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
+            break;
+        case 9:
+            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
+            break;
+        case 10:
+            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
+            break;
+        case 11:
+            _primatives.rectFilled(context)(square.x, square.y, square.size, square.size - scale, foreColor);
+            break;
+        case 12:
+            _primatives.rectFilled(context)(square.x, square.y + scale, square.size, square.size - scale, foreColor);
+            break;
+        case 13:
+            _primatives.rectFilled(context)(square.x + scale, square.y, square.size - scale, square.size, foreColor);
+            break;
+        case 14:
+            _primatives.rectFilled(context)(square.x, square.y, square.size - scale, square.size, foreColor);
+            break;
+        case 5:
+        case 15:
+        default:
+            break;
+    }
+    // wing
+    _primatives.circleFilled(context)(square.x, square.y, scale, backColor);
+    _primatives.circleFilled(context)(square.x2, square.y, scale, backColor);
+    _primatives.circleFilled(context)(square.x2, square.y2, scale, backColor);
+    _primatives.circleFilled(context)(square.x, square.y2, scale, backColor);
+    _primatives.circleFilled(context)(square.mx, square.y, scale / 2, foreColor);
+    _primatives.circleFilled(context)(square.x2, square.my, scale / 2, foreColor);
+    _primatives.circleFilled(context)(square.mx, square.y2, scale / 2, foreColor);
+    _primatives.circleFilled(context)(square.x, square.ym, scale / 2, foreColor);
 };
 
-},{"../canvas/primatives":"6MM7x","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../canvas/primatives":"6MM7x","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","tinycolor2":"101FG"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

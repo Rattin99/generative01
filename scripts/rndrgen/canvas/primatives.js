@@ -1,5 +1,6 @@
 import tinycolor from 'tinycolor2';
 import * as cnvs from './canvas';
+import { snapNumber } from '../math/math';
 
 export const pixel = (context) => (x, y, color = 'black', mode = 'square', size) => {
     size = size || cnvs.currentContextScale();
@@ -141,4 +142,25 @@ export const pointPath = (ctx) => (points, color = 'black', width = 1, close = f
         ctx.lineTo(points[0][0], points[0][1]);
     }
     ctx.stroke();
+};
+
+/*
+// tl
+arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
+// tr
+arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
+// bl
+arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
+// br
+arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
+ */
+export const arc = (context) => (x, y, radius, thickness, color, theta, clockWise = false) => {
+    const startR = snapNumber(Math.PI / 2, theta);
+    const endR = startR + Math.PI / 2;
+    context.strokeStyle = tinycolor(color).toRgbString();
+    context.lineCap = 'butt';
+    context.lineWidth = thickness;
+    context.beginPath();
+    context.arc(x, y, radius, startR, endR, clockWise);
+    context.stroke();
 };

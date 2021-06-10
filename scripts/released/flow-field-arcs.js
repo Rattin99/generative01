@@ -20,7 +20,6 @@ const arc = (context, x, y, size, thick, color, theta) => {
     const startR = snapNumber(Math.PI / 2, theta);
     const endR = startR + Math.PI / 2;
     const clockWise = true;
-
     context.strokeStyle = tinycolor(color).toRgbString();
     context.lineCap = 'round';
     context.lineWidth = thick;
