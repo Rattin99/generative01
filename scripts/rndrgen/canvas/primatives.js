@@ -146,20 +146,20 @@ export const pointPath = (ctx) => (points, color = 'black', width = 1, close = f
 
 /*
 // tl
-arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
+arcQuarter(context)(square.x, square.y, arcRad, 0);
 // tr
-arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
+arcQuarter(context)(square.x2, square.y, arcRad, Math.PI / 2);
 // bl
-arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
+arcQuarter(context)(square.x, square.y2, arcRad, Math.PI * 1.5);
 // br
-arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
+arcQuarter(context)(square.x, square.y2, arcRad, Math.PI);
  */
-export const arc = (context) => (x, y, radius, thickness, color, theta, clockWise = false) => {
-    const startR = snapNumber(Math.PI / 2, theta);
+export const arcQuarter = (context) => (x, y, radius, startRadians, clockWise = false) => {
+    // context.strokeStyle = tinycolor(color).toRgbString();
+    // context.lineCap = 'butt';
+    // context.lineWidth = thickness;
+    const startR = snapNumber(Math.PI / 2, startRadians);
     const endR = startR + Math.PI / 2;
-    context.strokeStyle = tinycolor(color).toRgbString();
-    context.lineCap = 'butt';
-    context.lineWidth = thickness;
     context.beginPath();
     context.arc(x, y, radius, startR, endR, clockWise);
     context.stroke();

@@ -6,9 +6,9 @@ import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { mapRange } from '../rndrgen/math/math';
 import { Matrix } from '../rndrgen/math/Matrix';
-import { isoline, mSquare } from '../rndrgen/systems/marchingSquares';
+import { mSquare, truchet } from '../rndrgen/systems/truchetTiles';
 
-export const marchingSquares = () => {
+export const truchetTiles = () => {
     const config = {
         name: 'marchingSquares',
         ratio: ratio.square,
@@ -53,7 +53,7 @@ export const marchingSquares = () => {
     };
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)('rgba(255,255,255,.1');
+        background(canvas, context)('rgba(255,255,255,.05');
 
         const sq = [];
 
@@ -64,9 +64,9 @@ export const marchingSquares = () => {
                 const noise = simplexNoise3d(x, y, z, 0.004);
                 const normalized = mapRange(-7, 7, -1, 1, noise);
                 field.data[j][i] = normalized;
-                const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
-                context.fillStyle = tinycolor(fillColor).toRgbString();
-                context.fillRect(x, y, x + resolution, y + resolution);
+                // const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
+                // context.fillStyle = tinycolor(fillColor).toRgbString();
+                // context.fillRect(x, y, x + resolution, y + resolution);
             }
         }
 
@@ -82,7 +82,7 @@ export const marchingSquares = () => {
             }
         }
 
-        sq.forEach((s) => isoline(context, s, true));
+        sq.forEach((s) => truchet(context, s, foreColor, backgroundColor));
 
         z += 0.7;
 

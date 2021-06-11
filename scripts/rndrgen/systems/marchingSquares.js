@@ -4,7 +4,7 @@
 // https://en.wikipedia.org/wiki/Marching_squares#/media/File:Marching_squares_algorithm.svg
 
 import tinycolor from 'tinycolor2';
-import { line, circleFilled, rectFilled, rect } from '../canvas/primatives';
+import { line, circleFilled, rectFilled, rect, arcQuarter } from '../canvas/primatives';
 import { lerp, snapNumber } from '../math/math';
 
 const point = (x, y) => ({ x, y });
@@ -126,99 +126,4 @@ export const isoline = (context, square, smooth = false) => {
         default:
             break;
     }
-};
-
-/*
-// tl
-arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
-// tr
-arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
-// bl
-arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
-// br
-arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
- */
-const arc = (context, x, y, radius, thick, color, theta, clockWise = false) => {
-    const startR = snapNumber(Math.PI / 2, theta);
-    const endR = startR + Math.PI / 2;
-    context.strokeStyle = tinycolor(color).toRgbString();
-    context.lineCap = 'butt';
-    context.lineWidth = thick;
-    context.beginPath();
-    context.arc(x, y, radius, startR, endR, clockWise);
-    context.stroke();
-};
-
-// https://questionsindataviz.com/2021/03/03/what-are-truchet-tiles/
-// https://christophercarlson.com/portfolio/multi-scale-truchet-patterns/
-export const truchet = (context, square) => {
-    const foreColor = 'black';
-    const backColor = 'white';
-    const scale = square.size / 3;
-    const arcRad = square.size / 2;
-    const arcSize = scale;
-
-    // rectFilled(context)(square.x, square.y, square.size, square.size, backColor);
-
-    switch (square.state) {
-        case 0:
-            arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
-            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
-            break;
-        case 1:
-            arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
-            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
-            break;
-        case 2:
-            rectFilled(context)(square.x, square.y + scale, square.size, scale, foreColor);
-            break;
-        case 3:
-            rectFilled(context)(square.x + scale, square.y, scale, square.size, foreColor);
-            break;
-        case 4:
-            rectFilled(context)(square.x, square.y + scale, square.size, scale, foreColor);
-            rectFilled(context)(square.x + scale, square.y, scale, square.size, foreColor);
-            break;
-        case 6:
-            rectFilled(context)(square.x, square.y, square.size, square.size, foreColor);
-            break;
-        case 7:
-            arc(context, square.x, square.y, arcRad, arcSize, foreColor, 0);
-            break;
-        case 8:
-            arc(context, square.x2, square.y, arcRad, arcSize, foreColor, Math.PI / 2);
-            break;
-        case 9:
-            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI * 1.5);
-            break;
-        case 10:
-            arc(context, square.x, square.y2, arcRad, arcSize, foreColor, Math.PI);
-            break;
-        case 11:
-            rectFilled(context)(square.x, square.y, square.size, square.size - scale, foreColor);
-            break;
-        case 12:
-            rectFilled(context)(square.x, square.y + scale, square.size, square.size - scale, foreColor);
-            break;
-        case 13:
-            rectFilled(context)(square.x + scale, square.y, square.size - scale, square.size, foreColor);
-            break;
-        case 14:
-            rectFilled(context)(square.x, square.y, square.size - scale, square.size, foreColor);
-            break;
-        case 5:
-        case 15:
-        default:
-            break;
-    }
-
-    // wing
-    circleFilled(context)(square.x, square.y, scale, backColor);
-    circleFilled(context)(square.x2, square.y, scale, backColor);
-    circleFilled(context)(square.x2, square.y2, scale, backColor);
-    circleFilled(context)(square.x, square.y2, scale, backColor);
-    circleFilled(context)(square.mx, square.y, scale / 2, foreColor);
-    circleFilled(context)(square.x2, square.my, scale / 2, foreColor);
-    circleFilled(context)(square.mx, square.y2, scale / 2, foreColor);
-    circleFilled(context)(square.x, square.ym, scale / 2, foreColor);
 };
