@@ -106,9 +106,9 @@ export const truchet = (context, square, foreColor = 'black', backColor = 'white
     context.lineWidth = scale;
     context.lineJoin = 'round';
 
-    const truchetTileShape = motifList[square.state];
+    const motif = motifList[square.state];
 
-    switch (truchetTileShape) {
+    switch (motif) {
         case '\\':
             arcQuarter(context)(square.x2, square.y, arcRad, Math.PI / 2);
             arcQuarter(context)(square.x, square.y2, arcRad, Math.PI * 1.5);
