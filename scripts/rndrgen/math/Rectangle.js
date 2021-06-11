@@ -1,21 +1,22 @@
 import { lerp } from './math';
+import { randomNormalWholeBetween } from './random';
 
 const point = (x, y) => ({ x, y });
 const midPoint = (a, b) => (b - a) / 2 + a;
 
 // a...d are 0 or 1
-const getState = (a, b, c, d) => a * 8 + b * 4 + c * 2 + d * 1;
+const getStateFromCorners = (a, b, c, d) => a * 8 + b * 4 + c * 2 + d * 1;
 
 // a and b are -1 to 1
 const lerpAmt = (a, b) => (1 - (a + 1)) / (b + 1 - (a + 1));
 
-/*
+/* Corners
   a---b
   |   |
   d---c
  */
 export class Rectangle {
-    constructor(x, y, width, height, a, b, c, d) {
+    constructor(x, y, width, height, corners) {
         this.x = x;
         this.y = y;
         this.w = width;
@@ -24,13 +25,30 @@ export class Rectangle {
         this.y2 = y + height;
         this.mx = midPoint(this.x, this.x2);
         this.my = midPoint(this.y, this.y2);
+        // 1 or -1
+        this.phase = 1;
         // -1 to 1 noise values
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-        // 0 to 15
-        this.state = getState(Math.ceil(a), Math.ceil(b), Math.ceil(c), Math.ceil(d));
+        this.corners = corners || [0, 0, 0, 0];
+        // array of subdivisions, [rect]
+        this.children = [];
+    }
+
+    // 0 to 15
+    get cornerState() {
+        return getStateFromCorners(
+            Math.ceil(this.corners[0]),
+            Math.ceil(this.corners[1]),
+            Math.ceil(this.corners[2]),
+            Math.ceil(this.corners[3])
+        );
+    }
+
+    get cornerAverage() {
+        return (this.average = (this.corners[0] + this.corners[2] + this.corners[2] + this.corners[3]) / 4);
+    }
+
+    get center() {
+        return point(this.mx, this.my);
     }
 
     get midTop() {
@@ -50,19 +68,19 @@ export class Rectangle {
     }
 
     get lerpTop() {
-        return point(lerp(this.x, this.x2, lerpAmt(this.a, this.b)), this.y);
+        return point(lerp(this.x, this.x2, lerpAmt(this.corners[0], this.corners[1])), this.y);
     }
 
     get lerpRight() {
-        return point(this.x2, lerp(this.y, this.y2, lerpAmt(this.b, this.c)));
+        return point(this.x2, lerp(this.y, this.y2, lerpAmt(this.corners[1], this.corners[2])));
     }
 
     get lerpBottom() {
-        return point(lerp(this.x, this.x2, lerpAmt(this.d, this.c)), this.y2);
+        return point(lerp(this.x, this.x2, lerpAmt(this.corners[3], this.corners[2])), this.y2);
     }
 
     get lerpLeft() {
-        return point(this.x, lerp(this.y, this.y2, lerpAmt(this.a, this.d)));
+        return point(this.x, lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
     }
 
     getSides(smooth) {
@@ -72,6 +90,12 @@ export class Rectangle {
             bottom: smooth ? this.lerpBottom : this.midBottom,
             left: smooth ? this.lerpLeft : this.midLeft,
         };
+    }
+
+    randomPointInside() {
+        const x = randomNormalWholeBetween(0, this.w) + this.x;
+        const y = randomNormalWholeBetween(0, this.h) + this.y;
+        return point(x, y);
     }
 
     contains(p) {
@@ -86,4 +110,37 @@ export class Rectangle {
             rect.y + rect.h < this.y - this.h
         );
     }
+
+    divideQuad() {
+        const halfW = Math.round(this.w / 2);
+        const halfH = Math.round(this.h / 2);
+        this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
+        this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
+        this.children.push(new Rectangle(this.x, this.y + halfH, halfW, halfH));
+        this.children.push(new Rectangle(this.x + halfW, this.y + halfH, halfW, halfH));
+        this.children.forEach((c) => (c.phase *= -1));
+    }
 }
+
+export class Square extends Rectangle {
+    constructor(x, y, size, corners = [0, 0, 0, 0]) {
+        super(x, y, size, size, corners);
+        this.size = size;
+    }
+}
+
+export const createRectGrid = (x, y, w, h, cols, rows) => {
+    const rects = [];
+    const colw = Math.round(w / cols);
+    const rowh = Math.round(h / rows);
+
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            const rx = i * colw + x;
+            const ry = j * rowh + y;
+            rects.push(new Rectangle(rx, ry, colw, rowh));
+        }
+    }
+
+    return rects;
+};

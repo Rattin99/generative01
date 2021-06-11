@@ -590,7 +590,9 @@ parcelHelpers.export(exports, "currentContextScale", ()=>currentContextScale
 );
 parcelHelpers.export(exports, "resizeCanvas", ()=>resizeCanvas
 );
-parcelHelpers.export(exports, "resetStyles", ()=>resetStyles
+parcelHelpers.export(exports, "setContext", ()=>setContext
+);
+parcelHelpers.export(exports, "resetContext", ()=>resetContext
 );
 parcelHelpers.export(exports, "sharpLines", ()=>sharpLines
 );
@@ -612,6 +614,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 let isHiDPI = false;
 let contextScale = 1;
+const contextHistory = [];
 const isHiDPICanvas = (_)=>isHiDPI
 ;
 const currentContextScale = (_)=>contextScale
@@ -635,12 +638,18 @@ const contextDefaults = {
     lineCap: 'butt',
     lineJoin: 'miter',
     textAlign: 'left',
-    textBaseline: 'top'
+    textBaseline: 'top',
+    globalCompositeOperation: 'source-over'
 };
-const resetStyles = (context)=>{
-    Object.keys(contextDefaults).forEach((k)=>{
-        context[k] = contextDefaults[k];
-    });
+const setContext = (context)=>(settings)=>{
+        contextHistory.push(settings);
+        Object.keys(settings).forEach((k)=>{
+            context[k] = settings[k];
+        });
+    }
+;
+const resetContext = (context)=>{
+    setContext(context)(contextDefaults);
     context.setLineDash([]);
 };
 const sharpLines = (context)=>context.translate(0.5, 0.5)
@@ -2237,7 +2246,7 @@ const connectParticles = (context)=>(pArray, proximity, useAlpha = true)=>{
                 _primatives.line(context)(pA.x, pA.y, pB.x, pB.y, 0.5);
             }
         }
-        _canvas.resetStyles(context);
+        _canvas.resetContext(context);
     }
 ;
 
@@ -7812,6 +7821,8 @@ var _attractors = require("../rndrgen/math/attractors");
 var _math = require("../rndrgen/math/math");
 var _matrix = require("../rndrgen/math/Matrix");
 var _truchetTiles = require("../rndrgen/systems/truchetTiles");
+var _rectangle = require("../rndrgen/math/Rectangle");
+var _random = require("../rndrgen/math/random");
 const truchetTiles = ()=>{
     const config = {
         name: 'marchingSquares',
@@ -7822,55 +7833,34 @@ const truchetTiles = ()=>{
     let canvasHeight;
     const backgroundColor = _palettes.paperWhite.clone();
     const foreColor = _palettes.bicPenBlue.clone();
-    const resolution = 40;
-    const lowColor = backgroundColor.clone().darken(25);
-    const highColor = backgroundColor.clone().brighten(25);
-    let cols = Math.ceil(canvasWidth / resolution) + 1;
-    let rows = Math.ceil(canvasHeight / resolution) + 1;
-    let field = new _matrix.Matrix(rows, cols);
-    let z = 0;
-    const lineWidth = 2;
-    const lineColor = 'black';
-    const lineJoin = 'round';
-    const lineCap = 'round';
     const setup = ({ canvas , context  })=>{
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-        cols = Math.ceil(canvasWidth / resolution) + 1;
-        rows = Math.ceil(canvasHeight / resolution) + 1;
-        field = new _matrix.Matrix(rows, cols);
         _canvas.background(canvas, context)(backgroundColor);
-        context.lineWidth = lineWidth;
-        context.lineCap = lineCap;
-        context.lineJoin = lineJoin;
-        context.strokeStyle = _tinycolor2Default.default(lineColor);
     };
     const draw = ({ canvas , context  })=>{
-        _canvas.background(canvas, context)('rgba(255,255,255,.05');
-        const sq = [];
-        for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
-            const x = i * resolution;
-            const y = j * resolution;
-            const noise = _attractors.simplexNoise3d(x, y, z, 0.004);
-            const normalized = _math.mapRange(-7, 7, -1, 1, noise);
-            field.data[j][i] = normalized;
-        // const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
-        // context.fillStyle = tinycolor(fillColor).toRgbString();
-        // context.fillRect(x, y, x + resolution, y + resolution);
-        }
-        for(let i1 = 0; i1 < cols - 1; i1++)for(let j1 = 0; j1 < rows - 1; j1++){
-            const x = i1 * resolution;
-            const y = j1 * resolution;
-            const a = field.data[j1][i1];
-            const b = field.data[j1][i1 + 1];
-            const c = field.data[j1 + 1][i1 + 1];
-            const d = field.data[j1 + 1][i1];
-            sq.push(new _truchetTiles.mSquare(x, y, resolution, a, b, c, d));
-        }
-        sq.forEach((s)=>_truchetTiles.truchet(context, s, foreColor, backgroundColor)
-        );
-        z += 0.7;
-        return 1;
+        // background(canvas, context)('rgba(255,255,255,.005');
+        const res = Math.round(canvasWidth / 100);
+        const squares = _rectangle.createRectGrid(0, 0, canvasWidth, canvasHeight, res, res);
+        squares.forEach((s)=>{
+            if (_random.randomWholeBetween(0, 3) === 1) {
+                s.divideQuad();
+                if (_random.randomWholeBetween(0, 2) === 1) s.children.forEach((c)=>c.divideQuad()
+                );
+            }
+        });
+        const drawSquares = (rect)=>{
+            if (rect.children.length) rect.children.forEach((r)=>drawSquares(r)
+            );
+            else {
+                rect.motif = _random.randomWholeBetween(0, 15);
+                _truchetTiles.truchet(context, rect, foreColor, backgroundColor);
+            }
+        };
+        squares.forEach((s)=>{
+            drawSquares(s);
+        });
+        return -1;
     };
     return {
         config,
@@ -7879,7 +7869,7 @@ const truchetTiles = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","../rndrgen/math/Matrix":"FKKRL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/truchetTiles":"6w7Yv"}],"FKKRL":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","../rndrgen/math/Matrix":"FKKRL","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP"}],"FKKRL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -7993,85 +7983,12 @@ class Matrix {
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6w7Yv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-/*
-  a---b
-  |   |
-  d---c
- */ parcelHelpers.export(exports, "mSquare", ()=>mSquare
-);
 parcelHelpers.export(exports, "truchet", ()=>truchet
 );
-// https://thecodingtrain.com/challenges/coding-in-the-cabana/005-marching-squares.html
-// https://editor.p5js.org/codingtrain/sketches/18cjVoAX1
-// http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
-// https://en.wikipedia.org/wiki/Marching_squares#/media/File:Marching_squares_algorithm.svg
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _primatives = require("../canvas/primatives");
-var _math = require("../math/math");
-const point = (x, y)=>({
-        x,
-        y
-    })
-;
-const midPoint = (a, b)=>(b - a) / 2 + a
-;
-// a...d are 0 or 1
-const getState = (a, b, c, d)=>a * 8 + b * 4 + c * 2 + d * 1
-;
-// a and b are -1 to 1
-const lerpAmt = (a, b)=>(1 - (a + 1)) / (b + 1 - (a + 1))
-;
-class mSquare {
-    constructor(x, y, size, a, b, c, d){
-        this.x = x;
-        this.y = y;
-        this.size = size;
-        this.x2 = x + size;
-        this.y2 = y + size;
-        this.mx = midPoint(this.x, this.x2);
-        this.my = midPoint(this.y, this.y2);
-        // -1 to 1 noise values
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-        // 0 to 15
-        this.state = getState(Math.ceil(a), Math.ceil(b), Math.ceil(c), Math.ceil(d));
-    }
-    get midTop() {
-        return point(this.mx, this.y);
-    }
-    get midRight() {
-        return point(this.x2, this.my);
-    }
-    get midBottom() {
-        return point(this.mx, this.y2);
-    }
-    get midLeft() {
-        return point(this.x, this.my);
-    }
-    get lerpTop() {
-        return point(_math.lerp(this.x, this.x2, lerpAmt(this.a, this.b)), this.y);
-    }
-    get lerpRight() {
-        return point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.b, this.c)));
-    }
-    get lerpBottom() {
-        return point(_math.lerp(this.x, this.x2, lerpAmt(this.d, this.c)), this.y2);
-    }
-    get lerpLeft() {
-        return point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.a, this.d)));
-    }
-    getSides(smooth) {
-        return {
-            top: smooth ? this.lerpTop : this.midTop,
-            right: smooth ? this.lerpRight : this.midRight,
-            bottom: smooth ? this.lerpBottom : this.midBottom,
-            left: smooth ? this.lerpLeft : this.midLeft
-        };
-    }
-}
+var _canvas = require("../canvas/canvas");
 const motifList = [
     '\\',
     '/',
@@ -8089,89 +8006,230 @@ const motifList = [
     'te',
     'tw'
 ];
-const truchet = (context, square, foreColor = 'black', backColor = 'white')=>{
+const truchet = (context, rectangle, fore = 'black', back = 'white')=>{
     const factor = 3;
-    const scale = square.size / factor;
-    const tSize = scale * (factor - 1); // square.size - scale;
-    const arcRad = square.size / 2;
-    // background X
-    // context.strokeStyle = tinycolor(backColor).toRgbString();
-    // context.lineCap = 'round';
-    // context.lineWidth = scale;
-    // line(context)(square.x, square.y, square.x2, square.y2);
-    // line(context)(square.x, square.y2, square.x2, square.y);
-    // rectFilled(context)(square.x, square.y, square.size, square.size, backColor);
-    context.strokeStyle = _tinycolor2Default.default(foreColor).toRgbString();
-    context.lineCap = 'butt';
-    context.lineWidth = scale;
-    context.lineJoin = 'round';
-    const truchetTileShape = motifList[square.state];
-    switch(truchetTileShape){
+    const scale = Math.round(rectangle.w / factor);
+    const arcRad = Math.round(rectangle.w / 2);
+    const wingDotRad = Math.round(scale / 2) - 1;
+    const tSize = scale * (factor - 1); // rectangle.size - scale;
+    let foreColor = fore;
+    let backColor = back;
+    if (rectangle.phase < 0) {
+        foreColor = back;
+        backColor = fore;
+    }
+    _canvas.setContext(context)({
+        strokeStyle: _tinycolor2Default.default(foreColor).toRgbString(),
+        fillStyle: _tinycolor2Default.default(foreColor).toRgbString(),
+        lineCap: 'butt',
+        lineWidth: scale,
+        lineJoin: 'round'
+    });
+    _primatives.rectFilled(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, backColor);
+    const motif = motifList[rectangle.motif];
+    switch(motif){
         case '\\':
-            _primatives.arcQuarter(context)(square.x2, square.y, arcRad, Math.PI / 2);
-            _primatives.arcQuarter(context)(square.x, square.y2, arcRad, Math.PI * 1.5);
+            _primatives.arcQuarter(context)(rectangle.x2, rectangle.y, arcRad, Math.PI / 2);
+            _primatives.arcQuarter(context)(rectangle.x, rectangle.y2, arcRad, Math.PI * 1.5);
             break;
         case '/':
-            _primatives.arcQuarter(context)(square.x, square.y, arcRad, 0);
-            _primatives.arcQuarter(context)(square.x, square.y2, arcRad, Math.PI);
+            _primatives.arcQuarter(context)(rectangle.x, rectangle.y, arcRad, 0);
+            _primatives.arcQuarter(context)(rectangle.x, rectangle.y2, arcRad, Math.PI);
             break;
         case '-':
-            _primatives.rectFilled(context)(square.x, square.y + scale, square.size, scale, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y + scale, rectangle.w, scale, foreColor);
             break;
         case '|':
             //
-            _primatives.rectFilled(context)(square.x + scale, square.y, scale, square.size, foreColor);
+            _primatives.rectFilled(context)(rectangle.x + scale, rectangle.y, scale, rectangle.w, foreColor);
             break;
         case '+':
-            _primatives.rectFilled(context)(square.x, square.y + scale, square.size, scale, foreColor);
-            _primatives.rectFilled(context)(square.x + scale, square.y, scale, square.size, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y + scale, rectangle.w, scale, foreColor);
+            _primatives.rectFilled(context)(rectangle.x + scale, rectangle.y, scale, rectangle.w, foreColor);
             break;
         case '+.':
             break;
         case 'x.':
-            _primatives.rectFilled(context)(square.x, square.y, square.size, square.size, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, foreColor);
             break;
         case 'fnw':
-            _primatives.arcQuarter(context)(square.x, square.y, arcRad, 0);
+            _primatives.arcQuarter(context)(rectangle.x, rectangle.y, arcRad, 0);
             break;
         case 'fne':
-            _primatives.arcQuarter(context)(square.x2, square.y, arcRad, Math.PI / 2);
+            _primatives.arcQuarter(context)(rectangle.x2, rectangle.y, arcRad, Math.PI / 2);
             break;
         case 'fsw':
             //
-            _primatives.arcQuarter(context)(square.x, square.y2, arcRad, Math.PI * 1.5);
+            _primatives.arcQuarter(context)(rectangle.x, rectangle.y2, arcRad, Math.PI * 1.5);
             break;
         case 'fse':
-            _primatives.arcQuarter(context)(square.x, square.y2, arcRad, Math.PI);
+            _primatives.arcQuarter(context)(rectangle.x, rectangle.y2, arcRad, Math.PI);
             break;
         case 'tn':
-            _primatives.rectFilled(context)(square.x, square.y, square.size, tSize, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y, rectangle.w, tSize, foreColor);
             break;
         case 'ts':
-            _primatives.rectFilled(context)(square.x, square.y + scale, square.size, tSize, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y + scale, rectangle.w, tSize, foreColor);
             break;
         case 'te':
-            _primatives.rectFilled(context)(square.x + scale, square.y, tSize, square.size, foreColor);
+            _primatives.rectFilled(context)(rectangle.x + scale, rectangle.y, tSize, rectangle.w, foreColor);
             break;
         case 'tw':
-            _primatives.rectFilled(context)(square.x, square.y, tSize, square.size, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y, tSize, rectangle.w, foreColor);
             break;
         case 15:
         default:
             // "x."
-            _primatives.rectFilled(context)(square.x, square.y, square.size, square.size, foreColor);
+            _primatives.rectFilled(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, foreColor);
             break;
     }
-    _primatives.circleFilled(context)(square.x, square.y, scale, backColor);
-    _primatives.circleFilled(context)(square.x2, square.y, scale, backColor);
-    _primatives.circleFilled(context)(square.x2, square.y2, scale, backColor);
-    _primatives.circleFilled(context)(square.x, square.y2, scale, backColor);
-    _primatives.circleFilled(context)(square.mx, square.y, scale / 2, foreColor);
-    _primatives.circleFilled(context)(square.x2, square.my, scale / 2, foreColor);
-    _primatives.circleFilled(context)(square.mx, square.y2, scale / 2, foreColor);
-    _primatives.circleFilled(context)(square.x, square.ym, scale / 2, foreColor);
+    _primatives.circleFilled(context)(rectangle.x, rectangle.y, scale, backColor);
+    _primatives.circleFilled(context)(rectangle.x2, rectangle.y, scale, backColor);
+    _primatives.circleFilled(context)(rectangle.x2, rectangle.y2, scale, backColor);
+    _primatives.circleFilled(context)(rectangle.x, rectangle.y2, scale, backColor);
+    _primatives.circleFilled(context)(rectangle.mx, rectangle.y, wingDotRad, foreColor);
+    _primatives.circleFilled(context)(rectangle.x2, rectangle.my, wingDotRad, foreColor);
+    _primatives.circleFilled(context)(rectangle.mx, rectangle.y2, wingDotRad, foreColor);
+    _primatives.circleFilled(context)(rectangle.x, rectangle.my, wingDotRad, foreColor);
 };
 
-},{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../canvas/canvas":"73Br1"}],"1Uf2J":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+/* Corners
+  a---b
+  |   |
+  d---c
+ */ parcelHelpers.export(exports, "Rectangle", ()=>Rectangle
+);
+parcelHelpers.export(exports, "Square", ()=>Square
+);
+parcelHelpers.export(exports, "createRectGrid", ()=>createRectGrid
+);
+var _math = require("./math");
+var _random = require("./random");
+const point = (x, y)=>({
+        x,
+        y
+    })
+;
+const midPoint = (a, b)=>(b - a) / 2 + a
+;
+// a...d are 0 or 1
+const getStateFromCorners = (a, b, c, d)=>a * 8 + b * 4 + c * 2 + d * 1
+;
+// a and b are -1 to 1
+const lerpAmt = (a, b)=>(1 - (a + 1)) / (b + 1 - (a + 1))
+;
+class Rectangle {
+    constructor(x, y, width, height, corners){
+        this.x = x;
+        this.y = y;
+        this.w = width;
+        this.h = height;
+        this.x2 = x + width;
+        this.y2 = y + height;
+        this.mx = midPoint(this.x, this.x2);
+        this.my = midPoint(this.y, this.y2);
+        // 1 or -1
+        this.phase = 1;
+        // -1 to 1 noise values
+        this.corners = corners || [
+            0,
+            0,
+            0,
+            0
+        ];
+        // array of subdivisions, [rect]
+        this.children = [];
+    }
+    // 0 to 15
+    get cornerState() {
+        return getStateFromCorners(Math.ceil(this.corners[0]), Math.ceil(this.corners[1]), Math.ceil(this.corners[2]), Math.ceil(this.corners[3]));
+    }
+    get cornerAverage() {
+        return this.average = (this.corners[0] + this.corners[2] + this.corners[2] + this.corners[3]) / 4;
+    }
+    get center() {
+        return point(this.mx, this.my);
+    }
+    get midTop() {
+        return point(this.mx, this.y);
+    }
+    get midRight() {
+        return point(this.x2, this.my);
+    }
+    get midBottom() {
+        return point(this.mx, this.y2);
+    }
+    get midLeft() {
+        return point(this.x, this.my);
+    }
+    get lerpTop() {
+        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[0], this.corners[1])), this.y);
+    }
+    get lerpRight() {
+        return point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.corners[1], this.corners[2])));
+    }
+    get lerpBottom() {
+        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[3], this.corners[2])), this.y2);
+    }
+    get lerpLeft() {
+        return point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
+    }
+    getSides(smooth) {
+        return {
+            top: smooth ? this.lerpTop : this.midTop,
+            right: smooth ? this.lerpRight : this.midRight,
+            bottom: smooth ? this.lerpBottom : this.midBottom,
+            left: smooth ? this.lerpLeft : this.midLeft
+        };
+    }
+    randomPointInside() {
+        const x1 = _random.randomNormalWholeBetween(0, this.w) + this.x;
+        const y1 = _random.randomNormalWholeBetween(0, this.h) + this.y;
+        return point(x1, y1);
+    }
+    contains(p) {
+        return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
+    }
+    intersects(rect) {
+        return !(rect.x - rect.w > this.x + this.w || rect.x + rect.w < this.x - this.w || rect.y - rect.h > this.y + this.h || rect.y + rect.h < this.y - this.h);
+    }
+    divideQuad() {
+        const halfW = Math.round(this.w / 2);
+        const halfH = Math.round(this.h / 2);
+        this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
+        this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
+        this.children.push(new Rectangle(this.x, this.y + halfH, halfW, halfH));
+        this.children.push(new Rectangle(this.x + halfW, this.y + halfH, halfW, halfH));
+        this.children.forEach((c)=>c.phase *= -1
+        );
+    }
+}
+class Square extends Rectangle {
+    constructor(x1, y1, size, corners1 = [
+        0,
+        0,
+        0,
+        0
+    ]){
+        super(x1, y1, size, size, corners1);
+        this.size = size;
+    }
+}
+const createRectGrid = (x2, y2, w, h, cols, rows)=>{
+    const rects = [];
+    const colw = Math.round(w / cols);
+    const rowh = Math.round(h / rows);
+    for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
+        const rx = i * colw + x2;
+        const ry = j * rowh + y2;
+        rects.push(new Rectangle(rx, ry, colw, rowh));
+    }
+    return rects;
+};
+
+},{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

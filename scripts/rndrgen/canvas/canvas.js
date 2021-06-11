@@ -3,6 +3,8 @@ import tinycolor from 'tinycolor2';
 let isHiDPI = false;
 let contextScale = 1;
 
+const contextHistory = [];
+
 export const isHiDPICanvas = (_) => isHiDPI;
 export const currentContextScale = (_) => contextScale;
 
@@ -32,12 +34,18 @@ const contextDefaults = {
     lineJoin: 'miter',
     textAlign: 'left',
     textBaseline: 'top',
+    globalCompositeOperation: 'source-over',
 };
 
-export const resetStyles = (context) => {
-    Object.keys(contextDefaults).forEach((k) => {
-        context[k] = contextDefaults[k];
+export const setContext = (context) => (settings) => {
+    contextHistory.push(settings);
+    Object.keys(settings).forEach((k) => {
+        context[k] = settings[k];
     });
+};
+
+export const resetContext = (context) => {
+    setContext(context)(contextDefaults);
     context.setLineDash([]);
 };
 

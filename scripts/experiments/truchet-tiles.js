@@ -7,6 +7,8 @@ import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { mapRange } from '../rndrgen/math/math';
 import { Matrix } from '../rndrgen/math/Matrix';
 import { mSquare, truchet } from '../rndrgen/systems/truchetTiles';
+import { createRectGrid, Square } from '../rndrgen/math/Rectangle';
+import { randomWholeBetween } from '../rndrgen/math/random';
 
 export const truchetTiles = () => {
     const config = {
@@ -21,72 +23,43 @@ export const truchetTiles = () => {
     const backgroundColor = paperWhite.clone();
     const foreColor = bicPenBlue.clone();
 
-    const resolution = 40;
-    const lowColor = backgroundColor.clone().darken(25);
-    const highColor = backgroundColor.clone().brighten(25);
-
-    let cols = Math.ceil(canvasWidth / resolution) + 1;
-    let rows = Math.ceil(canvasHeight / resolution) + 1;
-    let field = new Matrix(rows, cols);
-
-    let z = 0;
-
-    const lineWidth = 2;
-    const lineColor = 'black';
-    const lineJoin = 'round';
-    const lineCap = 'round';
-
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
 
-        cols = Math.ceil(canvasWidth / resolution) + 1;
-        rows = Math.ceil(canvasHeight / resolution) + 1;
-        field = new Matrix(rows, cols);
-
         background(canvas, context)(backgroundColor);
-
-        context.lineWidth = lineWidth;
-        context.lineCap = lineCap;
-        context.lineJoin = lineJoin;
-        context.strokeStyle = tinycolor(lineColor);
     };
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)('rgba(255,255,255,.05');
+        // background(canvas, context)('rgba(255,255,255,.005');
 
-        const sq = [];
+        const res = Math.round(canvasWidth / 100);
 
-        for (let i = 0; i < cols; i++) {
-            for (let j = 0; j < rows; j++) {
-                const x = i * resolution;
-                const y = j * resolution;
-                const noise = simplexNoise3d(x, y, z, 0.004);
-                const normalized = mapRange(-7, 7, -1, 1, noise);
-                field.data[j][i] = normalized;
-                // const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
-                // context.fillStyle = tinycolor(fillColor).toRgbString();
-                // context.fillRect(x, y, x + resolution, y + resolution);
+        const squares = createRectGrid(0, 0, canvasWidth, canvasHeight, res, res);
+
+        squares.forEach((s) => {
+            if (randomWholeBetween(0, 3) === 1) {
+                s.divideQuad();
+                if (randomWholeBetween(0, 2) === 1) {
+                    s.children.forEach((c) => c.divideQuad());
+                }
             }
-        }
+        });
 
-        for (let i = 0; i < cols - 1; i++) {
-            for (let j = 0; j < rows - 1; j++) {
-                const x = i * resolution;
-                const y = j * resolution;
-                const a = field.data[j][i];
-                const b = field.data[j][i + 1];
-                const c = field.data[j + 1][i + 1];
-                const d = field.data[j + 1][i];
-                sq.push(new mSquare(x, y, resolution, a, b, c, d));
+        const drawSquares = (rect) => {
+            if (rect.children.length) {
+                rect.children.forEach((r) => drawSquares(r));
+            } else {
+                rect.motif = randomWholeBetween(0, 15);
+                truchet(context, rect, foreColor, backgroundColor);
             }
-        }
+        };
 
-        sq.forEach((s) => truchet(context, s, foreColor, backgroundColor));
+        squares.forEach((s) => {
+            drawSquares(s);
+        });
 
-        z += 0.7;
-
-        return 1;
+        return -1;
     };
     return {
         config,

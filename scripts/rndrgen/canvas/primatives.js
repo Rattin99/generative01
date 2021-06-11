@@ -13,6 +13,7 @@ export const pixel = (context) => (x, y, color = 'black', mode = 'square', size)
         context.fillRect(x, y, size, size);
     }
 };
+
 // linecap = butt, round, square
 export const line = (context) => (x1, y1, x2, y2, strokeWidth, linecap) => {
     // color = 'black',
@@ -24,12 +25,14 @@ export const line = (context) => (x1, y1, x2, y2, strokeWidth, linecap) => {
     context.lineTo(x2, y2);
     context.stroke();
 };
+
 export const lineAtAngle = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
     const theta = (Math.PI * angle) / 180.0;
     const x2 = x1 + length * Math.cos(theta);
     const y2 = y1 + length * Math.sin(theta);
     line(context)(x1, y1, x2, y2, strokeWidth, linecap);
 };
+
 export const circle = (context) => (strokeWidth, x, y, radius, color) => {
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
@@ -41,12 +44,14 @@ export const circle = (context) => (strokeWidth, x, y, radius, color) => {
     // context.fill();
     context.stroke();
 };
+
 export const circleFilled = (context) => (x, y, radius, color) => {
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = color;
     context.fill();
 };
+
 export const rect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
@@ -55,13 +60,16 @@ export const rect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
     context.rect(x, y, w, h);
     context.stroke();
 };
+
 export const rectFilled = (context) => (x, y, w, h, color = 'white') => {
     context.fillStyle = tinycolor(color).toRgbString();
     context.fillRect(x, y, w, h);
 };
+
 export const squareFilled = (context) => (x, y, size, color) => {
     rectFilled(context)(x, y, size, size, color);
 };
+
 export const drawTriangleFilled = (context) => (x, y, size, color) => {
     const half = size / 2;
     context.beginPath();
@@ -71,6 +79,7 @@ export const drawTriangleFilled = (context) => (x, y, size, color) => {
     context.fillStyle = color.toRgbString();
     context.fill();
 };
+
 // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
 // TODO center on x,y
 export const quadRectFilled = (context) => (x, y, w, h, color) => {
@@ -88,6 +97,7 @@ export const quadRectFilled = (context) => (x, y, w, h, color) => {
     // context.stroke();
     context.fill();
 };
+
 // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
 // TODO center on x,y
 export const roundRectFilled = (context) => (x, y, w, h, corner, color) => {

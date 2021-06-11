@@ -1,5 +1,5 @@
 import { normalizeInverse } from '../math/math';
-import { resetStyles } from './canvas';
+import { resetContext } from './canvas';
 import { line } from './primatives';
 import { pointDistance } from '../math/points';
 
@@ -62,5 +62,5 @@ export const connectParticles = (context) => (pArray, proximity, useAlpha = true
             }
         }
     }
-    resetStyles(context);
+    resetContext(context);
 };

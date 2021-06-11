@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
-import { background, resetStyles } from '../rndrgen/canvas/canvas';
+import { background, resetContext } from '../rndrgen/canvas/canvas';
 import { mapRange, uvFromAngle } from '../rndrgen/math/math';
 import { ratio, scale } from '../rndrgen/Sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../rndrgen/color/palettes';
