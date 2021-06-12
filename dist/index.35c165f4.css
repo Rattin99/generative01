@@ -28,7 +28,7 @@ body {
   left: 0;
   right: 0;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   background: transparent;
   padding: 0.75rem 1rem;
   user-select: text;
@@ -42,9 +42,10 @@ body {
 #notes #note {
   margin: 0;
 }
-#notes #download {
+#notes #download, #notes #record {
   color: #666;
   text-decoration: none;
+  margin-left: 1rem;
 }
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 

@@ -14,17 +14,18 @@ Sketch player todo
 - [x]  change bg color per variation in var
 - [x]  Canvas set blend mode helper 
 - [x]  Set canvas size in variation
-- [ ] roll up old variations to enable removal old code
-- [ ] put classes behind rndrgen module
-- [ ] Set sketch options - fps lock, resize options, huge canvas for large captures
+- [x] roll up old variations to enable removal old code
+- [-] put classes behind rndrgen module
+- [x] Record save as Webm or Gif? [https://xosh.org/canvas-recorder/]
+- [ ] Implement dat gui [https://github.com/dataarts/dat.gui]
+- [ ] canvas/context settings and shape class - refer https://github.com/bit101/bljs/blob/master/src/context.js
+- [ ] canvas watermark on image capture  
 - [ ] sketch to class
-- [ ] canvas/context settings and shape class
-- [ ] canvas watermark on image capture
+- [ ] Set sketch options - fps lock, resize options, huge canvas for large captures
 - [ ] polyline primative
 - [ ] svg path primative
 - [ ] rndrgen as npm package
 - [ ] jsx/svg syntax
 - [ ] webcam class
-- [ ] Record save as Webm or Gif? [https://xosh.org/canvas-recorder/]
-- [ ] Implement dat gui [https://github.com/dataarts/dat.gui]
+
 

@@ -31,7 +31,7 @@ body {
   left: 0;
   right: 0;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   background: transparent;
   padding: 0.75rem 1rem;
   user-select: text;
@@ -45,9 +45,10 @@ body {
     margin: 0;
   }
 
-  #download {
+  #download, #record {
     color: #666;
     text-decoration: none;
+    margin-left: 1rem;
   }
 }
 

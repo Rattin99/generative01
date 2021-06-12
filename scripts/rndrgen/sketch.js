@@ -34,6 +34,7 @@ TODO
 import { isHiDPICanvas, resizeCanvas } from './canvas/canvas';
 import { defaultValue } from './utils';
 import { getRandomSeed } from './math/random';
+import { CanvasRecorder } from './canvas/CanvasRecorder';
 
 export const orientation = {
     portrait: 0,
@@ -69,11 +70,13 @@ export const sketch = (canvasElId, smode = 0) => {
 
     const sizeMode = smode;
     let hasStarted = false;
-    let fps = 0;
+    let fps = 60;
     let drawRuns = 0;
     let currentVariationFn;
     let currentVariationRes;
     let animationId;
+    let canvasRecorder;
+    let isRecording = false;
 
     const canvasSizeFraction = 0.9;
     const canvas = document.getElementById(canvasElId);
@@ -110,7 +113,7 @@ export const sketch = (canvasElId, smode = 0) => {
             // resizeCanvas(canvas, context, s.width, s.height, 1);
             return;
         }
-        if (sizeMode == sketchSizeMode.sketch) {
+        if (sizeMode === sketchSizeMode.sketch) {
             return;
         }
 
@@ -163,7 +166,7 @@ export const sketch = (canvasElId, smode = 0) => {
 
         let currentDrawLimit;
         let rendering = true;
-        const targetFpsInterval = 1000 / fps;
+        let targetFpsInterval = 1000 / fps;
         let lastAnimationFrameTime;
 
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -173,6 +176,7 @@ export const sketch = (canvasElId, smode = 0) => {
             applyCanvasSize(config, canvasSizeFraction);
             if (config.fps) {
                 fps = config.fps;
+                targetFpsInterval = 1000 / fps;
             }
             if (config.drawLimit > 0) {
                 currentDrawLimit = config.drawLimit;
@@ -192,6 +196,9 @@ export const sketch = (canvasElId, smode = 0) => {
         const startSketch = () => {
             window.removeEventListener('load', startSketch);
             hasStarted = true;
+
+            // default 1080p bps, 30fps
+            canvasRecorder = new CanvasRecorder(canvas);
 
             currentVariationRes.setup({ canvas, context });
 
@@ -294,6 +301,28 @@ export const sketch = (canvasElId, smode = 0) => {
         const imageURI = canvas.toDataURL('image/png');
         evt.target.setAttribute('download', `${getVariationName()}.png`);
         evt.target.href = imageURI;
+        evt.stopPropagation();
+        return false;
+    };
+
+    // https://xosh.org/canvas-recorder/
+    const saveCanvasRecording = (evt) => {
+        if (!canvasRecorder) {
+            console.error('No canvas recorder defined!');
+            return false;
+        }
+        if (isRecording) {
+            isRecording = false;
+            canvasRecorder.stop();
+            canvasRecorder.save(`${getVariationName()}.webm`);
+            console.log('Stopping recording');
+        } else {
+            isRecording = true;
+            canvasRecorder.start();
+            console.log('Starting recording');
+        }
+        evt.stopPropagation();
+        return false;
     };
 
     return {
@@ -304,5 +333,6 @@ export const sketch = (canvasElId, smode = 0) => {
         run,
         stop,
         saveCanvasCapture,
+        saveCanvasRecording,
     };
 };

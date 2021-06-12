@@ -33,3 +33,4 @@ if (experimentalVariation !== undefined) {
 }
 
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
+document.getElementById('record').addEventListener('click', s.saveCanvasRecording);

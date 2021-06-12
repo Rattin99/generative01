@@ -12,9 +12,10 @@ import { randomWholeBetween } from '../rndrgen/math/random';
 
 export const truchetTiles = () => {
     const config = {
-        name: 'marchingSquares',
+        name: 'multiscale-truchet-tiles',
         ratio: ratio.square,
         scale: scale.standard,
+        fps: 1,
     };
 
     let canvasWidth;
@@ -31,7 +32,7 @@ export const truchetTiles = () => {
     };
 
     const draw = ({ canvas, context }) => {
-        // background(canvas, context)('rgba(255,255,255,.005');
+        background(canvas, context)('rgba(255,255,255,.1');
 
         const res = Math.round(canvasWidth / 100);
 
@@ -59,7 +60,7 @@ export const truchetTiles = () => {
             drawSquares(s);
         });
 
-        return -1;
+        return 1;
     };
     return {
         config,

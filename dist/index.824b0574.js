@@ -409,6 +409,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
     runVariation(_variationsIndex.variationsIndex[urlKey]);
 } else runVariation(_variationsIndex.variationsIndex[variationMapKeys[variationMapKeys.length - 1]]);
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
+document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
 },{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/truchet-tiles":"2djr8"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -4421,6 +4422,7 @@ TODO
 */ var _canvas = require("./canvas/canvas");
 var _utils = require("./utils");
 var _random = require("./math/random");
+var _canvasRecorder = require("./canvas/CanvasRecorder");
 const orientation = {
     portrait: 0,
     landscape: 1
@@ -4450,11 +4452,13 @@ const sketch = (canvasElId, smode = 0)=>{
     };
     const sizeMode = smode;
     let hasStarted = false;
-    let fps = 0;
+    let fps = 60;
     let drawRuns = 0;
     let currentVariationFn;
     let currentVariationRes;
     let animationId;
+    let canvasRecorder;
+    let isRecording = false;
     const canvasSizeFraction = 0.9;
     const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
@@ -4485,7 +4489,7 @@ const sketch = (canvasElId, smode = 0)=>{
         if (sizeMode === sketchSizeMode.css) // const s = canvas.getBoundingClientRect();
         // resizeCanvas(canvas, context, s.width, s.height, 1);
         return;
-        if (sizeMode == sketchSizeMode.sketch) return;
+        if (sizeMode === sketchSizeMode.sketch) return;
         const width = _utils.defaultValue(config, 'width', window.innerWidth);
         const height = _utils.defaultValue(config, 'height', window.innerHeight);
         let finalWidth = width;
@@ -4529,13 +4533,16 @@ const sketch = (canvasElId, smode = 0)=>{
         addEvents();
         let currentDrawLimit;
         let rendering = true;
-        const targetFpsInterval = 1000 / fps;
+        let targetFpsInterval = 1000 / fps;
         let lastAnimationFrameTime;
         context.clearRect(0, 0, canvas.width, canvas.height);
         if (currentVariationRes.hasOwnProperty('config')) {
             const { config  } = currentVariationRes;
             applyCanvasSize(config, canvasSizeFraction);
-            if (config.fps) fps = config.fps;
+            if (config.fps) {
+                fps = config.fps;
+                targetFpsInterval = 1000 / fps;
+            }
             if (config.drawLimit > 0) currentDrawLimit = config.drawLimit;
         } else // TODO check for sizeMode
         _canvas.resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
@@ -4546,6 +4553,8 @@ const sketch = (canvasElId, smode = 0)=>{
         const startSketch = ()=>{
             window.removeEventListener('load', startSketch);
             hasStarted = true;
+            // default 1080p bps, 30fps
+            canvasRecorder = new _canvasRecorder.CanvasRecorder(canvas);
             currentVariationRes.setup({
                 canvas,
                 context
@@ -4625,6 +4634,27 @@ const sketch = (canvasElId, smode = 0)=>{
         const imageURI = canvas.toDataURL('image/png');
         evt.target.setAttribute('download', `${getVariationName()}.png`);
         evt.target.href = imageURI;
+        evt.stopPropagation();
+        return false;
+    };
+    // https://xosh.org/canvas-recorder/
+    const saveCanvasRecording = (evt)=>{
+        if (!canvasRecorder) {
+            console.error('No canvas recorder defined!');
+            return false;
+        }
+        if (isRecording) {
+            isRecording = false;
+            canvasRecorder.stop();
+            canvasRecorder.save(`${getVariationName()}.webm`);
+            console.log('Stopping recording');
+        } else {
+            isRecording = true;
+            canvasRecorder.start();
+            console.log('Starting recording');
+        }
+        evt.stopPropagation();
+        return false;
     };
     return {
         variationName: getVariationName,
@@ -4633,11 +4663,12 @@ const sketch = (canvasElId, smode = 0)=>{
         mouse: getMouse,
         run,
         stop,
-        saveCanvasCapture
+        saveCanvasCapture,
+        saveCanvasRecording
     };
 };
 
-},{"./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1kIwI":[function(require,module,exports) {
+},{"./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./canvas/CanvasRecorder":"1XROr"}],"1kIwI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
@@ -4715,6 +4746,105 @@ const getQueryVariable = (variable)=>{
     }
     return false;
 };
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1XROr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "bps", ()=>bps
+);
+// BITRATE = SCREEN_SIZE_VERTICAL x SCREEN_SIZE_HORIZONTAL X FPS X PIXEL_COLOR_DEPTH
+parcelHelpers.export(exports, "CanvasRecorder", ()=>CanvasRecorder
+);
+const bps = {
+    '4k': 40000000,
+    '2k': 16000000,
+    '1080p': 8000000,
+    '720p': 5000000,
+    '480p': 2500000,
+    '360p': 1000000
+};
+function CanvasRecorder(canvas, fps, video_bits_per_sec) {
+    this.start = startRecording;
+    this.stop = stopRecording;
+    this.save = download;
+    let recordedBlobs = [];
+    let supportedType = null;
+    let mediaRecorder = null;
+    const captureFPS = fps || 30;
+    const captureBPS = video_bits_per_sec || bps['1080p'];
+    const actualBPS = canvas.width * canvas.height * captureFPS * screen.colorDepth;
+    const stream = canvas.captureStream(captureFPS);
+    if (!stream) return;
+    const video = document.createElement('video');
+    video.style.display = 'none';
+    console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
+    function startRecording() {
+        const types = [
+            'video/webm',
+            'video/webm,codecs=vp9',
+            'video/vp8',
+            'video/webm;codecs=vp8',
+            'video/webm;codecs=daala',
+            'video/webm;codecs=h264',
+            'video/mpeg', 
+        ];
+        for(const i in types)if (MediaRecorder.isTypeSupported(types[i])) {
+            supportedType = types[i];
+            break;
+        }
+        if (supportedType == null) console.log('No supported type found for MediaRecorder');
+        // https://w3c.github.io/mediacapture-record/MediaRecorder.html#mediarecorderoptions-section
+        const options = {
+            mimeType: supportedType,
+            videoBitsPerSecond: captureBPS
+        };
+        recordedBlobs = [];
+        try {
+            mediaRecorder = new MediaRecorder(stream, options);
+        } catch (e) {
+            console.error('MediaRecorder is not supported by this browser.');
+            console.error('Exception while creating MediaRecorder:', e);
+            return;
+        }
+        // console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+        mediaRecorder.onstop = handleStop;
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        mediaRecorder.start(100); // collect 100ms of data blobs
+        console.log(`MediaRecorder started at ${captureBPS / 1000}kbps, ${captureFPS}fps`);
+    }
+    function handleDataAvailable(event) {
+        if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
+    }
+    function handleStop(event) {
+        // console.log('Recorder stopped: ', event);
+        const superBuffer = new Blob(recordedBlobs, {
+            type: supportedType
+        });
+        video.src = window.URL.createObjectURL(superBuffer);
+    }
+    function stopRecording() {
+        mediaRecorder.stop();
+        // console.log('Recorded Blobs: ', recordedBlobs);
+        video.controls = true;
+    }
+    function download(file_name) {
+        const name = file_name || 'recording.webm';
+        const blob = new Blob(recordedBlobs, {
+            type: supportedType
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    }
+}
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2CMm3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -7825,9 +7955,10 @@ var _rectangle = require("../rndrgen/math/Rectangle");
 var _random = require("../rndrgen/math/random");
 const truchetTiles = ()=>{
     const config = {
-        name: 'marchingSquares',
+        name: 'multiscale-truchet-tiles',
         ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
+        scale: _sketch.scale.standard,
+        fps: 1
     };
     let canvasWidth;
     let canvasHeight;
@@ -7839,7 +7970,7 @@ const truchetTiles = ()=>{
         _canvas.background(canvas, context)(backgroundColor);
     };
     const draw = ({ canvas , context  })=>{
-        // background(canvas, context)('rgba(255,255,255,.005');
+        _canvas.background(canvas, context)('rgba(255,255,255,.1');
         const res = Math.round(canvasWidth / 100);
         const squares = _rectangle.createRectGrid(0, 0, canvasWidth, canvasHeight, res, res);
         squares.forEach((s)=>{
@@ -7860,7 +7991,7 @@ const truchetTiles = ()=>{
         squares.forEach((s)=>{
             drawSquares(s);
         });
-        return -1;
+        return 1;
     };
     return {
         config,
