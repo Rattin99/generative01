@@ -1,13 +1,9 @@
-import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 
-import { simplexNoise3d } from '../rndrgen/math/attractors';
-import { mapRange } from '../rndrgen/math/math';
-import { Matrix } from '../rndrgen/math/Matrix';
-import { mSquare, truchet } from '../rndrgen/systems/truchetTiles';
-import { createRectGrid, Square } from '../rndrgen/math/Rectangle';
+import { truchet } from '../rndrgen/systems/truchetTiles';
+import { createRectGrid } from '../rndrgen/math/Rectangle';
 import { randomWholeBetween } from '../rndrgen/math/random';
 
 export const truchetTiles = () => {
@@ -15,33 +11,31 @@ export const truchetTiles = () => {
         name: 'multiscale-truchet-tiles',
         ratio: ratio.square,
         scale: scale.standard,
-        fps: 1,
     };
 
     let canvasWidth;
     let canvasHeight;
 
-    const backgroundColor = paperWhite.clone();
+    const backgroundColor = paperWhite.clone().darken(10);
     const foreColor = bicPenBlue.clone();
 
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-
         background(canvas, context)(backgroundColor);
     };
 
     const draw = ({ canvas, context }) => {
         background(canvas, context)('rgba(255,255,255,.1');
 
-        const res = Math.round(canvasWidth / 100);
+        const res = 5; // Math.round(canvasWidth / 4);
 
         const squares = createRectGrid(0, 0, canvasWidth, canvasHeight, res, res);
 
-        squares.forEach((s) => {
-            if (randomWholeBetween(0, 3) === 1) {
+        squares.forEach((s, i) => {
+            if (i % 2) {
                 s.divideQuad();
-                if (randomWholeBetween(0, 2) === 1) {
+                if (randomWholeBetween(0, 3) === 1) {
                     s.children.forEach((c) => c.divideQuad());
                 }
             }
@@ -60,7 +54,7 @@ export const truchetTiles = () => {
             drawSquares(s);
         });
 
-        return 1;
+        return -1;
     };
     return {
         config,

@@ -2,7 +2,7 @@ import { lerp } from './math';
 import { randomNormalWholeBetween } from './random';
 
 const point = (x, y) => ({ x, y });
-const midPoint = (a, b) => (b - a) / 2 + a;
+const midPoint = (a, b) => Math.round((b - a) / 2) + a;
 
 // a...d are 0 or 1
 const getStateFromCorners = (a, b, c, d) => a * 8 + b * 4 + c * 2 + d * 1;
@@ -31,6 +31,7 @@ export class Rectangle {
         this.corners = corners || [0, 0, 0, 0];
         // array of subdivisions, [rect]
         this.children = [];
+        this.parent = null;
     }
 
     // 0 to 15
@@ -114,11 +115,15 @@ export class Rectangle {
     divideQuad() {
         const halfW = Math.round(this.w / 2);
         const halfH = Math.round(this.h / 2);
+
         this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
         this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
         this.children.push(new Rectangle(this.x, this.y + halfH, halfW, halfH));
         this.children.push(new Rectangle(this.x + halfW, this.y + halfH, halfW, halfH));
-        this.children.forEach((c) => (c.phase *= -1));
+        this.children.forEach((c) => {
+            c.phase *= -1;
+            c.parent = this;
+        });
     }
 }
 

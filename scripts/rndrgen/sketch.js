@@ -34,6 +34,7 @@ TODO
 import { isHiDPICanvas, resizeCanvas } from './canvas/canvas';
 import { defaultValue } from './utils';
 import { getRandomSeed } from './math/random';
+import { roundToNearest } from './math/math';
 import { CanvasRecorder } from './canvas/CanvasRecorder';
 
 export const orientation = {
@@ -78,6 +79,7 @@ export const sketch = (canvasElId, smode = 0) => {
     let canvasRecorder;
     let isRecording = false;
 
+    const canvasSizeMultiple = 10;
     const canvasSizeFraction = 0.9;
     const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
@@ -154,6 +156,11 @@ export const sketch = (canvasElId, smode = 0) => {
             finalWidth = w * fraction;
             finalHeight = h * fraction;
         }
+
+        finalWidth = roundToNearest(canvasSizeMultiple, finalWidth);
+        finalHeight = roundToNearest(canvasSizeMultiple, finalHeight);
+
+        console.log(`Canvas size ${finalWidth} x ${finalHeight}`);
 
         resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
     };

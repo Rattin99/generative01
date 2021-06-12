@@ -71,6 +71,8 @@ export const quantize = (numAngles, theta) => (Math.round(theta * (numAngles / M
 
 export const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
+export const roundToNearest = (near, num) => Math.round(num / near) * near;
+
 // -> -1 ... 1
 export const loopingValue = (t, m = 0.5) => Math.sin(t * m);
 
