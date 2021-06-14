@@ -389,7 +389,8 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _truchetTiles = require("./experiments/truchet-tiles");
-const s = _rndrgen.sketch('canvas', 0);
+const debug = true;
+const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
 const experimentalVariation = _truchetTiles.truchetTiles;
 const setNote = (note)=>document.getElementById('note').innerText = note
@@ -4423,7 +4424,9 @@ TODO
 - [ ] better touch input
 - [ ] svg https://github.com/canvg/canvg
 - [ ] great ideas here http://paperjs.org/features/
-*/ var _canvas = require("./canvas/canvas");
+*/ var _statsJs = require("stats.js");
+var _statsJsDefault = parcelHelpers.interopDefault(_statsJs);
+var _canvas = require("./canvas/canvas");
 var _utils = require("./utils");
 var _random = require("./math/random");
 var _math = require("./math/math");
@@ -4448,7 +4451,7 @@ const sketchSizeMode = {
     css: 1,
     sketch: 2
 };
-const sketch = (canvasElId, smode = 0)=>{
+const sketch = (canvasElId, smode = 0, debug)=>{
     const mouse = {
         x: undefined,
         y: undefined,
@@ -4456,6 +4459,8 @@ const sketch = (canvasElId, smode = 0)=>{
         radius: 100
     };
     const sizeMode = smode;
+    const debugMode = debug;
+    let statsJS = null;
     let hasStarted = false;
     let fps = 60;
     let drawRuns = 0;
@@ -4539,6 +4544,11 @@ const sketch = (canvasElId, smode = 0)=>{
     const run = (variation)=>{
         currentVariationFn = variation;
         currentVariationRes = currentVariationFn();
+        if (!statsJS && debugMode) {
+            statsJS = new _statsJsDefault.default();
+            statsJS.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            document.body.appendChild(statsJS.dom);
+        }
         addEvents();
         let currentDrawLimit;
         let rendering = true;
@@ -4570,11 +4580,14 @@ const sketch = (canvasElId, smode = 0)=>{
             });
             const drawFrame = ()=>{
                 drawRuns++;
-                return currentVariationRes.draw({
+                if (statsJS) statsJS.begin();
+                const res = currentVariationRes.draw({
                     canvas,
                     context,
                     mouse
                 });
+                if (statsJS) statsJS.end();
+                return res;
             };
             const render = ()=>{
                 const result = drawFrame();
@@ -4677,7 +4690,7 @@ const sketch = (canvasElId, smode = 0)=>{
     };
 };
 
-},{"./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./canvas/CanvasRecorder":"1XROr","./math/math":"4t0bw"}],"1kIwI":[function(require,module,exports) {
+},{"./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./canvas/CanvasRecorder":"1XROr","./math/math":"4t0bw","stats.js":"6aCCi"}],"1kIwI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
@@ -4855,7 +4868,92 @@ function CanvasRecorder(canvas, fps, video_bits_per_sec) {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2CMm3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6aCCi":[function(require,module,exports) {
+// stats.js - http://github.com/mrdoob/stats.js
+(function(f, e) {
+    "object" === typeof exports && "undefined" !== typeof module ? module.exports = e() : "function" === typeof define && define.amd ? define(e) : f.Stats = e();
+})(this, function() {
+    var f = function() {
+        function e(a) {
+            c.appendChild(a.dom);
+            return a;
+        }
+        function u(a) {
+            for(var d = 0; d < c.children.length; d++)c.children[d].style.display = d === a ? "block" : "none";
+            l = a;
+        }
+        var l = 0, c = document.createElement("div");
+        c.style.cssText = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
+        c.addEventListener("click", function(a) {
+            a.preventDefault();
+            u((++l) % c.children.length);
+        }, false);
+        var k = (performance || Date).now(), g = k, a = 0, r = e(new f.Panel("FPS", "#0ff", "#002")), h = e(new f.Panel("MS", "#0f0", "#020"));
+        if (self.performance && self.performance.memory) var t = e(new f.Panel("MB", "#f08", "#201"));
+        u(0);
+        return {
+            REVISION: 16,
+            dom: c,
+            addPanel: e,
+            showPanel: u,
+            begin: function() {
+                k = (performance || Date).now();
+            },
+            end: function() {
+                a++;
+                var c1 = (performance || Date).now();
+                h.update(c1 - k, 200);
+                if (c1 > g + 1000 && (r.update(1000 * a / (c1 - g), 100), g = c1, a = 0, t)) {
+                    var d = performance.memory;
+                    t.update(d.usedJSHeapSize / 1048576, d.jsHeapSizeLimit / 1048576);
+                }
+                return c1;
+            },
+            update: function() {
+                k = this.end();
+            },
+            domElement: c,
+            setMode: u
+        };
+    };
+    f.Panel = function(e, f1, l) {
+        var c = Infinity, k = 0, g = Math.round, a = g(window.devicePixelRatio || 1), r = 80 * a, h = 48 * a, t = 3 * a, v = 2 * a, d = 3 * a, m = 15 * a, n = 74 * a, p = 30 * a, q = document.createElement("canvas");
+        q.width = r;
+        q.height = h;
+        q.style.cssText = "width:80px;height:48px";
+        var b = q.getContext("2d");
+        b.font = "bold " + 9 * a + "px Helvetica,Arial,sans-serif";
+        b.textBaseline = "top";
+        b.fillStyle = l;
+        b.fillRect(0, 0, r, h);
+        b.fillStyle = f1;
+        b.fillText(e, t, v);
+        b.fillRect(d, m, n, p);
+        b.fillStyle = l;
+        b.globalAlpha = 0.9;
+        b.fillRect(d, m, n, p);
+        return {
+            dom: q,
+            update: function(h1, w) {
+                c = Math.min(c, h1);
+                k = Math.max(k, h1);
+                b.fillStyle = l;
+                b.globalAlpha = 1;
+                b.fillRect(0, 0, r, m);
+                b.fillStyle = f1;
+                b.fillText(g(h1) + " " + e + " (" + g(c) + "-" + g(k) + ")", t, v);
+                b.drawImage(q, d + a, m, n - a, p, d, m, n - a, p);
+                b.fillRect(d + n - a, m, a, p);
+                b.fillStyle = l;
+                b.globalAlpha = 0.9;
+                b.fillRect(d + n - a, m, a, g((1 - h1 / w) * p));
+            }
+        };
+    };
+    return f;
+});
+
+},{}],"2CMm3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "lissajous01", ()=>lissajous01

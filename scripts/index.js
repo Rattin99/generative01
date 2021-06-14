@@ -8,7 +8,9 @@ import { variationsIndex } from './variationsIndex';
 import * as rndrgen from './rndrgen/rndrgen';
 import { truchetTiles } from './experiments/truchet-tiles';
 
-const s = rndrgen.sketch('canvas', 0);
+const debug = true;
+
+const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
 const experimentalVariation = truchetTiles;

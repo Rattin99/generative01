@@ -31,6 +31,7 @@ TODO
 - [ ] great ideas here http://paperjs.org/features/
 */
 
+import Stats from 'stats.js';
 import { isHiDPICanvas, resizeCanvas } from './canvas/canvas';
 import { defaultValue } from './utils';
 import { getRandomSeed } from './math/random';
@@ -61,7 +62,7 @@ export const sketchSizeMode = {
     sketch: 2,
 };
 
-export const sketch = (canvasElId, smode = 0) => {
+export const sketch = (canvasElId, smode = 0, debug) => {
     const mouse = {
         x: undefined,
         y: undefined,
@@ -70,6 +71,8 @@ export const sketch = (canvasElId, smode = 0) => {
     };
 
     const sizeMode = smode;
+    const debugMode = debug;
+    let statsJS = null;
     let hasStarted = false;
     let fps = 60;
     let drawRuns = 0;
@@ -169,6 +172,12 @@ export const sketch = (canvasElId, smode = 0) => {
         currentVariationFn = variation;
         currentVariationRes = currentVariationFn();
 
+        if (!statsJS && debugMode) {
+            statsJS = new Stats();
+            statsJS.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            document.body.appendChild(statsJS.dom);
+        }
+
         addEvents();
 
         let currentDrawLimit;
@@ -211,7 +220,10 @@ export const sketch = (canvasElId, smode = 0) => {
 
             const drawFrame = () => {
                 drawRuns++;
-                return currentVariationRes.draw({ canvas, context, mouse });
+                if (statsJS) statsJS.begin();
+                const res = currentVariationRes.draw({ canvas, context, mouse });
+                if (statsJS) statsJS.end();
+                return res;
             };
 
             const render = () => {
