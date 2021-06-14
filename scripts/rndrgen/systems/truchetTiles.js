@@ -2,8 +2,9 @@ import tinycolor from 'tinycolor2';
 import { line, circleFilled, rectFilled, rect, arcQuarter } from '../canvas/primatives';
 import { setContext } from '../canvas/canvas';
 
-const motifList = ['\\', '/', '-', '|', '+', '+.', 'x.', 'fnw', 'fne', 'fsw', 'fse', 'tn', 'ts', 'te', 'tw'];
+export const motifList = ['\\', '/', '-', '|', '+', '+.', 'x.', 'fnw', 'fne', 'fsw', 'fse', 'tn', 'ts', 'te', 'tw'];
 
+// http://archive.bridgesmathart.org/2018/bridges2018-39.pdf
 // https://observablehq.com/@osteele/truchet-carlson-tiles
 // https://christophercarlson.com/portfolio/multi-scale-truchet-patterns/
 // Scaling changes by a factor of 2, and the fore/back colors should swap at each change

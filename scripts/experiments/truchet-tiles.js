@@ -11,6 +11,7 @@ export const truchetTiles = () => {
         name: 'multiscale-truchet-tiles',
         ratio: ratio.square,
         scale: scale.standard,
+        fps: 1,
     };
 
     let canvasWidth;
@@ -26,14 +27,19 @@ export const truchetTiles = () => {
     };
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)('rgba(255,255,255,.1');
+        background(canvas, context)('rgba(255,255,255,1');
 
-        const res = 5; // Math.round(canvasWidth / 4);
+        const res = 5;
+        const max = randomWholeBetween(2, 15);
 
-        const squares = createRectGrid(0, 0, canvasWidth, canvasHeight, res, res);
+        // Create some squares in a grid
+        const squares = createRectGrid(0, 0, canvasWidth, canvasHeight, res, res, 0, 0);
 
+        // randomly subdivide some of them
         squares.forEach((s, i) => {
-            if (i % 2) {
+            // if (i % 2) {
+            // if (s.x === s.y) {
+            if (randomWholeBetween(0, 2) === 1) {
                 s.divideQuad();
                 if (randomWholeBetween(0, 3) === 1) {
                     s.children.forEach((c) => c.divideQuad());
@@ -41,20 +47,30 @@ export const truchetTiles = () => {
             }
         });
 
-        const drawSquares = (rect) => {
+        // flatted all of the subdivided squares into one array
+        const sortedSquares = [];
+        const flattenSquares = (rect) => {
             if (rect.children.length) {
-                rect.children.forEach((r) => drawSquares(r));
+                rect.children.forEach((r) => flattenSquares(r));
             } else {
-                rect.motif = randomWholeBetween(0, 15);
-                truchet(context, rect, foreColor, backgroundColor);
+                sortedSquares.push(rect);
             }
         };
-
         squares.forEach((s) => {
-            drawSquares(s);
+            flattenSquares(s);
         });
 
-        return -1;
+        // sort them by depth, shallow are drawn first, deeper are drawn later so that wings line up
+        sortedSquares
+            .sort((a, b) => a.depth - b.depth)
+            .forEach((s) => {
+                // assign a random pattern
+                s.motif = randomWholeBetween(0, max); // randomWholeBetween(0, 15);
+                // draw it
+                truchet(context, s, foreColor, backgroundColor);
+            });
+
+        return 1;
     };
     return {
         config,

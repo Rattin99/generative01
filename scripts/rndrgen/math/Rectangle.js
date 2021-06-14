@@ -10,7 +10,10 @@ const getStateFromCorners = (a, b, c, d) => a * 8 + b * 4 + c * 2 + d * 1;
 // a and b are -1 to 1
 const lerpAmt = (a, b) => (1 - (a + 1)) / (b + 1 - (a + 1));
 
-/* Corners
+/*
+Corners and lerps are for marching squares
+
+Corners
   a---b
   |   |
   d---c
@@ -32,6 +35,7 @@ export class Rectangle {
         // array of subdivisions, [rect]
         this.children = [];
         this.parent = null;
+        this.depth = 0;
     }
 
     // 0 to 15
@@ -113,8 +117,8 @@ export class Rectangle {
     }
 
     divideQuad() {
-        const halfW = Math.round(this.w / 2);
-        const halfH = Math.round(this.h / 2);
+        const halfW = this.w / 2;
+        const halfH = this.h / 2;
 
         this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
         this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
@@ -123,6 +127,7 @@ export class Rectangle {
         this.children.forEach((c) => {
             c.phase *= -1;
             c.parent = this;
+            c.depth = this.depth + 1;
         });
     }
 }
@@ -134,15 +139,15 @@ export class Square extends Rectangle {
     }
 }
 
-export const createRectGrid = (x, y, w, h, cols, rows) => {
+export const createRectGrid = (x, y, w, h, cols = 2, rows = 2, colgap = 0, rowgap = 0) => {
     const rects = [];
-    const colw = Math.round(w / cols);
-    const rowh = Math.round(h / rows);
+    const colw = Math.round((w - (cols - 1) * colgap) / cols);
+    const rowh = Math.round((h - (rows - 1) * rowgap) / rows);
 
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
-            const rx = i * colw + x;
-            const ry = j * rowh + y;
+            const rx = i * (colw + colgap) + x;
+            const ry = j * (rowh + rowgap) + y;
             rects.push(new Rectangle(rx, ry, colw, rowh));
         }
     }

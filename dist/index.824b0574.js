@@ -596,6 +596,10 @@ parcelHelpers.export(exports, "setContext", ()=>setContext
 );
 parcelHelpers.export(exports, "resetContext", ()=>resetContext
 );
+parcelHelpers.export(exports, "roundLines", ()=>roundLines
+);
+parcelHelpers.export(exports, "squareLines", ()=>squareLines
+);
 parcelHelpers.export(exports, "sharpLines", ()=>sharpLines
 );
 parcelHelpers.export(exports, "blendMode", ()=>blendMode
@@ -636,6 +640,7 @@ const resizeCanvas = (canvas, context, width, height, scale)=>{
 const contextDefaults = {
     strokeStyle: '#000',
     fillStyle: '#000',
+    globalAlpha: 1,
     lineWidth: 1,
     lineCap: 'butt',
     lineJoin: 'miter',
@@ -654,19 +659,45 @@ const resetContext = (context)=>{
     setContext(context)(contextDefaults);
     context.setLineDash([]);
 };
+const roundLines = (context)=>(width, color)=>{
+        setContext(context)({
+            lineWidth: width || context.lineWidth,
+            strokeStyle: color ? _tinycolor2Default.default(color).toRgbString() : context.strokeStyle,
+            lineCap: 'round',
+            lineJoin: 'round'
+        });
+    }
+;
+const squareLines = (context)=>(width, color)=>setContext(context)({
+            lineWidth: width || context.lineWidth,
+            strokeStyle: color ? _tinycolor2Default.default(color).toRgbString() : context.strokeStyle,
+            lineCap: 'butt',
+            lineJoin: 'miter'
+        })
+;
 const sharpLines = (context)=>context.translate(0.5, 0.5)
 ;
-const blendMode = (context)=>(mode = 'source-over')=>context.globalCompositeOperation = mode
+const blendMode = (context)=>(mode = 'source-over')=>setContext(context)({
+            globalCompositeOperation: mode
+        })
 ;
-const filter = (context)=>(f = '')=>context.filter = f
+const filter = (context)=>(f = '')=>setContext(context)({
+            filter: f
+        })
 ;
-const strokeWeight = (context)=>(w = 1)=>context.lineWidth = w
+const strokeWeight = (context)=>(w = 1)=>setContext(context)({
+            lineWidth: w
+        })
 ;
-const stokeColor = (context)=>(color = '#000')=>context.strokeStyle = _tinycolor2Default.default(color).toRgbString()
+const stokeColor = (context)=>(color = '#000')=>setContext(context)({
+            strokeStyle: _tinycolor2Default.default(color).toRgbString()
+        })
 ;
-const fillColor = (context)=>(color = '#000')=>context.fillStyle = _tinycolor2Default.default(color).toRgbString()
+const fillColor = (context)=>(color = '#000')=>setContext(context)({
+            fillStyle: _tinycolor2Default.default(color).toRgbString()
+        })
 ;
-const clear = (canvas, context)=>(_)=>context.clearRect(0, 0, canvas.width, canvas.height)
+const clear = ({ width , height  }, context)=>(_)=>context.clearRect(0, 0, width, height)
 ;
 const background = ({ width , height  }, context)=>(color = 'black')=>{
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
@@ -4462,7 +4493,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
     const debugMode = debug;
     let statsJS = null;
     let hasStarted = false;
-    let fps = 60;
+    let fps = 0;
     let drawRuns = 0;
     let currentVariationFn;
     let currentVariationRes;
@@ -8059,7 +8090,8 @@ const truchetTiles = ()=>{
     const config = {
         name: 'multiscale-truchet-tiles',
         ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
+        scale: _sketch.scale.standard,
+        fps: 1
     };
     let canvasWidth;
     let canvasHeight;
@@ -8071,28 +8103,40 @@ const truchetTiles = ()=>{
         _canvas.background(canvas, context)(backgroundColor);
     };
     const draw = ({ canvas , context  })=>{
-        _canvas.background(canvas, context)('rgba(255,255,255,.1');
-        const res = 5; // Math.round(canvasWidth / 4);
-        const squares = _rectangle.createRectGrid(0, 0, canvasWidth, canvasHeight, res, res);
+        _canvas.background(canvas, context)('rgba(255,255,255,1');
+        const res = 5;
+        const max = _random.randomWholeBetween(2, 15);
+        // Create some squares in a grid
+        const squares = _rectangle.createRectGrid(0, 0, canvasWidth, canvasHeight, res, res, 0, 0);
+        // randomly subdivide some of them
         squares.forEach((s, i)=>{
-            if (i % 2) {
+            // if (i % 2) {
+            // if (s.x === s.y) {
+            if (_random.randomWholeBetween(0, 2) === 1) {
                 s.divideQuad();
                 if (_random.randomWholeBetween(0, 3) === 1) s.children.forEach((c)=>c.divideQuad()
                 );
             }
         });
-        const drawSquares = (rect)=>{
-            if (rect.children.length) rect.children.forEach((r)=>drawSquares(r)
+        // flatted all of the subdivided squares into one array
+        const sortedSquares = [];
+        const flattenSquares = (rect)=>{
+            if (rect.children.length) rect.children.forEach((r)=>flattenSquares(r)
             );
-            else {
-                rect.motif = _random.randomWholeBetween(0, 15);
-                _truchetTiles.truchet(context, rect, foreColor, backgroundColor);
-            }
+            else sortedSquares.push(rect);
         };
         squares.forEach((s)=>{
-            drawSquares(s);
+            flattenSquares(s);
         });
-        return -1;
+        // sort them by depth, shallow are drawn first, deeper are drawn later so that wings line up
+        sortedSquares.sort((a, b)=>a.depth - b.depth
+        ).forEach((s)=>{
+            // assign a random pattern
+            s.motif = _random.randomWholeBetween(0, max); // randomWholeBetween(0, 15);
+            // draw it
+            _truchetTiles.truchet(context, s, foreColor, backgroundColor);
+        });
+        return 1;
     };
     return {
         config,
@@ -8104,6 +8148,8 @@ const truchetTiles = ()=>{
 },{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP"}],"6w7Yv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "motifList", ()=>motifList
+);
 parcelHelpers.export(exports, "truchet", ()=>truchet
 );
 var _tinycolor2 = require("tinycolor2");
@@ -8215,7 +8261,10 @@ const truchet = (context, rectangle, fore = 'black', back = 'white')=>{
 },{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../canvas/canvas":"73Br1"}],"1Uf2J":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-/* Corners
+/*
+Corners and lerps are for marching squares
+
+Corners
   a---b
   |   |
   d---c
@@ -8262,6 +8311,7 @@ class Rectangle {
         // array of subdivisions, [rect]
         this.children = [];
         this.parent = null;
+        this.depth = 0;
     }
     // 0 to 15
     get cornerState() {
@@ -8317,8 +8367,8 @@ class Rectangle {
         return !(rect.x - rect.w > this.x + this.w || rect.x + rect.w < this.x - this.w || rect.y - rect.h > this.y + this.h || rect.y + rect.h < this.y - this.h);
     }
     divideQuad() {
-        const halfW = Math.round(this.w / 2);
-        const halfH = Math.round(this.h / 2);
+        const halfW = this.w / 2;
+        const halfH = this.h / 2;
         this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
         this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
         this.children.push(new Rectangle(this.x, this.y + halfH, halfW, halfH));
@@ -8326,6 +8376,7 @@ class Rectangle {
         this.children.forEach((c)=>{
             c.phase *= -1;
             c.parent = this;
+            c.depth = this.depth + 1;
         });
     }
 }
@@ -8340,13 +8391,13 @@ class Square extends Rectangle {
         this.size = size;
     }
 }
-const createRectGrid = (x2, y2, w, h, cols, rows)=>{
+const createRectGrid = (x2, y2, w, h, cols = 2, rows = 2, colgap = 0, rowgap = 0)=>{
     const rects = [];
-    const colw = Math.round(w / cols);
-    const rowh = Math.round(h / rows);
+    const colw = Math.round((w - (cols - 1) * colgap) / cols);
+    const rowh = Math.round((h - (rows - 1) * rowgap) / rows);
     for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
-        const rx = i * colw + x2;
-        const ry = j * rowh + y2;
+        const rx = i * (colw + colgap) + x2;
+        const ry = j * (rowh + rowgap) + y2;
         rects.push(new Rectangle(rx, ry, colw, rowh));
     }
     return rects;

@@ -74,7 +74,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
     const debugMode = debug;
     let statsJS = null;
     let hasStarted = false;
-    let fps = 60;
+    let fps = 0;
     let drawRuns = 0;
     let currentVariationFn;
     let currentVariationRes;

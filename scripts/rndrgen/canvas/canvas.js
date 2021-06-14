@@ -29,6 +29,7 @@ export const resizeCanvas = (canvas, context, width, height, scale) => {
 const contextDefaults = {
     strokeStyle: '#000',
     fillStyle: '#000',
+    globalAlpha: 1,
     lineWidth: 1,
     lineCap: 'butt',
     lineJoin: 'miter',
@@ -49,21 +50,41 @@ export const resetContext = (context) => {
     context.setLineDash([]);
 };
 
+export const roundLines = (context) => (width, color) => {
+    setContext(context)({
+        lineWidth: width || context.lineWidth,
+        strokeStyle: color ? tinycolor(color).toRgbString() : context.strokeStyle,
+        lineCap: 'round',
+        lineJoin: 'round',
+    });
+};
+
+export const squareLines = (context) => (width, color) =>
+    setContext(context)({
+        lineWidth: width || context.lineWidth,
+        strokeStyle: color ? tinycolor(color).toRgbString() : context.strokeStyle,
+        lineCap: 'butt',
+        lineJoin: 'miter',
+    });
+
 // https://www.rgraph.net/canvas/howto-antialias.html
 export const sharpLines = (context) => context.translate(0.5, 0.5);
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
 // multiply, screen, overlay, soft-light, hard-light, color-dodge, color-burn, darken, lighten, difference, exclusion, hue, saturation, luminosity, color, add, subtract, average, negative
-export const blendMode = (context) => (mode = 'source-over') => (context.globalCompositeOperation = mode);
+export const blendMode = (context) => (mode = 'source-over') => setContext(context)({ globalCompositeOperation: mode });
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
-export const filter = (context) => (f = '') => (context.filter = f);
+export const filter = (context) => (f = '') => setContext(context)({ filter: f });
 
-export const strokeWeight = (context) => (w = 1) => (context.lineWidth = w);
-export const stokeColor = (context) => (color = '#000') => (context.strokeStyle = tinycolor(color).toRgbString());
-export const fillColor = (context) => (color = '#000') => (context.fillStyle = tinycolor(color).toRgbString());
+export const strokeWeight = (context) => (w = 1) => setContext(context)({ lineWidth: w });
 
-export const clear = (canvas, context) => (_) => context.clearRect(0, 0, canvas.width, canvas.height);
+export const stokeColor = (context) => (color = '#000') =>
+    setContext(context)({ strokeStyle: tinycolor(color).toRgbString() });
+export const fillColor = (context) => (color = '#000') =>
+    setContext(context)({ fillStyle: tinycolor(color).toRgbString() });
+
+export const clear = ({ width, height }, context) => (_) => context.clearRect(0, 0, width, height);
 
 export const background = ({ width, height }, context) => (color = 'black') => {
     context.fillStyle = tinycolor(color).toRgbString();
