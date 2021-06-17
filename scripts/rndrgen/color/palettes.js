@@ -93,3 +93,11 @@ export const palettes = {
 
 export const nicePalette = (_) => nicepalettes[randomWholeBetween(0, 99)];
 export const palette = (_) => palettes[oneOf(Object.keys(palettes))];
+
+export const get2Tone = (l = 10, d = 25) => {
+    const pal = nicePalette();
+    const light = brightest(pal).clone().lighten(l);
+    const dark = darkest(pal).clone().darken(d);
+    const text = light.clone().darken(15).desaturate(20);
+    return { palette, light, dark, text };
+};

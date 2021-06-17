@@ -1,6 +1,6 @@
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale, orientation } from '../rndrgen/Sketch';
-import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
+import { ratio, scale, orientation } from '../rndrgen/sketch';
+import { bicPenBlue, paperWhite, get2Tone } from '../rndrgen/color/palettes';
 
 import { truchet } from '../rndrgen/systems/truchetTiles';
 import { createRectGrid } from '../rndrgen/math/Rectangle';
@@ -11,29 +11,42 @@ export const truchetTiles = () => {
         name: 'multiscale-truchet-tiles',
         ratio: ratio.square,
         scale: scale.standard,
-        fps: 1,
+        // fps: 1,
     };
 
     let canvasWidth;
     let canvasHeight;
 
-    const backgroundColor = paperWhite.clone().darken(10);
-    const foreColor = bicPenBlue.clone();
+    let margin = 100;
 
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-        background(canvas, context)(backgroundColor);
+        background(canvas, context)('white');
     };
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)('rgba(255,255,255,1');
+        // background(canvas, context)('rgba(255,255,255,1');
 
         const res = 5;
         const max = randomWholeBetween(2, 15);
+        const colors = get2Tone(5, 15);
+
+        margin = canvasWidth / 10;
+
+        background(canvas, context)(colors.light);
 
         // Create some squares in a grid
-        const squares = createRectGrid(0, 0, canvasWidth, canvasHeight, res, res, 0, 0);
+        const squares = createRectGrid(
+            margin,
+            margin,
+            canvasWidth - margin * 2,
+            canvasHeight - margin * 2,
+            res,
+            res,
+            0,
+            0
+        );
 
         // randomly subdivide some of them
         squares.forEach((s, i) => {
@@ -67,10 +80,10 @@ export const truchetTiles = () => {
                 // assign a random pattern
                 s.motif = randomWholeBetween(0, max); // randomWholeBetween(0, 15);
                 // draw it
-                truchet(context, s, foreColor, backgroundColor);
+                truchet(context, s, colors.dark, colors.light);
             });
 
-        return 1;
+        return -1;
     };
     return {
         config,

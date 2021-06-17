@@ -13,6 +13,7 @@ import { shadedBoxes } from './released/shaded-boxes';
 import { larrycarlson02 } from './released/larrycarlson02';
 import { meanderingRiver02 } from './released/meandering-river-02';
 import { meanderingRiver01 } from './released/meandering-river-01';
+import { truchetTiles } from './released/truchet-tiles';
 
 export const variationsIndex = {
     5: {
@@ -74,5 +75,9 @@ export const variationsIndex = {
     22: {
         note: 'Meandering river over landscape. Refresh for new terrain. Based on "Meander" by Robert Hodgin.',
         sketch: meanderingRiver01,
+    },
+    23: {
+        note: 'Multiscale Truchet Tiles',
+        sketch: truchetTiles,
     },
 };
