@@ -8,7 +8,7 @@ import { simplexNoise2d } from '../rndrgen/math/attractors';
 import { getPointsOnCircle } from '../rndrgen/math/grids';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
 import { createSplineFromPointArray } from '../rndrgen/math/points';
-import { pointPath } from '../rndrgen/canvas/primatives';
+import { pointPathPA } from '../rndrgen/canvas/primatives';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -192,11 +192,11 @@ export const meanderingRiver02 = () => {
 
             // r.oxbows.forEach((o) => {
             //     // const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-            //     pointPath(ctx)(o.points, c, 1);
+            //     pointPathPA(ctx)(o.points, c, 1);
             // });
 
             const points = chaikinSmooth(r.points, 8);
-            if (points.length) pointPath(ctx)(points, c, 2, closed[i]);
+            if (points.length) pointPathPA(ctx)(points, c, 2, closed[i]);
         });
 
         // if (++time > 1000) {

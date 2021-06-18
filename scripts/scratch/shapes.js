@@ -284,7 +284,7 @@ export const debugShowAttractor = (context) => ({ x, y, mass, g }, mode, radius)
 const plotFFPointLines = (num) => {
     for (let i = 0; i < num; i++) {
         const coords = createFFParticleCoords(noise, 0, randomWholeBetween(0, canvasMidY * 2), 2000, 1);
-        pointPath(ctx)(coords, tinycolor('rgba(0,0,0,.5'), 1);
+        pointPathPA(ctx)(coords, tinycolor('rgba(0,0,0,.5'), 1);
     }
 };
 

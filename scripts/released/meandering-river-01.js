@@ -10,7 +10,7 @@ import { getPointsOnCircle } from '../rndrgen/math/grids';
 import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/fields';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
 import { createSplineFromPointArray } from '../rndrgen/math/points';
-import { pointPath } from '../rndrgen/canvas/primatives';
+import { pointPathPA } from '../rndrgen/canvas/primatives';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -177,20 +177,20 @@ export const meanderingRiver01 = () => {
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
-                pointPath(ctx)(o.points, oColor, w + oSize / 2);
+                pointPathPA(ctx)(o.points, oColor, w + oSize / 2);
             });
             const points = chaikinSmooth(r.points, 5);
-            pointPath(ctx)(points, oColor, riverWeight[i] + oSize);
+            pointPathPA(ctx)(points, oColor, riverWeight[i] + oSize);
         });
 
         // main
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
                 const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-                pointPath(ctx)(o.points, oxbowColor, w);
+                pointPathPA(ctx)(o.points, oxbowColor, w);
             });
             const points = chaikinSmooth(r.points, 5);
-            pointPath(ctx)(points, riverColor, riverWeight[i], false, false);
+            pointPathPA(ctx)(points, riverColor, riverWeight[i], false, false);
             // pixelAtPoints(ctx)(r.points, 'red', 1);
         });
 

@@ -67,7 +67,7 @@ rivers.forEach((r, i) => {
         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
         // const hcolor = riverColor.clone().darken(b);
         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
-        pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+        pointPathPA(ctx)(hpoints, hcolor, riverWeight[i] * 2);
     }
 });
 

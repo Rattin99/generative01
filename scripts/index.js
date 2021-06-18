@@ -6,14 +6,14 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
-import { marchingSquares } from './experiments/marching-squares';
+import { substrateFacture } from './experiments/substrate-facture';
 
 const debug = false;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = marchingSquares;
+const experimentalVariation = substrateFacture;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

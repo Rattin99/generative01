@@ -19,6 +19,10 @@ export class Vector {
         this.z = z || 0;
     }
 
+    toString() {
+        return `${this.x}, ${this.y}`;
+    }
+
     negative() {
         return new Vector(-this.x, -this.y, -this.z);
     }
@@ -127,6 +131,18 @@ export class Vector {
 
     clone() {
         return new Vector(this.x, this.y, this.z);
+    }
+
+    ceil() {
+        return new Vector(Math.ceil(this.x), Math.ceil(this.y), Math.ceil(this.z));
+    }
+
+    floor() {
+        return new Vector(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z));
+    }
+
+    round() {
+        return new Vector(Math.round(this.x), Math.round(this.y), Math.round(this.z));
     }
 }
 

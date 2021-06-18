@@ -130,7 +130,7 @@ export const pixelAtPoints = (ctx) => (points, color = 'black', width = 1) => {
     });
 };
 
-export const pointPath = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
+export const pointPathPA = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
     ctx.beginPath();
     ctx.strokeStyle = tinycolor(color).clone().toRgbString();
 
@@ -150,6 +150,30 @@ export const pointPath = (ctx) => (points, color = 'black', width = 1, close = f
     });
     if (close) {
         ctx.lineTo(points[0][0], points[0][1]);
+    }
+    ctx.stroke();
+};
+
+export const pointPathPO = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
+    ctx.beginPath();
+    ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    points.forEach((coords, i) => {
+        if (i === 0) {
+            ctx.moveTo(coords.x, coords.y);
+        } else {
+            ctx.lineTo(coords.x, coords.y);
+        }
+        if (drawPoint) {
+            circleFilled(ctx)(coords.x, coords.y, 1, 'red');
+        }
+    });
+    if (close) {
+        ctx.lineTo(points[0].x, points[0].y);
     }
     ctx.stroke();
 };
