@@ -34,3 +34,22 @@ export const getGridCells = (width, height, columns, rows, margin = 0, gutter = 
 
     return { points, columnWidth: colStep, rowHeight: rowStep };
 };
+
+/*
+const resolution = 40;
+let cols = Math.ceil(canvasWidth / resolution) + 1;
+let rows = Math.ceil(canvasHeight / resolution) + 1;
+let field = new Matrix(rows, cols);
+
+for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                const x = i * resolution;
+                const y = j * resolution;
+                const noise = noiseFn(x, y, z);
+                field.data[j][i] = noise;
+                const fillColor = tinycolor.mix(lowColor, highColor, noise * 100);
+                context.fillStyle = tinycolor(fillColor).toRgbString();
+                context.fillRect(x, y, x + resolution, y + resolution);
+            }
+        }
+ */

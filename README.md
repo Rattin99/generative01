@@ -19,7 +19,8 @@ Sketch player todo
 - [x] Record save as Webm or Gif? [https://xosh.org/canvas-recorder/]
 - [ ] Implement dat gui [https://github.com/dataarts/dat.gui]
 - [ ] canvas/context settings and shape class - refer https://github.com/bit101/bljs/blob/master/src/context.js
-- [ ] canvas watermark on image capture  
+- [ ] canvas watermark on image capture
+- [ ] implement p5js push/pop https://p5js.org/reference/#/p5/push
 - [ ] sketch to class
 - [ ] Set sketch options - fps lock, resize options, huge canvas for large captures
 - [ ] polyline primative

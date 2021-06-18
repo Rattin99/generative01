@@ -1,16 +1,16 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
-import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
+import { bicPenBlue, get2Tone, paperWhite } from '../rndrgen/color/palettes';
 
 import { simplexNoise3d } from '../rndrgen/math/attractors';
 import { mapRange } from '../rndrgen/math/math';
-import { Matrix } from '../rndrgen/math/Matrix';
-import { isoline, mSquare } from '../rndrgen/systems/marchingSquares';
+import { createRectGrid } from '../rndrgen/math/Rectangle';
+import { isoline } from '../rndrgen/systems/marchingSquares';
 
 export const marchingSquares = () => {
     const config = {
-        name: 'marchingSquares',
+        name: 'marching-squares',
         ratio: ratio.square,
         scale: scale.standard,
     };
@@ -18,74 +18,77 @@ export const marchingSquares = () => {
     let canvasWidth;
     let canvasHeight;
 
-    const backgroundColor = paperWhite.clone();
-    const foreColor = bicPenBlue.clone();
+    let margin = 50;
 
-    const resolution = 40;
-    const lowColor = backgroundColor.clone().darken(25);
-    const highColor = backgroundColor.clone().brighten(25);
+    let timeIncrement = 0;
 
-    let cols = Math.ceil(canvasWidth / resolution) + 1;
-    let rows = Math.ceil(canvasHeight / resolution) + 1;
-    let field = new Matrix(rows, cols);
+    const colors = get2Tone(5, 15);
+    const resolution = 80;
 
-    let z = 0;
-
-    const lineWidth = 2;
-    const lineColor = 'black';
-    const lineJoin = 'round';
-    const lineCap = 'round';
+    const showField = true;
 
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-
-        cols = Math.ceil(canvasWidth / resolution) + 1;
-        rows = Math.ceil(canvasHeight / resolution) + 1;
-        field = new Matrix(rows, cols);
-
-        background(canvas, context)(backgroundColor);
-
-        context.lineWidth = lineWidth;
-        context.lineCap = lineCap;
-        context.lineJoin = lineJoin;
-        context.strokeStyle = tinycolor(lineColor);
+        background(canvas, context)(colors.light);
+        context.strokeStyle = tinycolor(colors.dark);
     };
 
-    const draw = ({ canvas, context }) => {
-        background(canvas, context)('rgba(255,255,255,.1');
+    const noiseFn = (x, y, time, min = -7, max = 7, outmin = -1, outmax = 1) => {
+        const noise = simplexNoise3d(x, y, time, 0.005);
+        return mapRange(min, max, outmin, outmax, noise);
+    };
 
-        const sq = [];
-
-        for (let i = 0; i < cols; i++) {
-            for (let j = 0; j < rows; j++) {
-                const x = i * resolution;
-                const y = j * resolution;
-                const noise = simplexNoise3d(x, y, z, 0.004);
-                const normalized = mapRange(-7, 7, -1, 1, noise);
-                field.data[j][i] = normalized;
-                const fillColor = tinycolor.mix(lowColor, highColor, normalized * 100);
+    const drawNoise = (context, width, resCells) => {
+        const cellW = Math.ceil(width / resCells);
+        const numCols = resCells + 1;
+        for (let i = 0; i < numCols; i++) {
+            for (let j = 0; j < numCols; j++) {
+                const x = i * cellW;
+                const y = j * cellW;
+                const noise = noiseFn(x, y, timeIncrement);
+                const fillColor = tinycolor.mix('#ccc', '#fff', noise * 100);
                 context.fillStyle = tinycolor(fillColor).toRgbString();
-                context.fillRect(x, y, x + resolution, y + resolution);
+                context.fillRect(x, y, cellW, cellW);
             }
         }
+    };
 
-        for (let i = 0; i < cols - 1; i++) {
-            for (let j = 0; j < rows - 1; j++) {
-                const x = i * resolution;
-                const y = j * resolution;
-                const a = field.data[j][i];
-                const b = field.data[j][i + 1];
-                const c = field.data[j + 1][i + 1];
-                const d = field.data[j + 1][i];
-                sq.push(new mSquare(x, y, resolution, a, b, c, d));
-            }
+    const slices = [
+        { nmin: -7, nmax: 7, omin: -1, omax: 1 },
+        { nmin: 1, nmax: 3, omin: -0.25, omax: 1 },
+        { nmin: 3, nmax: 7, omin: -0.5, omax: 1 },
+        { nmin: -6, nmax: -5, omin: -1, omax: 0.25 },
+    ];
+
+    const draw = ({ canvas, context }) => {
+        background(canvas, context)(colors.light);
+
+        margin = canvasWidth / 10;
+
+        if (showField) {
+            drawNoise(context, canvasWidth, resolution / 2);
         }
 
-        sq.forEach((s) => isoline(context, s, true));
+        const squares = createRectGrid(
+            margin,
+            margin,
+            canvasWidth - margin * 2,
+            canvasHeight - margin * 2,
+            resolution,
+            resolution
+        );
 
-        z += 0.7;
+        squares.forEach((s) => {
+            slices.forEach((slice) => {
+                s.corners = [s.cornerAPx, s.cornerBPx, s.cornerCPx, s.cornerDPx].map((c) =>
+                    noiseFn(c.x, c.y, timeIncrement, slice.nmin, slice.nmax, slice.omin, slice.omax)
+                );
+                isoline(context, s, true);
+            });
+        });
 
+        timeIncrement += 0.99;
         return 1;
     };
     return {

@@ -88,6 +88,22 @@ export class Rectangle {
         return point(this.x, lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
     }
 
+    get cornerAPx() {
+        return point(this.x, this.y);
+    }
+
+    get cornerBPx() {
+        return point(this.x2, this.y);
+    }
+
+    get cornerCPx() {
+        return point(this.x2, this.y2);
+    }
+
+    get cornerDPx() {
+        return point(this.x, this.y2);
+    }
+
     getSides(smooth) {
         return {
             top: smooth ? this.lerpTop : this.midTop,
