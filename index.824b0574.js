@@ -388,11 +388,11 @@ Explorations with generative code
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
-var _marchingSquares = require("./experiments/marching-squares");
+var _substrateFacture = require("./experiments/substrate-facture");
 const debug = false;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _marchingSquares.marchingSquares;
+const experimentalVariation = _substrateFacture.substrateFacture;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/marching-squares":"3oo76"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/substrate-facture":"3eu9J"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -2122,6 +2122,9 @@ class Vector {
         this.y = y || 0;
         this.z = z || 0;
     }
+    toString() {
+        return `${this.x}, ${this.y}`;
+    }
     negative() {
         return new Vector(-this.x, -this.y, -this.z);
     }
@@ -2210,6 +2213,15 @@ class Vector {
     }
     clone() {
         return new Vector(this.x, this.y, this.z);
+    }
+    ceil() {
+        return new Vector(Math.ceil(this.x), Math.ceil(this.y), Math.ceil(this.z));
+    }
+    floor() {
+        return new Vector(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z));
+    }
+    round() {
+        return new Vector(Math.round(this.x), Math.round(this.y), Math.round(this.z));
     }
 }
 const negative = (a, b)=>{
@@ -3888,7 +3900,9 @@ parcelHelpers.export(exports, "roundRectFilled", ()=>roundRectFilled
 );
 parcelHelpers.export(exports, "pixelAtPoints", ()=>pixelAtPoints
 );
-parcelHelpers.export(exports, "pointPath", ()=>pointPath
+parcelHelpers.export(exports, "pointPathPA", ()=>pointPathPA
+);
+parcelHelpers.export(exports, "pointPathPO", ()=>pointPathPO
 );
 parcelHelpers.export(exports, "arcQuarter", ()=>arcQuarter
 );
@@ -4010,7 +4024,7 @@ const pixelAtPoints = (ctx)=>(points, color = 'black', width = 1)=>{
         });
     }
 ;
-const pointPath = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
+const pointPathPA = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
         ctx.beginPath();
         ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
         ctx.lineWidth = width;
@@ -4022,6 +4036,21 @@ const pointPath = (ctx)=>(points, color = 'black', width = 1, close = false, dra
             if (drawPoint) circleFilled(ctx)(coords[0], coords[1], 1, 'red');
         });
         if (close) ctx.lineTo(points[0][0], points[0][1]);
+        ctx.stroke();
+    }
+;
+const pointPathPO = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
+        ctx.beginPath();
+        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        points.forEach((coords, i)=>{
+            if (i === 0) ctx.moveTo(coords.x, coords.y);
+            else ctx.lineTo(coords.x, coords.y);
+            if (drawPoint) circleFilled(ctx)(coords.x, coords.y, 1, 'red');
+        });
+        if (close) ctx.lineTo(points[0].x, points[0].y);
         ctx.stroke();
     }
 ;
@@ -7270,10 +7299,10 @@ const meanderingRiver02 = ()=>{
             const c = riverColor[i].clone().setAlpha(0.15); // tinycolor(`hsl(${time},70,50)`);
             // r.oxbows.forEach((o) => {
             //     // const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-            //     pointPath(ctx)(o.points, c, 1);
+            //     pointPathPA(ctx)(o.points, c, 1);
             // });
             const points = _segments.chaikinSmooth(r.points, 8);
-            if (points.length) _primatives.pointPath(ctx)(points, c, 2, closed[i]);
+            if (points.length) _primatives.pointPathPA(ctx)(points, c, 2, closed[i]);
         });
         // if (++time > 1000) {
         // return -1;
@@ -7349,7 +7378,7 @@ rivers.forEach((r, i) => {
         const hcolor = tinycolor.mix(riverColor, backgroundColor, mapRange(0, maxHistory, 0, 100, h)).darken(b);
         // const hcolor = riverColor.clone().darken(b);
         const hpoints = r.history[h].channel; // smoothPoints(r.history[h].channel, 8, 3);
-        pointPath(ctx)(hpoints, hcolor, riverWeight[i] * 2);
+        pointPathPA(ctx)(hpoints, hcolor, riverWeight[i] * 2);
     }
 });
 
@@ -7991,19 +8020,19 @@ const meanderingRiver01 = ()=>{
         rivers.forEach((r, i)=>{
             r.oxbows.forEach((o)=>{
                 const w = Math.abs(_math.mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
-                _primatives.pointPath(ctx)(o.points, oColor, w + oSize / 2);
+                _primatives.pointPathPA(ctx)(o.points, oColor, w + oSize / 2);
             });
             const points = _segments.chaikinSmooth(r.points, 5);
-            _primatives.pointPath(ctx)(points, oColor, riverWeight[i] + oSize);
+            _primatives.pointPathPA(ctx)(points, oColor, riverWeight[i] + oSize);
         });
         // main
         rivers.forEach((r, i)=>{
             r.oxbows.forEach((o)=>{
                 const w = Math.abs(_math.mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
-                _primatives.pointPath(ctx)(o.points, oxbowColor, w);
+                _primatives.pointPathPA(ctx)(o.points, oxbowColor, w);
             });
             const points = _segments.chaikinSmooth(r.points, 5);
-            _primatives.pointPath(ctx)(points, riverColor, riverWeight[i], false, false);
+            _primatives.pointPathPA(ctx)(points, riverColor, riverWeight[i], false, false);
         // pixelAtPoints(ctx)(r.points, 'red', 1);
         });
         time++;
@@ -8451,99 +8480,133 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3oo76":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3eu9J":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "marchingSquares", ()=>marchingSquares
+parcelHelpers.export(exports, "substrateFacture", ()=>substrateFacture
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
+var _random = require("../rndrgen/math/random");
+var _vector = require("../rndrgen/math/Vector");
+var _primatives = require("../rndrgen/canvas/primatives");
 var _attractors = require("../rndrgen/math/attractors");
 var _math = require("../rndrgen/math/math");
-var _rectangle = require("../rndrgen/math/Rectangle");
-var _marchingSquares = require("../rndrgen/systems/marchingSquares");
-const marchingSquares = ()=>{
+/*
+Jared Tarbell
+http://www.complexification.net/gallery/machines/substrate/index.php
+
+Robert Hodgin Meader
+http://roberthodgin.com/project/meander
+The system begins with some randomly placed points. Each point is given a directional growth vector. The point moves
+along this growth vector and draws a line as it goes. If the point encounters another line, it stops. As the point moves,
+ the directional vector rotates slowly. I found that if I mix curving vectors with non-curving vectors, the result ended
+  up resembling intersecting roads. I emphasized this result by making the thickness of the lines be directly
+  proportional its length.
+ */ class SPoint {
+    constructor(start1, vector1){
+        this.reset(start1, vector1);
+    }
+    get x() {
+        return Math.round(this.current.x);
+    }
+    get y() {
+        return Math.round(this.current.y);
+    }
+    reset(start, vector) {
+        this.start = start;
+        this.vector = vector;
+        this.last = start;
+        this.current = start;
+        this.history = [
+            start
+        ];
+        this.forceDamping = _random.randomWholeBetween(1, 10) * 0.01;
+    }
+    move(noise = 1) {
+        this.vector = this.vector.add(noise.mult(this.forceDamping)); // .limit(10);
+        this.last = this.current.clone();
+        this.current = this.current.add(this.vector);
+        this.history.push(this.current.clone());
+    }
+}
+const areColorsEqual = (c1, c2)=>c1.r === c2.r && c1.g === c2.g && c1.b === c2.b
+;
+const getPixelColor = (context, x, y)=>{
+    const { data  } = context.getImageData(x, y, 1, 1);
+    return _tinycolor2Default.default(`rgb(${data[0]}, ${data[1]}, ${data[2]}})`); // alpha ${data[3] / 255})
+};
+const noiseFn = (x, y, time = 0)=>_attractors.simplexNoise3d(x, y, time, 0.01)
+;
+const substrateFacture = ()=>{
     const config = {
-        name: 'marching-squares',
-        ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
+        name: 'substrate-facture',
+        ratio: _sketch.ratio.letter,
+        scale: _sketch.scale.standard,
+        orientation: _sketch.orientation.portrait
     };
     let canvasWidth;
     let canvasHeight;
-    let margin = 50;
-    let timeIncrement = 0;
-    const colors = _palettes.get2Tone(5, 15);
-    const resolution = 80;
-    const showField = true;
+    let canvasCenterX;
+    let canvasCenterY;
+    let centerRadius;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    let time = 0;
+    const backgroundColor = _palettes.paperWhite.clone();
+    const foreColor = _palettes.bicPenBlue.clone();
+    const maxPoints = 10;
+    const points = [];
+    const minLength = 5;
+    const getVector = (_)=>_random.randomWholeBetween(0, 2) === 0 ? -1 : 1
+    ;
+    const getStartingPoint = (_)=>new _vector.Vector(_random.randomWholeBetween(startX, maxX), _random.randomWholeBetween(startY, maxY))
+    ;
+    const getMovementVector = (_)=>new _vector.Vector(getVector(), getVector())
+    ;
+    const isOutOfBounds = (p)=>p.x > maxX || p.x < startX || p.y > maxY || p.y < startY
+    ;
+    const isIntersect = (context, p)=>!areColorsEqual(getPixelColor(context, p.x, p.y).toRgb(), backgroundColor.toRgb())
+    ;
     const setup = ({ canvas , context  })=>{
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-        _canvas.background(canvas, context)(colors.light);
-        context.strokeStyle = _tinycolor2Default.default(colors.dark);
-    };
-    const noiseFn = (x, y, time, min = -7, max = 7, outmin = -1, outmax = 1)=>{
-        const noise = _attractors.simplexNoise3d(x, y, time, 0.005);
-        return _math.mapRange(min, max, outmin, outmax, noise);
-    };
-    const drawNoise = (context, width, resCells)=>{
-        const cellW = Math.ceil(width / resCells);
-        const numCols = resCells + 1;
-        for(let i = 0; i < numCols; i++)for(let j = 0; j < numCols; j++){
-            const x = i * cellW;
-            const y = j * cellW;
-            const noise = noiseFn(x, y, timeIncrement);
-            const fillColor = _tinycolor2Default.default.mix('#ccc', '#fff', noise * 100);
-            context.fillStyle = _tinycolor2Default.default(fillColor).toRgbString();
-            context.fillRect(x, y, cellW, cellW);
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        centerRadius = canvas.height / 4;
+        startX = margin;
+        maxX = canvas.width - margin;
+        startY = margin;
+        maxY = canvas.height - margin;
+        for(let i = 0; i < maxPoints; i++){
+            const p = new SPoint(getStartingPoint(), getMovementVector());
+            points.push(p);
         }
+        _canvas.background(canvas, context)(backgroundColor);
     };
-    const slices = [
-        {
-            nmin: -7,
-            nmax: 7,
-            omin: -1,
-            omax: 1
-        },
-        {
-            nmin: 1,
-            nmax: 3,
-            omin: -0.25,
-            omax: 1
-        },
-        {
-            nmin: 3,
-            nmax: 7,
-            omin: -0.5,
-            omax: 1
-        },
-        {
-            nmin: -6,
-            nmax: -5,
-            omin: -1,
-            omax: 0.25
-        }, 
-    ];
     const draw = ({ canvas , context  })=>{
-        _canvas.background(canvas, context)(colors.light);
-        margin = canvasWidth / 10;
-        if (showField) drawNoise(context, canvasWidth, resolution / 2);
-        const squares = _rectangle.createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, resolution, resolution);
-        squares.forEach((s)=>{
-            slices.forEach((slice)=>{
-                s.corners = [
-                    s.cornerAPx,
-                    s.cornerBPx,
-                    s.cornerCPx,
-                    s.cornerDPx
-                ].map((c)=>noiseFn(c.x, c.y, timeIncrement, slice.nmin, slice.nmax, slice.omin, slice.omax)
-                );
-                _marchingSquares.isoline(context, s, true);
-            });
+        points.forEach((p)=>{
+            const force = _math.uvFromAngle(noiseFn(p.x, p.y, time));
+            p.move(force);
+            if (isOutOfBounds(p) || isIntersect(context, p)) {
+                if (p.history.length > minLength) {
+                    const width = _math.mapRange(minLength, 500, 0.25, 5, p.history.length);
+                    _primatives.pointPathPO(context)(p.history, 'black', width);
+                }
+                p.reset(getStartingPoint(), getMovementVector());
+            } else {
+                context.lineWidth = 0.25;
+                context.strokeStyle = _tinycolor2Default.default(foreColor);
+                if (p.history.length > minLength) _primatives.line(context)(p.last.x, p.last.y, p.current.x, p.current.y);
+            }
         });
-        timeIncrement += 0.99;
+        time += 0.1;
         return 1;
     };
     return {
@@ -8553,62 +8616,6 @@ const marchingSquares = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/Rectangle":"1Uf2J"}],"5BOkN":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isoline", ()=>isoline
-);
-// https://thecodingtrain.com/challenges/coding-in-the-cabana/005-marching-squares.html
-// https://editor.p5js.org/codingtrain/sketches/18cjVoAX1
-// http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
-// https://en.wikipedia.org/wiki/Marching_squares#/media/File:Marching_squares_algorithm.svg
-var _primatives = require("../canvas/primatives");
-const isoline = (context, rect, smooth = false)=>{
-    const drawLine = (p1, p2)=>_primatives.line(context)(p1.x, p1.y, p2.x, p2.y)
-    ;
-    const sides = rect.getSides(smooth);
-    switch(rect.cornerState){
-        case 1:
-        case 14:
-            drawLine(sides.left, sides.bottom);
-            break;
-        case 2:
-        case 13:
-            drawLine(sides.bottom, sides.right);
-            break;
-        case 3:
-        case 12:
-            drawLine(sides.left, sides.right);
-            break;
-        case 4:
-            drawLine(sides.top, sides.right);
-            break;
-        case 5:
-            drawLine(sides.left, sides.top);
-            drawLine(sides.bottom, sides.right);
-            break;
-        case 6:
-        case 9:
-            drawLine(sides.top, sides.bottom);
-            break;
-        case 7:
-        case 8:
-            drawLine(sides.left, sides.top);
-            break;
-        case 10:
-            drawLine(sides.left, sides.bottom);
-            drawLine(sides.top, sides.right);
-            break;
-        case 11:
-            drawLine(sides.top, sides.right);
-            break;
-        case 0:
-        case 15:
-        default:
-            break;
-    }
-};
-
-},{"../canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/primatives":"6MM7x","tinycolor2":"101FG","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map
