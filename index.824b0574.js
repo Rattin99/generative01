@@ -389,11 +389,11 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _substrateFacture = require("./experiments/substrate-facture");
-var _meanderingRiver02 = require("./released/meandering-river-02");
+var _meanderingRiver01 = require("./released/meandering-river-01");
 const debug = false;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _meanderingRiver02.meanderingRiver02;
+const experimentalVariation = _meanderingRiver01.meanderingRiver01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -413,7 +413,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/substrate-facture":"3eu9J","./released/meandering-river-02":"6SHt4"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","./experiments/substrate-facture":"3eu9J","./released/meandering-river-01":"2elLt","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3705,7 +3705,9 @@ parcelHelpers.export(exports, "filter", ()=>filter
 );
 parcelHelpers.export(exports, "strokeWeight", ()=>strokeWeight
 );
-parcelHelpers.export(exports, "stokeColor", ()=>stokeColor
+parcelHelpers.export(exports, "strokeColor", ()=>strokeColor
+);
+parcelHelpers.export(exports, "strokeDash", ()=>strokeDash
 );
 parcelHelpers.export(exports, "fillColor", ()=>fillColor
 );
@@ -3786,9 +3788,11 @@ const strokeWeight = (context)=>(w = 1)=>setContext(context)({
             lineWidth: w
         })
 ;
-const stokeColor = (context)=>(color = '#000')=>setContext(context)({
+const strokeColor = (context)=>(color = '#000')=>setContext(context)({
             strokeStyle: _tinycolor2Default.default(color).toRgbString()
         })
+;
+const strokeDash = (context)=>(dash = [])=>context.setLineDash(dash)
 ;
 const fillColor = (context)=>(color = '#000')=>setContext(context)({
             fillStyle: _tinycolor2Default.default(color).toRgbString()
@@ -4536,6 +4540,8 @@ const sketch = (canvasElId, smode = 0, debug)=>{
     let animationId;
     let canvasRecorder;
     let isRecording = false;
+    const pauseOnWindowBlur = true;
+    let isPaused = false;
     const canvasSizeMultiple = 10;
     const canvasSizeMultiplier = 0.9;
     const canvas = document.getElementById(canvasElId);
@@ -4648,6 +4654,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
                 context
             });
             const drawFrame = ()=>{
+                if (pauseOnWindowBlur && isPaused) return 1;
                 drawRuns++;
                 if (statsJS) statsJS.begin();
                 const res = currentVariationRes.draw({
@@ -4681,6 +4688,23 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         if (!hasStarted) window.addEventListener('load', startSketch);
         else startSketch();
     };
+    const stop = ()=>{
+        removeEvents();
+        window.cancelAnimationFrame(animationId);
+    };
+    const windowResize = (evt)=>{
+        // clear and rerun to avoid artifacts
+        if (animationId) {
+            stop();
+            run(currentVariationFn);
+        }
+    };
+    const windowFocus = (evt)=>{
+        if (pauseOnWindowBlur) isPaused = false;
+    };
+    const windowBlur = (evt)=>{
+        if (pauseOnWindowBlur) isPaused = true;
+    };
     const addEvents = (_)=>{
         window.addEventListener('mousedown', mouseDown);
         window.addEventListener('touchstart', mouseDown);
@@ -4691,6 +4715,8 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         window.addEventListener('mouseout', mouseOut);
         window.addEventListener('touchcancel', mouseOut);
         window.addEventListener('resize', windowResize);
+        window.addEventListener('blur', windowBlur);
+        window.addEventListener('focus', windowFocus);
     };
     const removeEvents = (_)=>{
         window.removeEventListener('mousedown', mouseDown);
@@ -4702,17 +4728,8 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         window.removeEventListener('mouseout', mouseOut);
         window.removeEventListener('touchcancel', mouseOut);
         window.removeEventListener('resize', windowResize);
-    };
-    const stop = ()=>{
-        removeEvents();
-        window.cancelAnimationFrame(animationId);
-    };
-    const windowResize = (evt)=>{
-        // clear and rerun to avoid artifacts
-        if (animationId) {
-            stop();
-            run(currentVariationFn);
-        }
+        window.removeEventListener('blur', windowBlur);
+        window.removeEventListener('focus', windowFocus);
     };
     const getVariationName = ()=>{
         const seed = _random.getRandomSeed();
@@ -7411,7 +7428,7 @@ class MeanderingRiver {
         // Magnitude of the mixed vector, increase the effect, < slower
         this.mixMagnitude = _utils.defaultValue(props, 'mixMagnitude', 0);
         // Limit the influence vector,  less than 1, slower. > 1 no affect
-        this.influenceLimit = _utils.defaultValue(props, 'influenceLimit', 0.25);
+        this.influenceLimit = _utils.defaultValue(props, 'influenceLimit', 0);
         // Additional vector to push the flow in a direction
         this.pushFlowVectorFn = _utils.defaultValue(props, 'pushFlowVectorFn', undefined);
         // Add new points if the distance between is larger
@@ -7425,7 +7442,7 @@ class MeanderingRiver {
         // If points are not this close than create oxbow
         this.oxbowPointIndexProx = Math.ceil(this.measureCurveAdjacent * 1.5);
         // this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 25);
-        // Additional flow influence. mix, only, scaleMag
+        // Additional flow influence. mix, only, scaleMag, flowInTo
         this.noiseMode = _utils.defaultValue(props, 'noiseMode', 'mix'); // mix or only (mix and exclude less than strength)
         // Passed x,y returns a small -/+ value
         this.noiseFn = _utils.defaultValue(props, 'noiseFn', undefined);
@@ -7506,7 +7523,8 @@ class MeanderingRiver {
                 if (t < 0) {
                     const n = _math.uvFromAngle(t);
                     mVector = mVector.mix(n, this.mixNoiseRatio);
-                } else mVector = new _vector.Vector(0, 0);
+                } else // TODO scale down based on noise, not zero
+                mVector = new _vector.Vector(0, 0);
             } else if (this.noiseMode === 'scaleMag') {
                 const nscale = _math.mapRange(0, this.noiseStrengthAffect, 5, 1, 3, Math.abs(t));
                 mVector = mVector.setMag(nscale);
@@ -7878,6 +7896,7 @@ var _fields = require("../rndrgen/canvas/fields");
 var _random = require("../rndrgen/math/random");
 var _points = require("../rndrgen/math/points");
 var _primatives = require("../rndrgen/canvas/primatives");
+var _marchingSquares = require("../rndrgen/systems/marchingSquares");
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
  */ const createHorizontalPath = ({ width , height  }, startX, startY, steps = 20)=>{
@@ -7902,23 +7921,22 @@ Meandering River class at ../rndrgen/MeanderingRiver
 const meanderingRiver01 = ()=>{
     const config = {
         name: 'meandering-river-01',
-        ratio: _sketch.ratio.letter,
-        scale: _sketch.scale.standard,
+        ratio: _sketch.ratio.a3plus,
+        scale: _sketch.scale.hidpi,
         orientation: _sketch.orientation.landscape
     };
     let ctx;
     let canvasMidX;
     let canvasMidY;
+    const renderScale = config.scale; // 1 or 2
     const rivers = [];
     let time = 0;
     const backgroundColor = _palettes.warmWhite;
     const riverColor = _palettes.warmWhite.clone().brighten(20);
-    const riverWeight = [
-        15,
-        10
-    ];
     const oxbowColor = riverColor.clone();
-    const outlineColor = _palettes.bicPenBlue.setAlpha(0.25);
+    const flatColor = backgroundColor.clone().darken(10);
+    const isolowColor = flatColor.clone().darken(2);
+    const isohighColor = backgroundColor.clone().brighten(10);
     const tintingColor = _tinycolor2Default.default('hsl(38, 38%, 64%)');
     const palette = [
         _tinycolor2Default.default('hsl(97, 9%, 73%)'),
@@ -7938,8 +7956,8 @@ const meanderingRiver01 = ()=>{
         _tinycolor2Default.default.mix('hsl(19, 39%, 47%)', tintingColor, 75),
         _tinycolor2Default.default.mix('hsl(166, 39%, 59%)', tintingColor, 75), 
     ].reverse();
-    const flatColor = backgroundColor.clone().darken(10);
-    const noise = (x, y)=>_attractors.simplexNoise2d(x, y, 0.001)
+    let noiseScale = 0.001 / renderScale;
+    const noise = (x, y)=>_attractors.simplexNoise2d(x, y, noiseScale)
     ;
     const maxHistory = 15;
     const historyStep = 15;
@@ -7948,89 +7966,114 @@ const meanderingRiver01 = ()=>{
         canvasMidX = canvas.width / 2;
         canvasMidY = canvas.height / 2;
         const horizpoints = _points.createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 15));
-        const circlepoints = _grids.getPointsOnCircle(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
-        const cs = {
-            mixTangentRatio: 0.6,
-            mixMagnitude: 1.25,
-            curvemeasure: 4,
-            curvesize: 3,
-            pointremove: 4,
-            oxbowProx: 3
-        };
+        const riverScale = 1.25;
+        noiseScale /= riverScale * 2;
         const horizontal = new _meanderingRiver.MeanderingRiver(horizpoints, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 2,
-            influenceLimit: 0,
-            mixTangentRatio: 0.6,
-            mixMagnitude: 1.5,
-            oxbowProx: 3,
-            oxbowPointIndexProx: 4,
-            measureCurveAdjacent: 6,
-            curveSize: 4,
-            pointRemoveProx: 4,
-            pushFlowVectorFn: _meanderingRiver.flowRightToMiddle(0.5, canvasMidY),
-            noiseFn: noise,
-            noiseMode: 'flowInTo',
-            noiseStrengthAffect: 3,
-            mixNoiseRatio: 0.3
-        });
-        const circular = new _meanderingRiver.MeanderingRiver(circlepoints, {
-            maxHistory,
-            storeHistoryEvery: historyStep,
-            fixedEndPoints: 1,
-            influenceLimit: 0,
-            wrapEnd: true,
-            mixTangentRatio: 0.45,
-            mixMagnitude: 1,
-            oxbowProx: 2,
-            oxbowPointIndexProx: 2,
-            measureCurveAdjacent: 10,
-            curveSize: 5,
-            pointRemoveProx: 3,
-            // pushFlowVectorFn: flowRightToMiddle(0.5, canvasMidY),
+            oxbowProx: 3 * renderScale,
+            oxbowPointIndexProx: 4 * renderScale,
+            mixTangentRatio: 0.7,
+            mixMagnitude: 1.5 * riverScale,
+            measureCurveAdjacent: 6 * renderScale * riverScale,
+            curveSize: 4 * renderScale * riverScale,
+            pointRemoveProx: 4 * renderScale * riverScale,
+            pushFlowVectorFn: _meanderingRiver.flowRightToMiddle(0.6, canvasMidY),
             noiseFn: noise,
             noiseMode: 'flowInTo',
             noiseStrengthAffect: 0,
-            mixNoiseRatio: 0.4
+            mixNoiseRatio: 0.3
         });
         rivers.push(horizontal);
-        // rivers.push(circular);
         // Run some steps before render to smooth lines
-        for(let i = 0; i < 30; i++)rivers.forEach((r)=>{
+        for(let i = 0; i < 50; i++)rivers.forEach((r)=>{
             r.step();
         });
         _canvas.background(canvas, context)(backgroundColor);
-        _fields.renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 4);
-        _fields.renderFieldContour(canvas, context, noise, -8, 8, 15, flatColor.clone().darken(5), backgroundColor.clone().brighten(1));
+        // renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 4);
+        const slices = [
+            {
+                nmin: -7,
+                nmax: 7,
+                omin: -1,
+                omax: 1,
+                color: isohighColor
+            },
+            {
+                nmin: -6,
+                nmax: -4,
+                omin: -1,
+                omax: 1,
+                color: isolowColor
+            },
+            {
+                nmin: -4,
+                nmax: -2,
+                omin: -1,
+                omax: 1,
+                color: isolowColor
+            },
+            {
+                nmin: -2,
+                nmax: 0,
+                omin: -1,
+                omax: 1,
+                color: isolowColor
+            },
+            {
+                nmin: 0,
+                nmax: 2,
+                omin: -1,
+                omax: 1,
+                color: isohighColor
+            },
+            {
+                nmin: 2,
+                nmax: 4,
+                omin: -1,
+                omax: 1,
+                color: isohighColor
+            },
+            {
+                nmin: 4,
+                nmax: 6,
+                omin: -1,
+                omax: 1,
+                color: isohighColor
+            }, 
+        ];
+        _marchingSquares.renderIsolines(context, canvas, noise, 50 * renderScale, 100 * renderScale, true, slices);
     };
+    const outlineThickness = 3 * renderScale;
+    const riverSmoothing = 4;
+    const riverWeight = 20 * renderScale;
     const draw = ({ canvas , context  })=>{
         // step
         rivers.forEach((r)=>{
-            r.step();
+            for(let i = 0; i < renderScale; i++)r.step();
         });
-        const oColor = palette[Math.round(time * 0.01) % palette.length]; // .clone().setAlpha(0.75);
-        const oSize = 4;
+        const outlineColor = palette[Math.round(time * 0.03) % palette.length]; // .clone().setAlpha(0.75);
         // outline
         rivers.forEach((r, i)=>{
             r.oxbows.forEach((o)=>{
-                const w = Math.abs(_math.mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
-                _primatives.pointPathPA(ctx)(o.points, oColor, w + oSize / 2);
+                const w = Math.abs(_math.mapRange(0, o.startLength, 1, riverWeight, o.points.length));
+                _primatives.pointPathPA(ctx)(o.points, outlineColor, w + outlineThickness / 2);
             });
-            const points = _segments.chaikinSmooth(r.points, 5);
-            _primatives.pointPathPA(ctx)(points, oColor, riverWeight[i] + oSize);
+            const points = _segments.chaikinSmooth(r.points, riverSmoothing);
+            _primatives.pointPathPA(ctx)(points, outlineColor, riverWeight + outlineThickness);
         });
         // main
         rivers.forEach((r, i)=>{
             r.oxbows.forEach((o)=>{
-                const w = Math.abs(_math.mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
+                const w = Math.abs(_math.mapRange(0, o.startLength, riverWeight / 2, riverWeight, o.points.length));
                 _primatives.pointPathPA(ctx)(o.points, oxbowColor, w);
             });
-            const points = _segments.chaikinSmooth(r.points, 5);
-            _primatives.pointPathPA(ctx)(points, riverColor, riverWeight[i], false, false);
-        // pixelAtPoints(ctx)(r.points, 'red', 1);
+            const points = _segments.chaikinSmooth(r.points, riverSmoothing);
+            _primatives.pointPathPA(ctx)(points, riverColor, riverWeight, false, false);
         });
         time++;
+        return 1;
     };
     return {
         config,
@@ -8039,7 +8082,251 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3y6eB":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5BOkN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isoline", ()=>isoline
+);
+parcelHelpers.export(exports, "renderIsolines", ()=>renderIsolines
+);
+// https://thecodingtrain.com/challenges/coding-in-the-cabana/005-marching-squares.html
+// https://editor.p5js.org/codingtrain/sketches/18cjVoAX1
+// http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
+// https://en.wikipedia.org/wiki/Marching_squares#/media/File:Marching_squares_algorithm.svg
+var _canvas = require("../canvas/canvas");
+var _primatives = require("../canvas/primatives");
+var _rectangle = require("../math/Rectangle");
+var _math = require("../math/math");
+const isoline = (context, rect, smooth = false)=>{
+    const drawLine = (p1, p2)=>_primatives.line(context)(p1.x, p1.y, p2.x, p2.y)
+    ;
+    const sides = rect.getSides(smooth);
+    switch(rect.cornerState){
+        case 1:
+        case 14:
+            drawLine(sides.left, sides.bottom);
+            break;
+        case 2:
+        case 13:
+            drawLine(sides.bottom, sides.right);
+            break;
+        case 3:
+        case 12:
+            drawLine(sides.left, sides.right);
+            break;
+        case 4:
+            drawLine(sides.top, sides.right);
+            break;
+        case 5:
+            drawLine(sides.left, sides.top);
+            drawLine(sides.bottom, sides.right);
+            break;
+        case 6:
+        case 9:
+            drawLine(sides.top, sides.bottom);
+            break;
+        case 7:
+        case 8:
+            drawLine(sides.left, sides.top);
+            break;
+        case 10:
+            drawLine(sides.left, sides.bottom);
+            drawLine(sides.top, sides.right);
+            break;
+        case 11:
+            drawLine(sides.top, sides.right);
+            break;
+        case 0:
+        case 15:
+        default:
+            break;
+    }
+};
+const renderIsolines = (context, { width , height  }, noiseFn2d, margin = 0, resolution = 50, smoothing = true, slices)=>{
+    const squares = _rectangle.createRectGrid(margin, margin, width - margin * 2, height - margin * 2, resolution, resolution);
+    slices = slices || [
+        {
+            nmin: -7,
+            nmax: 7,
+            omin: -1,
+            omax: 1
+        }
+    ];
+    squares.forEach((s)=>{
+        slices.forEach((slice)=>{
+            s.corners = [
+                s.cornerAPx,
+                s.cornerBPx,
+                s.cornerCPx,
+                s.cornerDPx
+            ].map((c)=>{
+                const noise = noiseFn2d(c.x, c.y);
+                return _math.mapRange(slice.nmin, slice.nmax, slice.omin, slice.omax, noise);
+            });
+            if (slice.color) _canvas.strokeColor(context)(slice.color);
+            isoline(context, s, smoothing);
+        });
+    });
+};
+
+},{"../canvas/canvas":"73Br1","../canvas/primatives":"6MM7x","../math/Rectangle":"1Uf2J","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1Uf2J":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+/*
+Corners and lerps are for marching squares
+
+Corners
+  a---b
+  |   |
+  d---c
+ */ parcelHelpers.export(exports, "Rectangle", ()=>Rectangle
+);
+parcelHelpers.export(exports, "Square", ()=>Square
+);
+parcelHelpers.export(exports, "createRectGrid", ()=>createRectGrid
+);
+var _math = require("./math");
+var _random = require("./random");
+const point = (x, y)=>({
+        x,
+        y
+    })
+;
+const midPoint = (a, b)=>Math.round((b - a) / 2) + a
+;
+// a...d are 0 or 1
+const getStateFromCorners = (a, b, c, d)=>a * 8 + b * 4 + c * 2 + d * 1
+;
+// a and b are -1 to 1
+const lerpAmt = (a, b)=>(1 - (a + 1)) / (b + 1 - (a + 1))
+;
+class Rectangle {
+    constructor(x, y, width, height, corners){
+        this.x = x;
+        this.y = y;
+        this.w = width;
+        this.h = height;
+        this.x2 = x + width;
+        this.y2 = y + height;
+        this.mx = midPoint(this.x, this.x2);
+        this.my = midPoint(this.y, this.y2);
+        // 1 or -1
+        this.phase = 1;
+        // -1 to 1 noise values
+        this.corners = corners || [
+            0,
+            0,
+            0,
+            0
+        ];
+        // array of subdivisions, [rect]
+        this.children = [];
+        this.parent = null;
+        this.depth = 0;
+    }
+    // 0 to 15
+    get cornerState() {
+        return getStateFromCorners(Math.ceil(this.corners[0]), Math.ceil(this.corners[1]), Math.ceil(this.corners[2]), Math.ceil(this.corners[3]));
+    }
+    get cornerAverage() {
+        return this.average = (this.corners[0] + this.corners[2] + this.corners[2] + this.corners[3]) / 4;
+    }
+    get center() {
+        return point(this.mx, this.my);
+    }
+    get midTop() {
+        return point(this.mx, this.y);
+    }
+    get midRight() {
+        return point(this.x2, this.my);
+    }
+    get midBottom() {
+        return point(this.mx, this.y2);
+    }
+    get midLeft() {
+        return point(this.x, this.my);
+    }
+    get lerpTop() {
+        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[0], this.corners[1])), this.y);
+    }
+    get lerpRight() {
+        return point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.corners[1], this.corners[2])));
+    }
+    get lerpBottom() {
+        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[3], this.corners[2])), this.y2);
+    }
+    get lerpLeft() {
+        return point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
+    }
+    get cornerAPx() {
+        return point(this.x, this.y);
+    }
+    get cornerBPx() {
+        return point(this.x2, this.y);
+    }
+    get cornerCPx() {
+        return point(this.x2, this.y2);
+    }
+    get cornerDPx() {
+        return point(this.x, this.y2);
+    }
+    getSides(smooth) {
+        return {
+            top: smooth ? this.lerpTop : this.midTop,
+            right: smooth ? this.lerpRight : this.midRight,
+            bottom: smooth ? this.lerpBottom : this.midBottom,
+            left: smooth ? this.lerpLeft : this.midLeft
+        };
+    }
+    randomPointInside() {
+        const x1 = _random.randomNormalWholeBetween(0, this.w) + this.x;
+        const y1 = _random.randomNormalWholeBetween(0, this.h) + this.y;
+        return point(x1, y1);
+    }
+    contains(p) {
+        return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
+    }
+    intersects(rect) {
+        return !(rect.x - rect.w > this.x + this.w || rect.x + rect.w < this.x - this.w || rect.y - rect.h > this.y + this.h || rect.y + rect.h < this.y - this.h);
+    }
+    divideQuad() {
+        const halfW = this.w / 2;
+        const halfH = this.h / 2;
+        this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
+        this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
+        this.children.push(new Rectangle(this.x, this.y + halfH, halfW, halfH));
+        this.children.push(new Rectangle(this.x + halfW, this.y + halfH, halfW, halfH));
+        this.children.forEach((c)=>{
+            c.phase *= -1;
+            c.parent = this;
+            c.depth = this.depth + 1;
+        });
+    }
+}
+class Square extends Rectangle {
+    constructor(x1, y1, size, corners1 = [
+        0,
+        0,
+        0,
+        0
+    ]){
+        super(x1, y1, size, size, corners1);
+        this.size = size;
+    }
+}
+const createRectGrid = (x2, y2, w, h, cols = 2, rows = 2, colgap = 0, rowgap = 0)=>{
+    const rects = [];
+    const colw = Math.round((w - (cols - 1) * colgap) / cols);
+    const rowh = Math.round((h - (rows - 1) * rowgap) / rows);
+    for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
+        const rx = i * (colw + colgap) + x2;
+        const ry = j * (rowh + rowgap) + y2;
+        rects.push(new Rectangle(rx, ry, colw, rowh));
+    }
+    return rects;
+};
+
+},{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3y6eB":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "truchetTiles", ()=>truchetTiles
@@ -8223,164 +8510,7 @@ const truchet = (context, rectangle, fore = 'black', back = 'white')=>{
 // rect(context)(rectangle.x + 1, rectangle.y + 1, rectangle.w - 2, rectangle.h - 2, 1, 'green');
 };
 
-},{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","../canvas/canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1Uf2J":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-/*
-Corners and lerps are for marching squares
-
-Corners
-  a---b
-  |   |
-  d---c
- */ parcelHelpers.export(exports, "Rectangle", ()=>Rectangle
-);
-parcelHelpers.export(exports, "Square", ()=>Square
-);
-parcelHelpers.export(exports, "createRectGrid", ()=>createRectGrid
-);
-var _math = require("./math");
-var _random = require("./random");
-const point = (x, y)=>({
-        x,
-        y
-    })
-;
-const midPoint = (a, b)=>Math.round((b - a) / 2) + a
-;
-// a...d are 0 or 1
-const getStateFromCorners = (a, b, c, d)=>a * 8 + b * 4 + c * 2 + d * 1
-;
-// a and b are -1 to 1
-const lerpAmt = (a, b)=>(1 - (a + 1)) / (b + 1 - (a + 1))
-;
-class Rectangle {
-    constructor(x, y, width, height, corners){
-        this.x = x;
-        this.y = y;
-        this.w = width;
-        this.h = height;
-        this.x2 = x + width;
-        this.y2 = y + height;
-        this.mx = midPoint(this.x, this.x2);
-        this.my = midPoint(this.y, this.y2);
-        // 1 or -1
-        this.phase = 1;
-        // -1 to 1 noise values
-        this.corners = corners || [
-            0,
-            0,
-            0,
-            0
-        ];
-        // array of subdivisions, [rect]
-        this.children = [];
-        this.parent = null;
-        this.depth = 0;
-    }
-    // 0 to 15
-    get cornerState() {
-        return getStateFromCorners(Math.ceil(this.corners[0]), Math.ceil(this.corners[1]), Math.ceil(this.corners[2]), Math.ceil(this.corners[3]));
-    }
-    get cornerAverage() {
-        return this.average = (this.corners[0] + this.corners[2] + this.corners[2] + this.corners[3]) / 4;
-    }
-    get center() {
-        return point(this.mx, this.my);
-    }
-    get midTop() {
-        return point(this.mx, this.y);
-    }
-    get midRight() {
-        return point(this.x2, this.my);
-    }
-    get midBottom() {
-        return point(this.mx, this.y2);
-    }
-    get midLeft() {
-        return point(this.x, this.my);
-    }
-    get lerpTop() {
-        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[0], this.corners[1])), this.y);
-    }
-    get lerpRight() {
-        return point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.corners[1], this.corners[2])));
-    }
-    get lerpBottom() {
-        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[3], this.corners[2])), this.y2);
-    }
-    get lerpLeft() {
-        return point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
-    }
-    get cornerAPx() {
-        return point(this.x, this.y);
-    }
-    get cornerBPx() {
-        return point(this.x2, this.y);
-    }
-    get cornerCPx() {
-        return point(this.x2, this.y2);
-    }
-    get cornerDPx() {
-        return point(this.x, this.y2);
-    }
-    getSides(smooth) {
-        return {
-            top: smooth ? this.lerpTop : this.midTop,
-            right: smooth ? this.lerpRight : this.midRight,
-            bottom: smooth ? this.lerpBottom : this.midBottom,
-            left: smooth ? this.lerpLeft : this.midLeft
-        };
-    }
-    randomPointInside() {
-        const x1 = _random.randomNormalWholeBetween(0, this.w) + this.x;
-        const y1 = _random.randomNormalWholeBetween(0, this.h) + this.y;
-        return point(x1, y1);
-    }
-    contains(p) {
-        return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
-    }
-    intersects(rect) {
-        return !(rect.x - rect.w > this.x + this.w || rect.x + rect.w < this.x - this.w || rect.y - rect.h > this.y + this.h || rect.y + rect.h < this.y - this.h);
-    }
-    divideQuad() {
-        const halfW = this.w / 2;
-        const halfH = this.h / 2;
-        this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
-        this.children.push(new Rectangle(this.x + halfW, this.y, halfW, halfH));
-        this.children.push(new Rectangle(this.x, this.y + halfH, halfW, halfH));
-        this.children.push(new Rectangle(this.x + halfW, this.y + halfH, halfW, halfH));
-        this.children.forEach((c)=>{
-            c.phase *= -1;
-            c.parent = this;
-            c.depth = this.depth + 1;
-        });
-    }
-}
-class Square extends Rectangle {
-    constructor(x1, y1, size, corners1 = [
-        0,
-        0,
-        0,
-        0
-    ]){
-        super(x1, y1, size, size, corners1);
-        this.size = size;
-    }
-}
-const createRectGrid = (x2, y2, w, h, cols = 2, rows = 2, colgap = 0, rowgap = 0)=>{
-    const rects = [];
-    const colw = Math.round((w - (cols - 1) * colgap) / cols);
-    const rowh = Math.round((h - (rows - 1) * rowgap) / rows);
-    for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
-        const rx = i * (colw + colgap) + x2;
-        const ry = j * (rowh + rowgap) + y2;
-        rects.push(new Rectangle(rx, ry, colw, rowh));
-    }
-    return rects;
-};
-
-},{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","../canvas/canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "version", ()=>version
@@ -8611,6 +8741,6 @@ const substrateFacture = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/random":"1SLuP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/primatives":"6MM7x","tinycolor2":"101FG","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/random":"1SLuP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map
