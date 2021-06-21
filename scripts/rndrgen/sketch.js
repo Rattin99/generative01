@@ -46,6 +46,7 @@ export const orientation = {
 export const ratio = {
     letter: 0.773, // 8.5x11
     poster: 0.667, // 24x36
+    a3plus: 0.684, // 13x19
     golden: 0.6180339887498948482,
     square: -1,
     auto: 1,
@@ -83,7 +84,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
     let isRecording = false;
 
     const canvasSizeMultiple = 10;
-    const canvasSizeFraction = 0.9;
+    const canvasSizeMultiplier = 0.9;
     const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
 
@@ -127,6 +128,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         let finalWidth = width;
         let finalHeight = height;
 
+        const cfgMultiplier = defaultValue(config, 'multiplier', fraction);
         const cfgOrientation = defaultValue(config, 'orientation', orientation.landscape);
         const cfgRatio = defaultValue(config, 'ratio', ratio.auto);
         const cfgScale = defaultValue(config, 'scale', scale.standard);
@@ -135,7 +137,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
             finalWidth = width;
             finalHeight = height;
         } else if (cfgRatio === ratio.square) {
-            const smallestWindowSize = Math.min(width, height) * fraction;
+            const smallestWindowSize = Math.min(width, height) * cfgMultiplier;
             finalWidth = smallestWindowSize;
             finalHeight = smallestWindowSize;
         } else if (cfgOrientation === orientation.landscape) {
@@ -146,8 +148,8 @@ export const sketch = (canvasElId, smode = 0, debug) => {
                 w -= delta;
                 h -= delta;
             }
-            finalWidth = w * fraction;
-            finalHeight = h * fraction;
+            finalWidth = w * cfgMultiplier;
+            finalHeight = h * cfgMultiplier;
         } else if (cfgOrientation === orientation.portrait) {
             let w = Math.round(cfgRatio * height);
             let h = height;
@@ -156,16 +158,16 @@ export const sketch = (canvasElId, smode = 0, debug) => {
                 w -= delta;
                 h -= delta;
             }
-            finalWidth = w * fraction;
-            finalHeight = h * fraction;
+            finalWidth = w * cfgMultiplier;
+            finalHeight = h * cfgMultiplier;
         }
 
         finalWidth = roundToNearest(canvasSizeMultiple, finalWidth);
         finalHeight = roundToNearest(canvasSizeMultiple, finalHeight);
 
-        console.log(`Canvas size ${finalWidth} x ${finalHeight}`);
-
         resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
+
+        console.log(`Canvas size ${finalWidth} x ${finalHeight} at ${window.devicePixelRatio}dpr`);
     };
 
     const run = (variation) => {
@@ -180,6 +182,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
 
         addEvents();
 
+        drawRuns = 0;
         let currentDrawLimit;
         let rendering = true;
         let targetFpsInterval = 1000 / fps;
@@ -189,7 +192,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
 
         if (currentVariationRes.hasOwnProperty('config')) {
             const { config } = currentVariationRes;
-            applyCanvasSize(config, canvasSizeFraction);
+            applyCanvasSize(config, canvasSizeMultiplier);
             if (config.fps) {
                 fps = config.fps;
                 targetFpsInterval = 1000 / fps;

@@ -7,13 +7,14 @@ import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
 import { substrateFacture } from './experiments/substrate-facture';
+import { meanderingRiver02 } from './released/meandering-river-02';
 
 const debug = false;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = substrateFacture;
+const experimentalVariation = meanderingRiver02;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { orientation, ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';
@@ -47,25 +47,19 @@ const createVerticalPath = ({ width, height }, startX, startY, steps = 20) => {
 export const meanderingRiver02 = () => {
     const config = {
         name: 'meandering-river-02',
-        ratio: ratio.square,
-        scale: scale.standard,
+        ratio: ratio.a3plus,
+        scale: scale.hidpi,
+        orientation: orientation.portrait,
+        multiplier: 0.2,
+        // drawLimit: 100,
     };
 
     let ctx;
     let canvasMidX;
     let canvasMidY;
+    const renderScale = config.scale; // 1 or 2
     const rivers = [];
     let time = 0;
-
-    // colors sampled from http://roberthodgin.com/project/meander
-    // const agedWarmWhite = tinycolor('hsl(42, 43%, 76%)');
-    // const tintingColor = tinycolor('hsl(38, 38%, 64%)');
-    // const palette = [
-    //     tinycolor('hsl(97, 9%, 73%)'),
-    //     tinycolor('hsl(51, 7%, 38%)'),
-    //     tinycolor('hsl(19, 39%, 47%)'),
-    //     tinycolor('hsl(166, 39%, 59%)'),
-    // ];
 
     const backgroundColor = warmWhite;
 
@@ -98,7 +92,7 @@ export const meanderingRiver02 = () => {
             oxbowProx: 2.5,
         };
 
-        const r0 = new MeanderingRiver(circle, {
+        const circleRiver = new MeanderingRiver(circle, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 1,
@@ -122,7 +116,7 @@ export const meanderingRiver02 = () => {
             mixNoiseRatio: 0.3,
         });
 
-        const r1 = new MeanderingRiver(vertical, {
+        const verticalRiver = new MeanderingRiver(vertical, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 1,
@@ -146,7 +140,7 @@ export const meanderingRiver02 = () => {
             mixNoiseRatio: 0.3,
         });
 
-        const r2 = new MeanderingRiver(horizontal, {
+        const horizontalRiver = new MeanderingRiver(horizontal, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 1,
@@ -170,7 +164,7 @@ export const meanderingRiver02 = () => {
             mixNoiseRatio: 0.3,
         });
 
-        rivers.push(r0, r2);
+        rivers.push(circleRiver, horizontalRiver);
     };
 
     const draw = ({ canvas, context }) => {
@@ -183,7 +177,9 @@ export const meanderingRiver02 = () => {
 
         // step
         rivers.forEach((r) => {
-            r.step();
+            for (let i = 0; i < renderScale; i++) {
+                r.step();
+            }
         });
 
         // main
@@ -195,13 +191,9 @@ export const meanderingRiver02 = () => {
             //     pointPathPA(ctx)(o.points, c, 1);
             // });
 
-            const points = chaikinSmooth(r.points, 8);
+            const points = chaikinSmooth(r.points, 4);
             if (points.length) pointPathPA(ctx)(points, c, 2, closed[i]);
         });
-
-        // if (++time > 1000) {
-        // return -1;
-        // }
 
         time += 0.25;
     };

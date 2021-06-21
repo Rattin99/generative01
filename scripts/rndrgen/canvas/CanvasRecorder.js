@@ -39,7 +39,7 @@ export function CanvasRecorder(canvas, fps, video_bits_per_sec) {
     const video = document.createElement('video');
     video.style.display = 'none';
 
-    console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
+    // console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
 
     function startRecording() {
         const types = [
