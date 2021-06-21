@@ -389,10 +389,11 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _substrateFacture = require("./experiments/substrate-facture");
+var _meanderingRiver02 = require("./released/meandering-river-02");
 const debug = false;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _substrateFacture.substrateFacture;
+const experimentalVariation = _meanderingRiver02.meanderingRiver02;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +413,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/substrate-facture":"3eu9J"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/substrate-facture":"3eu9J","./released/meandering-river-02":"6SHt4"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -4503,6 +4504,7 @@ const orientation = {
 const ratio = {
     letter: 0.773,
     poster: 0.667,
+    a3plus: 0.684,
     golden: 0.6180339887498949,
     square: -1,
     auto: 1
@@ -4535,7 +4537,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
     let canvasRecorder;
     let isRecording = false;
     const canvasSizeMultiple = 10;
-    const canvasSizeFraction = 0.9;
+    const canvasSizeMultiplier = 0.9;
     const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
     const getCanvas = (_)=>canvas
@@ -4570,6 +4572,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         const height = _utils.defaultValue(config, 'height', window.innerHeight);
         let finalWidth = width;
         let finalHeight = height;
+        const cfgMultiplier = _utils.defaultValue(config, 'multiplier', fraction);
         const cfgOrientation = _utils.defaultValue(config, 'orientation', orientation.landscape);
         const cfgRatio = _utils.defaultValue(config, 'ratio', ratio.auto);
         const cfgScale = _utils.defaultValue(config, 'scale', scale.standard);
@@ -4577,7 +4580,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
             finalWidth = width;
             finalHeight = height;
         } else if (cfgRatio === ratio.square) {
-            const smallestWindowSize = Math.min(width, height) * fraction;
+            const smallestWindowSize = Math.min(width, height) * cfgMultiplier;
             finalWidth = smallestWindowSize;
             finalHeight = smallestWindowSize;
         } else if (cfgOrientation === orientation.landscape) {
@@ -4588,8 +4591,8 @@ const sketch = (canvasElId, smode = 0, debug)=>{
                 w -= delta;
                 h -= delta;
             }
-            finalWidth = w * fraction;
-            finalHeight = h * fraction;
+            finalWidth = w * cfgMultiplier;
+            finalHeight = h * cfgMultiplier;
         } else if (cfgOrientation === orientation.portrait) {
             let w = Math.round(cfgRatio * height);
             let h = height;
@@ -4598,13 +4601,13 @@ const sketch = (canvasElId, smode = 0, debug)=>{
                 w -= delta;
                 h -= delta;
             }
-            finalWidth = w * fraction;
-            finalHeight = h * fraction;
+            finalWidth = w * cfgMultiplier;
+            finalHeight = h * cfgMultiplier;
         }
         finalWidth = _math.roundToNearest(canvasSizeMultiple, finalWidth);
         finalHeight = _math.roundToNearest(canvasSizeMultiple, finalHeight);
-        console.log(`Canvas size ${finalWidth} x ${finalHeight}`);
         _canvas.resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
+        console.log(`Canvas size ${finalWidth} x ${finalHeight} at ${window.devicePixelRatio}dpr`);
     };
     const run = (variation)=>{
         currentVariationFn = variation;
@@ -4615,6 +4618,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
             document.body.appendChild(statsJS.dom);
         }
         addEvents();
+        drawRuns = 0;
         let currentDrawLimit;
         let rendering = true;
         let targetFpsInterval = 1000 / fps;
@@ -4622,7 +4626,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         context.clearRect(0, 0, canvas.width, canvas.height);
         if (currentVariationRes.hasOwnProperty('config')) {
             const { config  } = currentVariationRes;
-            applyCanvasSize(config, canvasSizeFraction);
+            applyCanvasSize(config, canvasSizeMultiplier);
             if (config.fps) {
                 fps = config.fps;
                 targetFpsInterval = 1000 / fps;
@@ -4949,7 +4953,7 @@ function CanvasRecorder(canvas, fps, video_bits_per_sec) {
     if (!stream) return;
     const video = document.createElement('video');
     video.style.display = 'none';
-    console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
+    // console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
     function startRecording() {
         const types = [
             'video/webm',
@@ -7175,23 +7179,17 @@ const createVerticalPath = ({ width , height  }, startX, startY, steps = 20)=>{
 const meanderingRiver02 = ()=>{
     const config = {
         name: 'meandering-river-02',
-        ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
+        ratio: _sketch.ratio.a3plus,
+        scale: _sketch.scale.hidpi,
+        orientation: _sketch.orientation.portrait,
+        multiplier: 0.2
     };
     let ctx;
     let canvasMidX;
     let canvasMidY;
+    const renderScale = config.scale; // 1 or 2
     const rivers = [];
     let time = 0;
-    // colors sampled from http://roberthodgin.com/project/meander
-    // const agedWarmWhite = tinycolor('hsl(42, 43%, 76%)');
-    // const tintingColor = tinycolor('hsl(38, 38%, 64%)');
-    // const palette = [
-    //     tinycolor('hsl(97, 9%, 73%)'),
-    //     tinycolor('hsl(51, 7%, 38%)'),
-    //     tinycolor('hsl(19, 39%, 47%)'),
-    //     tinycolor('hsl(166, 39%, 59%)'),
-    // ];
     const backgroundColor = _palettes.warmWhite;
     // const simplex2d = (x, y) => simplexNoise2d(x, y, 0.002);
     // const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
@@ -7218,7 +7216,7 @@ const meanderingRiver02 = ()=>{
             pointremove: 5,
             oxbowProx: 2.5
         };
-        const r0 = new _meanderingRiver.MeanderingRiver(circle, {
+        const circleRiver = new _meanderingRiver.MeanderingRiver(circle, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 1,
@@ -7238,7 +7236,7 @@ const meanderingRiver02 = ()=>{
             noiseStrengthAffect: 0,
             mixNoiseRatio: 0.3
         });
-        const r1 = new _meanderingRiver.MeanderingRiver(vertical, {
+        const verticalRiver = new _meanderingRiver.MeanderingRiver(vertical, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 1,
@@ -7258,7 +7256,7 @@ const meanderingRiver02 = ()=>{
             noiseStrengthAffect: 0,
             mixNoiseRatio: 0.3
         });
-        const r2 = new _meanderingRiver.MeanderingRiver(horizontal, {
+        const horizontalRiver = new _meanderingRiver.MeanderingRiver(horizontal, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 1,
@@ -7278,7 +7276,7 @@ const meanderingRiver02 = ()=>{
             noiseStrengthAffect: 0,
             mixNoiseRatio: 0.3
         });
-        rivers.push(r0, r2);
+        rivers.push(circleRiver, horizontalRiver);
     };
     const draw = ({ canvas , context  })=>{
         // background(canvas, context)(backgroundColor.clone().setAlpha(0.005));
@@ -7292,7 +7290,7 @@ const meanderingRiver02 = ()=>{
         ];
         // step
         rivers.forEach((r)=>{
-            r.step();
+            for(let i = 0; i < renderScale; i++)r.step();
         });
         // main
         rivers.forEach((r, i)=>{
@@ -7301,12 +7299,9 @@ const meanderingRiver02 = ()=>{
             //     // const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
             //     pointPathPA(ctx)(o.points, c, 1);
             // });
-            const points = _segments.chaikinSmooth(r.points, 8);
+            const points = _segments.chaikinSmooth(r.points, 4);
             if (points.length) _primatives.pointPathPA(ctx)(points, c, 2, closed[i]);
         });
-        // if (++time > 1000) {
-        // return -1;
-        // }
         time += 0.25;
     };
     return {
