@@ -82,6 +82,8 @@ export const sketch = (canvasElId, smode = 0, debug) => {
     let animationId;
     let canvasRecorder;
     let isRecording = false;
+    const pauseOnWindowBlur = true;
+    let isPaused = false;
 
     const canvasSizeMultiple = 10;
     const canvasSizeMultiplier = 0.9;
@@ -222,6 +224,9 @@ export const sketch = (canvasElId, smode = 0, debug) => {
             currentVariationRes.setup({ canvas, context });
 
             const drawFrame = () => {
+                if (pauseOnWindowBlur && isPaused) {
+                    return 1;
+                }
                 drawRuns++;
                 if (statsJS) statsJS.begin();
                 const res = currentVariationRes.draw({ canvas, context, mouse });
@@ -268,6 +273,27 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         }
     };
 
+    const stop = () => {
+        removeEvents();
+        window.cancelAnimationFrame(animationId);
+    };
+
+    const windowResize = (evt) => {
+        // clear and rerun to avoid artifacts
+        if (animationId) {
+            stop();
+            run(currentVariationFn);
+        }
+    };
+
+    const windowFocus = (evt) => {
+        if (pauseOnWindowBlur) isPaused = false;
+    };
+
+    const windowBlur = (evt) => {
+        if (pauseOnWindowBlur) isPaused = true;
+    };
+
     const addEvents = (_) => {
         window.addEventListener('mousedown', mouseDown);
         window.addEventListener('touchstart', mouseDown);
@@ -278,6 +304,8 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         window.addEventListener('mouseout', mouseOut);
         window.addEventListener('touchcancel', mouseOut);
         window.addEventListener('resize', windowResize);
+        window.addEventListener('blur', windowBlur);
+        window.addEventListener('focus', windowFocus);
     };
 
     const removeEvents = (_) => {
@@ -290,19 +318,8 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         window.removeEventListener('mouseout', mouseOut);
         window.removeEventListener('touchcancel', mouseOut);
         window.removeEventListener('resize', windowResize);
-    };
-
-    const stop = () => {
-        removeEvents();
-        window.cancelAnimationFrame(animationId);
-    };
-
-    const windowResize = (evt) => {
-        // clear and rerun to avoid artifacts
-        if (animationId) {
-            stop();
-            run(currentVariationFn);
-        }
+        window.removeEventListener('blur', windowBlur);
+        window.removeEventListener('focus', windowFocus);
     };
 
     const getVariationName = () => {

@@ -79,8 +79,11 @@ export const filter = (context) => (f = '') => setContext(context)({ filter: f }
 
 export const strokeWeight = (context) => (w = 1) => setContext(context)({ lineWidth: w });
 
-export const stokeColor = (context) => (color = '#000') =>
+export const strokeColor = (context) => (color = '#000') =>
     setContext(context)({ strokeStyle: tinycolor(color).toRgbString() });
+
+export const strokeDash = (context) => (dash = []) => context.setLineDash(dash);
+
 export const fillColor = (context) => (color = '#000') =>
     setContext(context)({ fillStyle: tinycolor(color).toRgbString() });
 

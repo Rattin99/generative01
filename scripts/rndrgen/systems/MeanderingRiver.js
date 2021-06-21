@@ -98,7 +98,7 @@ export class MeanderingRiver {
         // Magnitude of the mixed vector, increase the effect, < slower
         this.mixMagnitude = defaultValue(props, 'mixMagnitude', 0);
         // Limit the influence vector,  less than 1, slower. > 1 no affect
-        this.influenceLimit = defaultValue(props, 'influenceLimit', 0.25);
+        this.influenceLimit = defaultValue(props, 'influenceLimit', 0);
 
         // Additional vector to push the flow in a direction
         this.pushFlowVectorFn = defaultValue(props, 'pushFlowVectorFn', undefined);
@@ -117,7 +117,7 @@ export class MeanderingRiver {
 
         // this.oxbowShrinkRate = defaultValue(props, 'oxbowShrinkRate', 25);
 
-        // Additional flow influence. mix, only, scaleMag
+        // Additional flow influence. mix, only, scaleMag, flowInTo
         this.noiseMode = defaultValue(props, 'noiseMode', 'mix'); // mix or only (mix and exclude less than strength)
         // Passed x,y returns a small -/+ value
         this.noiseFn = defaultValue(props, 'noiseFn', undefined);
@@ -214,6 +214,7 @@ export class MeanderingRiver {
                     const n = uvFromAngle(t);
                     mVector = mVector.mix(n, this.mixNoiseRatio);
                 } else {
+                    // TODO scale down based on noise, not zero
                     mVector = new Vector(0, 0);
                 }
             } else if (this.noiseMode === 'scaleMag') {

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
-import { background } from '../rndrgen/canvas/canvas';
+import { background, strokeDash } from '../rndrgen/canvas/canvas';
 import { orientation, ratio, scale } from '../rndrgen/Sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../rndrgen/systems/MeanderingRiver';
@@ -11,6 +11,7 @@ import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/fields';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
 import { createSplineFromPointArray } from '../rndrgen/math/points';
 import { pointPathPA } from '../rndrgen/canvas/primatives';
+import { renderIsolines } from '../rndrgen/systems/marchingSquares';
 
 /*
 Meandering River class at ../rndrgen/MeanderingRiver
@@ -34,23 +35,26 @@ const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => 
 export const meanderingRiver01 = () => {
     const config = {
         name: 'meandering-river-01',
-        ratio: ratio.letter,
-        scale: scale.standard,
+        ratio: ratio.a3plus,
+        scale: scale.hidpi,
         orientation: orientation.landscape,
     };
 
     let ctx;
     let canvasMidX;
     let canvasMidY;
+    const renderScale = config.scale; // 1 or 2
     const rivers = [];
     let time = 0;
 
     const backgroundColor = warmWhite;
 
     const riverColor = warmWhite.clone().brighten(20);
-    const riverWeight = [15, 10];
     const oxbowColor = riverColor.clone();
-    const outlineColor = bicPenBlue.setAlpha(0.25);
+
+    const flatColor = backgroundColor.clone().darken(10);
+    const isolowColor = flatColor.clone().darken(2);
+    const isohighColor = backgroundColor.clone().brighten(10);
 
     const tintingColor = tinycolor('hsl(38, 38%, 64%)');
     const palette = [
@@ -72,9 +76,8 @@ export const meanderingRiver01 = () => {
         tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 75),
     ].reverse();
 
-    const flatColor = backgroundColor.clone().darken(10);
-
-    const noise = (x, y) => simplexNoise2d(x, y, 0.001);
+    let noiseScale = 0.001 / renderScale;
+    const noise = (x, y) => simplexNoise2d(x, y, noiseScale);
     const maxHistory = 15;
     const historyStep = 15;
 
@@ -84,117 +87,95 @@ export const meanderingRiver01 = () => {
         canvasMidY = canvas.height / 2;
 
         const horizpoints = createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 15));
-        const circlepoints = getPointsOnCircle(canvasMidX, canvasMidY, canvasMidX / 2, Math.PI * 4, true);
 
-        const cs = {
-            mixTangentRatio: 0.6,
-            mixMagnitude: 1.25,
-            curvemeasure: 4,
-            curvesize: 3,
-            pointremove: 4,
-            oxbowProx: 3,
-        };
+        const riverScale = 1.25;
+
+        noiseScale /= riverScale * 2;
 
         const horizontal = new MeanderingRiver(horizpoints, {
             maxHistory,
             storeHistoryEvery: historyStep,
             fixedEndPoints: 2,
-            influenceLimit: 0,
 
-            mixTangentRatio: 0.6,
-            mixMagnitude: 1.5,
-            oxbowProx: 3,
-            oxbowPointIndexProx: 4,
-            measureCurveAdjacent: 6,
-            curveSize: 4,
-            pointRemoveProx: 4,
+            oxbowProx: 3 * renderScale,
+            oxbowPointIndexProx: 4 * renderScale,
 
-            pushFlowVectorFn: flowRightToMiddle(0.5, canvasMidY),
+            mixTangentRatio: 0.7,
+            mixMagnitude: 1.5 * riverScale,
 
-            noiseFn: noise,
-            noiseMode: 'flowInTo',
-            noiseStrengthAffect: 3,
-            mixNoiseRatio: 0.3,
-        });
+            measureCurveAdjacent: 6 * renderScale * riverScale,
+            curveSize: 4 * renderScale * riverScale,
+            pointRemoveProx: 4 * renderScale * riverScale,
 
-        const circular = new MeanderingRiver(circlepoints, {
-            maxHistory,
-            storeHistoryEvery: historyStep,
-            fixedEndPoints: 1,
-            influenceLimit: 0,
-            wrapEnd: true,
-
-            mixTangentRatio: 0.45,
-            mixMagnitude: 1,
-            oxbowProx: 2,
-            oxbowPointIndexProx: 2,
-            measureCurveAdjacent: 10,
-            curveSize: 5,
-            pointRemoveProx: 3,
-
-            // pushFlowVectorFn: flowRightToMiddle(0.5, canvasMidY),
+            pushFlowVectorFn: flowRightToMiddle(0.6, canvasMidY),
 
             noiseFn: noise,
             noiseMode: 'flowInTo',
             noiseStrengthAffect: 0,
-            mixNoiseRatio: 0.4,
+            mixNoiseRatio: 0.3,
         });
 
         rivers.push(horizontal);
-        // rivers.push(circular);
 
         // Run some steps before render to smooth lines
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 50; i++) {
             rivers.forEach((r) => {
                 r.step();
             });
         }
 
         background(canvas, context)(backgroundColor);
-        renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 4);
-        renderFieldContour(
-            canvas,
-            context,
-            noise,
-            -8,
-            8,
-            15,
-            flatColor.clone().darken(5),
-            backgroundColor.clone().brighten(1)
-        );
+        // renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 4);
+
+        const slices = [
+            { nmin: -7, nmax: 7, omin: -1, omax: 1, color: isohighColor },
+            { nmin: -6, nmax: -4, omin: -1, omax: 1, color: isolowColor },
+            { nmin: -4, nmax: -2, omin: -1, omax: 1, color: isolowColor },
+            { nmin: -2, nmax: 0, omin: -1, omax: 1, color: isolowColor },
+            { nmin: 0, nmax: 2, omin: -1, omax: 1, color: isohighColor },
+            { nmin: 2, nmax: 4, omin: -1, omax: 1, color: isohighColor },
+            { nmin: 4, nmax: 6, omin: -1, omax: 1, color: isohighColor },
+        ];
+
+        renderIsolines(context, canvas, noise, 50 * renderScale, 100 * renderScale, true, slices);
     };
+
+    const outlineThickness = 3 * renderScale;
+    const riverSmoothing = 4;
+    const riverWeight = 20 * renderScale;
 
     const draw = ({ canvas, context }) => {
         // step
         rivers.forEach((r) => {
-            r.step();
+            for (let i = 0; i < renderScale; i++) {
+                r.step();
+            }
         });
 
-        const oColor = palette[Math.round(time * 0.01) % palette.length]; // .clone().setAlpha(0.75);
-        const oSize = 4;
+        const outlineColor = palette[Math.round(time * 0.03) % palette.length]; // .clone().setAlpha(0.75);
 
         // outline
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
-                const w = Math.abs(mapRange(0, o.startLength, 1, riverWeight[i] * 1.5, o.points.length));
-                pointPathPA(ctx)(o.points, oColor, w + oSize / 2);
+                const w = Math.abs(mapRange(0, o.startLength, 1, riverWeight, o.points.length));
+                pointPathPA(ctx)(o.points, outlineColor, w + outlineThickness / 2);
             });
-            const points = chaikinSmooth(r.points, 5);
-            pointPathPA(ctx)(points, oColor, riverWeight[i] + oSize);
+            const points = chaikinSmooth(r.points, riverSmoothing);
+            pointPathPA(ctx)(points, outlineColor, riverWeight + outlineThickness);
         });
 
         // main
         rivers.forEach((r, i) => {
             r.oxbows.forEach((o) => {
-                const w = Math.abs(mapRange(0, o.startLength, riverWeight[i] / 2, riverWeight[i], o.points.length));
+                const w = Math.abs(mapRange(0, o.startLength, riverWeight / 2, riverWeight, o.points.length));
                 pointPathPA(ctx)(o.points, oxbowColor, w);
             });
-            const points = chaikinSmooth(r.points, 5);
-            pointPathPA(ctx)(points, riverColor, riverWeight[i], false, false);
-            // pixelAtPoints(ctx)(r.points, 'red', 1);
+            const points = chaikinSmooth(r.points, riverSmoothing);
+            pointPathPA(ctx)(points, riverColor, riverWeight, false, false);
         });
 
         time++;
+        return 1;
     };
 
     return {
