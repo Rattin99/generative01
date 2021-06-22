@@ -2,11 +2,11 @@ import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, scale, orientation } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
-import { randomWholeBetween } from '../rndrgen/math/random';
+import { randomNormalNumberBetween, randomNumberBetween, randomWholeBetween } from '../rndrgen/math/random';
 import { Vector } from '../rndrgen/math/Vector';
 import { pixel, line, pointPathPO } from '../rndrgen/canvas/primatives';
 import { simplexNoise3d } from '../rndrgen/math/attractors';
-import { mapRange, uvFromAngle } from '../rndrgen/math/math';
+import { mapRange, TAU, uvFromAngle } from '../rndrgen/math/math';
 
 /*
 Jared Tarbell
@@ -43,8 +43,11 @@ class SPoint {
         this.forceDamping = randomWholeBetween(1, 10) * 0.01;
     }
 
-    move(noise = 1) {
-        this.vector = this.vector.add(noise.mult(this.forceDamping)); // .limit(10);
+    move(noise) {
+        if (noise) {
+            this.vector = this.vector.add(noise.mult(this.forceDamping)); // .limit(10);
+        }
+
         this.last = this.current.clone();
         this.current = this.current.add(this.vector);
         this.history.push(this.current.clone());
@@ -89,7 +92,9 @@ export const substrateFacture = () => {
 
     const getVector = (_) => (randomWholeBetween(0, 2) === 0 ? -1 : 1);
     const getStartingPoint = (_) => new Vector(randomWholeBetween(startX, maxX), randomWholeBetween(startY, maxY));
-    const getMovementVector = (_) => new Vector(getVector(), getVector());
+    // const getMovementVector = (_) => new Vector(getVector(), getVector());
+    // const getMovementVector = (_) => uvFromAngle(randomWholeBetween(0, 360));
+    const getMovementVector = (_) => uvFromAngle(randomNumberBetween(0, TAU));
 
     const isOutOfBounds = (p) => p.x > maxX || p.x < startX || p.y > maxY || p.y < startY;
 
@@ -119,10 +124,10 @@ export const substrateFacture = () => {
     const draw = ({ canvas, context }) => {
         points.forEach((p) => {
             const force = uvFromAngle(noiseFn(p.x, p.y, time));
-            p.move(force);
+            p.move();
             if (isOutOfBounds(p) || isIntersect(context, p)) {
                 if (p.history.length > minLength) {
-                    const width = mapRange(minLength, 500, 0.25, 5, p.history.length);
+                    const width = mapRange(minLength, 500, 0.5, 3, p.history.length);
                     pointPathPO(context)(p.history, 'black', width);
                 }
                 p.reset(getStartingPoint(), getMovementVector());

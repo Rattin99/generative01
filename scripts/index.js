@@ -6,15 +6,12 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
-import { substrateFacture } from './experiments/substrate-facture';
-import { meanderingRiver01 } from './released/meandering-river-01';
 
 const debug = false;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
-// const experimentalVariation = undefined;
-const experimentalVariation = meanderingRiver01;
+const experimentalVariation = undefined;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

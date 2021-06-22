@@ -389,11 +389,10 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _substrateFacture = require("./experiments/substrate-facture");
-var _meanderingRiver01 = require("./released/meandering-river-01");
 const debug = false;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _meanderingRiver01.meanderingRiver01;
+const experimentalVariation = _substrateFacture.substrateFacture;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -413,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","./experiments/substrate-facture":"3eu9J","./released/meandering-river-01":"2elLt","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","./experiments/substrate-facture":"3eu9J","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -8651,8 +8650,8 @@ along this growth vector and draws a line as it goes. If the point encounters an
         ];
         this.forceDamping = _random.randomWholeBetween(1, 10) * 0.01;
     }
-    move(noise = 1) {
-        this.vector = this.vector.add(noise.mult(this.forceDamping)); // .limit(10);
+    move(noise) {
+        if (noise) this.vector = this.vector.add(noise.mult(this.forceDamping)); // .limit(10);
         this.last = this.current.clone();
         this.current = this.current.add(this.vector);
         this.history.push(this.current.clone());
@@ -8693,7 +8692,9 @@ const substrateFacture = ()=>{
     ;
     const getStartingPoint = (_)=>new _vector.Vector(_random.randomWholeBetween(startX, maxX), _random.randomWholeBetween(startY, maxY))
     ;
-    const getMovementVector = (_)=>new _vector.Vector(getVector(), getVector())
+    // const getMovementVector = (_) => new Vector(getVector(), getVector());
+    // const getMovementVector = (_) => uvFromAngle(randomWholeBetween(0, 360));
+    const getMovementVector = (_)=>_math.uvFromAngle(_random.randomNumberBetween(0, _math.TAU))
     ;
     const isOutOfBounds = (p)=>p.x > maxX || p.x < startX || p.y > maxY || p.y < startY
     ;
@@ -8718,10 +8719,10 @@ const substrateFacture = ()=>{
     const draw = ({ canvas , context  })=>{
         points.forEach((p)=>{
             const force = _math.uvFromAngle(noiseFn(p.x, p.y, time));
-            p.move(force);
+            p.move();
             if (isOutOfBounds(p) || isIntersect(context, p)) {
                 if (p.history.length > minLength) {
-                    const width = _math.mapRange(minLength, 500, 0.25, 5, p.history.length);
+                    const width = _math.mapRange(minLength, 500, 0.5, 3, p.history.length);
                     _primatives.pointPathPO(context)(p.history, 'black', width);
                 }
                 p.reset(getStartingPoint(), getMovementVector());
