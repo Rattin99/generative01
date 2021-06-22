@@ -5,6 +5,7 @@ import { mapRange, TAU } from '../rndrgen/math/math';
 import { create3dNoiseAbs, randomNumberBetween } from '../rndrgen/math/random';
 import { drawRibbon, highestYPA, lowestYPA } from '../rndrgen/canvas/ribbon';
 import { splatter } from '../scratch/shapes';
+import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 
 /*
 Original inspiration
@@ -55,8 +56,8 @@ export const waves01b = () => {
     const colorBottom = 'hsl(185, 19%, 40%)';
 
     const waveYValues = [];
-    const waveResolution = 400;
-    const waveDensity = renderScale * 1;
+    let numWaveXPoints;
+    const waveDensity = renderScale * 3;
     let numWaveRows;
 
     const startX = 0;
@@ -64,40 +65,33 @@ export const waves01b = () => {
     let startY = 0;
     let maxY;
 
-    const createWaveYValues = (xres, angle, frequency, amplitude, noise = 1) => {
+    const createNoiseValues = (idx, distance, frequency, amplitude) => {
         const points = [];
-        const cfrequency = frequency * noise;
-        const camplitude = amplitude * noise;
-
-        for (let i = 0; i < xres; i++) {
-            const s = Math.sin((angle + TAU + i) / frequency) * amplitude;
-            const c = Math.cos((angle + TAU + i) / cfrequency) * camplitude;
-            points.push(s + c);
+        for (let i = 0; i < numWaveXPoints; i++) {
+            const n = simplexNoise3d(i, idx, idx, frequency) * amplitude;
+            points.push(n);
         }
 
         return points;
     };
 
-    const createWavesRow = (idx) => {
+    const createRow = (idx) => {
         const time = idx;
         const mid = numWaveRows / 2;
         const distFromCenter = Math.abs(mid - idx);
-
-        const angle = mapRange(0, numWaveRows, 0, 360, idx);
-        const frequency = mapRange(0, mid, 8, 30, distFromCenter);
-        const amplitude = mapRange(0, mid, 15, 20, distFromCenter) + randomNumberBetween(-5, 5);
-        const noise =
-            create3dNoiseAbs(angle, idx, time, amplitude * 0.5, frequency * randomNumberBetween(0, 2)) /
-            randomNumberBetween(2, 10);
+        const frequency = mapRange(0, mid, 1, 0.1, distFromCenter) * 0.01;
+        const amplitude = mapRange(0, mid, 10, 20, distFromCenter * randomNumberBetween(-15, 15));
 
         return {
-            top: createWaveYValues(waveResolution, angle, frequency, amplitude, noise),
-            bottom: createWaveYValues(waveResolution, angle, frequency, amplitude, noise),
+            top: createNoiseValues(idx, distFromCenter, frequency, amplitude),
+            bottom: createNoiseValues(idx, distFromCenter, frequency, amplitude),
         };
     };
 
     const setup = ({ canvas, context }) => {
         maxX = canvas.width;
+
+        numWaveXPoints = canvas.width / 5;
 
         canvasHeight = canvas.height;
         canvasMiddle = canvas.height / 2;
@@ -111,7 +105,7 @@ export const waves01b = () => {
         maxY = canvasHeight - yBufferSpace * 1.5;
 
         for (let i = 0; i < numWaveRows; i++) {
-            waveYValues.push(createWavesRow(i + 1));
+            waveYValues.push(createRow(i + 1));
         }
 
         background(canvas, context)(tinycolor(colorBackground).lighten(20));
@@ -119,7 +113,7 @@ export const waves01b = () => {
 
     const draw = ({ canvas, context }) => {
         let currentY = startY;
-        const incrementX = Math.ceil((maxX - startX) / waveResolution);
+        const incrementX = Math.ceil((maxX - startX) / numWaveXPoints);
         const incrementY = (maxY - startY) / numWaveRows;
 
         const maxWaveHeight = 100 * renderScale;
@@ -138,7 +132,7 @@ export const waves01b = () => {
             const waveTop = [];
             const waveBottom = [];
             let currentX = 0;
-            for (let j = 0; j < waveResolution; j++) {
+            for (let j = 0; j < numWaveXPoints; j++) {
                 waveTop.push([currentX, currentY + waveYValues[i].top[j]]);
                 waveBottom.push([currentX, currentY + waveYValues[i].bottom[j] + waveheight]);
                 currentX += incrementX;
