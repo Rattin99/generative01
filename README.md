@@ -15,7 +15,7 @@ Sketch player todo
 - [x]  Canvas set blend mode helper 
 - [x]  Set canvas size in variation
 - [x] roll up old variations to enable removal old code
-- [-] put classes behind rndrgen module
+- [ ] put classes behind rndrgen module
 - [x] Record save as Webm or Gif? [https://xosh.org/canvas-recorder/]
 - [ ] Implement dat gui [https://github.com/dataarts/dat.gui]
 - [ ] canvas/context settings and shape class - refer https://github.com/bit101/bljs/blob/master/src/context.js
