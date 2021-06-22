@@ -8615,6 +8615,7 @@ var _math = require("../rndrgen/math/math");
 var _random = require("../rndrgen/math/random");
 var _ribbon = require("../rndrgen/canvas/ribbon");
 var _shapes = require("../scratch/shapes");
+var _attractors = require("../rndrgen/math/attractors");
 /*
 Original inspiration
 Churn by Kenny Vaden
@@ -8649,51 +8650,47 @@ const waves01b = ()=>{
     const colorTop = 'hsl(350, 65%, 46%)';
     const colorBottom = 'hsl(185, 19%, 40%)';
     const waveYValues = [];
-    const waveResolution = 400;
-    const waveDensity = renderScale * 1;
+    let numWaveXPoints;
+    const waveDensity = renderScale * 3;
     let numWaveRows;
     const startX = 0;
     let maxX;
     let startY = 0;
     let maxY;
-    const createWaveYValues = (xres, angle, frequency, amplitude, noise = 1)=>{
+    const createNoiseValues = (idx, distance, frequency, amplitude)=>{
         const points = [];
-        const cfrequency = frequency * noise;
-        const camplitude = amplitude * noise;
-        for(let i = 0; i < xres; i++){
-            const s = Math.sin((angle + _math.TAU + i) / frequency) * amplitude;
-            const c = Math.cos((angle + _math.TAU + i) / cfrequency) * camplitude;
-            points.push(s + c);
+        for(let i = 0; i < numWaveXPoints; i++){
+            const n = _attractors.simplexNoise3d(i, idx, idx, frequency) * amplitude;
+            points.push(n);
         }
         return points;
     };
-    const createWavesRow = (idx)=>{
+    const createRow = (idx)=>{
         const time = idx;
         const mid = numWaveRows / 2;
         const distFromCenter = Math.abs(mid - idx);
-        const angle = _math.mapRange(0, numWaveRows, 0, 360, idx);
-        const frequency = _math.mapRange(0, mid, 8, 30, distFromCenter);
-        const amplitude = _math.mapRange(0, mid, 15, 20, distFromCenter) + _random.randomNumberBetween(-5, 5);
-        const noise = _random.create3dNoiseAbs(angle, idx, time, amplitude * 0.5, frequency * _random.randomNumberBetween(0, 2)) / _random.randomNumberBetween(2, 10);
+        const frequency = _math.mapRange(0, mid, 1, 0.1, distFromCenter) * 0.01;
+        const amplitude = _math.mapRange(0, mid, 10, 20, distFromCenter * _random.randomNumberBetween(-15, 15));
         return {
-            top: createWaveYValues(waveResolution, angle, frequency, amplitude, noise),
-            bottom: createWaveYValues(waveResolution, angle, frequency, amplitude, noise)
+            top: createNoiseValues(idx, distFromCenter, frequency, amplitude),
+            bottom: createNoiseValues(idx, distFromCenter, frequency, amplitude)
         };
     };
     const setup = ({ canvas , context  })=>{
         maxX = canvas.width;
+        numWaveXPoints = canvas.width / 5;
         canvasHeight = canvas.height;
         canvasMiddle = canvas.height / 2;
         numWaveRows = canvasHeight / waveDensity;
         const yBufferSpace = canvasHeight / 7;
         startY = yBufferSpace;
         maxY = canvasHeight - yBufferSpace * 1.5;
-        for(let i = 0; i < numWaveRows; i++)waveYValues.push(createWavesRow(i + 1));
+        for(let i = 0; i < numWaveRows; i++)waveYValues.push(createRow(i + 1));
         _canvas.background(canvas, context)(_tinycolor2Default.default(colorBackground).lighten(20));
     };
     const draw = ({ canvas , context  })=>{
         let currentY = startY;
-        const incrementX = Math.ceil((maxX - startX) / waveResolution);
+        const incrementX = Math.ceil((maxX - startX) / numWaveXPoints);
         const incrementY = (maxY - startY) / numWaveRows;
         const maxWaveHeight = 100 * renderScale;
         const minWaveHeight = 2 * renderScale;
@@ -8707,7 +8704,7 @@ const waves01b = ()=>{
             const waveTop = [];
             const waveBottom = [];
             let currentX = 0;
-            for(let j = 0; j < waveResolution; j++){
+            for(let j = 0; j < numWaveXPoints; j++){
                 waveTop.push([
                     currentX,
                     currentY + waveYValues[i].top[j]
@@ -8733,7 +8730,7 @@ const waves01b = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/ribbon":"4jM8A","../scratch/shapes":"7F0mj"}],"4jM8A":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/ribbon":"4jM8A","../scratch/shapes":"7F0mj","../rndrgen/math/attractors":"BodqP"}],"4jM8A":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "lowestYPA", ()=>lowestYPA
