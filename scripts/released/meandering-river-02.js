@@ -50,7 +50,7 @@ export const meanderingRiver02 = () => {
         ratio: ratio.a3plus,
         scale: scale.hidpi,
         orientation: orientation.portrait,
-        multiplier: 0.2,
+        // multiplier: 1,
         // drawLimit: 100,
     };
 

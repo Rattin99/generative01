@@ -42,10 +42,12 @@ export const darkest = (arry) => {
 export const bicPenBlue = tinycolor('hsl(250,79,29)').clone();
 export const paperWhite = tinycolor('hsl(53,3,100)').clone();
 
+// hsl(46, 45%, 85%)
 export const warmWhite = tinycolor('hsl(42, 14%, 86%)').clone();
 export const warmPink = tinycolor('hsl(29, 42%, 86%)').clone();
 
 export const coolGreyDark = tinycolor('#1f2933').clone();
+// hsl(43, 57%, 11%)
 export const warmGreyDark = tinycolor('#27241d').clone();
 
 export const palettes = {
