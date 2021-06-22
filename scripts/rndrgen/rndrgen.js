@@ -1,5 +1,5 @@
 import { sketch } from './sketch';
-import Timeline from './animation/Timeline';
+import { Timeline } from './animation/Timeline';
 import { Bitmap } from './canvas/Bitmap';
 import * as cntx from './canvas/canvas';
 import * as primatives from './canvas/primatives';
