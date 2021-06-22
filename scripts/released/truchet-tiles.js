@@ -10,7 +10,7 @@ export const truchetTiles = () => {
     const config = {
         name: 'multiscale-truchet-tiles',
         ratio: ratio.square,
-        scale: scale.standard,
+        scale: scale.hidpi,
         // fps: 1,
     };
 

@@ -48,7 +48,7 @@ export const circle = (context) => (strokeWidth, x, y, radius, color) => {
 export const circleFilled = (context) => (x, y, radius, color) => {
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2, false);
-    context.fillStyle = color;
+    context.fillStyle = tinycolor(color).toRgbString();
     context.fill();
 };
 

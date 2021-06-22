@@ -19,6 +19,7 @@ export const templateBlank = () => {
     let startY;
     let maxY;
     const margin = 50;
+    const renderScale = config.scale; // 1 or 2
 
     const backgroundColor = paperWhite.clone();
     const foreColor = bicPenBlue.clone();

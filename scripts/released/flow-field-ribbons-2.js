@@ -164,7 +164,6 @@ export const flowFieldRibbons2 = () => {
 
         const sideA = createRibbon(noise, x, y, len, 1);
         const sideB = createRibbon(noise, x2, y2, len, 1);
-
         drawRibbon(context)(sideA, sideB, color, false, ribbonThickness);
 
         time += 0.01;

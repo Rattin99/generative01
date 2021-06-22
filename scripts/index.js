@@ -6,12 +6,14 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
+import { waves01b } from './released/waves01b';
 
 const debug = false;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
-const experimentalVariation = undefined;
+// const experimentalVariation = undefined;
+const experimentalVariation = waves01b;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

@@ -65,7 +65,7 @@ export const spikedCircle = (context) => ({ x, y, radius, color }, spikes, spike
     }
 };
 
-export const pathRibbon = (context) => (path, color, thickness = 1, stroke = false) => {
+export const DONTUSETHISpathRibbon = (context) => (path, color, thickness = 1, stroke = false) => {
     // const rColor = tinycolor(color).clone();
     // const gradient = context.createLinearGradient(0, startY, 0, maxY);
     // gradient.addColorStop(0, colorLinesTop.toRgbString());
