@@ -20,14 +20,14 @@ const drawDots = (context, path, yorigin, sourceColor, stroke = false) => {
         const rnd = randomNumberBetween(0, yorigin);
         if (rnd < 2) {
             let radius = randomNumberBetween(1, 3);
-            if (rnd < 0.008) {
+            if (rnd < 0.005) {
                 radius = randomNumberBetween(50, 100);
                 color = color.clone().darken(10);
             } else {
                 color = color.clone().lighten(2).saturate(10);
             }
             // x, y, color, size, amount = 3, range = 20
-            splatter(context)(point[0], point[1], color.toRgbString(), radius, 3, 50);
+            splatter(context)(point[0], point[1], color.toRgbString(), radius, 2, 50);
         }
     });
 
@@ -52,23 +52,26 @@ export const waves01b = () => {
 
     // Palette from https://www.colourlovers.com/palette/694737/Thought_Provoking
     const colorBackground = 'hsl(46, 75%, 70%)';
-    const colorTop = 'hsl(350, 65%, 46%)';
-    const colorBottom = 'hsl(185, 19%, 40%)';
+    const colorTop = '#06c'; // 'hsl(350, 65%, 46%)';
+    const colorBottom = '#3df'; // 'hsl(185, 19%, 40%)';
 
     const waveYValues = [];
     let numWaveXPoints;
-    const waveDensity = renderScale * 3;
+    const waveDensity = renderScale;
     let numWaveRows;
 
     const startX = 0;
     let maxX;
     let startY = 0;
     let maxY;
+    let time = 0;
 
     const createNoiseValues = (idx, distance, frequency, amplitude) => {
         const points = [];
         for (let i = 0; i < numWaveXPoints; i++) {
-            const n = simplexNoise3d(i, idx, idx, frequency) * amplitude;
+            const n = simplexNoise3d(i, distance, idx, frequency) * amplitude;
+            // const n = simplexNoise3d(i, idx, time, frequency) * amplitude;
+            // const n = simplexNoise2d(i, idx * 2, frequency) * amplitude;
             points.push(n);
         }
 
@@ -76,11 +79,13 @@ export const waves01b = () => {
     };
 
     const createRow = (idx) => {
-        const time = idx;
+        time += 1;
         const mid = numWaveRows / 2;
         const distFromCenter = Math.abs(mid - idx);
-        const frequency = mapRange(0, mid, 1, 0.1, distFromCenter) * 0.01;
-        const amplitude = mapRange(0, mid, 10, 20, distFromCenter * randomNumberBetween(-15, 15));
+        const frequency =
+            mapRange(0, mid, 1.25, 0.5, distFromCenter + randomNumberBetween(-5, 5)) *
+            (randomNumberBetween(9, 12) * 0.001);
+        const amplitude = mapRange(0, mid, 10, 20, distFromCenter * randomNumberBetween(0, 2));
 
         return {
             top: createNoiseValues(idx, distFromCenter, frequency, amplitude),
@@ -102,7 +107,7 @@ export const waves01b = () => {
 
         startY = yBufferSpace;
 
-        maxY = canvasHeight - yBufferSpace * 1.5;
+        maxY = canvasHeight - yBufferSpace * 1.25;
 
         for (let i = 0; i < numWaveRows; i++) {
             waveYValues.push(createRow(i + 1));
@@ -113,19 +118,20 @@ export const waves01b = () => {
 
     const draw = ({ canvas, context }) => {
         let currentY = startY;
-        const incrementX = Math.ceil((maxX - startX) / numWaveXPoints);
+        const incrementX = Math.ceil((maxX - startX) / numWaveXPoints) + 1;
         const incrementY = (maxY - startY) / numWaveRows;
 
-        const maxWaveHeight = 100 * renderScale;
-        const minWaveHeight = 2 * renderScale;
+        const maxWaveHeight = 40 * renderScale;
+        const minWaveHeight = 1;
 
         for (let i = 0; i < waveYValues.length; i++) {
             const color = tinycolor.mix(colorTop, colorBottom, mapRange(startY, maxY, 0, 100, currentY));
 
             const distFromMiddle = Math.abs(canvasMiddle - currentY);
-            color.spin(mapRange(0, canvasMiddle / 2, 60, 0, distFromMiddle));
+            color.spin(mapRange(0, canvasMiddle / 2, 20, 0, distFromMiddle));
             color.brighten(mapRange(0, canvasMiddle / 2, 50, 0, distFromMiddle + randomNumberBetween(0, 50)));
-            color.darken(mapRange(0, canvasMiddle, 0, 20, distFromMiddle + randomNumberBetween(0, 50)));
+            color.darken(mapRange(0, canvasMiddle, 0, 15, distFromMiddle + randomNumberBetween(0, 50)));
+            color.saturate(mapRange(0, canvasMiddle / 2, 10, 0, distFromMiddle + randomNumberBetween(0, 50)));
 
             const waveheight = mapRange(startY, maxY, maxWaveHeight, minWaveHeight, currentY);
 
@@ -138,10 +144,10 @@ export const waves01b = () => {
                 currentX += incrementX;
             }
 
-            context.strokeStyle = color.clone().darken(70).toRgbString();
+            context.strokeStyle = color.clone().darken(60).toRgbString();
             context.lineWidth = 1;
 
-            drawRibbon(context)(waveTop, waveBottom, color, 1, true, waveheight);
+            drawRibbon(context)(waveTop, waveBottom, color, 1, true, 0);
             drawDots(context, waveTop, currentY, color, false);
 
             currentY += incrementY;
