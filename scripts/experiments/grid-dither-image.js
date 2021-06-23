@@ -27,6 +27,7 @@ export const gridDitherImage = () => {
         scale: scale.standard,
     };
 
+    let cnvs;
     let ctx;
     let canvasWidth;
     let canvasHeight;
@@ -42,16 +43,25 @@ export const gridDitherImage = () => {
     const margin = 50;
 
     const backgroundColor = paperWhite.clone();
-    const image = new Bitmap(sourcePng);
+    let image = new Bitmap(sourcePng);
 
     const foreColor = bicPenBlue.clone();
 
     let numCells;
     let grid;
 
-    const setup = ({ canvas, context, sketchInstance }) => {
-        image.init(canvas, context, false);
+    const droppedImage = (imageData) => {
+        image = new Bitmap(imageData);
+        image.init(cnvs, ctx, false);
+        draw({});
+    };
 
+    const setup = ({ canvas, context, sketchInstance }) => {
+        // sketchInstance.enableDragUpload((d) => droppedImage(d));
+
+        image.init(canvas, context, true);
+
+        cnvs = canvas;
         ctx = context;
         // canvasWidth = canvas.width;
         // canvasHeight = canvas.height;
@@ -69,14 +79,14 @@ export const gridDitherImage = () => {
 
         numCells = 30; // Math.ceil(canvas.width / 40);
 
-        grid = getGridCells(canvas.width, canvas.height, numCells, numCells, 0);
-        // background(canvas, context)(backgroundColor);
+        background(canvas, context)(backgroundColor);
     };
 
     const draw = ({ canvas, context }) => {
         // background(canvas, context)(backgroundColor);
 
         setTextureClippingMaskEnabled(false);
+        grid = getGridCells(cnvs.width, cnvs.height, numCells, numCells, 0);
 
         grid.points.forEach((p, i) => {
             const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);

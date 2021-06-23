@@ -3,7 +3,7 @@ import { background } from '../rndrgen/canvas/canvas';
 import { ratio, orientation, scale } from '../rndrgen/Sketch';
 import { mapRange, TAU } from '../rndrgen/math/math';
 import { create3dNoiseAbs, randomNumberBetween } from '../rndrgen/math/random';
-import { drawRibbon, highestYPA, lowestYPA } from '../rndrgen/canvas/ribbon';
+import { ribbonSegmented, highestYPA, lowestYPA, ribbonSegment } from '../rndrgen/canvas/ribbon';
 import { splatter } from '../scratch/shapes';
 import { cliffordAttractor, simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 
@@ -165,7 +165,8 @@ export const waves01b = () => {
             context.strokeStyle = color.clone().darken(60).toRgbString();
             context.lineWidth = 0.5 * renderScale;
 
-            drawRibbon(context)(waveTop, waveBottom, color, 1, true, 0);
+            ribbonSegment(context)(waveTop, waveBottom.reverse(), color, true, 0);
+            // ribbonSegmented(context)(waveTop, waveBottom, color, 5, true, 0);
             drawDots(context, waveTop, currentY, color, renderScale, false);
 
             currentY += incrementY;

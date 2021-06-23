@@ -17,7 +17,7 @@ export const highestYPA = (arry) =>
         return acc;
     }, 0);
 
-const drawSegment = (context, sideA, sideB, sourceColor, stroke = false, thickness = 1) => {
+export const ribbonSegment = (context) => (sideA, sideB, sourceColor, stroke = false, thickness = 1) => {
     const segStartX = sideA[0][0];
     const segStartY = sideA[0][1];
     const segEndX = sideB[0][0] + thickness;
@@ -59,7 +59,7 @@ sideA and B are an array of points [[x,y], [x,y], ...] that are roughly parallel
 segments is a valuve between 1 and n determining how to break up the ribbon
  */
 
-export const drawRibbon = (context) => (sideA, sideB, color, segments = 1, stroke = false, thickness = 1) => {
+export const ribbonSegmented = (context) => (sideA, sideB, color, segments = 1, stroke = false, thickness = 0) => {
     const segmentGap = 1;
     const segmentData = [];
 
@@ -77,6 +77,6 @@ export const drawRibbon = (context) => (sideA, sideB, color, segments = 1, strok
     }
 
     segmentData.forEach((s) => {
-        drawSegment(context, s.sideA, s.sideB, color, stroke, thickness);
+        ribbonSegment(context)(s.sideA, s.sideB, color, stroke, thickness);
     });
 };

@@ -56,10 +56,14 @@ export class Bitmap {
         this.canvas = canvas;
         this.context = context;
         this.context.drawImage(this.image, 0, 0);
-        this.imageData = context.getImageData(0, 0, this.image.width, this.image.width);
-        this.scaleX = canvas.width / this.imageData.width;
-        this.scaleY = canvas.height / this.imageData.height;
-        if (wipe) clear(canvas, context);
+
+        const imageWidth = this.image.width || this.canvas.width;
+        const imageHeight = this.image.height || this.canvas.height;
+
+        this.imageData = this.context.getImageData(0, 0, imageWidth, imageHeight);
+        this.scaleX = this.canvas.width / imageWidth;
+        this.scaleY = this.canvas.height / imageHeight;
+        if (wipe) clear(this.canvas, this.context);
     }
 
     pixelColorRaw(x, y) {
@@ -121,10 +125,11 @@ export class Bitmap {
         return averageNumArray(points);
     }
 
-    loadImageData(src, wipe = false) {
+    loadImageData(src, wipe = true) {
         // const MAX_HEIGHT = 100;
         this.image = new Image();
         this.image.onload = function () {
+            console.log(this, this.context);
             this.context.drawImage(this.image, 0, 0);
             this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
             this.scaleX = this.canvas.width / this.imageData.width;

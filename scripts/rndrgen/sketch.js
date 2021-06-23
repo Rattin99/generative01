@@ -404,6 +404,11 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         canvas.addEventListener('drop', onCanvasDragDrop(imageDataHandler), true);
     };
 
+    const disableDragUpload = (_) => {
+        canvas.removeEventListener('dragover', onCanvasDragOver);
+        canvas.removeEventListener('drop', onCanvasDragDrop(imageDataHandler));
+    };
+
     return {
         variationName: getVariationName,
         canvas: getCanvas,
@@ -414,5 +419,6 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         saveCanvasCapture,
         saveCanvasRecording,
         enableDragUpload,
+        disableDragUpload,
     };
 };

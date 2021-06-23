@@ -388,13 +388,11 @@ Explorations with generative code
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
-var _gridDitherImage = require("./experiments/grid-dither-image");
+var _waves01B = require("./released/waves01b");
 const debug = false;
 const s = _rndrgen.sketch('canvas', 0, debug);
-s.enableDragUpload((v)=>console.log(v)
-);
 // const experimentalVariation = undefined;
-const experimentalVariation = _gridDitherImage.gridDitherImage;
+const experimentalVariation = _waves01B.waves01b;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -414,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","./experiments/grid-dither-image":"6i1tm","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./released/waves01b":"3wlBH"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -4427,7 +4425,8 @@ const waves01b = ()=>{
             }
             context.strokeStyle = color.clone().darken(60).toRgbString();
             context.lineWidth = 0.5 * renderScale;
-            _ribbon.drawRibbon(context)(waveTop, waveBottom, color, 1, true, 0);
+            _ribbon.ribbonSegment(context)(waveTop, waveBottom.reverse(), color, true, 0);
+            // ribbonSegmented(context)(waveTop, waveBottom, color, 5, true, 0);
             drawDots(context, waveTop, currentY, color, renderScale, false);
             currentY += incrementY;
         }
@@ -4791,6 +4790,10 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         canvas.addEventListener('dragover', onCanvasDragOver, true);
         canvas.addEventListener('drop', onCanvasDragDrop(imageDataHandler), true);
     };
+    const disableDragUpload = (_)=>{
+        canvas.removeEventListener('dragover', onCanvasDragOver);
+        canvas.removeEventListener('drop', onCanvasDragDrop(imageDataHandler));
+    };
     return {
         variationName: getVariationName,
         canvas: getCanvas,
@@ -4800,7 +4803,8 @@ const sketch = (canvasElId, smode = 0, debug)=>{
         stop,
         saveCanvasCapture,
         saveCanvasRecording,
-        enableDragUpload
+        enableDragUpload,
+        disableDragUpload
     };
 };
 
@@ -5074,7 +5078,9 @@ parcelHelpers.export(exports, "lowestYPA", ()=>lowestYPA
 );
 parcelHelpers.export(exports, "highestYPA", ()=>highestYPA
 );
-parcelHelpers.export(exports, "drawRibbon", ()=>drawRibbon
+parcelHelpers.export(exports, "ribbonSegment", ()=>ribbonSegment
+);
+parcelHelpers.export(exports, "ribbonSegmented", ()=>ribbonSegmented
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
@@ -5089,33 +5095,34 @@ const highestYPA = (arry)=>arry.reduce((acc, p)=>{
         return acc;
     }, 0)
 ;
-const drawSegment = (context, sideA, sideB, sourceColor, stroke = false, thickness = 1)=>{
-    const segStartX = sideA[0][0];
-    const segStartY = sideA[0][1];
-    const segEndX = sideB[0][0] + thickness;
-    const segEndY = sideB[0][1] + thickness;
-    const color = sourceColor.clone();
-    const gradient = context.createLinearGradient(0, lowestYPA(sideA), 0, highestYPA(sideB) + thickness);
-    // const gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
-    // gradient.addColorStop(0, color.toRgbString());
-    gradient.addColorStop(0.5, color.toRgbString());
-    gradient.addColorStop(1, color.clone().darken(5).saturate(10).toRgbString());
-    context.beginPath();
-    context.moveTo(segStartX, segStartY);
-    sideA.forEach((point)=>{
-        context.lineTo(point[0], point[1]);
-    });
-    sideB.forEach((point)=>{
-        context.lineTo(point[0], point[1] + thickness);
-    });
-    context.lineTo(segStartX, segStartY);
-    if (stroke) // context.strokeStyle = color.darken(70).toRgbString();
-    // context.lineWidth = 1;
-    context.stroke();
-    context.fillStyle = gradient;
-    context.fill();
-};
-const drawRibbon = (context)=>(sideA, sideB, color, segments = 1, stroke = false, thickness = 1)=>{
+const ribbonSegment = (context)=>(sideA, sideB, sourceColor, stroke = false, thickness = 1)=>{
+        const segStartX = sideA[0][0];
+        const segStartY = sideA[0][1];
+        const segEndX = sideB[0][0] + thickness;
+        const segEndY = sideB[0][1] + thickness;
+        const color = sourceColor.clone();
+        const gradient = context.createLinearGradient(0, lowestYPA(sideA), 0, highestYPA(sideB) + thickness);
+        // const gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
+        // gradient.addColorStop(0, color.toRgbString());
+        gradient.addColorStop(0.5, color.toRgbString());
+        gradient.addColorStop(1, color.clone().darken(5).saturate(10).toRgbString());
+        context.beginPath();
+        context.moveTo(segStartX, segStartY);
+        sideA.forEach((point)=>{
+            context.lineTo(point[0], point[1]);
+        });
+        sideB.forEach((point)=>{
+            context.lineTo(point[0], point[1] + thickness);
+        });
+        context.lineTo(segStartX, segStartY);
+        if (stroke) // context.strokeStyle = color.darken(70).toRgbString();
+        // context.lineWidth = 1;
+        context.stroke();
+        context.fillStyle = gradient;
+        context.fill();
+    }
+;
+const ribbonSegmented = (context)=>(sideA, sideB, color, segments = 1, stroke = false, thickness = 0)=>{
         const segmentGap = 1;
         const segmentData = [];
         let left = sideA.length;
@@ -5130,7 +5137,7 @@ const drawRibbon = (context)=>(sideA, sideB, color, segments = 1, stroke = false
             left -= len + segmentGap;
         }
         segmentData.forEach((s)=>{
-            drawSegment(context, s.sideA, s.sideB, color, stroke, thickness);
+            ribbonSegment(context)(s.sideA, s.sideB, color, stroke, thickness);
         });
     }
 ;
@@ -6243,10 +6250,12 @@ class Bitmap {
         this.canvas = canvas;
         this.context = context;
         this.context.drawImage(this.image, 0, 0);
-        this.imageData = context.getImageData(0, 0, this.image.width, this.image.width);
-        this.scaleX = canvas.width / this.imageData.width;
-        this.scaleY = canvas.height / this.imageData.height;
-        if (wipe) _canvas.clear(canvas, context);
+        const imageWidth = this.image.width || this.canvas.width;
+        const imageHeight = this.image.height || this.canvas.height;
+        this.imageData = this.context.getImageData(0, 0, imageWidth, imageHeight);
+        this.scaleX = this.canvas.width / imageWidth;
+        this.scaleY = this.canvas.height / imageHeight;
+        if (wipe) _canvas.clear(this.canvas, this.context);
     }
     pixelColorRaw(x, y) {
         if (x < 0) x = 0;
@@ -6294,10 +6303,11 @@ class Bitmap {
         for(let i = x; i < x + w; i += res)for(let k = y; k < y + h; k += res)points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
         return _utils.averageNumArray(points);
     }
-    loadImageData(src, wipe = false) {
+    loadImageData(src, wipe = true) {
         // const MAX_HEIGHT = 100;
         this.image = new Image();
         this.image.onload = function() {
+            console.log(this, this.context);
             this.context.drawImage(this.image, 0, 0);
             this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
             this.scaleX = this.canvas.width / this.imageData.width;
@@ -8988,95 +8998,6 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6i1tm":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gridDitherImage", ()=>gridDitherImage
-);
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _math = require("../rndrgen/math/math");
-var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
-var _palettes = require("../rndrgen/color/palettes");
-var _bitmap = require("../rndrgen/canvas/Bitmap");
-var _grids = require("../rndrgen/math/grids");
-var _textures = require("../rndrgen/canvas/textures");
-// import sourcePng from '../../media/images/hi1.png';
-var _hayleyCatherineCRporLYp750UnsplashPng = require("../../media/images/hayley-catherine-CRporLYp750-unsplash.png");
-var _hayleyCatherineCRporLYp750UnsplashPngDefault = parcelHelpers.interopDefault(_hayleyCatherineCRporLYp750UnsplashPng);
-var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
-const gridDitherImage = ()=>{
-    const config = {
-        name: 'gridDitherImage',
-        ratio: _sketch.ratio.square,
-        // ratio: ratio.poster,
-        // orientation: orientation.portrait,
-        scale: _sketch.scale.standard
-    };
-    let ctx;
-    let canvasWidth;
-    let canvasHeight;
-    let canvasCenterX;
-    let canvasCenterY;
-    let centerRadius;
-    let imageWidth;
-    let imageHeight;
-    let startX;
-    let maxX;
-    let startY;
-    let maxY;
-    const margin = 50;
-    const backgroundColor = _palettes.paperWhite.clone();
-    const image = new _bitmap.Bitmap(_hayleyCatherineCRporLYp750UnsplashPngDefault.default);
-    const foreColor = _palettes.bicPenBlue.clone();
-    let numCells;
-    let grid;
-    const setup = ({ canvas , context , sketchInstance  })=>{
-        image.init(canvas, context, false);
-        ctx = context;
-        // canvasWidth = canvas.width;
-        // canvasHeight = canvas.height;
-        // canvasCenterX = canvas.width / 2;
-        // canvasCenterY = canvas.height / 2;
-        // centerRadius = canvas.height / 4;
-        //
-        // imageWidth = canvas.width - margin * 2;
-        // imageHeight = canvas.height - margin * 2;
-        //
-        startX = margin;
-        maxX = canvas.width - margin;
-        startY = margin;
-        maxY = canvas.height - margin;
-        numCells = 30; // Math.ceil(canvas.width / 40);
-        grid = _grids.getGridCells(canvas.width, canvas.height, numCells, numCells, 0);
-    // background(canvas, context)(backgroundColor);
-    };
-    const draw = ({ canvas , context  })=>{
-        // background(canvas, context)(backgroundColor);
-        _textures.setTextureClippingMaskEnabled(false);
-        grid.points.forEach((p, i)=>{
-            const grey = image.averageGreyFromCell(p[0], p[1], grid.columnWidth, grid.rowHeight);
-            const theta = grey / 256;
-            const amount = _math.mapRange(50, 255, 1, 8, 255 - grey) / 3;
-            // textureRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'blue', amount, 'circles2', 3);
-            // textureRectSprials(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'red', amount);
-            _textures.textureRectStipple(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'green', amount * 1.5);
-        // textureRectZigZag(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'yellow', amount, theta);
-        });
-        return -1;
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/textures":"73mfQ","../../media/images/hayley-catherine-CRporLYp750-unsplash.png":"76wYt","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"76wYt":[function(require,module,exports) {
-module.exports = require('./bundle-url').getBundleURL() + "hayley-catherine-CRporLYp750-unsplash.ae1e66c6.png";
-
-},{"./bundle-url":"3seVR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map
