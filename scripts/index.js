@@ -6,18 +6,20 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
+import { gridDitherImage } from './experiments/grid-dither-image';
 
 const debug = false;
 
 const s = rndrgen.sketch('canvas', 0, debug);
-
-const experimentalVariation = undefined;
+s.enableDragUpload((v) => console.log(v));
+// const experimentalVariation = undefined;
+const experimentalVariation = gridDitherImage;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
 const runVariation = (v) => {
     setNote(v.note);
-    s.run(v.sketch);
+    s.run(v.sketch, s);
 };
 
 const variationMapKeys = Object.keys(variationsIndex);

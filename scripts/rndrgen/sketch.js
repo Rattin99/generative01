@@ -35,7 +35,7 @@ import Stats from 'stats.js';
 import { isHiDPICanvas, resizeCanvas } from './canvas/canvas';
 import { defaultValue } from './utils';
 import { getRandomSeed } from './math/random';
-import { roundToNearest } from './math/math';
+import { roundToNearest, sin } from './math/math';
 import { CanvasRecorder } from './canvas/CanvasRecorder';
 
 export const orientation = {
@@ -173,9 +173,13 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         console.log(`Canvas size ${finalWidth} x ${finalHeight} at ${window.devicePixelRatio}dpr`);
     };
 
-    const run = (variation) => {
+    /*
+    Passing in the sketch instance is jank. Refactor this to a class and just pass this
+     */
+    const run = (variation, sinstance) => {
         currentVariationFn = variation;
         currentVariationRes = currentVariationFn();
+        const sketchInstance = sinstance;
 
         if (!statsJS && debugMode) {
             statsJS = new Stats();
@@ -222,7 +226,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
             // default 1080p bps, 30fps
             canvasRecorder = new CanvasRecorder(canvas);
 
-            currentVariationRes.setup({ canvas, context });
+            currentVariationRes.setup({ canvas, context, sketchInstance });
 
             const drawFrame = () => {
                 if (pauseOnWindowBlur && isPaused) {
@@ -365,6 +369,41 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         return false;
     };
 
+    const onCanvasDragOver = (evt) => {
+        evt.preventDefault();
+    };
+
+    const onCanvasDragDrop = (imageDataHandler) => (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        // console.log('drag drop', evt);
+        const dt = evt.dataTransfer;
+        const src = dt.files[0];
+        // loadImage(files[0], imageDataHandler);
+
+        //	Prevent any non-image file type from being read.
+        if (!src.type.match(/image.*/)) {
+            console.error('The dropped file is not an image: ', src.type);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            imageDataHandler(e.target.result);
+        };
+        reader.readAsDataURL(src);
+    };
+
+    const enableDragUpload = (imageDataHandler) => {
+        console.log('enabling drag upload!');
+        if (!canvas) {
+            console.warn('You need to init with a canvas el first!');
+            return;
+        }
+        // handling drag over is required to prevent browser from displaying dropped image
+        canvas.addEventListener('dragover', onCanvasDragOver, true);
+        canvas.addEventListener('drop', onCanvasDragDrop(imageDataHandler), true);
+    };
+
     return {
         variationName: getVariationName,
         canvas: getCanvas,
@@ -374,5 +413,6 @@ export const sketch = (canvasElId, smode = 0, debug) => {
         stop,
         saveCanvasCapture,
         saveCanvasRecording,
+        enableDragUpload,
     };
 };

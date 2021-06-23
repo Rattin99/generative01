@@ -120,4 +120,27 @@ export class Bitmap {
         }
         return averageNumArray(points);
     }
+
+    loadImageData(src, wipe = false) {
+        // const MAX_HEIGHT = 100;
+        this.image = new Image();
+        this.image.onload = function () {
+            this.context.drawImage(this.image, 0, 0);
+            this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
+            this.scaleX = this.canvas.width / this.imageData.width;
+            this.scaleY = this.canvas.height / this.imageData.height;
+            if (wipe) clear(this.canvas, this.context);
+            // const canvas = document.getElementById('myCanvas');
+            // if (dropImage.height > MAX_HEIGHT) {
+            //     dropImage.width *= MAX_HEIGHT / dropImage.height;
+            //     dropImage.height = MAX_HEIGHT;
+            // }
+            // const ctx = canvas.getContext('2d');
+            // ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // canvas.width = dropImage.width;
+            // canvas.height = dropImage.height;
+            // ctx.drawImage(dropImage, 0, 0, dropImage.width, dropImage.height);
+        };
+        this.image.src = src;
+    }
 }

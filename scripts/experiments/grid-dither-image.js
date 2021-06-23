@@ -49,8 +49,8 @@ export const gridDitherImage = () => {
     let numCells;
     let grid;
 
-    const setup = ({ canvas, context }) => {
-        image.init(canvas, context);
+    const setup = ({ canvas, context, sketchInstance }) => {
+        image.init(canvas, context, false);
 
         ctx = context;
         // canvasWidth = canvas.width;
@@ -70,11 +70,11 @@ export const gridDitherImage = () => {
         numCells = 30; // Math.ceil(canvas.width / 40);
 
         grid = getGridCells(canvas.width, canvas.height, numCells, numCells, 0);
-        background(canvas, context)(backgroundColor);
+        // background(canvas, context)(backgroundColor);
     };
 
     const draw = ({ canvas, context }) => {
-        background(canvas, context)(backgroundColor);
+        // background(canvas, context)(backgroundColor);
 
         setTextureClippingMaskEnabled(false);
 
@@ -83,10 +83,10 @@ export const gridDitherImage = () => {
             const theta = grey / 256;
             const amount = mapRange(50, 255, 1, 8, 255 - grey) / 3;
 
-            textureRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'blue', amount, 'circles2', 3);
-            textureRectSprials(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'red', amount);
-            textureRectStipple(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'green', amount);
-            textureRectZigZag(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'yellow', amount, theta);
+            // textureRect(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'blue', amount, 'circles2', 3);
+            // textureRectSprials(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'red', amount);
+            textureRectStipple(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'green', amount * 1.5);
+            // textureRectZigZag(context)(p[0], p[1], grid.columnWidth, grid.rowHeight, 'yellow', amount, theta);
         });
 
         return -1;

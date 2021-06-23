@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, orientation } from '../rndrgen/Sketch';
+import { ratio, orientation } from '../rndrgen/sketch';
 import { mapRange } from '../rndrgen/math/math';
 import { create2dNoiseAbs, randomNumberBetween } from '../rndrgen/math/random';
 import { highest, lowest } from '../rndrgen/utils';
