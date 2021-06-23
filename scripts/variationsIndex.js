@@ -1,7 +1,7 @@
 import { variation5 } from './released/variation5';
 import { threeAttractors } from './released/threeAttractors';
 import { hiImage01 } from './released/hiImage01';
-import { waves01 } from './released/waves01';
+import { waves01b } from './released/waves01b';
 import { lissajous01 } from './released/lissajous01';
 import { flowFieldParticles } from './released/flow-field-particles';
 import { flowFieldArcs } from './released/flow-field-arcs';
@@ -30,7 +30,7 @@ export const variationsIndex = {
     },
     11: {
         note: 'Inspired by Churn, Kenny Vaden https://www.reddit.com/r/generative/comments/lq8r11/churn_r_code/',
-        sketch: waves01,
+        sketch: waves01b,
     },
     12: {
         note: 'Experimenting with rose shapes. Refresh for new randomized set.',
