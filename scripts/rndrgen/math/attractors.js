@@ -14,18 +14,20 @@ const attractorVarC = randomNumberBetween(-2, 2);
 const attractorVarD = randomNumberBetween(-2, 2);
 
 // http://paulbourke.net/fractals/clifford/
-export const cliffordAttractor = (width, height, x, y) => {
-    x = (x - width / 2) * attractorScale;
-    y = (y - height / 2) * attractorScale;
+export const cliffordAttractor = (width, height, x, y, scale) => {
+    scale = scale || attractorScale;
+    x = (x - width / 2) * scale;
+    y = (y - height / 2) * scale;
     const x1 = Math.sin(attractorVarA * y) + attractorVarC * Math.cos(attractorVarA * x);
     const y1 = Math.sin(attractorVarB * x) + attractorVarD * Math.cos(attractorVarB * y);
     return Math.atan2(y1 - y, x1 - x);
 };
 
 // http://paulbourke.net/fractals/peterdejong/
-export const jongAttractor = (width, height, x, y) => {
-    x = (x - width / 2) * attractorScale;
-    y = (y - height / 2) * attractorScale;
+export const jongAttractor = (width, height, x, y, scale) => {
+    scale = scale || attractorScale;
+    x = (x - width / 2) * scale;
+    y = (y - height / 2) * scale;
     const x1 = Math.sin(attractorVarA * y) - Math.cos(attractorVarB * x);
     const y1 = Math.sin(attractorVarC * x) - Math.cos(attractorVarD * y);
     return Math.atan2(y1 - y, x1 - x);

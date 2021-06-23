@@ -15,7 +15,6 @@ export const larrycarlson01 = () => {
     const config = {
         name: 'larrycarlson',
         ratio: ratio.square,
-        // ratio: ratio.poster,
         // orientation: orientation.portrait,
         scale: scale.standard,
     };

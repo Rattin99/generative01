@@ -26,12 +26,10 @@ const drawSegment = (context, sideA, sideB, sourceColor, stroke = false, thickne
     const color = sourceColor.clone();
 
     const gradient = context.createLinearGradient(0, lowestYPA(sideA), 0, highestYPA(sideB) + thickness);
-
     // const gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
-
-    gradient.addColorStop(0, color.toRgbString());
-    // gradient.addColorStop(0.5, color.toRgbString());
-    gradient.addColorStop(1, color.clone().darken(20).saturate(10).toRgbString());
+    // gradient.addColorStop(0, color.toRgbString());
+    gradient.addColorStop(0.5, color.toRgbString());
+    gradient.addColorStop(1, color.clone().darken(5).saturate(10).toRgbString());
 
     context.beginPath();
     context.moveTo(segStartX, segStartY);

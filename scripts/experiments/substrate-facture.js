@@ -66,7 +66,7 @@ const noiseFn = (x, y, time = 0) => simplexNoise3d(x, y, time, 0.01);
 export const substrateFacture = () => {
     const config = {
         name: 'substrate-facture',
-        ratio: ratio.letter,
+        ratio: ratio.a4,
         scale: scale.standard,
         orientation: orientation.portrait,
     };

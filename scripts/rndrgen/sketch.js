@@ -44,9 +44,10 @@ export const orientation = {
 };
 
 export const ratio = {
-    letter: 0.773, // 8.5x11
-    poster: 0.667, // 24x36
+    a4: 0.773, // 8.5x11
+    a3: 0.647, // 11x17
     a3plus: 0.684, // 13x19
+    archd: 0.667, // arch d 24x36
     golden: 0.6180339887498948482,
     square: -1,
     auto: 1,
@@ -85,7 +86,7 @@ export const sketch = (canvasElId, smode = 0, debug) => {
     const pauseOnWindowBlur = true;
     let isPaused = false;
 
-    const canvasSizeMultiple = 10;
+    const canvasSizeMultiple = 2;
     const canvasSizeMultiplier = 0.9;
     const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
