@@ -4505,9 +4505,10 @@ const orientation = {
     landscape: 1
 };
 const ratio = {
-    letter: 0.773,
-    poster: 0.667,
+    a4: 0.773,
+    a3: 0.647,
     a3plus: 0.684,
+    archd: 0.667,
     golden: 0.6180339887498949,
     square: -1,
     auto: 1
@@ -4541,7 +4542,7 @@ const sketch = (canvasElId, smode = 0, debug)=>{
     let isRecording = false;
     const pauseOnWindowBlur = true;
     let isPaused = false;
-    const canvasSizeMultiple = 10;
+    const canvasSizeMultiple = 2;
     const canvasSizeMultiplier = 0.9;
     const canvas = document.getElementById(canvasElId);
     const context = canvas.getContext('2d');
@@ -5600,16 +5601,18 @@ const attractorVarA = _random.randomNumberBetween(-2, 2);
 const attractorVarB = _random.randomNumberBetween(-2, 2);
 const attractorVarC = _random.randomNumberBetween(-2, 2);
 const attractorVarD = _random.randomNumberBetween(-2, 2);
-const cliffordAttractor = (width, height, x, y)=>{
-    x = (x - width / 2) * attractorScale;
-    y = (y - height / 2) * attractorScale;
+const cliffordAttractor = (width, height, x, y, scale)=>{
+    scale = scale || attractorScale;
+    x = (x - width / 2) * scale;
+    y = (y - height / 2) * scale;
     const x1 = Math.sin(attractorVarA * y) + attractorVarC * Math.cos(attractorVarA * x);
     const y1 = Math.sin(attractorVarB * x) + attractorVarD * Math.cos(attractorVarB * y);
     return Math.atan2(y1 - y, x1 - x);
 };
-const jongAttractor = (width, height, x, y)=>{
-    x = (x - width / 2) * attractorScale;
-    y = (y - height / 2) * attractorScale;
+const jongAttractor = (width, height, x, y, scale)=>{
+    scale = scale || attractorScale;
+    x = (x - width / 2) * scale;
+    y = (y - height / 2) * scale;
     const x1 = Math.sin(attractorVarA * y) - Math.cos(attractorVarB * x);
     const y1 = Math.sin(attractorVarC * x) - Math.cos(attractorVarD * y);
     return Math.atan2(y1 - y, x1 - x);
@@ -6997,7 +7000,6 @@ const larrycarlson02 = ()=>{
     const config = {
         name: 'larrycarlson2',
         ratio: _sketch.ratio.square,
-        // ratio: ratio.poster,
         // orientation: orientation.portrait,
         scale: _sketch.scale.standard
     };
@@ -8620,18 +8622,20 @@ var _attractors = require("../rndrgen/math/attractors");
 Original inspiration
 Churn by Kenny Vaden
 https://www.reddit.com/r/generative/comments/lq8r11/churn_r_code/
- */ const drawDots = (context, path, yorigin, sourceColor, stroke = false)=>{
+ */ const drawDots = (context, path, yorigin, sourceColor, scale, stroke = false)=>{
     let color = sourceColor.clone();
     path.forEach((point)=>{
         const rnd = _random.randomNumberBetween(0, yorigin);
         if (rnd < 2) {
-            let radius = _random.randomNumberBetween(1, 3);
+            let radius = _random.randomNumberBetween(1, 2 * scale);
+            let quantity = 3;
             if (rnd < 0.005) {
-                radius = _random.randomNumberBetween(50, 100);
+                radius = _random.randomNumberBetween(25 * scale, 50 * scale);
+                quantity = 1;
                 color = color.clone().darken(10);
-            } else color = color.clone().lighten(2).saturate(10);
+            } else color = color.clone().lighten(5).saturate(10);
             // x, y, color, size, amount = 3, range = 20
-            _shapes.splatter(context)(point[0], point[1], color.toRgbString(), radius, 2, 50);
+            _shapes.splatter(context)(point[0], point[1], color.toRgbString(), radius, quantity, 35 * scale);
         }
     });
 };
@@ -8639,16 +8643,18 @@ const waves01b = ()=>{
     const config = {
         name: 'waves01b',
         orientation: _sketch.orientation.landscape,
-        ratio: _sketch.ratio.a3plus,
-        scale: _sketch.scale.hidpi
+        // ratio: ratio.a3,
+        ratio: _sketch.ratio.square,
+        // scale: scale.hidpi,
+        scale: _sketch.scale.standard
     };
+    let canvasWidth;
     let canvasHeight;
     let canvasMiddle;
     const renderScale = config.scale; // 1 or 2
-    // Palette from https://www.colourlovers.com/palette/694737/Thought_Provoking
     const colorBackground = 'hsl(46, 75%, 70%)';
-    const colorTop = '#06c'; // 'hsl(350, 65%, 46%)';
-    const colorBottom = '#3df'; // 'hsl(185, 19%, 40%)';
+    const colorTop = 'hsl(185, 100%, 18%)'; // 'hsl(350, 65%, 46%)';
+    const colorBottom = 'hsl(182, 100%, 29%)'; // 'hsl(185, 19%, 40%)';
     const waveYValues = [];
     let numWaveXPoints;
     const waveDensity = renderScale;
@@ -8658,9 +8664,14 @@ const waves01b = ()=>{
     let startY = 0;
     let maxY;
     let time = 0;
+    // const simplex2d = (x, y) => simplexNoise2d(x, y, 0.002);
+    // const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
+    // const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
+    // const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
     const createNoiseValues = (idx, distance, frequency, amplitude)=>{
         const points = [];
         for(let i = 0; i < numWaveXPoints; i++){
+            // const n = cliffordAttractor(canvasWidth, canvasHeight, i, idx, 0.005) * amplitude;
             const n = _attractors.simplexNoise3d(i, distance, idx, frequency) * amplitude;
             // const n = simplexNoise3d(i, idx, time, frequency) * amplitude;
             // const n = simplexNoise2d(i, idx * 2, frequency) * amplitude;
@@ -8680,9 +8691,10 @@ const waves01b = ()=>{
         };
     };
     const setup = ({ canvas , context  })=>{
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
         maxX = canvas.width;
         numWaveXPoints = canvas.width / 5;
-        canvasHeight = canvas.height;
         canvasMiddle = canvas.height / 2;
         numWaveRows = canvasHeight / waveDensity;
         const yBufferSpace = canvasHeight / 7;
@@ -8695,15 +8707,17 @@ const waves01b = ()=>{
         let currentY = startY;
         const incrementX = Math.ceil((maxX - startX) / numWaveXPoints) + 1;
         const incrementY = (maxY - startY) / numWaveRows;
+        const canvasFocal = canvasHeight / 3 * 2;
+        const focalRange = canvasFocal * 0.75;
         const maxWaveHeight = 40 * renderScale;
-        const minWaveHeight = 1;
+        const minWaveHeight = 3;
         for(let i = 0; i < waveYValues.length; i++){
-            const color = _tinycolor2Default.default.mix(colorTop, colorBottom, _math.mapRange(startY, maxY, 0, 100, currentY));
-            const distFromMiddle = Math.abs(canvasMiddle - currentY);
-            color.spin(_math.mapRange(0, canvasMiddle / 2, 20, 0, distFromMiddle));
-            color.brighten(_math.mapRange(0, canvasMiddle / 2, 50, 0, distFromMiddle + _random.randomNumberBetween(0, 50)));
-            color.darken(_math.mapRange(0, canvasMiddle, 0, 15, distFromMiddle + _random.randomNumberBetween(0, 50)));
-            color.saturate(_math.mapRange(0, canvasMiddle / 2, 10, 0, distFromMiddle + _random.randomNumberBetween(0, 50)));
+            const color = _tinycolor2Default.default.mix(colorTop, colorBottom, _math.mapRange(startY, maxY, 0, 100, currentY)).brighten(15).spin(_random.randomNumberBetween(-5, 5));
+            const distFromMiddle = Math.abs(canvasFocal - currentY);
+            color.spin(_math.mapRange(0, focalRange, 20, -20, distFromMiddle));
+            color.brighten(_math.mapRange(0, focalRange, 50, 0, distFromMiddle + _random.randomNumberBetween(0, 100)));
+            color.darken(_math.mapRange(0, canvasFocal, 0, 15, distFromMiddle + _random.randomNumberBetween(0, 50)));
+            // color.saturate(mapRange(0, focalRange, 10, 0, distFromMiddle + randomNumberBetween(0, 100)));
             const waveheight = _math.mapRange(startY, maxY, maxWaveHeight, minWaveHeight, currentY);
             const waveTop = [];
             const waveBottom = [];
@@ -8720,9 +8734,9 @@ const waves01b = ()=>{
                 currentX += incrementX;
             }
             context.strokeStyle = color.clone().darken(60).toRgbString();
-            context.lineWidth = 1;
+            context.lineWidth = 0.5 * renderScale;
             _ribbon.drawRibbon(context)(waveTop, waveBottom, color, 1, true, 0);
-            drawDots(context, waveTop, currentY, color, false);
+            drawDots(context, waveTop, currentY, color, renderScale, false);
             currentY += incrementY;
         }
         return -1;
@@ -8764,9 +8778,9 @@ const drawSegment = (context, sideA, sideB, sourceColor, stroke = false, thickne
     const color = sourceColor.clone();
     const gradient = context.createLinearGradient(0, lowestYPA(sideA), 0, highestYPA(sideB) + thickness);
     // const gradient = context.createLinearGradient(0, segStartY - thickness, 0, segEndY + thickness);
-    gradient.addColorStop(0, color.toRgbString());
-    // gradient.addColorStop(0.5, color.toRgbString());
-    gradient.addColorStop(1, color.clone().darken(20).saturate(10).toRgbString());
+    // gradient.addColorStop(0, color.toRgbString());
+    gradient.addColorStop(0.5, color.toRgbString());
+    gradient.addColorStop(1, color.clone().darken(5).saturate(10).toRgbString());
     context.beginPath();
     context.moveTo(segStartX, segStartY);
     sideA.forEach((point)=>{
