@@ -61,6 +61,7 @@ export const clamp = (min = 0, max = 1, a) => Math.min(max, Math.max(min, a));
 export const snapNumber = (snap, n) => Math.floor(n / snap) * snap;
 
 export const percentage = (total, num) => Math.round(num * (total / 100));
+export const percentageFloor = (total, num) => Math.floor(num * (total / 100));
 
 // Hough transform
 // https://stackoverflow.com/questions/24372921/how-to-calculate-quantized-angle

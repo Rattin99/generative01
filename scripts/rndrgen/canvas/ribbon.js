@@ -1,5 +1,7 @@
 import tinycolor from 'tinycolor2';
-import { randomWholeBetween } from '../math/random';
+import { randomWholeBetween, oneOf } from '../math/random';
+import { sumArray } from '../utils';
+import { percentage } from '../math/math';
 
 export const lowestYPA = (arry) =>
     arry.reduce((acc, p) => {
@@ -56,27 +58,54 @@ export const ribbonSegment = (context) => (sideA, sideB, sourceColor, stroke = f
 
 /*
 sideA and B are an array of points [[x,y], [x,y], ...] that are roughly parallel to each other
-segments is a valuve between 1 and n determining how to break up the ribbon
+segments is a value between 1 and n determining how to break up the ribbon
  */
 
-export const ribbonSegmented = (context) => (sideA, sideB, color, segments = 1, stroke = false, thickness = 0) => {
-    const segmentGap = 1;
-    const segmentData = [];
-
-    let left = sideA.length;
-    let start = 0;
-
-    for (let i = 0; i < segments; i++) {
-        const len = segments === 1 ? sideA.length : randomWholeBetween(1, left / 2);
-        segmentData.push({
-            sideA: sideA.slice(start, start + len),
-            sideB: sideB.slice(start, start + len).reverse(),
-        });
-        start += len + segmentGap;
-        left -= len + segmentGap;
+export const ribbonSegmented = (context) => (
+    sideA,
+    sideB,
+    color,
+    { segments, gap, colors },
+    stroke = false,
+    thickness = 0
+) => {
+    if (segments === 1) {
+        ribbonSegment(context)(sideA, sideB.reverse(), color, stroke, thickness);
+        return;
     }
 
-    segmentData.forEach((s) => {
-        ribbonSegment(context)(s.sideA, s.sideB, color, stroke, thickness);
-    });
+    // calculate segment sizes based on random percentages of the line length
+    const segmentGap = gap || 0;
+    const minSegPct = 5;
+    const minSegLength = segmentGap + minSegPct;
+    const segmentLengths = [];
+    let lenPctLeft = 100 - minSegLength;
+    for (let k = 0; k < segments - 1; k++) {
+        if (lenPctLeft > minSegPct) {
+            const pct = randomWholeBetween(minSegLength, lenPctLeft / 2);
+            segmentLengths.push(percentage(sideA.length, pct));
+            lenPctLeft -= pct;
+        }
+    }
+    // add whatever is left to the end
+    segmentLengths.push(sideA.length - sumArray(segmentLengths));
+
+    // break up the sides in to points based on segment lengths
+    let pos = 0;
+    for (let i = 0; i < segmentLengths.length; i++) {
+        let end = pos + segmentLengths[i];
+        if (i < segmentLengths.length - 1) {
+            end -= segmentGap;
+        }
+
+        // TODO color is a random pick from segment colors
+
+        let rcolor = color;
+        if (colors) {
+            rcolor = tinycolor(oneOf(colors));
+        }
+
+        ribbonSegment(context)(sideA.slice(pos, end), sideB.slice(pos, end).reverse(), rcolor, stroke, thickness);
+        pos += segmentLengths[i];
+    }
 };

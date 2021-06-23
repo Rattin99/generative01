@@ -33,6 +33,7 @@ export const getArrayValuesFromEnd = (arr, start, len) => {
     return values;
 };
 
+export const sumArray = (arry) => arry.reduce((a, b) => a + b);
 export const averageNumArray = (arry) => arry.reduce((a, b) => a + b) / arry.length;
 
 export const lowest = (arry) =>
