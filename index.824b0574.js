@@ -9138,7 +9138,7 @@ const ffGrid01 = ()=>{
             color.desaturate(isFocal ? 0 : 50);
             color.spin(isFocal ? 20 : _random.randomNumberBetween(-5, 5));
             context.strokeStyle = _tinycolor2Default.default(color);
-            context.lineWidth = Math.abs(n) * _random.randomNormalNumberBetween(1, 10);
+            context.lineWidth = Math.abs(n) * 2 + _random.randomNormalNumberBetween(0, 10);
             const lineLength = Math.abs(n) * 50 + _random.randomNormalNumberBetween(0, 5);
             const hl = lineLength / 2;
             fieldLine(context)(x + hl, y + hl, n * _math.PI, lineLength);
