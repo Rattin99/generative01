@@ -107,7 +107,7 @@ export const ffGrid01 = () => {
             color.spin(isFocal ? 20 : randomNumberBetween(-5, 5));
 
             context.strokeStyle = tinycolor(color);
-            context.lineWidth = Math.abs(n) * randomNormalNumberBetween(1, 10);
+            context.lineWidth = Math.abs(n) * 2 + randomNormalNumberBetween(0, 10);
             const lineLength = Math.abs(n) * 50 + randomNormalNumberBetween(0, 5);
 
             const hl = lineLength / 2;
