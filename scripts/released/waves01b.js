@@ -107,19 +107,12 @@ export const waves01b = () => {
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-
         maxX = canvas.width;
-
         numWaveXPoints = canvas.width / 5;
-
         canvasMiddle = canvas.height / 2;
-
         numWaveRows = canvasHeight / waveDensity;
-
         const yBufferSpace = canvasHeight / 7;
-
         startY = yBufferSpace;
-
         maxY = canvasHeight - yBufferSpace * 1.25;
 
         for (let i = 0; i < numWaveRows; i++) {
@@ -146,7 +139,7 @@ export const waves01b = () => {
             const color = tinycolor
                 .mix(colorTop, colorBottom, mapRange(startY, maxY, 0, 100, currentY))
                 .brighten(15)
-                .spin(randomNumberBetween(-5, 5));
+                .spin(randomNumberBetween(-10, 10));
 
             const distFromMiddle = Math.abs(canvasFocal - currentY);
             color.spin(mapRange(0, focalRange, 20, -20, distFromMiddle));
@@ -166,11 +159,11 @@ export const waves01b = () => {
             }
 
             context.strokeStyle = color.clone().darken(60).toRgbString();
-            context.lineWidth = 0.5 * renderScale;
+            context.lineWidth = renderScale;
 
-            // ribbonSegment(context)(waveTop, waveBottom.reverse(), color, true, 0);
-            // drawDots(context, waveTop, currentY, color, renderScale, false);
-            ribbonSegmented(context)(waveTop, waveBottom, color, { segments: 15, gap: 0, colors: palette });
+            ribbonSegment(context)(waveTop, waveBottom.reverse(), color, true, 0);
+            drawDots(context, waveTop, currentY, color, renderScale, false);
+            // ribbonSegmented(context)(waveTop, waveBottom, color, { segments: 15, gap: 0, colors: palette });
 
 
             currentY += incrementY;
