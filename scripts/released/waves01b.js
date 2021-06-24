@@ -71,12 +71,6 @@ export const waves01b = () => {
     let maxY;
     let time = 0;
 
-    // test these
-    // const simplex2d = (x, y) => simplexNoise2d(x, y, 0.002);
-    // const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
-    // const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
-    // const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
-
     const createNoiseValues = (idx, distance, frequency, amplitude) => {
         const points = [];
         for (let i = 0; i < numWaveXPoints; i++) {

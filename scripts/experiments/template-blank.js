@@ -33,9 +33,9 @@ export const templateBlank = () => {
         canvasCenterY = canvas.height / 2;
 
         startX = margin;
-        maxX = canvas.width - margin;
+        maxX = canvas.width - margin * 2;
         startY = margin;
-        maxY = canvas.height - margin;
+        maxY = canvas.height - margin * 2;
 
         background(canvas, context)(backgroundColor);
     };

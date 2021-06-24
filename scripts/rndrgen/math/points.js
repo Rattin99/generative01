@@ -2,6 +2,9 @@ import { Vector } from './Vector';
 import { cos, lerp, sin } from './math';
 import { getCurvePoints } from './curve-calc';
 
+export const point = (x, y) => ({ x, y });
+export const pointA = (x, y) => [x, y];
+
 export const pointArrayToPointObject = (a) => ({ x: a[0], y: a[1] });
 export const pointArrayToVector = (a) => new Vector(a[0], a[1]);
 export const vectorToPointArray = (v) => [v.x, v.y];

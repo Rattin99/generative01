@@ -388,11 +388,11 @@ Explorations with generative code
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
-var _waves01B = require("./released/waves01b");
+var _ffGrid01 = require("./experiments/ff-grid-01");
 const debug = false;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _waves01B.waves01b;
+const experimentalVariation = _ffGrid01.ffGrid01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./released/waves01b":"3wlBH"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-01":"5XNjF"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3470,6 +3470,10 @@ module.exports = function() {
 },{}],"4RQVg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "point", ()=>point
+);
+parcelHelpers.export(exports, "pointA", ()=>pointA
+);
 parcelHelpers.export(exports, "pointArrayToPointObject", ()=>pointArrayToPointObject
 );
 parcelHelpers.export(exports, "pointArrayToVector", ()=>pointArrayToVector
@@ -3507,6 +3511,16 @@ parcelHelpers.export(exports, "createSplineFromPointArray", ()=>createSplineFrom
 var _vector = require("./Vector");
 var _math = require("./math");
 var _curveCalc = require("./curve-calc");
+const point = (x, y)=>({
+        x,
+        y
+    })
+;
+const pointA = (x, y)=>[
+        x,
+        y
+    ]
+;
 const pointArrayToPointObject = (a)=>({
         x: a[0],
         y: a[1]
@@ -3549,14 +3563,14 @@ const uvPointToCanvas = ({ margin =0 , u , v , width , height  })=>({
         y: _math.lerp(margin, height - margin, v)
     })
 ;
-const pointDistance = (pointA, pointB)=>{
-    const dx = pointA.x - pointB.x;
-    const dy = pointA.y - pointB.y;
+const pointDistance = (pointA1, pointB)=>{
+    const dx = pointA1.x - pointB.x;
+    const dy = pointA1.y - pointB.y;
     return Math.sqrt(dx * dx + dy * dy);
 };
-const pointRotateCoord = (point, angle)=>({
-        x: point.x * _math.cos(angle) - point.y * _math.sin(angle),
-        y: point.y * _math.cos(angle) + point.x * _math.sin(angle)
+const pointRotateCoord = (point1, angle)=>({
+        x: point1.x * _math.cos(angle) - point1.y * _math.sin(angle),
+        y: point1.y * _math.cos(angle) + point1.x * _math.sin(angle)
     })
 ;
 const pointAngleFromVelocity = ({ velocityX , velocityY  })=>Math.atan2(velocityY, velocityX)
@@ -4359,11 +4373,6 @@ const waves01b = ()=>{
     let startY = 0;
     let maxY;
     let time = 0;
-    // test these
-    // const simplex2d = (x, y) => simplexNoise2d(x, y, 0.002);
-    // const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
-    // const clifford = (x, y) => cliffordAttractor(canvas.width, canvas.height, x, y);
-    // const jong = (x, y) => jongAttractor(canvas.width, canvas.height, x, y);
     const createNoiseValues = (idx, distance, frequency, amplitude)=>{
         const points = [];
         for(let i = 0; i < numWaveXPoints; i++){
@@ -5481,6 +5490,14 @@ const jongAttractor = (width, height, x, y, scale)=>{
     const y1 = Math.sin(attractorVarC * x) - Math.cos(attractorVarD * y);
     return Math.atan2(y1 - y, x1 - x);
 };
+const simplex2d = (x, y)=>simplexNoise2d(x, y, 0.002)
+;
+const simplex3d = (x, y)=>simplexNoise3d(x, y, time, 0.0005)
+;
+const clifford = (x, y, scale)=>cliffordAttractor(canvas.width, canvas.height, x, y, scale)
+;
+const jong = (x, y, scale)=>jongAttractor(canvas.width, canvas.height, x, y, scale)
+;
 const fieldFlowAtPoint = (x, y)=>{
     const simplex = simplexNoise2d(x, y, 0.01);
     const theta = simplex;
@@ -5874,6 +5891,10 @@ parcelHelpers.export(exports, "getPointsOnCircle", ()=>getPointsOnCircle
 );
 parcelHelpers.export(exports, "getGridCells", ()=>getGridCells
 );
+parcelHelpers.export(exports, "getPointGrid", ()=>getPointGrid
+);
+// [[x,y], ...]
+var _points = require("./points");
 const getPointsOnCircle = (offsetX, offsetY, radius, steps, close = false)=>{
     const startAngle = 270;
     const maxAngle = 360 + startAngle;
@@ -5917,26 +5938,20 @@ const getGridCells = (width, height, columns, rows, margin = 0, gutter = 0)=>{
         columnWidth: colStep,
         rowHeight: rowStep
     };
-}; /*
-const resolution = 40;
-let cols = Math.ceil(canvasWidth / resolution) + 1;
-let rows = Math.ceil(canvasHeight / resolution) + 1;
-let field = new Matrix(rows, cols);
+};
+const getPointGrid = (x, y, w, h, cols = 2, rows = 2)=>{
+    const points = [];
+    const colw = Math.round(w / (cols - 1));
+    const rowh = Math.round(h / (rows - 1));
+    for(let i = 0; i < cols; i++)for(let j = 0; j < rows; j++){
+        const rx = i * colw + x;
+        const ry = j * rowh + y;
+        points.push(_points.point(rx, ry));
+    }
+    return points;
+};
 
-for (let i = 0; i < cols; i++) {
-            for (let j = 0; j < rows; j++) {
-                const x = i * resolution;
-                const y = j * resolution;
-                const noise = noiseFn(x, y, z);
-                field.data[j][i] = noise;
-                const fillColor = tinycolor.mix(lowColor, highColor, noise * 100);
-                context.fillStyle = tinycolor(fillColor).toRgbString();
-                context.fillRect(x, y, x + resolution, y + resolution);
-            }
-        }
- */ 
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./points":"4RQVg"}],"omRBU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldParticles", ()=>flowFieldParticles
@@ -9023,6 +9038,121 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5XNjF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ffGrid01", ()=>ffGrid01
+);
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _random = require("../rndrgen/math/random");
+var _math = require("../rndrgen/math/math");
+var _grids = require("../rndrgen/math/grids");
+var _points = require("../rndrgen/math/points");
+var _attractors = require("../rndrgen/math/attractors");
+const fieldLine = (context)=>(x, y, theta, length = 10)=>{
+        const vect = _math.uvFromAngle(theta).setMag(length);
+        context.beginPath();
+        context.moveTo(x, y);
+        context.lineTo(x + vect.x, y + vect.y);
+        context.stroke();
+    }
+;
+const ffGrid01 = ()=>{
+    const config = {
+        name: 'ff-grid-01.js',
+        ratio: _sketch.ratio.square,
+        scale: _sketch.scale.standard
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    let time = 0;
+    const margin = 150;
+    const renderScale = config.scale; // 1 or 2
+    const colorBackground = _palettes.warmWhite;
+    const colorTop = 'hsl(185, 100%, 18%)';
+    const colorBottom = 'hsl(182, 100%, 29%)';
+    let points = [];
+    const setup = ({ canvas , context  })=>{
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        startX = margin;
+        maxX = canvas.width - margin * 2;
+        startY = margin;
+        maxY = canvas.height - margin * 2;
+        points = _grids.getPointGrid(startX, startY, maxX, maxY, 100, 100);
+        _canvas.background(canvas, context)(colorBackground);
+        context.lineCap = 'round';
+    };
+    const noise2d = (x, y, f)=>_random.create2dNoise(x, y, 1, f)
+    ;
+    const noise3d = (x, y, z, f)=>_random.create3dNoise(x, y, z, 1, f)
+    ;
+    const clifford = (x, y, s)=>_attractors.cliffordAttractor(canvasWidth, canvasHeight, x, y, s)
+    ;
+    const jong = (x, y, s)=>_attractors.jongAttractor(canvasWidth, canvasHeight, x, y, s)
+    ;
+    const draw = ({ canvas , context  })=>{
+        // background(canvas, context)(colorBackground.clone().setAlpha(0.1));
+        const canvasFocalH = canvasWidth / 2;
+        const canvasFocalV = canvasHeight / 2;
+        const focalRangeH = canvasFocalH * 0.5;
+        const focalDistance = canvasWidth / 4;
+        points.forEach((p)=>{
+            const { x , y  } = p;
+            const distFromFocalH = Math.abs(canvasFocalH - x);
+            const fa = _random.randomNumberBetween(1, 1.2);
+            // const n = create3dNoise(x, y, time, 1, 0.001 * fa);
+            let n = noise3d(x, y, time, 0.001 * fa);
+            let isFocal = false;
+            if (_points.pointDistance(p, {
+                x: canvasFocalH,
+                y: canvasFocalV
+            }) < focalDistance) {
+                n = noise3d(x, y, time, 0.002);
+                // n = clifford(x, y);
+                isFocal = true;
+            }
+            let color = _tinycolor2Default.default.mix(colorTop, colorBottom, _math.mapRange(-1, 1, 0, 100, n));
+            color = _tinycolor2Default.default.mix(color, 'hsl(46, 75%, 70%)', _math.mapRange(0, 1, 0, 100, n));
+            // color.spin(mapRange(0, focalRangeH, 20, -20, distFromFocalH + randomNumberBetween(0, 100)));
+            // color.brighten(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
+            color.darken(_math.mapRange(0, canvasFocalH, 0, 15, distFromFocalH + _random.randomNumberBetween(0, 100)));
+            // color.saturate(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
+            color.brighten(_math.mapRange(-1, 1, 0, 20, n));
+            color.brighten(_math.mapRange(0.75, 1, 0, 20, n));
+            color.desaturate(isFocal ? 0 : 50);
+            color.spin(isFocal ? 20 : _random.randomNumberBetween(-5, 5));
+            context.strokeStyle = _tinycolor2Default.default(color);
+            context.lineWidth = Math.abs(n) * _random.randomNormalNumberBetween(1, 10);
+            const lineLength = Math.abs(n) * 50 + _random.randomNormalNumberBetween(0, 5);
+            const hl = lineLength / 2;
+            fieldLine(context)(x + hl, y + hl, n * _math.PI, lineLength);
+        });
+        time += 0.5;
+        return 1;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

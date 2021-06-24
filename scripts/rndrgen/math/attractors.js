@@ -33,6 +33,11 @@ export const jongAttractor = (width, height, x, y, scale) => {
     return Math.atan2(y1 - y, x1 - x);
 };
 
+const simplex2d = (x, y) => simplexNoise2d(x, y, 0.002);
+const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
+const clifford = (x, y, scale) => cliffordAttractor(canvas.width, canvas.height, x, y, scale);
+const jong = (x, y, scale) => jongAttractor(canvas.width, canvas.height, x, y, scale);
+
 // testing different attractor functions
 export const fieldFlowAtPoint = (x, y) => {
     const simplex = simplexNoise2d(x, y, 0.01);

@@ -1,4 +1,6 @@
 // [[x,y], ...]
+import { point } from './points';
+
 export const getPointsOnCircle = (offsetX, offsetY, radius, steps, close = false) => {
     const startAngle = 270;
     const maxAngle = 360 + startAngle;
@@ -35,21 +37,18 @@ export const getGridCells = (width, height, columns, rows, margin = 0, gutter = 
     return { points, columnWidth: colStep, rowHeight: rowStep };
 };
 
-/*
-const resolution = 40;
-let cols = Math.ceil(canvasWidth / resolution) + 1;
-let rows = Math.ceil(canvasHeight / resolution) + 1;
-let field = new Matrix(rows, cols);
+export const getPointGrid = (x, y, w, h, cols = 2, rows = 2) => {
+    const points = [];
+    const colw = Math.round(w / (cols - 1));
+    const rowh = Math.round(h / (rows - 1));
 
-for (let i = 0; i < cols; i++) {
-            for (let j = 0; j < rows; j++) {
-                const x = i * resolution;
-                const y = j * resolution;
-                const noise = noiseFn(x, y, z);
-                field.data[j][i] = noise;
-                const fillColor = tinycolor.mix(lowColor, highColor, noise * 100);
-                context.fillStyle = tinycolor(fillColor).toRgbString();
-                context.fillRect(x, y, x + resolution, y + resolution);
-            }
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            const rx = i * colw + x;
+            const ry = j * rowh + y;
+            points.push(point(rx, ry));
         }
- */
+    }
+
+    return points;
+};
