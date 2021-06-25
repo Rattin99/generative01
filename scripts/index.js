@@ -6,14 +6,14 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
-import { ffGrid01 } from './experiments/ff-grid-01';
+import { ffGridPainting01 } from './experiments/ff-grid-painting01';
 
-const debug = false;
+const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = ffGrid01;
+const experimentalVariation = ffGridPainting01;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

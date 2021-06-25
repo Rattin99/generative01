@@ -388,11 +388,11 @@ Explorations with generative code
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
-var _ffGrid01 = require("./experiments/ff-grid-01");
-const debug = false;
+var _ffGridPainting01 = require("./experiments/ff-grid-painting01");
+const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _ffGrid01.ffGrid01;
+const experimentalVariation = _ffGridPainting01.ffGridPainting01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-01":"5XNjF"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-painting01":"AmBcz"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -5545,6 +5545,11 @@ parcelHelpers.export(exports, "palette", ()=>palette
 );
 parcelHelpers.export(exports, "get2Tone", ()=>get2Tone
 );
+// Original implementation idea from Sebastian @void43544164
+// https://twitter.com/void43544164/status/1408133809384591366
+// Returns Tinycolors https://github.com/bgrins/TinyColor
+parcelHelpers.export(exports, "Palette", ()=>Palette
+);
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _niceColorPalettes = require("nice-color-palettes");
@@ -5687,6 +5692,35 @@ const get2Tone = (l = 10, d = 25)=>{
         text
     };
 };
+class Palette {
+    constructor(colorsArray){
+        this.colors = arrayToTinyColor(colorsArray || nicePalette());
+    }
+    get brightest() {
+        return brightest(this.colors);
+    }
+    get darkest() {
+        return darkest(this.colors);
+    }
+    get length() {
+        return this.colors.length;
+    }
+    // TODO weighted random
+    oneOf() {
+        return _random.oneOf(this.colors);
+    }
+    getAtIndex(index) {
+        const n = Math.abs(Math.round(index)) % this.colors.length;
+        return this.colors[n].clone();
+    }
+    get(index, variance = 0, alpha = 1) {
+        const c = this.getAtIndex(index);
+        if (variance > 0) c.spin(_random.randomNormalNumberBetween(variance * -1, variance));
+        // TODO if a > 255 => a/255 ?
+        if (alpha < 1) c.setAlpha(alpha);
+        return c;
+    }
+}
 
 },{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"4t0bw","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3CNWv":[function(require,module,exports) {
 module.exports = JSON.parse("[[\"#69d2e7\",\"#a7dbd8\",\"#e0e4cc\",\"#f38630\",\"#fa6900\"],[\"#fe4365\",\"#fc9d9a\",\"#f9cdad\",\"#c8c8a9\",\"#83af9b\"],[\"#ecd078\",\"#d95b43\",\"#c02942\",\"#542437\",\"#53777a\"],[\"#556270\",\"#4ecdc4\",\"#c7f464\",\"#ff6b6b\",\"#c44d58\"],[\"#774f38\",\"#e08e79\",\"#f1d4af\",\"#ece5ce\",\"#c5e0dc\"],[\"#e8ddcb\",\"#cdb380\",\"#036564\",\"#033649\",\"#031634\"],[\"#490a3d\",\"#bd1550\",\"#e97f02\",\"#f8ca00\",\"#8a9b0f\"],[\"#594f4f\",\"#547980\",\"#45ada8\",\"#9de0ad\",\"#e5fcc2\"],[\"#00a0b0\",\"#6a4a3c\",\"#cc333f\",\"#eb6841\",\"#edc951\"],[\"#e94e77\",\"#d68189\",\"#c6a49a\",\"#c6e5d9\",\"#f4ead5\"],[\"#3fb8af\",\"#7fc7af\",\"#dad8a7\",\"#ff9e9d\",\"#ff3d7f\"],[\"#d9ceb2\",\"#948c75\",\"#d5ded9\",\"#7a6a53\",\"#99b2b7\"],[\"#ffffff\",\"#cbe86b\",\"#f2e9e1\",\"#1c140d\",\"#cbe86b\"],[\"#efffcd\",\"#dce9be\",\"#555152\",\"#2e2633\",\"#99173c\"],[\"#343838\",\"#005f6b\",\"#008c9e\",\"#00b4cc\",\"#00dffc\"],[\"#413e4a\",\"#73626e\",\"#b38184\",\"#f0b49e\",\"#f7e4be\"],[\"#ff4e50\",\"#fc913a\",\"#f9d423\",\"#ede574\",\"#e1f5c4\"],[\"#99b898\",\"#fecea8\",\"#ff847c\",\"#e84a5f\",\"#2a363b\"],[\"#655643\",\"#80bca3\",\"#f6f7bd\",\"#e6ac27\",\"#bf4d28\"],[\"#00a8c6\",\"#40c0cb\",\"#f9f2e7\",\"#aee239\",\"#8fbe00\"],[\"#351330\",\"#424254\",\"#64908a\",\"#e8caa4\",\"#cc2a41\"],[\"#554236\",\"#f77825\",\"#d3ce3d\",\"#f1efa5\",\"#60b99a\"],[\"#5d4157\",\"#838689\",\"#a8caba\",\"#cad7b2\",\"#ebe3aa\"],[\"#8c2318\",\"#5e8c6a\",\"#88a65e\",\"#bfb35a\",\"#f2c45a\"],[\"#fad089\",\"#ff9c5b\",\"#f5634a\",\"#ed303c\",\"#3b8183\"],[\"#ff4242\",\"#f4fad2\",\"#d4ee5e\",\"#e1edb9\",\"#f0f2eb\"],[\"#f8b195\",\"#f67280\",\"#c06c84\",\"#6c5b7b\",\"#355c7d\"],[\"#d1e751\",\"#ffffff\",\"#000000\",\"#4dbce9\",\"#26ade4\"],[\"#1b676b\",\"#519548\",\"#88c425\",\"#bef202\",\"#eafde6\"],[\"#5e412f\",\"#fcebb6\",\"#78c0a8\",\"#f07818\",\"#f0a830\"],[\"#bcbdac\",\"#cfbe27\",\"#f27435\",\"#f02475\",\"#3b2d38\"],[\"#452632\",\"#91204d\",\"#e4844a\",\"#e8bf56\",\"#e2f7ce\"],[\"#eee6ab\",\"#c5bc8e\",\"#696758\",\"#45484b\",\"#36393b\"],[\"#f0d8a8\",\"#3d1c00\",\"#86b8b1\",\"#f2d694\",\"#fa2a00\"],[\"#2a044a\",\"#0b2e59\",\"#0d6759\",\"#7ab317\",\"#a0c55f\"],[\"#f04155\",\"#ff823a\",\"#f2f26f\",\"#fff7bd\",\"#95cfb7\"],[\"#b9d7d9\",\"#668284\",\"#2a2829\",\"#493736\",\"#7b3b3b\"],[\"#bbbb88\",\"#ccc68d\",\"#eedd99\",\"#eec290\",\"#eeaa88\"],[\"#b3cc57\",\"#ecf081\",\"#ffbe40\",\"#ef746f\",\"#ab3e5b\"],[\"#a3a948\",\"#edb92e\",\"#f85931\",\"#ce1836\",\"#009989\"],[\"#300030\",\"#480048\",\"#601848\",\"#c04848\",\"#f07241\"],[\"#67917a\",\"#170409\",\"#b8af03\",\"#ccbf82\",\"#e33258\"],[\"#aab3ab\",\"#c4cbb7\",\"#ebefc9\",\"#eee0b7\",\"#e8caaf\"],[\"#e8d5b7\",\"#0e2430\",\"#fc3a51\",\"#f5b349\",\"#e8d5b9\"],[\"#ab526b\",\"#bca297\",\"#c5ceae\",\"#f0e2a4\",\"#f4ebc3\"],[\"#607848\",\"#789048\",\"#c0d860\",\"#f0f0d8\",\"#604848\"],[\"#b6d8c0\",\"#c8d9bf\",\"#dadabd\",\"#ecdbbc\",\"#fedcba\"],[\"#a8e6ce\",\"#dcedc2\",\"#ffd3b5\",\"#ffaaa6\",\"#ff8c94\"],[\"#3e4147\",\"#fffedf\",\"#dfba69\",\"#5a2e2e\",\"#2a2c31\"],[\"#fc354c\",\"#29221f\",\"#13747d\",\"#0abfbc\",\"#fcf7c5\"],[\"#cc0c39\",\"#e6781e\",\"#c8cf02\",\"#f8fcc1\",\"#1693a7\"],[\"#1c2130\",\"#028f76\",\"#b3e099\",\"#ffeaad\",\"#d14334\"],[\"#a7c5bd\",\"#e5ddcb\",\"#eb7b59\",\"#cf4647\",\"#524656\"],[\"#dad6ca\",\"#1bb0ce\",\"#4f8699\",\"#6a5e72\",\"#563444\"],[\"#5c323e\",\"#a82743\",\"#e15e32\",\"#c0d23e\",\"#e5f04c\"],[\"#edebe6\",\"#d6e1c7\",\"#94c7b6\",\"#403b33\",\"#d3643b\"],[\"#fdf1cc\",\"#c6d6b8\",\"#987f69\",\"#e3ad40\",\"#fcd036\"],[\"#230f2b\",\"#f21d41\",\"#ebebbc\",\"#bce3c5\",\"#82b3ae\"],[\"#b9d3b0\",\"#81bda4\",\"#b28774\",\"#f88f79\",\"#f6aa93\"],[\"#3a111c\",\"#574951\",\"#83988e\",\"#bcdea5\",\"#e6f9bc\"],[\"#5e3929\",\"#cd8c52\",\"#b7d1a3\",\"#dee8be\",\"#fcf7d3\"],[\"#1c0113\",\"#6b0103\",\"#a30006\",\"#c21a01\",\"#f03c02\"],[\"#000000\",\"#9f111b\",\"#b11623\",\"#292c37\",\"#cccccc\"],[\"#382f32\",\"#ffeaf2\",\"#fcd9e5\",\"#fbc5d8\",\"#f1396d\"],[\"#e3dfba\",\"#c8d6bf\",\"#93ccc6\",\"#6cbdb5\",\"#1a1f1e\"],[\"#f6f6f6\",\"#e8e8e8\",\"#333333\",\"#990100\",\"#b90504\"],[\"#1b325f\",\"#9cc4e4\",\"#e9f2f9\",\"#3a89c9\",\"#f26c4f\"],[\"#a1dbb2\",\"#fee5ad\",\"#faca66\",\"#f7a541\",\"#f45d4c\"],[\"#c1b398\",\"#605951\",\"#fbeec2\",\"#61a6ab\",\"#accec0\"],[\"#5e9fa3\",\"#dcd1b4\",\"#fab87f\",\"#f87e7b\",\"#b05574\"],[\"#951f2b\",\"#f5f4d7\",\"#e0dfb1\",\"#a5a36c\",\"#535233\"],[\"#8dccad\",\"#988864\",\"#fea6a2\",\"#f9d6ac\",\"#ffe9af\"],[\"#2d2d29\",\"#215a6d\",\"#3ca2a2\",\"#92c7a3\",\"#dfece6\"],[\"#413d3d\",\"#040004\",\"#c8ff00\",\"#fa023c\",\"#4b000f\"],[\"#eff3cd\",\"#b2d5ba\",\"#61ada0\",\"#248f8d\",\"#605063\"],[\"#ffefd3\",\"#fffee4\",\"#d0ecea\",\"#9fd6d2\",\"#8b7a5e\"],[\"#cfffdd\",\"#b4dec1\",\"#5c5863\",\"#a85163\",\"#ff1f4c\"],[\"#9dc9ac\",\"#fffec7\",\"#f56218\",\"#ff9d2e\",\"#919167\"],[\"#4e395d\",\"#827085\",\"#8ebe94\",\"#ccfc8e\",\"#dc5b3e\"],[\"#a8a7a7\",\"#cc527a\",\"#e8175d\",\"#474747\",\"#363636\"],[\"#f8edd1\",\"#d88a8a\",\"#474843\",\"#9d9d93\",\"#c5cfc6\"],[\"#046d8b\",\"#309292\",\"#2fb8ac\",\"#93a42a\",\"#ecbe13\"],[\"#f38a8a\",\"#55443d\",\"#a0cab5\",\"#cde9ca\",\"#f1edd0\"],[\"#a70267\",\"#f10c49\",\"#fb6b41\",\"#f6d86b\",\"#339194\"],[\"#ff003c\",\"#ff8a00\",\"#fabe28\",\"#88c100\",\"#00c176\"],[\"#ffedbf\",\"#f7803c\",\"#f54828\",\"#2e0d23\",\"#f8e4c1\"],[\"#4e4d4a\",\"#353432\",\"#94ba65\",\"#2790b0\",\"#2b4e72\"],[\"#0ca5b0\",\"#4e3f30\",\"#fefeeb\",\"#f8f4e4\",\"#a5b3aa\"],[\"#4d3b3b\",\"#de6262\",\"#ffb88c\",\"#ffd0b3\",\"#f5e0d3\"],[\"#fffbb7\",\"#a6f6af\",\"#66b6ab\",\"#5b7c8d\",\"#4f2958\"],[\"#edf6ee\",\"#d1c089\",\"#b3204d\",\"#412e28\",\"#151101\"],[\"#9d7e79\",\"#ccac95\",\"#9a947c\",\"#748b83\",\"#5b756c\"],[\"#fcfef5\",\"#e9ffe1\",\"#cdcfb7\",\"#d6e6c3\",\"#fafbe3\"],[\"#9cddc8\",\"#bfd8ad\",\"#ddd9ab\",\"#f7af63\",\"#633d2e\"],[\"#30261c\",\"#403831\",\"#36544f\",\"#1f5f61\",\"#0b8185\"],[\"#aaff00\",\"#ffaa00\",\"#ff00aa\",\"#aa00ff\",\"#00aaff\"],[\"#d1313d\",\"#e5625c\",\"#f9bf76\",\"#8eb2c5\",\"#615375\"],[\"#ffe181\",\"#eee9e5\",\"#fad3b2\",\"#ffba7f\",\"#ff9c97\"],[\"#73c8a9\",\"#dee1b6\",\"#e1b866\",\"#bd5532\",\"#373b44\"],[\"#805841\",\"#dcf7f3\",\"#fffcdd\",\"#ffd8d8\",\"#f5a2a2\"]]");
@@ -9038,10 +9072,10 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5XNjF":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"AmBcz":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ffGrid01", ()=>ffGrid01
+parcelHelpers.export(exports, "ffGridPainting01", ()=>ffGridPainting01
 );
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
@@ -9062,9 +9096,9 @@ const fieldLine = (context)=>(x, y, theta, length = 10)=>{
         context.stroke();
     }
 ;
-const ffGrid01 = ()=>{
+const ffGridPainting01 = ()=>{
     const config = {
-        name: 'ff-grid-01.js',
+        name: 'ff-grid-painting01.js',
         ratio: _sketch.ratio.square,
         scale: _sketch.scale.standard
     };
@@ -9077,13 +9111,22 @@ const ffGrid01 = ()=>{
     let maxX;
     let startY;
     let maxY;
+    let renderAreaWidth;
     let time = 0;
+    let resolution = 100;
     const margin = 150;
     const renderScale = config.scale; // 1 or 2
+    const palette = new _palettes.Palette();
     const colorBackground = _palettes.warmWhite;
     const colorTop = 'hsl(185, 100%, 18%)';
     const colorBottom = 'hsl(182, 100%, 29%)';
+    let canvasFocalH;
+    let canvasFocalV;
+    let focalRangeH;
+    let focalDistance;
     let points = [];
+    const foregroundPoints = [];
+    const backgroundPoints = [];
     const setup = ({ canvas , context  })=>{
         ctx = context;
         canvasWidth = canvas.width;
@@ -9094,9 +9137,22 @@ const ffGrid01 = ()=>{
         maxX = canvas.width - margin * 2;
         startY = margin;
         maxY = canvas.height - margin * 2;
-        points = _grids.getPointGrid(startX, startY, maxX, maxY, 100, 100);
-        _canvas.background(canvas, context)(colorBackground);
+        renderAreaWidth = maxX - startX;
+        resolution = renderAreaWidth / 7;
+        canvasFocalH = canvasWidth / 2;
+        canvasFocalV = canvasHeight / 2;
+        focalRangeH = canvasFocalH * 0.5;
+        focalDistance = canvasWidth / 4;
+        points = _grids.getPointGrid(startX, startY, maxX, maxY, resolution, resolution);
+        points.forEach((p)=>{
+            if (_points.pointDistance(p, {
+                x: canvasFocalH,
+                y: canvasFocalV
+            }) < focalDistance) foregroundPoints.push(p);
+            else backgroundPoints.push(p);
+        });
         context.lineCap = 'round';
+        _canvas.background(canvas, context)(colorBackground);
     };
     const noise2d = (x, y, f)=>_random.create2dNoise(x, y, 1, f)
     ;
@@ -9108,38 +9164,48 @@ const ffGrid01 = ()=>{
     ;
     const draw = ({ canvas , context  })=>{
         // background(canvas, context)(colorBackground.clone().setAlpha(0.1));
-        const canvasFocalH = canvasWidth / 2;
-        const canvasFocalV = canvasHeight / 2;
-        const focalRangeH = canvasFocalH * 0.5;
-        const focalDistance = canvasWidth / 4;
-        points.forEach((p)=>{
+        backgroundPoints.forEach((p)=>{
             const { x , y  } = p;
             const distFromFocalH = Math.abs(canvasFocalH - x);
             const fa = _random.randomNumberBetween(1, 1.2);
             // const n = create3dNoise(x, y, time, 1, 0.001 * fa);
-            let n = noise3d(x, y, time, 0.001 * fa);
-            let isFocal = false;
-            if (_points.pointDistance(p, {
-                x: canvasFocalH,
-                y: canvasFocalV
-            }) < focalDistance) {
-                n = noise3d(x, y, time, 0.002);
-                // n = clifford(x, y);
-                isFocal = true;
-            }
-            let color = _tinycolor2Default.default.mix(colorTop, colorBottom, _math.mapRange(-1, 1, 0, 100, n));
-            color = _tinycolor2Default.default.mix(color, 'hsl(46, 75%, 70%)', _math.mapRange(0, 1, 0, 100, n));
-            // color.spin(mapRange(0, focalRangeH, 20, -20, distFromFocalH + randomNumberBetween(0, 100)));
-            // color.brighten(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
-            color.darken(_math.mapRange(0, canvasFocalH, 0, 15, distFromFocalH + _random.randomNumberBetween(0, 100)));
-            // color.saturate(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
-            color.brighten(_math.mapRange(-1, 1, 0, 20, n));
-            color.brighten(_math.mapRange(0.75, 1, 0, 20, n));
-            color.desaturate(isFocal ? 0 : 50);
-            color.spin(isFocal ? 20 : _random.randomNumberBetween(-5, 5));
+            const n = noise3d(x, y, time, 0.001 * fa);
+            // let color = tinycolor.mix(colorTop, colorBottom, mapRange(-1, 1, 0, 100, n));
+            // color = tinycolor.mix(color, 'hsl(46, 75%, 70%)', mapRange(0, 1, 0, 100, n));
+            // // color.spin(mapRange(0, focalRangeH, 20, -20, distFromFocalH + randomNumberBetween(0, 100)));
+            // // color.brighten(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
+            // color.darken(mapRange(0, canvasFocalH, 0, 15, distFromFocalH + randomNumberBetween(0, 100)));
+            // // color.saturate(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
+            // color.brighten(mapRange(-1, 1, 0, 20, n));
+            // color.brighten(mapRange(0.75, 1, 0, 20, n));
+            // color.desaturate(40);
+            // color.spin(randomNumberBetween(-5, 5));
+            const color = palette.get(n * palette.length, 20);
             context.strokeStyle = _tinycolor2Default.default(color);
-            context.lineWidth = Math.abs(n) * 2 + _random.randomNormalNumberBetween(0, 10);
-            const lineLength = Math.abs(n) * 50 + _random.randomNormalNumberBetween(0, 5);
+            context.lineWidth = Math.abs(n) * 2 + 1; // + randomNormalNumberBetween(0, 10);
+            const lineLength = Math.abs(n) * 50 + 5; // randomNormalNumberBetween(0, 5);
+            const hl = lineLength / 2;
+            fieldLine(context)(x + hl, y + hl, n * _math.PI, lineLength);
+        });
+        foregroundPoints.forEach((p)=>{
+            const { x , y  } = p;
+            const distFromFocalH = Math.abs(canvasFocalH - x);
+            const fa = _random.randomNumberBetween(1, 1.2);
+            // const n = create3dNoise(x, y, time, 1, 0.001 * fa);
+            const n = noise3d(x, y, time, 0.002);
+            // let color = tinycolor.mix(colorTop, colorBottom, mapRange(-1, 1, 0, 100, n));
+            // color = tinycolor.mix(color, 'hsl(46, 75%, 70%)', mapRange(0, 1, 0, 100, n));
+            // // color.spin(mapRange(0, focalRangeH, 20, -20, distFromFocalH + randomNumberBetween(0, 100)));
+            // // color.brighten(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
+            // color.darken(mapRange(0, canvasFocalH, 0, 15, distFromFocalH + randomNumberBetween(0, 100)));
+            // // color.saturate(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
+            // color.brighten(mapRange(-1, 1, 0, 20, n));
+            // color.brighten(mapRange(0.75, 1, 0, 20, n));
+            // color.spin(20);
+            const color = palette.get(n * palette.length, 50);
+            context.strokeStyle = _tinycolor2Default.default(color);
+            context.lineWidth = Math.abs(n) * 2 + _random.randomNormalNumberBetween(1, 10);
+            const lineLength = Math.abs(n) * 50 + _random.randomNormalNumberBetween(2, 15);
             const hl = lineLength / 2;
             fieldLine(context)(x + hl, y + hl, n * _math.PI, lineLength);
         });
@@ -9153,6 +9219,6 @@ const ffGrid01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

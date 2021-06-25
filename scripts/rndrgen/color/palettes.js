@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import * as nicepalettes from 'nice-color-palettes';
 import { mapRange } from '../math/math';
-import { oneOf, randomWholeBetween } from '../math/random';
+import { oneOf, randomNormalNumberBetween, randomWholeBetween } from '../math/random';
 
 export const arrayToTinyColor = (arry) => arry.map((c) => tinycolor(c));
 
@@ -103,3 +103,47 @@ export const get2Tone = (l = 10, d = 25) => {
     const text = light.clone().darken(15).desaturate(20);
     return { palette, light, dark, text };
 };
+
+// Original implementation idea from Sebastian @void43544164
+// https://twitter.com/void43544164/status/1408133809384591366
+// Returns Tinycolors https://github.com/bgrins/TinyColor
+export class Palette {
+    constructor(colorsArray) {
+        this.colors = arrayToTinyColor(colorsArray || nicePalette());
+    }
+
+    get brightest() {
+        return brightest(this.colors);
+    }
+
+    get darkest() {
+        return darkest(this.colors);
+    }
+
+    get length() {
+        return this.colors.length;
+    }
+
+    // TODO weighted random
+
+    oneOf() {
+        return oneOf(this.colors);
+    }
+
+    getAtIndex(index) {
+        const n = Math.abs(Math.round(index)) % this.colors.length;
+        return this.colors[n].clone();
+    }
+
+    get(index, variance = 0, alpha = 1) {
+        const c = this.getAtIndex(index);
+        if (variance > 0) {
+            c.spin(randomNormalNumberBetween(variance * -1, variance));
+        }
+        // TODO if a > 255 => a/255 ?
+        if (alpha < 1) {
+            c.setAlpha(alpha);
+        }
+        return c;
+    }
+}
