@@ -7,13 +7,15 @@ import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
 import { ffGridPainting01 } from './experiments/ff-grid-painting01';
+import { quadtree01 } from './experiments/quadtree';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = ffGridPainting01;
+const experimentalVariation = quadtree01;
+// const experimentalVariation = ffGridPainting01;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

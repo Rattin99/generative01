@@ -389,10 +389,12 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _ffGridPainting01 = require("./experiments/ff-grid-painting01");
+var _quadtree = require("./experiments/quadtree");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _ffGridPainting01.ffGridPainting01;
+const experimentalVariation = _quadtree.quadtree01;
+// const experimentalVariation = ffGridPainting01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +414,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-painting01":"AmBcz"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-painting01":"AmBcz","./experiments/quadtree":"6eHN2"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -2349,6 +2351,10 @@ parcelHelpers.export(exports, "randomWholeBetween", ()=>randomWholeBetween
 );
 parcelHelpers.export(exports, "randomNumberBetweenMid", ()=>randomNumberBetweenMid
 );
+parcelHelpers.export(exports, "random", ()=>random
+);
+parcelHelpers.export(exports, "randomN", ()=>randomN
+);
 parcelHelpers.export(exports, "randomSign", ()=>randomSign
 );
 parcelHelpers.export(exports, "randomBoolean", ()=>randomBoolean
@@ -2413,6 +2419,10 @@ const randomNumberBetween = (min, max)=>_randomDefault.default.valueNonZero() * 
 const randomWholeBetween = (min, max)=>Math.floor(_randomDefault.default.value() * (max - min) + min)
 ;
 const randomNumberBetweenMid = (min, max)=>randomNumberBetween(min, max) - max / 2
+;
+const random = (max)=>max > 0 ? randomWholeBetween(0, max) : randomWholeBetween(max, 0)
+;
+const randomN = (max)=>max > 0 ? randomNormalWholeBetween(0, max) : randomNormalWholeBetween(max, 0)
 ;
 const randomSign = ()=>Math.round(_randomDefault.default.value()) === 1 ? 1 : -1
 ;
@@ -8752,12 +8762,13 @@ class Rectangle {
         return point(x1, y1);
     }
     contains(p) {
-        return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
+        // return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
+        return p.x >= this.x && p.x < this.x + this.w && p.y >= this.y && p.y < this.y + this.h;
     }
     intersects(rect) {
         return !(rect.x - rect.w > this.x + this.w || rect.x + rect.w < this.x - this.w || rect.y - rect.h > this.y + this.h || rect.y + rect.h < this.y - this.h);
     }
-    divideQuad() {
+    subdivide() {
         const halfW = this.w / 2;
         const halfH = this.h / 2;
         this.children.push(new Rectangle(this.x, this.y, halfW, halfH));
@@ -9219,6 +9230,159 @@ const ffGridPainting01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6eHN2":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "quadtree01", ()=>quadtree01
+);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/Sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _points = require("../rndrgen/math/points");
+var _rectangle = require("../rndrgen/math/Rectangle");
+var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
+/*
+From Coding Train
+ */ const divs = 0;
+/*
+Corners
+nw---ne
+|     |
+sw---se
+
+  a---b
+  |   |
+  d---c
+*/ class QuadTree {
+    constructor(boundary, capacity = 4){
+        this.boundary = boundary;
+        this.capacity = capacity;
+        this.points = [];
+        this.divided = false;
+        this.northwest = undefined;
+        this.northeast = undefined;
+        this.southwest = undefined;
+        this.southeast = undefined;
+    }
+    get subdivisions() {
+        return [
+            this.northwest,
+            this.northeast,
+            this.southeast,
+            this.southwest
+        ];
+    }
+    subdivide() {
+        const { x , y , w , h  } = this.boundary;
+        const halfW = w / 2;
+        const halfH = h / 2;
+        const nw = new _rectangle.Rectangle(x, y, halfW, halfH);
+        const ne = new _rectangle.Rectangle(x + halfW, y, halfW, halfH);
+        const sw = new _rectangle.Rectangle(x, y + halfH, halfW, halfH);
+        const se = new _rectangle.Rectangle(x + halfW, y + halfH, halfW, halfH);
+        this.northwest = new QuadTree(nw, this.capacity);
+        this.northeast = new QuadTree(ne, this.capacity);
+        this.southwest = new QuadTree(sw, this.capacity);
+        this.southeast = new QuadTree(se, this.capacity);
+        this.divided = true;
+    }
+    insert(p) {
+        if (!this.boundary.contains(p)) return false;
+        if (this.points.length < this.capacity) {
+            this.points.push(p);
+            return true;
+        }
+        if (!this.divided) this.subdivide();
+        return this.northwest.insert(p) || this.northeast.insert(p) || this.southwest.insert(p) || this.southeast.insert(p);
+    }
+    query(rectangle, arry = []) {
+        if (!this.boundary.intersects(rectangle)) return;
+        this.points.forEach((p)=>{
+            if (rectangle.contains(p)) arry.push(p);
+        });
+        if (this.divided) // this.northeast.query(rectangle, arry);
+        // this.northwest.query(rectangle, arry);
+        // this.southeast.query(rectangle, arry);
+        // this.southwest.query(rectangle, arry);
+        this.subdivisions.forEach((s)=>{
+            if (s) s.query(rectangle, arry);
+        });
+        return arry;
+    }
+}
+const show = (context)=>(qt)=>{
+        const { x , y , w , h  } = qt.boundary;
+        _primatives.rect(context)(x, y, w, h, 0.5, 'black');
+        qt.points.forEach((p)=>{
+            _primatives.pixel(context)(p.x, p.y, 'black', 'square', 2);
+        });
+        if (qt.divided) {
+            if (qt.northwest) show(context)(qt.northwest);
+            if (qt.northeast) show(context)(qt.northeast);
+            if (qt.southwest) show(context)(qt.southwest);
+            if (qt.southeast) show(context)(qt.southeast);
+        }
+    }
+;
+const quadtree01 = ()=>{
+    const config = {
+        name: 'quadtree01',
+        ratio: _sketch.ratio.square,
+        scale: _sketch.scale.standard
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    const renderScale = config.scale; // 1 or 2
+    const backgroundColor = _palettes.paperWhite.clone();
+    const foreColor = _palettes.bicPenBlue.clone();
+    let qt;
+    const setup = ({ canvas , context  })=>{
+        console.log('set up quad tree');
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        startX = margin;
+        maxX = canvas.width - margin * 2;
+        startY = margin;
+        maxY = canvas.height - margin * 2;
+        const boundary1 = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
+        qt = new QuadTree(boundary1, 4);
+        for(let i = 0; i < 1000; i++){
+            const p = _points.point(_random.randomN(canvasWidth), _random.randomN(canvasHeight));
+            qt.insert(p);
+        }
+        _canvas.background(canvas, context)(backgroundColor);
+    };
+    const draw = ({ canvas , context , mouse  })=>{
+        _canvas.background(canvas, context)(backgroundColor);
+        show(context)(qt);
+        const qrtr = canvasWidth / 4;
+        const testrect = new _rectangle.Rectangle(mouse.x, mouse.y, 200, 200);
+        _primatives.rect(context)(testrect.x, testrect.y, testrect.w, testrect.h);
+        const found = qt.query(testrect);
+        found.forEach((p)=>{
+            _primatives.pixel(context)(p.x, p.y, 'red', 'circle', 3);
+        });
+        return 1;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

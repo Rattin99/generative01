@@ -120,7 +120,8 @@ export class Rectangle {
     }
 
     contains(p) {
-        return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
+        // return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
+        return p.x >= this.x && p.x < this.x + this.w && p.y >= this.y && p.y < this.y + this.h;
     }
 
     intersects(rect) {
@@ -132,7 +133,7 @@ export class Rectangle {
         );
     }
 
-    divideQuad() {
+    subdivide() {
         const halfW = this.w / 2;
         const halfH = this.h / 2;
 
