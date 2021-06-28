@@ -389,12 +389,9 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _ffGridPainting01 = require("./experiments/ff-grid-painting01");
-var _quadtree = require("./experiments/quadtree");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
-// const experimentalVariation = undefined;
-const experimentalVariation = _quadtree.quadtree01;
-// const experimentalVariation = ffGridPainting01;
+const experimentalVariation = undefined;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -414,7 +411,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-painting01":"AmBcz","./experiments/quadtree":"6eHN2"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-painting01":"AmBcz"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3944,23 +3941,26 @@ var _canvas = require("./canvas");
 var _math = require("../math/math");
 const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
         size = size || _canvas.currentContextScale();
+        context.beginPath();
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
         if (mode === 'circle') {
             context.beginPath();
             context.arc(x, y, size, 0, Math.PI * 2, false);
             context.fill();
         } else context.fillRect(x, y, size, size);
+        context.closePath();
     }
 ;
 const line = (context)=>(x1, y1, x2, y2, strokeWidth, linecap)=>{
+        context.beginPath();
         // color = 'black',
         // context.strokeStyle = tinycolor(color).toRgbString();
         if (strokeWidth) context.lineWidth = strokeWidth;
         if (linecap) context.lineCap = linecap;
-        context.beginPath();
         context.moveTo(x1, y1);
         context.lineTo(x2, y2);
         context.stroke();
+        context.closePath();
     }
 ;
 const lineAtAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
@@ -3971,13 +3971,14 @@ const lineAtAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
     }
 ;
 const circle = (context)=>(strokeWidth, x, y, radius, color)=>{
+        context.beginPath();
         if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
         context.lineWidth = strokeWidth;
-        context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2, false);
         // context.fillStyle = 'rgba(255,255,255,.1)';
         // context.fill();
         context.stroke();
+        context.closePath();
     }
 ;
 const circleFilled = (context)=>(x, y, radius, color)=>{
@@ -3985,18 +3986,23 @@ const circleFilled = (context)=>(x, y, radius, color)=>{
         context.arc(x, y, radius, 0, Math.PI * 2, false);
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
         context.fill();
+        context.closePath();
     }
 ;
 const rect = (context)=>(x, y, w, h, strokeWidth = 1, color)=>{
+        context.beginPath();
         if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
         context.lineWidth = strokeWidth;
         context.rect(x, y, w, h);
         context.stroke();
+        context.closePath();
     }
 ;
 const rectFilled = (context)=>(x, y, w, h, color = 'white')=>{
+        context.beginPath();
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
         context.fillRect(x, y, w, h);
+        context.closePath();
     }
 ;
 const squareFilled = (context)=>(x, y, size, color)=>{
@@ -4011,6 +4017,7 @@ const drawTriangleFilled = (context)=>(x, y, size, color)=>{
         context.lineTo(x - half, y + half);
         context.fillStyle = color.toRgbString();
         context.fill();
+        context.closePath();
     }
 ;
 const quadRectFilled = (context)=>(x, y, w, h, color)=>{
@@ -4027,6 +4034,7 @@ const quadRectFilled = (context)=>(x, y, w, h, color)=>{
         context.quadraticCurveTo(x, y + h, x, my);
         // context.stroke();
         context.fill();
+        context.closePath();
     }
 ;
 const roundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
@@ -4048,42 +4056,45 @@ const roundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
         context.quadraticCurveTo(x, y, x + corner, y);
         // context.stroke();
         context.fill();
+        context.closePath();
     }
 ;
-const pixelAtPoints = (ctx)=>(points, color = 'black', width = 1)=>{
+const pixelAtPoints = (context)=>(points, color = 'black', width = 1)=>{
         points.forEach((coords, i)=>{
-            pixel(ctx)(coords[0], coords[1], color, 'circle', width);
+            pixel(context)(coords[0], coords[1], color, 'circle', width);
         });
     }
 ;
-const pointPathPA = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
-        ctx.beginPath();
-        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
-        ctx.lineWidth = width;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+const pointPathPA = (context)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
+        context.beginPath();
+        context.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
+        context.lineWidth = width;
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
         points.forEach((coords, i)=>{
-            if (i === 0) ctx.moveTo(coords[0], coords[1]);
-            else ctx.lineTo(coords[0], coords[1]);
-            if (drawPoint) circleFilled(ctx)(coords[0], coords[1], 1, 'red');
+            if (i === 0) context.moveTo(coords[0], coords[1]);
+            else context.lineTo(coords[0], coords[1]);
+            if (drawPoint) circleFilled(context)(coords[0], coords[1], 1, 'red');
         });
-        if (close) ctx.lineTo(points[0][0], points[0][1]);
-        ctx.stroke();
+        if (close) context.lineTo(points[0][0], points[0][1]);
+        context.stroke();
+        context.closePath();
     }
 ;
-const pointPathPO = (ctx)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
-        ctx.beginPath();
-        ctx.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
-        ctx.lineWidth = width;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+const pointPathPO = (context)=>(points, color = 'black', width = 1, close = false, drawPoint = false)=>{
+        context.beginPath();
+        context.strokeStyle = _tinycolor2Default.default(color).clone().toRgbString();
+        context.lineWidth = width;
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
         points.forEach((coords, i)=>{
-            if (i === 0) ctx.moveTo(coords.x, coords.y);
-            else ctx.lineTo(coords.x, coords.y);
-            if (drawPoint) circleFilled(ctx)(coords.x, coords.y, 1, 'red');
+            if (i === 0) context.moveTo(coords.x, coords.y);
+            else context.lineTo(coords.x, coords.y);
+            if (drawPoint) circleFilled(context)(coords.x, coords.y, 1, 'red');
         });
-        if (close) ctx.lineTo(points[0].x, points[0].y);
-        ctx.stroke();
+        if (close) context.lineTo(points[0].x, points[0].y);
+        context.stroke();
+        context.closePath();
     }
 ;
 const arcQuarter = (context)=>(x, y, radius, startRadians, clockWise = false)=>{
@@ -4095,6 +4106,7 @@ const arcQuarter = (context)=>(x, y, radius, startRadians, clockWise = false)=>{
         context.beginPath();
         context.arc(x, y, radius, startR, endR, clockWise);
         context.stroke();
+        context.closePath();
     }
 ;
 
@@ -5152,6 +5164,7 @@ const ribbonSegment = (context)=>(sideA, sideB, sourceColor, stroke = false, thi
         context.stroke();
         context.fillStyle = gradient;
         context.fill();
+        context.closePath();
     }
 ;
 const ribbonSegmented = (context)=>(sideA, sideB, color, { segments , gap , colors  }, stroke = false, thickness = 0)=>{
@@ -8688,8 +8701,6 @@ class Rectangle {
         this.y2 = y + height;
         this.mx = midPoint(this.x, this.x2);
         this.my = midPoint(this.y, this.y2);
-        // 1 or -1
-        this.phase = 1;
         // -1 to 1 noise values
         this.corners = corners || [
             0,
@@ -8699,7 +8710,8 @@ class Rectangle {
         ];
         // array of subdivisions, [rect]
         this.children = [];
-        this.parent = null;
+        // 1 or -1
+        this.phase = 1;
         this.depth = 0;
     }
     // 0 to 15
@@ -8816,6 +8828,8 @@ var _palettes = require("../rndrgen/color/palettes");
 var _truchetTiles = require("../rndrgen/systems/truchetTiles");
 var _rectangle = require("../rndrgen/math/Rectangle");
 var _random = require("../rndrgen/math/random");
+var _points = require("../rndrgen/math/points");
+var _quadTree = require("../rndrgen/math/QuadTree");
 const truchetTiles = ()=>{
     const config = {
         name: 'multiscale-truchet-tiles',
@@ -8825,47 +8839,28 @@ const truchetTiles = ()=>{
     let canvasWidth;
     let canvasHeight;
     let margin = 100;
+    let quadtree;
+    const colors = _palettes.get2Tone(5, 15);
     const setup = ({ canvas , context  })=>{
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
+        margin = canvasWidth / 10;
+        const boundary = new _rectangle.Rectangle(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2);
+        const points = [
+            ...Array(1000)
+        ].map((_)=>_points.point(_random.randomN(canvasWidth), _random.randomN(canvasHeight))
+        );
+        quadtree = _quadTree.quadTreeFromPoints(boundary, 4, points);
         _canvas.background(canvas, context)('white');
     };
     const draw = ({ canvas , context  })=>{
-        // background(canvas, context)('rgba(255,255,255,1');
-        const res = 5;
-        const max = _random.randomWholeBetween(2, 15);
-        const colors = _palettes.get2Tone(5, 15);
-        margin = canvasWidth / 10;
         _canvas.background(canvas, context)(colors.light);
-        // Create some squares in a grid
-        const squares = _rectangle.createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, res, res, 0, 0);
-        // randomly subdivide some of them
-        squares.forEach((s, i)=>{
-            // if (i % 2) {
-            // if (s.x === s.y) {
-            if (_random.randomWholeBetween(0, 2) === 1) {
-                s.divideQuad();
-                if (_random.randomWholeBetween(0, 3) === 1) s.children.forEach((c)=>c.divideQuad()
-                );
-            }
-        });
-        // flatted all of the subdivided squares into one array
-        const sortedSquares = [];
-        const flattenSquares = (rect)=>{
-            if (rect.children.length) rect.children.forEach((r)=>flattenSquares(r)
-            );
-            else sortedSquares.push(rect);
-        };
-        squares.forEach((s)=>{
-            flattenSquares(s);
-        });
-        // sort them by depth, shallow are drawn first, deeper are drawn later so that wings line up
-        sortedSquares.sort((a, b)=>a.depth - b.depth
-        ).forEach((s)=>{
+        const max = _random.randomWholeBetween(0, 15);
+        _quadTree.flatDepthSortedAsc(quadtree).forEach((q)=>{
             // assign a random pattern
-            s.motif = _random.randomWholeBetween(0, max); // randomWholeBetween(0, 15);
+            q.boundary.motif = _random.randomWholeBetween(0, max); // randomWholeBetween(0, 15);
             // draw it
-            _truchetTiles.truchet(context, s, colors.dark, colors.light);
+            _truchetTiles.truchet(context, q.boundary, colors.dark, colors.light);
         });
         return -1;
     };
@@ -8876,7 +8871,7 @@ const truchetTiles = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6w7Yv":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg","../rndrgen/math/QuadTree":"652jH"}],"6w7Yv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "motifList", ()=>motifList
@@ -8915,6 +8910,7 @@ const truchet = (context, rectangle, fore = 'black', back = 'white')=>{
         foreColor = back;
         backColor = fore;
     }
+    context.beginPath();
     _canvas.setContext(context)({
         strokeStyle: _tinycolor2Default.default(foreColor).toRgbString(),
         fillStyle: _tinycolor2Default.default(foreColor).toRgbString(),
@@ -8986,10 +8982,133 @@ const truchet = (context, rectangle, fore = 'black', back = 'white')=>{
     _primatives.circleFilled(context)(rectangle.x2, rectangle.my, sixth, foreColor);
     _primatives.circleFilled(context)(rectangle.mx, rectangle.y2, sixth, foreColor);
     _primatives.circleFilled(context)(rectangle.x, rectangle.my, sixth, foreColor);
-// rect(context)(rectangle.x + 1, rectangle.y + 1, rectangle.w - 2, rectangle.h - 2, 1, 'green');
+    // rect(context)(rectangle.x + 1, rectangle.y + 1, rectangle.w - 2, rectangle.h - 2, 1, 'green');
+    context.closePath();
 };
 
-},{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","../canvas/canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","../canvas/canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"652jH":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+/*
+TODO
+- [ ] Max depth
+- [ ] margin between subdivisions
+
+
+Corners
+nw---ne
+|     |
+sw---se
+
+Rect, corners
+  a---b
+  |   |
+  d---c
+*/ parcelHelpers.export(exports, "QuadTree", ()=>QuadTree
+);
+parcelHelpers.export(exports, "flatDepthSortedAsc", ()=>flatDepthSortedAsc
+);
+parcelHelpers.export(exports, "quadTreeFromPoints", ()=>quadTreeFromPoints
+);
+parcelHelpers.export(exports, "show", ()=>show
+);
+/*
+Originally from Coding Train https://www.youtube.com/watch?v=OJxEcs0w_kE&t=0s
+https://georgefrancis.dev/writing/generative-grid-layouts-with-quadtrees/
+ */ var _rectangle = require("./Rectangle");
+var _primatives = require("../canvas/primatives");
+var _random = require("./random");
+var _truchetTiles = require("../systems/truchetTiles");
+class QuadTree {
+    constructor(boundary, capacity = 4){
+        this.boundary = boundary;
+        this.capacity = capacity;
+        this.points = [];
+        this.divided = false;
+        // 1 or -1
+        this.phase = 1;
+        this.depth = 0;
+        this.northwest = undefined;
+        this.northeast = undefined;
+        this.southwest = undefined;
+        this.southeast = undefined;
+    }
+    get subdivisions() {
+        return this.divided ? [
+            this.northwest,
+            this.northeast,
+            this.southeast,
+            this.southwest
+        ] : [];
+    }
+    subdivide() {
+        const { x , y , w , h  } = this.boundary;
+        const halfW = w / 2;
+        const halfH = h / 2;
+        const nw = new _rectangle.Rectangle(x, y, halfW, halfH);
+        const ne = new _rectangle.Rectangle(x + halfW, y, halfW, halfH);
+        const sw = new _rectangle.Rectangle(x, y + halfH, halfW, halfH);
+        const se = new _rectangle.Rectangle(x + halfW, y + halfH, halfW, halfH);
+        this.northwest = new QuadTree(nw, this.capacity);
+        this.northeast = new QuadTree(ne, this.capacity);
+        this.southwest = new QuadTree(sw, this.capacity);
+        this.southeast = new QuadTree(se, this.capacity);
+        this.divided = true;
+        this.subdivisions.forEach((s)=>{
+            s.phase = this.phase * -1;
+            s.depth = this.depth + 1;
+        });
+    }
+    insert(p) {
+        if (!this.boundary.contains(p)) return false;
+        if (this.points.length < this.capacity) {
+            this.points.push(p);
+            return true;
+        }
+        if (!this.divided) this.subdivide();
+        return this.northwest.insert(p) || this.northeast.insert(p) || this.southwest.insert(p) || this.southeast.insert(p);
+    }
+    query(rectangle, arry = []) {
+        if (!this.boundary.intersects(rectangle)) return;
+        this.points.forEach((p)=>{
+            if (rectangle.contains(p)) arry.push(p);
+        });
+        if (this.divided) this.subdivisions.forEach((s)=>{
+            s.query(rectangle, arry);
+        });
+        return arry;
+    }
+    flatten(arry = []) {
+        if (this.divided) this.subdivisions.forEach((s)=>{
+            s.flatten(arry);
+        });
+        else arry.push(this);
+        return arry;
+    }
+}
+const flatDepthSortedAsc = (qt)=>qt.flatten().sort((a, b)=>a.depth - b.depth
+    )
+;
+const quadTreeFromPoints = (boundary1, capacity1, points)=>{
+    const quadtree = new QuadTree(boundary1, capacity1);
+    points.forEach((p)=>quadtree.insert(p)
+    );
+    return quadtree;
+};
+const show = (context)=>(qt)=>{
+        const { x , y , w , h  } = qt.boundary;
+        if (qt.phase === -1) _primatives.rect(context)(x, y, w, h, 0.5, 'black');
+        else _primatives.rect(context)(x, y, w, h, 0.5, 'red');
+        qt.points.forEach((p)=>{
+            _primatives.pixel(context)(p.x, p.y, 'black', 'square', 2);
+        });
+        if (qt.divided) qt.subdivisions.forEach((s)=>{
+            show(context)(s);
+        });
+    }
+;
+
+},{"./Rectangle":"1Uf2J","../canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./random":"1SLuP","../systems/truchetTiles":"6w7Yv"}],"7oc4r":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "version", ()=>version
@@ -9230,159 +9349,6 @@ const ffGridPainting01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6eHN2":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "quadtree01", ()=>quadtree01
-);
-var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
-var _palettes = require("../rndrgen/color/palettes");
-var _points = require("../rndrgen/math/points");
-var _rectangle = require("../rndrgen/math/Rectangle");
-var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
-/*
-From Coding Train
- */ const divs = 0;
-/*
-Corners
-nw---ne
-|     |
-sw---se
-
-  a---b
-  |   |
-  d---c
-*/ class QuadTree {
-    constructor(boundary, capacity = 4){
-        this.boundary = boundary;
-        this.capacity = capacity;
-        this.points = [];
-        this.divided = false;
-        this.northwest = undefined;
-        this.northeast = undefined;
-        this.southwest = undefined;
-        this.southeast = undefined;
-    }
-    get subdivisions() {
-        return [
-            this.northwest,
-            this.northeast,
-            this.southeast,
-            this.southwest
-        ];
-    }
-    subdivide() {
-        const { x , y , w , h  } = this.boundary;
-        const halfW = w / 2;
-        const halfH = h / 2;
-        const nw = new _rectangle.Rectangle(x, y, halfW, halfH);
-        const ne = new _rectangle.Rectangle(x + halfW, y, halfW, halfH);
-        const sw = new _rectangle.Rectangle(x, y + halfH, halfW, halfH);
-        const se = new _rectangle.Rectangle(x + halfW, y + halfH, halfW, halfH);
-        this.northwest = new QuadTree(nw, this.capacity);
-        this.northeast = new QuadTree(ne, this.capacity);
-        this.southwest = new QuadTree(sw, this.capacity);
-        this.southeast = new QuadTree(se, this.capacity);
-        this.divided = true;
-    }
-    insert(p) {
-        if (!this.boundary.contains(p)) return false;
-        if (this.points.length < this.capacity) {
-            this.points.push(p);
-            return true;
-        }
-        if (!this.divided) this.subdivide();
-        return this.northwest.insert(p) || this.northeast.insert(p) || this.southwest.insert(p) || this.southeast.insert(p);
-    }
-    query(rectangle, arry = []) {
-        if (!this.boundary.intersects(rectangle)) return;
-        this.points.forEach((p)=>{
-            if (rectangle.contains(p)) arry.push(p);
-        });
-        if (this.divided) // this.northeast.query(rectangle, arry);
-        // this.northwest.query(rectangle, arry);
-        // this.southeast.query(rectangle, arry);
-        // this.southwest.query(rectangle, arry);
-        this.subdivisions.forEach((s)=>{
-            if (s) s.query(rectangle, arry);
-        });
-        return arry;
-    }
-}
-const show = (context)=>(qt)=>{
-        const { x , y , w , h  } = qt.boundary;
-        _primatives.rect(context)(x, y, w, h, 0.5, 'black');
-        qt.points.forEach((p)=>{
-            _primatives.pixel(context)(p.x, p.y, 'black', 'square', 2);
-        });
-        if (qt.divided) {
-            if (qt.northwest) show(context)(qt.northwest);
-            if (qt.northeast) show(context)(qt.northeast);
-            if (qt.southwest) show(context)(qt.southwest);
-            if (qt.southeast) show(context)(qt.southeast);
-        }
-    }
-;
-const quadtree01 = ()=>{
-    const config = {
-        name: 'quadtree01',
-        ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
-    };
-    let ctx;
-    let canvasWidth;
-    let canvasHeight;
-    let canvasCenterX;
-    let canvasCenterY;
-    let startX;
-    let maxX;
-    let startY;
-    let maxY;
-    const margin = 50;
-    const renderScale = config.scale; // 1 or 2
-    const backgroundColor = _palettes.paperWhite.clone();
-    const foreColor = _palettes.bicPenBlue.clone();
-    let qt;
-    const setup = ({ canvas , context  })=>{
-        console.log('set up quad tree');
-        ctx = context;
-        canvasWidth = canvas.width;
-        canvasHeight = canvas.height;
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        startX = margin;
-        maxX = canvas.width - margin * 2;
-        startY = margin;
-        maxY = canvas.height - margin * 2;
-        const boundary1 = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
-        qt = new QuadTree(boundary1, 4);
-        for(let i = 0; i < 1000; i++){
-            const p = _points.point(_random.randomN(canvasWidth), _random.randomN(canvasHeight));
-            qt.insert(p);
-        }
-        _canvas.background(canvas, context)(backgroundColor);
-    };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)(backgroundColor);
-        show(context)(qt);
-        const qrtr = canvasWidth / 4;
-        const testrect = new _rectangle.Rectangle(mouse.x, mouse.y, 200, 200);
-        _primatives.rect(context)(testrect.x, testrect.y, testrect.w, testrect.h);
-        const found = qt.query(testrect);
-        found.forEach((p)=>{
-            _primatives.pixel(context)(p.x, p.y, 'red', 'circle', 3);
-        });
-        return 1;
-    };
-    return {
-        config,
-        setup,
-        draw
-    };
-};
-
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map
