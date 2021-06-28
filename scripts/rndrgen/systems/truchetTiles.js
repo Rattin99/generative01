@@ -22,6 +22,8 @@ export const truchet = (context, rectangle, fore = 'black', back = 'white') => {
         backColor = fore;
     }
 
+    context.beginPath();
+
     setContext(context)({
         strokeStyle: tinycolor(foreColor).toRgbString(),
         fillStyle: tinycolor(foreColor).toRgbString(),
@@ -101,4 +103,6 @@ export const truchet = (context, rectangle, fore = 'black', back = 'white') => {
     circleFilled(context)(rectangle.x, rectangle.my, sixth, foreColor);
 
     // rect(context)(rectangle.x + 1, rectangle.y + 1, rectangle.w - 2, rectangle.h - 2, 1, 'green');
+
+    context.closePath();
 };

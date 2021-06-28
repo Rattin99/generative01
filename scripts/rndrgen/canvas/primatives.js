@@ -4,6 +4,7 @@ import { snapNumber } from '../math/math';
 
 export const pixel = (context) => (x, y, color = 'black', mode = 'square', size) => {
     size = size || cnvs.currentContextScale();
+    context.beginPath();
     context.fillStyle = tinycolor(color).toRgbString();
     if (mode === 'circle') {
         context.beginPath();
@@ -12,18 +13,21 @@ export const pixel = (context) => (x, y, color = 'black', mode = 'square', size)
     } else {
         context.fillRect(x, y, size, size);
     }
+    context.closePath();
 };
 
 // linecap = butt, round, square
 export const line = (context) => (x1, y1, x2, y2, strokeWidth, linecap) => {
+    context.beginPath();
     // color = 'black',
     // context.strokeStyle = tinycolor(color).toRgbString();
     if (strokeWidth) context.lineWidth = strokeWidth;
     if (linecap) context.lineCap = linecap;
-    context.beginPath();
+
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);
     context.stroke();
+    context.closePath();
 };
 
 export const lineAtAngle = (context) => (x1, y1, angle, length, strokeWidth, linecap) => {
@@ -34,15 +38,17 @@ export const lineAtAngle = (context) => (x1, y1, angle, length, strokeWidth, lin
 };
 
 export const circle = (context) => (strokeWidth, x, y, radius, color) => {
+    context.beginPath();
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
     }
     context.lineWidth = strokeWidth;
-    context.beginPath();
+
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     // context.fillStyle = 'rgba(255,255,255,.1)';
     // context.fill();
     context.stroke();
+    context.closePath();
 };
 
 export const circleFilled = (context) => (x, y, radius, color) => {
@@ -50,20 +56,25 @@ export const circleFilled = (context) => (x, y, radius, color) => {
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.fillStyle = tinycolor(color).toRgbString();
     context.fill();
+    context.closePath();
 };
 
 export const rect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
+    context.beginPath();
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
     }
     context.lineWidth = strokeWidth;
     context.rect(x, y, w, h);
     context.stroke();
+    context.closePath();
 };
 
 export const rectFilled = (context) => (x, y, w, h, color = 'white') => {
+    context.beginPath();
     context.fillStyle = tinycolor(color).toRgbString();
     context.fillRect(x, y, w, h);
+    context.closePath();
 };
 
 export const squareFilled = (context) => (x, y, size, color) => {
@@ -78,6 +89,7 @@ export const drawTriangleFilled = (context) => (x, y, size, color) => {
     context.lineTo(x - half, y + half);
     context.fillStyle = color.toRgbString();
     context.fill();
+    context.closePath();
 };
 
 // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
@@ -96,6 +108,7 @@ export const quadRectFilled = (context) => (x, y, w, h, color) => {
     context.quadraticCurveTo(x, y + h, x, my);
     // context.stroke();
     context.fill();
+    context.closePath();
 };
 
 // https://www.scriptol.com/html5/canvas/rounded-rectangle.php
@@ -122,60 +135,63 @@ export const roundRectFilled = (context) => (x, y, w, h, corner, color) => {
     context.quadraticCurveTo(x, y, x + corner, y);
     // context.stroke();
     context.fill();
+    context.closePath();
 };
 
-export const pixelAtPoints = (ctx) => (points, color = 'black', width = 1) => {
+export const pixelAtPoints = (context) => (points, color = 'black', width = 1) => {
     points.forEach((coords, i) => {
-        pixel(ctx)(coords[0], coords[1], color, 'circle', width);
+        pixel(context)(coords[0], coords[1], color, 'circle', width);
     });
 };
 
-export const pointPathPA = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
-    ctx.beginPath();
-    ctx.strokeStyle = tinycolor(color).clone().toRgbString();
+export const pointPathPA = (context) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
+    context.beginPath();
+    context.strokeStyle = tinycolor(color).clone().toRgbString();
 
-    ctx.lineWidth = width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    points.forEach((coords, i) => {
-        if (i === 0) {
-            ctx.moveTo(coords[0], coords[1]);
-        } else {
-            ctx.lineTo(coords[0], coords[1]);
-        }
-        if (drawPoint) {
-            circleFilled(ctx)(coords[0], coords[1], 1, 'red');
-        }
-    });
-    if (close) {
-        ctx.lineTo(points[0][0], points[0][1]);
-    }
-    ctx.stroke();
-};
-
-export const pointPathPO = (ctx) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
-    ctx.beginPath();
-    ctx.strokeStyle = tinycolor(color).clone().toRgbString();
-
-    ctx.lineWidth = width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    context.lineWidth = width;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
 
     points.forEach((coords, i) => {
         if (i === 0) {
-            ctx.moveTo(coords.x, coords.y);
+            context.moveTo(coords[0], coords[1]);
         } else {
-            ctx.lineTo(coords.x, coords.y);
+            context.lineTo(coords[0], coords[1]);
         }
         if (drawPoint) {
-            circleFilled(ctx)(coords.x, coords.y, 1, 'red');
+            circleFilled(context)(coords[0], coords[1], 1, 'red');
         }
     });
     if (close) {
-        ctx.lineTo(points[0].x, points[0].y);
+        context.lineTo(points[0][0], points[0][1]);
     }
-    ctx.stroke();
+    context.stroke();
+    context.closePath();
+};
+
+export const pointPathPO = (context) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
+    context.beginPath();
+    context.strokeStyle = tinycolor(color).clone().toRgbString();
+
+    context.lineWidth = width;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+
+    points.forEach((coords, i) => {
+        if (i === 0) {
+            context.moveTo(coords.x, coords.y);
+        } else {
+            context.lineTo(coords.x, coords.y);
+        }
+        if (drawPoint) {
+            circleFilled(context)(coords.x, coords.y, 1, 'red');
+        }
+    });
+    if (close) {
+        context.lineTo(points[0].x, points[0].y);
+    }
+    context.stroke();
+    context.closePath();
 };
 
 /*
@@ -197,4 +213,5 @@ export const arcQuarter = (context) => (x, y, radius, startRadians, clockWise = 
     context.beginPath();
     context.arc(x, y, radius, startR, endR, clockWise);
     context.stroke();
+    context.closePath();
 };

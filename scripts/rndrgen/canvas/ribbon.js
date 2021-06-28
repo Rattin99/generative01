@@ -54,6 +54,7 @@ export const ribbonSegment = (context) => (sideA, sideB, sourceColor, stroke = f
 
     context.fillStyle = gradient;
     context.fill();
+    context.closePath();
 };
 
 /*

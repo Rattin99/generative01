@@ -3,8 +3,10 @@ import { ratio, scale, orientation } from '../rndrgen/sketch';
 import { bicPenBlue, paperWhite, get2Tone } from '../rndrgen/color/palettes';
 
 import { truchet } from '../rndrgen/systems/truchetTiles';
-import { createRectGrid } from '../rndrgen/math/Rectangle';
-import { randomWholeBetween } from '../rndrgen/math/random';
+import { createRectGrid, Rectangle } from '../rndrgen/math/Rectangle';
+import { randomN, randomWholeBetween } from '../rndrgen/math/random';
+import { point } from '../rndrgen/math/points';
+import { flatDepthSortedAsc, quadTreeFromPoints } from '../rndrgen/math/QuadTree';
 
 export const truchetTiles = () => {
     const config = {
@@ -19,69 +21,34 @@ export const truchetTiles = () => {
 
     let margin = 100;
 
+    let quadtree;
+
+    const colors = get2Tone(5, 15);
+
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
+
+        margin = canvasWidth / 10;
+
+        const boundary = new Rectangle(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2);
+        const points = [...Array(1000)].map((_) => point(randomN(canvasWidth), randomN(canvasHeight)));
+        quadtree = quadTreeFromPoints(boundary, 4, points);
+
         background(canvas, context)('white');
     };
 
     const draw = ({ canvas, context }) => {
-        // background(canvas, context)('rgba(255,255,255,1');
-
-        const res = 5;
-        const max = randomWholeBetween(2, 15);
-        const colors = get2Tone(5, 15);
-
-        margin = canvasWidth / 10;
-
         background(canvas, context)(colors.light);
 
-        // Create some squares in a grid
-        const squares = createRectGrid(
-            margin,
-            margin,
-            canvasWidth - margin * 2,
-            canvasHeight - margin * 2,
-            res,
-            res,
-            0,
-            0
-        );
+        const max = randomWholeBetween(0, 15);
 
-        // randomly subdivide some of them
-        squares.forEach((s, i) => {
-            // if (i % 2) {
-            // if (s.x === s.y) {
-            if (randomWholeBetween(0, 2) === 1) {
-                s.divideQuad();
-                if (randomWholeBetween(0, 3) === 1) {
-                    s.children.forEach((c) => c.divideQuad());
-                }
-            }
+        flatDepthSortedAsc(quadtree).forEach((q) => {
+            // assign a random pattern
+            q.boundary.motif = randomWholeBetween(0, max); // randomWholeBetween(0, 15);
+            // draw it
+            truchet(context, q.boundary, colors.dark, colors.light);
         });
-
-        // flatted all of the subdivided squares into one array
-        const sortedSquares = [];
-        const flattenSquares = (rect) => {
-            if (rect.children.length) {
-                rect.children.forEach((r) => flattenSquares(r));
-            } else {
-                sortedSquares.push(rect);
-            }
-        };
-        squares.forEach((s) => {
-            flattenSquares(s);
-        });
-
-        // sort them by depth, shallow are drawn first, deeper are drawn later so that wings line up
-        sortedSquares
-            .sort((a, b) => a.depth - b.depth)
-            .forEach((s) => {
-                // assign a random pattern
-                s.motif = randomWholeBetween(0, max); // randomWholeBetween(0, 15);
-                // draw it
-                truchet(context, s, colors.dark, colors.light);
-            });
 
         return -1;
     };

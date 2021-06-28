@@ -28,13 +28,13 @@ export class Rectangle {
         this.y2 = y + height;
         this.mx = midPoint(this.x, this.x2);
         this.my = midPoint(this.y, this.y2);
-        // 1 or -1
-        this.phase = 1;
+
         // -1 to 1 noise values
         this.corners = corners || [0, 0, 0, 0];
         // array of subdivisions, [rect]
         this.children = [];
-        this.parent = null;
+        // 1 or -1
+        this.phase = 1;
         this.depth = 0;
     }
 
