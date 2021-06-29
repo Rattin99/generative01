@@ -388,10 +388,11 @@ Explorations with generative code
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
-var _ffGridPainting01 = require("./experiments/ff-grid-painting01");
+var _quadtree = require("./experiments/quadtree");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
-const experimentalVariation = undefined;
+// const experimentalVariation = undefined;
+const experimentalVariation = _quadtree.quadtree01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -411,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/ff-grid-painting01":"AmBcz"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/quadtree":"6eHN2"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -6319,6 +6320,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("./canvas");
 var _math = require("../math/math");
+var _points = require("../math/points");
 var _utils = require("../utils");
 class Bitmap {
     constructor(src1){
@@ -6387,6 +6389,9 @@ class Bitmap {
     pixelColorFromCanvas(x, y) {
         return this.pixelColor(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
     }
+    pixelAverageGreyFromCanvas(x, y) {
+        return this.pixelAverageGrey(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
+    }
     pixelThetaFromCanvas(x, y) {
         return this.pixelTheta(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
     }
@@ -6399,6 +6404,20 @@ class Bitmap {
         const points = [];
         for(let i = x; i < x + w; i += res)for(let k = y; k < y + h; k += res)points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
         return _utils.averageNumArray(points);
+    }
+    thresholdAsPoints(res, threshold = 128) {
+        const testFn = (g)=>g > threshold
+        ;
+        const points = [];
+        const { width , height  } = this.canvas;
+        const colw = width / res;
+        const rowh = height / res;
+        for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
+            const x = i * colw;
+            const y = j * rowh;
+            if (testFn(this.pixelAverageGreyFromCanvas(x, y))) points.push(_points.point(x, y));
+        }
+        return points;
     }
     loadImageData(src, wipe = true) {
         // const MAX_HEIGHT = 100;
@@ -6425,7 +6444,7 @@ class Bitmap {
     }
 }
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2bj6J":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../math/points":"4RQVg"}],"2bj6J":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "kristijan-arsov-woman-400.56b3ea5d.png";
 
 },{"./bundle-url":"3seVR"}],"1QEow":[function(require,module,exports) {
@@ -8830,6 +8849,9 @@ var _rectangle = require("../rndrgen/math/Rectangle");
 var _random = require("../rndrgen/math/random");
 var _points = require("../rndrgen/math/points");
 var _quadTree = require("../rndrgen/math/QuadTree");
+var _bitmap = require("../rndrgen/canvas/Bitmap");
+var _hi1Png = require("../../media/images/hi1.png");
+var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
 const truchetTiles = ()=>{
     const config = {
         name: 'multiscale-truchet-tiles',
@@ -8841,17 +8863,18 @@ const truchetTiles = ()=>{
     let margin = 100;
     let quadtree;
     const colors = _palettes.get2Tone(5, 15);
+    const image = new _bitmap.Bitmap(_hi1PngDefault.default);
     const setup = ({ canvas , context  })=>{
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
+        image.init(canvas, context);
         margin = canvasWidth / 10;
         const boundary = new _rectangle.Rectangle(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2);
-        const points = [
-            ...Array(1000)
-        ].map((_)=>_points.point(_random.randomN(canvasWidth), _random.randomN(canvasHeight))
-        );
-        quadtree = _quadTree.quadTreeFromPoints(boundary, 4, points);
-        _canvas.background(canvas, context)('white');
+        // const points = [...Array(1000)].map((_) => point(randomN(canvasWidth), randomN(canvasHeight)));
+        // quadtree = quadTreeFromPoints(boundary, 4, points);
+        const points = image.thresholdAsPoints(150, 128);
+        quadtree = _quadTree.quadTreeFromPoints(boundary, 1, points);
+    // background(canvas, context)('white');
     };
     const draw = ({ canvas , context  })=>{
         _canvas.background(canvas, context)(colors.light);
@@ -8871,7 +8894,7 @@ const truchetTiles = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg","../rndrgen/math/QuadTree":"652jH"}],"6w7Yv":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/points":"4RQVg","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/hi1.png":"2Mkol"}],"6w7Yv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "motifList", ()=>motifList
@@ -9020,11 +9043,13 @@ var _primatives = require("../canvas/primatives");
 var _random = require("./random");
 var _truchetTiles = require("../systems/truchetTiles");
 class QuadTree {
-    constructor(boundary, capacity = 4){
+    constructor(boundary, capacity = 4, margin = 0, maxd = 0){
         this.boundary = boundary;
         this.capacity = capacity;
         this.points = [];
         this.divided = false;
+        this.maxDepth = maxd;
+        this.margin = margin;
         // 1 or -1
         this.phase = 1;
         this.depth = 0;
@@ -9043,16 +9068,18 @@ class QuadTree {
     }
     subdivide() {
         const { x , y , w , h  } = this.boundary;
-        const halfW = w / 2;
-        const halfH = h / 2;
-        const nw = new _rectangle.Rectangle(x, y, halfW, halfH);
-        const ne = new _rectangle.Rectangle(x + halfW, y, halfW, halfH);
-        const sw = new _rectangle.Rectangle(x, y + halfH, halfW, halfH);
-        const se = new _rectangle.Rectangle(x + halfW, y + halfH, halfW, halfH);
-        this.northwest = new QuadTree(nw, this.capacity);
-        this.northeast = new QuadTree(ne, this.capacity);
-        this.southwest = new QuadTree(sw, this.capacity);
-        this.southeast = new QuadTree(se, this.capacity);
+        const halfW = w / 2 + this.margin;
+        const halfH = h / 2 + this.margin;
+        const divWidth = w / 2 - this.margin;
+        const divHeight = h / 2 - this.margin;
+        const nw = new _rectangle.Rectangle(x, y, divWidth, divHeight);
+        const ne = new _rectangle.Rectangle(x + halfW, y, divWidth, divHeight);
+        const sw = new _rectangle.Rectangle(x, y + halfH, divWidth, divHeight);
+        const se = new _rectangle.Rectangle(x + halfW, y + halfH, divWidth, divHeight);
+        this.northwest = new QuadTree(nw, this.capacity, this.margin, this.maxDepth);
+        this.northeast = new QuadTree(ne, this.capacity, this.margin, this.maxDepth);
+        this.southwest = new QuadTree(sw, this.capacity, this.margin, this.maxDepth);
+        this.southeast = new QuadTree(se, this.capacity, this.margin, this.maxDepth);
         this.divided = true;
         this.subdivisions.forEach((s)=>{
             s.phase = this.phase * -1;
@@ -9065,6 +9092,7 @@ class QuadTree {
             this.points.push(p);
             return true;
         }
+        // if (this.maxDepth && this.depth === this.maxDepth) return;
         if (!this.divided) this.subdivide();
         return this.northwest.insert(p) || this.northeast.insert(p) || this.southwest.insert(p) || this.southeast.insert(p);
     }
@@ -9089,8 +9117,8 @@ class QuadTree {
 const flatDepthSortedAsc = (qt)=>qt.flatten().sort((a, b)=>a.depth - b.depth
     )
 ;
-const quadTreeFromPoints = (boundary1, capacity1, points)=>{
-    const quadtree = new QuadTree(boundary1, capacity1);
+const quadTreeFromPoints = (boundary1, capacity1, points, margin1 = 0, maxd1 = 0)=>{
+    const quadtree = new QuadTree(boundary1, capacity1, margin1, maxd1);
     points.forEach((p)=>quadtree.insert(p)
     );
     return quadtree;
@@ -9202,33 +9230,25 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"AmBcz":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6eHN2":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ffGridPainting01", ()=>ffGridPainting01
+parcelHelpers.export(exports, "quadtree01", ()=>quadtree01
 );
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
 var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
-var _primatives = require("../rndrgen/canvas/primatives");
-var _random = require("../rndrgen/math/random");
-var _math = require("../rndrgen/math/math");
-var _grids = require("../rndrgen/math/grids");
 var _points = require("../rndrgen/math/points");
-var _attractors = require("../rndrgen/math/attractors");
-const fieldLine = (context)=>(x, y, theta, length = 10)=>{
-        const vect = _math.uvFromAngle(theta).setMag(length);
-        context.beginPath();
-        context.moveTo(x, y);
-        context.lineTo(x + vect.x, y + vect.y);
-        context.stroke();
-    }
-;
-const ffGridPainting01 = ()=>{
+var _rectangle = require("../rndrgen/math/Rectangle");
+var _random = require("../rndrgen/math/random");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _quadTree = require("../rndrgen/math/QuadTree");
+var _bitmap = require("../rndrgen/canvas/Bitmap");
+var _hi1Png = require("../../media/images/hi1.png");
+var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
+const quadtree01 = ()=>{
     const config = {
-        name: 'ff-grid-painting01.js',
+        name: 'quadtree01',
         ratio: _sketch.ratio.square,
         scale: _sketch.scale.standard
     };
@@ -9241,22 +9261,12 @@ const ffGridPainting01 = ()=>{
     let maxX;
     let startY;
     let maxY;
-    let renderAreaWidth;
-    let time = 0;
-    let resolution = 100;
-    const margin = 150;
+    const margin = 50;
     const renderScale = config.scale; // 1 or 2
-    const palette = new _palettes.Palette();
-    const colorBackground = _palettes.warmWhite;
-    const colorTop = 'hsl(185, 100%, 18%)';
-    const colorBottom = 'hsl(182, 100%, 29%)';
-    let canvasFocalH;
-    let canvasFocalV;
-    let focalRangeH;
-    let focalDistance;
-    let points = [];
-    const foregroundPoints = [];
-    const backgroundPoints = [];
+    const backgroundColor = _palettes.paperWhite.clone();
+    const foreColor = _palettes.bicPenBlue.clone();
+    let quadtree;
+    const image = new _bitmap.Bitmap(_hi1PngDefault.default);
     const setup = ({ canvas , context  })=>{
         ctx = context;
         canvasWidth = canvas.width;
@@ -9267,79 +9277,34 @@ const ffGridPainting01 = ()=>{
         maxX = canvas.width - margin * 2;
         startY = margin;
         maxY = canvas.height - margin * 2;
-        renderAreaWidth = maxX - startX;
-        resolution = renderAreaWidth / 7;
-        canvasFocalH = canvasWidth / 2;
-        canvasFocalV = canvasHeight / 2;
-        focalRangeH = canvasFocalH * 0.5;
-        focalDistance = canvasWidth / 4;
-        points = _grids.getPointGrid(startX, startY, maxX, maxY, resolution, resolution);
-        points.forEach((p)=>{
-            if (_points.pointDistance(p, {
-                x: canvasFocalH,
-                y: canvasFocalV
-            }) < focalDistance) foregroundPoints.push(p);
-            else backgroundPoints.push(p);
-        });
-        context.lineCap = 'round';
-        _canvas.background(canvas, context)(colorBackground);
+        image.init(canvas, context, false);
+        const boundary = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
+        const points = [
+            ...Array(100)
+        ].map((_)=>_points.point(_random.randomN(canvasWidth), _random.randomN(canvasHeight))
+        );
+        const ipoints = image.thresholdAsPoints(100, 128);
+        // quadtree = quadTreeFromPoints(boundary, 4, points);
+        quadtree = _quadTree.quadTreeFromPoints(boundary, 4, ipoints, 2);
+        _canvas.background(canvas, context)(backgroundColor);
     };
-    const noise2d = (x, y, f)=>_random.create2dNoise(x, y, 1, f)
-    ;
-    const noise3d = (x, y, z, f)=>_random.create3dNoise(x, y, z, 1, f)
-    ;
-    const clifford = (x, y, s)=>_attractors.cliffordAttractor(canvasWidth, canvasHeight, x, y, s)
-    ;
-    const jong = (x, y, s)=>_attractors.jongAttractor(canvasWidth, canvasHeight, x, y, s)
-    ;
-    const draw = ({ canvas , context  })=>{
-        // background(canvas, context)(colorBackground.clone().setAlpha(0.1));
-        backgroundPoints.forEach((p)=>{
-            const { x , y  } = p;
-            const distFromFocalH = Math.abs(canvasFocalH - x);
-            const fa = _random.randomNumberBetween(1, 1.2);
-            // const n = create3dNoise(x, y, time, 1, 0.001 * fa);
-            const n = noise3d(x, y, time, 0.001 * fa);
-            // let color = tinycolor.mix(colorTop, colorBottom, mapRange(-1, 1, 0, 100, n));
-            // color = tinycolor.mix(color, 'hsl(46, 75%, 70%)', mapRange(0, 1, 0, 100, n));
-            // // color.spin(mapRange(0, focalRangeH, 20, -20, distFromFocalH + randomNumberBetween(0, 100)));
-            // // color.brighten(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
-            // color.darken(mapRange(0, canvasFocalH, 0, 15, distFromFocalH + randomNumberBetween(0, 100)));
-            // // color.saturate(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
-            // color.brighten(mapRange(-1, 1, 0, 20, n));
-            // color.brighten(mapRange(0.75, 1, 0, 20, n));
-            // color.desaturate(40);
-            // color.spin(randomNumberBetween(-5, 5));
-            const color = palette.get(n * palette.length, 20);
-            context.strokeStyle = _tinycolor2Default.default(color);
-            context.lineWidth = Math.abs(n) * 2 + 1; // + randomNormalNumberBetween(0, 10);
-            const lineLength = Math.abs(n) * 50 + 5; // randomNormalNumberBetween(0, 5);
-            const hl = lineLength / 2;
-            fieldLine(context)(x + hl, y + hl, n * _math.PI, lineLength);
+    // const draw = ({ canvas, context }) => {
+    //     background(canvas, context)(backgroundColor);
+    //
+    //     show(context)(quadtree);
+    //
+    //     return -1;
+    // };
+    const draw = ({ canvas , context , mouse  })=>{
+        _canvas.background(canvas, context)(backgroundColor);
+        _quadTree.show(context)(quadtree);
+        const qrtr = canvasWidth / 4;
+        const testrect = new _rectangle.Rectangle(mouse.x, mouse.y, 200, 200);
+        _primatives.rect(context)(testrect.x, testrect.y, testrect.w, testrect.h, 1, 'green');
+        const found = quadtree.query(testrect);
+        found.forEach((p)=>{
+            _primatives.pixel(context)(p.x, p.y, 'red', 'circle', 3);
         });
-        foregroundPoints.forEach((p)=>{
-            const { x , y  } = p;
-            const distFromFocalH = Math.abs(canvasFocalH - x);
-            const fa = _random.randomNumberBetween(1, 1.2);
-            // const n = create3dNoise(x, y, time, 1, 0.001 * fa);
-            const n = noise3d(x, y, time, 0.002);
-            // let color = tinycolor.mix(colorTop, colorBottom, mapRange(-1, 1, 0, 100, n));
-            // color = tinycolor.mix(color, 'hsl(46, 75%, 70%)', mapRange(0, 1, 0, 100, n));
-            // // color.spin(mapRange(0, focalRangeH, 20, -20, distFromFocalH + randomNumberBetween(0, 100)));
-            // // color.brighten(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
-            // color.darken(mapRange(0, canvasFocalH, 0, 15, distFromFocalH + randomNumberBetween(0, 100)));
-            // // color.saturate(mapRange(0, focalRangeH, 10, 0, distFromFocalH + randomNumberBetween(0, 100)));
-            // color.brighten(mapRange(-1, 1, 0, 20, n));
-            // color.brighten(mapRange(0.75, 1, 0, 20, n));
-            // color.spin(20);
-            const color = palette.get(n * palette.length, 50);
-            context.strokeStyle = _tinycolor2Default.default(color);
-            context.lineWidth = Math.abs(n) * 2 + _random.randomNormalNumberBetween(1, 10);
-            const lineLength = Math.abs(n) * 50 + _random.randomNormalNumberBetween(2, 15);
-            const hl = lineLength / 2;
-            fieldLine(context)(x + hl, y + hl, n * _math.PI, lineLength);
-        });
-        time += 0.5;
         return 1;
     };
     return {
@@ -9349,6 +9314,6 @@ const ffGridPainting01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/random":"1SLuP","../rndrgen/math/math":"4t0bw","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/points":"4RQVg","../rndrgen/math/attractors":"BodqP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/points":"4RQVg","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/hi1.png":"2Mkol","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

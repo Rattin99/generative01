@@ -6,6 +6,8 @@ import { Rectangle } from '../rndrgen/math/Rectangle';
 import { random, randomN } from '../rndrgen/math/random';
 import { pixel, rect } from '../rndrgen/canvas/primatives';
 import { QuadTree, quadTreeFromPoints, show } from '../rndrgen/math/QuadTree';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
+import sourcePng from '../../media/images/hi1.png';
 
 export const quadtree01 = () => {
     const config = {
@@ -31,8 +33,9 @@ export const quadtree01 = () => {
 
     let quadtree;
 
+    const image = new Bitmap(sourcePng);
+
     const setup = ({ canvas, context }) => {
-        console.log('set up quad tree');
         ctx = context;
 
         canvasWidth = canvas.width;
@@ -45,9 +48,13 @@ export const quadtree01 = () => {
         startY = margin;
         maxY = canvas.height - margin * 2;
 
+        image.init(canvas, context, false);
+
         const boundary = new Rectangle(0, 0, canvasWidth, canvasHeight);
         const points = [...Array(100)].map((_) => point(randomN(canvasWidth), randomN(canvasHeight)));
-        quadtree = quadTreeFromPoints(boundary, 4, points);
+        const ipoints = image.thresholdAsPoints(100, 128);
+        // quadtree = quadTreeFromPoints(boundary, 4, points);
+        quadtree = quadTreeFromPoints(boundary, 4, ipoints, 2);
 
         background(canvas, context)(backgroundColor);
     };

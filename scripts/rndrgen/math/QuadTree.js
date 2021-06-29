@@ -25,11 +25,14 @@ Rect, corners
   d---c
 */
 export class QuadTree {
-    constructor(boundary, capacity = 4) {
+    constructor(boundary, capacity = 4, margin = 0, maxd = 0) {
         this.boundary = boundary;
         this.capacity = capacity;
         this.points = [];
         this.divided = false;
+
+        this.maxDepth = maxd;
+        this.margin = margin;
 
         // 1 or -1
         this.phase = 1;
@@ -48,18 +51,21 @@ export class QuadTree {
     subdivide() {
         const { x, y, w, h } = this.boundary;
 
-        const halfW = w / 2;
-        const halfH = h / 2;
+        const halfW = w / 2 + this.margin;
+        const halfH = h / 2 + this.margin;
 
-        const nw = new Rectangle(x, y, halfW, halfH);
-        const ne = new Rectangle(x + halfW, y, halfW, halfH);
-        const sw = new Rectangle(x, y + halfH, halfW, halfH);
-        const se = new Rectangle(x + halfW, y + halfH, halfW, halfH);
+        const divWidth = w / 2 - this.margin;
+        const divHeight = h / 2 - this.margin;
 
-        this.northwest = new QuadTree(nw, this.capacity);
-        this.northeast = new QuadTree(ne, this.capacity);
-        this.southwest = new QuadTree(sw, this.capacity);
-        this.southeast = new QuadTree(se, this.capacity);
+        const nw = new Rectangle(x, y, divWidth, divHeight);
+        const ne = new Rectangle(x + halfW, y, divWidth, divHeight);
+        const sw = new Rectangle(x, y + halfH, divWidth, divHeight);
+        const se = new Rectangle(x + halfW, y + halfH, divWidth, divHeight);
+
+        this.northwest = new QuadTree(nw, this.capacity, this.margin, this.maxDepth);
+        this.northeast = new QuadTree(ne, this.capacity, this.margin, this.maxDepth);
+        this.southwest = new QuadTree(sw, this.capacity, this.margin, this.maxDepth);
+        this.southeast = new QuadTree(se, this.capacity, this.margin, this.maxDepth);
 
         this.divided = true;
 
@@ -78,6 +84,9 @@ export class QuadTree {
             this.points.push(p);
             return true;
         }
+
+        // if (this.maxDepth && this.depth === this.maxDepth) return;
+
         if (!this.divided) {
             this.subdivide();
         }
@@ -119,8 +128,8 @@ export class QuadTree {
 
 export const flatDepthSortedAsc = (qt) => qt.flatten().sort((a, b) => a.depth - b.depth);
 
-export const quadTreeFromPoints = (boundary, capacity, points) => {
-    const quadtree = new QuadTree(boundary, capacity);
+export const quadTreeFromPoints = (boundary, capacity, points, margin = 0, maxd = 0) => {
+    const quadtree = new QuadTree(boundary, capacity, margin, maxd);
     points.forEach((p) => quadtree.insert(p));
     return quadtree;
 };

@@ -1,6 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { clear } from './canvas';
 import { mapRange } from '../math/math';
+import { point } from '../math/points';
 import { averageNumArray } from '../utils';
 
 // const createColorArrayFromImageData = (imageData) => {
@@ -105,6 +106,10 @@ export class Bitmap {
         return this.pixelColor(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
     }
 
+    pixelAverageGreyFromCanvas(x, y) {
+        return this.pixelAverageGrey(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
+    }
+
     pixelThetaFromCanvas(x, y) {
         return this.pixelTheta(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
     }
@@ -123,6 +128,28 @@ export class Bitmap {
             }
         }
         return averageNumArray(points);
+    }
+
+    thresholdAsPoints(res, threshold = 128) {
+        const testFn = (g) => g > threshold;
+
+        const points = [];
+        const { width, height } = this.canvas;
+
+        const colw = width / res;
+        const rowh = height / res;
+
+        for (let i = 0; i < res; i++) {
+            for (let j = 0; j < res; j++) {
+                const x = i * colw;
+                const y = j * rowh;
+                if (testFn(this.pixelAverageGreyFromCanvas(x, y))) {
+                    points.push(point(x, y));
+                }
+            }
+        }
+
+        return points;
     }
 
     loadImageData(src, wipe = true) {
