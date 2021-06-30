@@ -1,5 +1,6 @@
 /*
-Originally from Coding Train https://www.youtube.com/watch?v=OJxEcs0w_kE&t=0s
+Originally from Coding Train https://www.youtube.com/watch?v=OJxEcs0w_kE&t=0s parts 1 and 2
+Community version - https://github.com/CodingTrain/QuadTree/blob/main/quadtree.js
 https://georgefrancis.dev/writing/generative-grid-layouts-with-quadtrees/
  */
 

@@ -80,7 +80,7 @@ export const loopingValue = (t, m = 0.5) => Math.sin(t * m);
 // t is 0-1, -> -1 ... 1
 export const pingPontValue = (t) => Math.sin(t * Math.PI);
 
-// x,y offsets for the current circle position
+// x,y offsets for the current circleOld position
 export const pointOnCircle = (x, y, r, a) => ({ x: r * Math.sin(a) + x, y: r * Math.cos(a) + y });
 
 // returns value between 0-1, 250,500,0 => .5

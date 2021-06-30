@@ -45,9 +45,9 @@ export const orientation = {
 
 export const ratio = {
     a4: 0.773, // 8.5x11
-    a3: 0.647, // 11x17
-    a3plus: 0.684, // 13x19
-    archd: 0.667, // arch d 24x36
+    a3: 11 / 17, // 11x17
+    a3plus: 13 / 19, // 13x19
+    archd: 24 / 36, // arch d 24x36
     golden: 0.6180339887498948482,
     square: -1,
     auto: 1,

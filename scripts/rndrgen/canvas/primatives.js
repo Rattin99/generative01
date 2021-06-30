@@ -6,7 +6,7 @@ export const pixel = (context) => (x, y, color = 'black', mode = 'square', size)
     size = size || cnvs.currentContextScale();
     context.beginPath();
     context.fillStyle = tinycolor(color).toRgbString();
-    if (mode === 'circle') {
+    if (mode === 'circleOld') {
         context.beginPath();
         context.arc(x, y, size, 0, Math.PI * 2, false);
         context.fill();
@@ -37,7 +37,7 @@ export const lineAtAngle = (context) => (x1, y1, angle, length, strokeWidth, lin
     line(context)(x1, y1, x2, y2, strokeWidth, linecap);
 };
 
-export const circle = (context) => (strokeWidth, x, y, radius, color) => {
+export const circleOld = (context) => (strokeWidth, x, y, radius, color) => {
     context.beginPath();
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
@@ -47,6 +47,17 @@ export const circle = (context) => (strokeWidth, x, y, radius, color) => {
     context.arc(x, y, radius, 0, Math.PI * 2, false);
     // context.fillStyle = 'rgba(255,255,255,.1)';
     // context.fill();
+    context.stroke();
+    context.closePath();
+};
+
+export const circle = (context) => (x, y, radius, color) => {
+    context.beginPath();
+    if (color) {
+        context.strokeStyle = tinycolor(color).toRgbString();
+    }
+
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
     context.stroke();
     context.closePath();
 };
@@ -140,7 +151,7 @@ export const roundRectFilled = (context) => (x, y, w, h, corner, color) => {
 
 export const pixelAtPoints = (context) => (points, color = 'black', width = 1) => {
     points.forEach((coords, i) => {
-        pixel(context)(coords[0], coords[1], color, 'circle', width);
+        pixel(context)(coords[0], coords[1], color, 'circleOld', width);
     });
 };
 

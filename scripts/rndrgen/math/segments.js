@@ -106,7 +106,7 @@ export const getLineIntersectPoint = (x1, y1, x2, y2, x3, y3, x4, y4) => {
 };
 
 // Menger curvature of a triple of points in n-dimensional Euclidean space Rn is the reciprocal of
-// the radius of the circle that passes through the three points
+// the radius of the circleOld that passes through the three points
 export const mengerCurvature = (p1, p2, p3) => {
     // https://stackoverflow.com/questions/41144224/calculate-curvature-for-3-points-x-y
     // possible alternate https://www.mathsisfun.com/geometry/herons-formula.html

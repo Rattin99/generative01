@@ -388,11 +388,11 @@ Explorations with generative code
 var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
-var _quadtree = require("./experiments/quadtree");
+var _truchetTiles02 = require("./released/truchet-tiles-02");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _quadtree.quadtree01;
+const experimentalVariation = _truchetTiles02.truchetTiles02;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/quadtree":"6eHN2"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./released/truchet-tiles-02":"ysufc"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3912,6 +3912,8 @@ parcelHelpers.export(exports, "line", ()=>line
 );
 parcelHelpers.export(exports, "lineAtAngle", ()=>lineAtAngle
 );
+parcelHelpers.export(exports, "circleOld", ()=>circleOld
+);
 parcelHelpers.export(exports, "circle", ()=>circle
 );
 parcelHelpers.export(exports, "circleFilled", ()=>circleFilled
@@ -3944,7 +3946,7 @@ const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
         size = size || _canvas.currentContextScale();
         context.beginPath();
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        if (mode === 'circle') {
+        if (mode === 'circleOld') {
             context.beginPath();
             context.arc(x, y, size, 0, Math.PI * 2, false);
             context.fill();
@@ -3971,13 +3973,21 @@ const lineAtAngle = (context)=>(x1, y1, angle, length, strokeWidth, linecap)=>{
         line(context)(x1, y1, x2, y2, strokeWidth, linecap);
     }
 ;
-const circle = (context)=>(strokeWidth, x, y, radius, color)=>{
+const circleOld = (context)=>(strokeWidth, x, y, radius, color)=>{
         context.beginPath();
         if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
         context.lineWidth = strokeWidth;
         context.arc(x, y, radius, 0, Math.PI * 2, false);
         // context.fillStyle = 'rgba(255,255,255,.1)';
         // context.fill();
+        context.stroke();
+        context.closePath();
+    }
+;
+const circle = (context)=>(x, y, radius, color)=>{
+        context.beginPath();
+        if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
+        context.arc(x, y, radius, 0, Math.PI * 2, false);
         context.stroke();
         context.closePath();
     }
@@ -4062,7 +4072,7 @@ const roundRectFilled = (context)=>(x, y, w, h, corner, color)=>{
 ;
 const pixelAtPoints = (context)=>(points, color = 'black', width = 1)=>{
         points.forEach((coords, i)=>{
-            pixel(context)(coords[0], coords[1], color, 'circle', width);
+            pixel(context)(coords[0], coords[1], color, 'circleOld', width);
         });
     }
 ;
@@ -4534,9 +4544,9 @@ const orientation = {
 };
 const ratio = {
     a4: 0.773,
-    a3: 0.647,
-    a3plus: 0.684,
-    archd: 0.667,
+    a3: 11 / 17,
+    a3plus: 13 / 19,
+    archd: 24 / 36,
     golden: 0.6180339887498949,
     square: -1,
     auto: 1
@@ -5281,7 +5291,7 @@ const DONTUSETHISpathRibbon = (context)=>(path, color, thickness = 1, stroke = f
 const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
         for(let i = 0; i < amount; i++){
             const s = _random.randomWholeBetween(size * 0.25, size * 3);
-            // circle dist
+            // circleOld dist
             const radius = _random.randomWholeBetween(0, range);
             const angle = _random.randomNumberBetween(0, _math.TAU);
             const xoff = radius * Math.cos(angle);
@@ -6207,7 +6217,7 @@ https://larrycarlson.com/collections/wavy-art-prints
 const splatter = (context)=>(x, y, color, size, amount = 3, range = 20)=>{
         for(let i = 0; i < amount; i++){
             const s = _random.randomWholeBetween(size * 0.25, size * 3);
-            // circle dist
+            // circleOld dist
             const radius = _random.randomWholeBetween(0, range);
             const angle = _random.randomNumberBetween(0, TAU);
             const xoff = radius * Math.cos(angle);
@@ -8901,6 +8911,10 @@ parcelHelpers.export(exports, "motifList", ()=>motifList
 );
 parcelHelpers.export(exports, "truchet", ()=>truchet
 );
+parcelHelpers.export(exports, "motifListInterlaced", ()=>motifListInterlaced
+);
+parcelHelpers.export(exports, "truchetInterlaced", ()=>truchetInterlaced
+);
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _primatives = require("../canvas/primatives");
@@ -9008,6 +9022,142 @@ const truchet = (context, rectangle, fore = 'black', back = 'white')=>{
     // rect(context)(rectangle.x + 1, rectangle.y + 1, rectangle.w - 2, rectangle.h - 2, 1, 'green');
     context.closePath();
 };
+const endLineMult = 1;
+const sqTileLinesHorizontal = (context)=>(x, y, w, h, lineWidth, num = 5, foreColor = 'black', backColor = 'white')=>{
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, w, w);
+        context.clip(region);
+        const x2 = x + w;
+        const gap = h / num;
+        context.strokeStyle = _tinycolor2Default.default(foreColor).toRgbString();
+        _primatives.rectFilled(context)(x, y, w, h, backColor);
+        for(let i = 0; i < num + 1; i++){
+            let iy = y + i * gap;
+            if (i === 0 || i === num) {
+                context.lineWidth = lineWidth * endLineMult;
+                if (i === 0) iy += lineWidth * endLineMult;
+                else iy -= lineWidth * endLineMult;
+            } else context.lineWidth = lineWidth;
+            _primatives.line(context)(x, iy, x2, iy);
+        }
+        context.restore();
+    }
+;
+const sqTileLinesVertical = (context)=>(x, y, w, h, lineWidth, num = 5, foreColor = 'black', backColor = 'white')=>{
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, w, w);
+        context.clip(region);
+        const y2 = y + h;
+        const gap = h / num;
+        context.strokeStyle = _tinycolor2Default.default(foreColor).toRgbString();
+        _primatives.rectFilled(context)(x, y, w, h, backColor);
+        for(let i = 0; i < num + 1; i++){
+            let ix = x + i * gap;
+            if (i === 0 || i === num) {
+                context.lineWidth = lineWidth * endLineMult;
+                if (i === 0) ix += lineWidth * endLineMult;
+                else ix -= lineWidth * endLineMult;
+            } else context.lineWidth = lineWidth;
+            _primatives.line(context)(ix, y, ix, y2);
+        }
+        context.restore();
+    }
+;
+const rings = (context)=>(x, y, r, lineWidth, num = 5, foreColor = 'black', backColor = 'white')=>{
+        const gap = r / num;
+        context.strokeStyle = _tinycolor2Default.default(foreColor).toRgbString();
+        if (backColor) _primatives.circleFilled(context)(x, y, r, backColor);
+        for(let i = 0; i < num + 1; i++){
+            let ir = i * gap;
+            if (i === 0 || i === num) {
+                context.lineWidth = lineWidth * endLineMult;
+                if (i === 0) ir += lineWidth * endLineMult;
+                else ir -= lineWidth * endLineMult;
+            } else context.lineWidth = lineWidth;
+            _primatives.circle(context)(x, y, ir, foreColor);
+        }
+    }
+;
+const sqTileCornerArc = (context)=>(x, y, r, lineWidth, c = 0, num = 5, foreColor = 'black', backColor = 'white')=>{
+        context.save();
+        const region = new Path2D();
+        region.rect(x, y, r, r);
+        context.clip(region);
+        context.strokeStyle = _tinycolor2Default.default(foreColor).toRgbString();
+        _primatives.rectFilled(context)(x, y, r, r, backColor);
+        const x2 = x + r;
+        const y2 = y + r;
+        if (c === 0) {
+            // top left
+            rings(context)(x2, y2, r, lineWidth, num, foreColor, null);
+            rings(context)(x, y, r, lineWidth, num, foreColor, backColor);
+        } else if (c === 1) {
+            // top right
+            rings(context)(x, y2, r, lineWidth, num, foreColor, null);
+            rings(context)(x2, y, r, lineWidth, num, foreColor, backColor);
+        } else if (c === 2) {
+            // bottom left
+            rings(context)(x, y2, r, lineWidth, num, foreColor, null);
+            rings(context)(x2, y, r, lineWidth, num, foreColor, backColor);
+        } else {
+            // bottom right
+            rings(context)(x, y, r, lineWidth, num, foreColor, null);
+            rings(context)(x2, y2, r, lineWidth, num, foreColor, backColor);
+        }
+        context.restore();
+    }
+;
+const motifListInterlaced = [
+    '-',
+    '|',
+    'fnw',
+    'fne',
+    'fsw',
+    'fse'
+];
+const truchetInterlaced = (context, rectangle, lines = 3, lineWidth = 1, fore = 'black', back = 'white')=>{
+    let foreColor = fore;
+    let backColor = back;
+    if (rectangle.phase < 0) {
+        foreColor = back;
+        backColor = fore;
+    }
+    context.beginPath();
+    _canvas.setContext(context)({
+        strokeStyle: _tinycolor2Default.default(foreColor).toRgbString(),
+        fillStyle: _tinycolor2Default.default(foreColor).toRgbString(),
+        lineCap: 'butt',
+        lineWidth,
+        lineJoin: 'bevel'
+    });
+    _primatives.rectFilled(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, backColor);
+    const motif = motifListInterlaced[rectangle.motif];
+    switch(motif){
+        case '-':
+            sqTileLinesHorizontal(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, lineWidth, lines, foreColor, back);
+            break;
+        case '|':
+            sqTileLinesVertical(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, lineWidth, lines, foreColor, back);
+            break;
+        case 'fnw':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 0, lines, foreColor, back);
+            break;
+        case 'fne':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 1, lines, foreColor, back);
+            break;
+        case 'fsw':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 2, lines, foreColor, back);
+            break;
+        case 'fse':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 3, lines, foreColor, back);
+            break;
+        default:
+            break;
+    }
+    context.closePath();
+};
 
 },{"tinycolor2":"101FG","../canvas/primatives":"6MM7x","../canvas/canvas":"73Br1","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"652jH":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -9036,7 +9186,8 @@ parcelHelpers.export(exports, "quadTreeFromPoints", ()=>quadTreeFromPoints
 parcelHelpers.export(exports, "show", ()=>show
 );
 /*
-Originally from Coding Train https://www.youtube.com/watch?v=OJxEcs0w_kE&t=0s
+Originally from Coding Train https://www.youtube.com/watch?v=OJxEcs0w_kE&t=0s parts 1 and 2
+Community version - https://github.com/CodingTrain/QuadTree/blob/main/quadtree.js
 https://georgefrancis.dev/writing/generative-grid-layouts-with-quadtrees/
  */ var _rectangle = require("./Rectangle");
 var _primatives = require("../canvas/primatives");
@@ -9230,82 +9381,65 @@ class Timeline {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6eHN2":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"ysufc":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "quadtree01", ()=>quadtree01
+parcelHelpers.export(exports, "truchetTiles02", ()=>truchetTiles02
 );
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
-var _points = require("../rndrgen/math/points");
+var _truchetTiles = require("../rndrgen/systems/truchetTiles");
 var _rectangle = require("../rndrgen/math/Rectangle");
 var _random = require("../rndrgen/math/random");
-var _primatives = require("../rndrgen/canvas/primatives");
+var _points = require("../rndrgen/math/points");
 var _quadTree = require("../rndrgen/math/QuadTree");
-var _bitmap = require("../rndrgen/canvas/Bitmap");
-var _hi1Png = require("../../media/images/hi1.png");
-var _hi1PngDefault = parcelHelpers.interopDefault(_hi1Png);
-const quadtree01 = ()=>{
+var _primatives = require("../rndrgen/canvas/primatives");
+const truchetTiles02 = ()=>{
     const config = {
-        name: 'quadtree01',
+        name: 'interlaced-truchet-tiles',
         ratio: _sketch.ratio.square,
-        scale: _sketch.scale.standard
+        // ratio: ratio.a3plus,
+        scale: _sketch.scale.hidpi
     };
-    let ctx;
     let canvasWidth;
     let canvasHeight;
-    let canvasCenterX;
-    let canvasCenterY;
-    let startX;
-    let maxX;
-    let startY;
-    let maxY;
-    const margin = 50;
-    const renderScale = config.scale; // 1 or 2
-    const backgroundColor = _palettes.paperWhite.clone();
-    const foreColor = _palettes.bicPenBlue.clone();
+    let margin = 100;
     let quadtree;
-    const image = new _bitmap.Bitmap(_hi1PngDefault.default);
+    let rectangles;
+    const colors = _palettes.get2Tone(5, 15);
     const setup = ({ canvas , context  })=>{
-        ctx = context;
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
-        canvasCenterX = canvas.width / 2;
-        canvasCenterY = canvas.height / 2;
-        startX = margin;
-        maxX = canvas.width - margin * 2;
-        startY = margin;
-        maxY = canvas.height - margin * 2;
-        image.init(canvas, context, false);
-        const boundary = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
-        const points = [
-            ...Array(100)
-        ].map((_)=>_points.point(_random.randomN(canvasWidth), _random.randomN(canvasHeight))
-        );
-        const ipoints = image.thresholdAsPoints(100, 128);
-        // quadtree = quadTreeFromPoints(boundary, 4, points);
-        quadtree = _quadTree.quadTreeFromPoints(boundary, 4, ipoints, 2);
-        _canvas.background(canvas, context)(backgroundColor);
+        margin = canvasWidth / 18;
+        // 35x21 for a3plus
+        rectangles = _rectangle.createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, 20, 20);
+    // const boundary = new Rectangle(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2);
+    // const points = [...Array(500)].map((_) => point(random(canvasWidth), random(canvasHeight)));
+    // quadtree = quadTreeFromPoints(boundary, 2, points);
+    // background(canvas, context)('white');
     };
-    // const draw = ({ canvas, context }) => {
-    //     background(canvas, context)(backgroundColor);
-    //
-    //     show(context)(quadtree);
-    //
-    //     return -1;
-    // };
-    const draw = ({ canvas , context , mouse  })=>{
-        _canvas.background(canvas, context)(backgroundColor);
-        _quadTree.show(context)(quadtree);
-        const qrtr = canvasWidth / 4;
-        const testrect = new _rectangle.Rectangle(mouse.x, mouse.y, 200, 200);
-        _primatives.rect(context)(testrect.x, testrect.y, testrect.w, testrect.h, 1, 'green');
-        const found = quadtree.query(testrect);
-        found.forEach((p)=>{
-            _primatives.pixel(context)(p.x, p.y, 'red', 'circle', 3);
+    let motif = 0;
+    const nextMotif = (_)=>{
+        const n = motif++;
+        if (motif === 6) motif = 0;
+        return n;
+    };
+    const draw = ({ canvas , context  })=>{
+        _canvas.background(canvas, context)(colors.light);
+        // flatDepthSortedAsc(quadtree).forEach((q) => {
+        //     // assign a random pattern
+        //     q.boundary.motif = randomWholeBetween(0, 6);
+        //     // draw it
+        //     truchetInterlaced(context, q.boundary, 9, 2, colors.dark, colors.light);
+        // });
+        rectangles.forEach((r)=>{
+            // assign a random pattern
+            r.motif = _random.randomWholeBetween(0, 6);
+            // draw it
+            _truchetTiles.truchetInterlaced(context, r, 9, 1, colors.dark, colors.light);
         });
-        return 1;
+        return -1;
     };
     return {
         config,
@@ -9314,6 +9448,6 @@ const quadtree01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/points":"4RQVg","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/hi1.png":"2Mkol","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/truchetTiles":"6w7Yv","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/math/QuadTree":"652jH","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/primatives":"6MM7x"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

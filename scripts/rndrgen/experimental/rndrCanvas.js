@@ -2,7 +2,7 @@
 SVG syntax based renderer for Canvas
 
 <rect width="200" height="100" fill="#BBC42A" />
-<circle cx="75" cy="75" r="75" fill="#ED6E46" />
+<circleOld cx="75" cy="75" r="75" fill="#ED6E46" />
 <ellipse cx="100" cy="100" rx="100" ry="50" fill="#7AA20D" />
 <line x1="5" y1="5" x2="100" y2="100" stroke="#765373" stroke-width="8"/>
 <polyline points="0,40 40,40 40,80 80,80 80,120 120,120 120,160" fill="white" stroke="#BBC42A" stroke-width="6" />

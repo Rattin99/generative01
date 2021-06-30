@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { line, circleFilled, rectFilled, rect, arcQuarter } from '../canvas/primatives';
+import { line, circleFilled, rectFilled, rect, arcQuarter, circle } from '../canvas/primatives';
 import { setContext } from '../canvas/canvas';
 
 export const motifList = ['\\', '/', '-', '|', '+', '+.', 'x.', 'fnw', 'fne', 'fsw', 'fse', 'tn', 'ts', 'te', 'tw'];
@@ -103,6 +103,209 @@ export const truchet = (context, rectangle, fore = 'black', back = 'white') => {
     circleFilled(context)(rectangle.x, rectangle.my, sixth, foreColor);
 
     // rect(context)(rectangle.x + 1, rectangle.y + 1, rectangle.w - 2, rectangle.h - 2, 1, 'green');
+
+    context.closePath();
+};
+
+const endLineMult = 1;
+
+const sqTileLinesHorizontal = (context) => (
+    x,
+    y,
+    w,
+    h,
+    lineWidth,
+    num = 5,
+    foreColor = 'black',
+    backColor = 'white'
+) => {
+    context.save();
+    const region = new Path2D();
+    region.rect(x, y, w, w);
+    context.clip(region);
+
+    const x2 = x + w;
+    const gap = h / num;
+
+    context.strokeStyle = tinycolor(foreColor).toRgbString();
+    rectFilled(context)(x, y, w, h, backColor);
+
+    for (let i = 0; i < num + 1; i++) {
+        let iy = y + i * gap;
+
+        if (i === 0 || i === num) {
+            context.lineWidth = lineWidth * endLineMult;
+            if (i === 0) {
+                iy += lineWidth * endLineMult;
+            } else {
+                iy -= lineWidth * endLineMult;
+            }
+        } else {
+            context.lineWidth = lineWidth;
+        }
+
+        line(context)(x, iy, x2, iy);
+    }
+
+    context.restore();
+};
+
+const sqTileLinesVertical = (context) => (x, y, w, h, lineWidth, num = 5, foreColor = 'black', backColor = 'white') => {
+    context.save();
+    const region = new Path2D();
+    region.rect(x, y, w, w);
+    context.clip(region);
+
+    const y2 = y + h;
+    const gap = h / num;
+
+    context.strokeStyle = tinycolor(foreColor).toRgbString();
+    rectFilled(context)(x, y, w, h, backColor);
+
+    for (let i = 0; i < num + 1; i++) {
+        let ix = x + i * gap;
+
+        if (i === 0 || i === num) {
+            context.lineWidth = lineWidth * endLineMult;
+            if (i === 0) {
+                ix += lineWidth * endLineMult;
+            } else {
+                ix -= lineWidth * endLineMult;
+            }
+        } else {
+            context.lineWidth = lineWidth;
+        }
+
+        line(context)(ix, y, ix, y2);
+    }
+
+    context.restore();
+};
+
+const rings = (context) => (x, y, r, lineWidth, num = 5, foreColor = 'black', backColor = 'white') => {
+    const gap = r / num;
+
+    context.strokeStyle = tinycolor(foreColor).toRgbString();
+    if (backColor) circleFilled(context)(x, y, r, backColor);
+
+    for (let i = 0; i < num + 1; i++) {
+        let ir = i * gap;
+
+        if (i === 0 || i === num) {
+            context.lineWidth = lineWidth * endLineMult;
+            if (i === 0) {
+                ir += lineWidth * endLineMult;
+            } else {
+                ir -= lineWidth * endLineMult;
+            }
+        } else {
+            context.lineWidth = lineWidth;
+        }
+
+        circle(context)(x, y, ir, foreColor);
+    }
+};
+
+const sqTileCornerArc = (context) => (x, y, r, lineWidth, c = 0, num = 5, foreColor = 'black', backColor = 'white') => {
+    context.save();
+    const region = new Path2D();
+    region.rect(x, y, r, r);
+    context.clip(region);
+
+    context.strokeStyle = tinycolor(foreColor).toRgbString();
+    rectFilled(context)(x, y, r, r, backColor);
+
+    const x2 = x + r;
+    const y2 = y + r;
+
+    if (c === 0) {
+        // top left
+        rings(context)(x2, y2, r, lineWidth, num, foreColor, null);
+        rings(context)(x, y, r, lineWidth, num, foreColor, backColor);
+    } else if (c === 1) {
+        // top right
+        rings(context)(x, y2, r, lineWidth, num, foreColor, null);
+        rings(context)(x2, y, r, lineWidth, num, foreColor, backColor);
+    } else if (c === 2) {
+        // bottom left
+        rings(context)(x, y2, r, lineWidth, num, foreColor, null);
+        rings(context)(x2, y, r, lineWidth, num, foreColor, backColor);
+    } else {
+        // bottom right
+        rings(context)(x, y, r, lineWidth, num, foreColor, null);
+        rings(context)(x2, y2, r, lineWidth, num, foreColor, backColor);
+    }
+
+    context.restore();
+};
+
+export const motifListInterlaced = ['-', '|', 'fnw', 'fne', 'fsw', 'fse'];
+
+// https://www.reddit.com/r/generative/comments/ju1xjr/truchet_tiles_pen_plot/
+export const truchetInterlaced = (context, rectangle, lines = 3, lineWidth = 1, fore = 'black', back = 'white') => {
+    let foreColor = fore;
+    let backColor = back;
+
+    if (rectangle.phase < 0) {
+        foreColor = back;
+        backColor = fore;
+    }
+
+    context.beginPath();
+
+    setContext(context)({
+        strokeStyle: tinycolor(foreColor).toRgbString(),
+        fillStyle: tinycolor(foreColor).toRgbString(),
+        lineCap: 'butt',
+        lineWidth,
+        lineJoin: 'bevel',
+    });
+
+    rectFilled(context)(rectangle.x, rectangle.y, rectangle.w, rectangle.w, backColor);
+
+    const motif = motifListInterlaced[rectangle.motif];
+
+    switch (motif) {
+        case '-':
+            sqTileLinesHorizontal(context)(
+                rectangle.x,
+                rectangle.y,
+                rectangle.w,
+                rectangle.w,
+                lineWidth,
+                lines,
+                foreColor,
+                back
+            );
+            break;
+        case '|':
+            sqTileLinesVertical(context)(
+                rectangle.x,
+                rectangle.y,
+                rectangle.w,
+                rectangle.w,
+                lineWidth,
+                lines,
+                foreColor,
+                back
+            );
+            break;
+        case 'fnw':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 0, lines, foreColor, back);
+            break;
+        case 'fne':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 1, lines, foreColor, back);
+            break;
+        case 'fsw':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 2, lines, foreColor, back);
+            break;
+        case 'fse':
+            sqTileCornerArc(context)(rectangle.x, rectangle.y, rectangle.w, lineWidth, 3, lines, foreColor, back);
+            break;
+        default:
+            // "x."
+            break;
+    }
 
     context.closePath();
 };

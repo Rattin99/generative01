@@ -101,7 +101,7 @@ export const DONTUSETHISpathRibbon = (context) => (path, color, thickness = 1, s
 export const splatter = (context) => (x, y, color, size, amount = 3, range = 20) => {
     for (let i = 0; i < amount; i++) {
         const s = randomWholeBetween(size * 0.25, size * 3);
-        // circle dist
+        // circleOld dist
         const radius = randomWholeBetween(0, range);
         const angle = randomNumberBetween(0, TAU);
         const xoff = radius * Math.cos(angle);

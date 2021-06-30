@@ -6,14 +6,14 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
-import { quadtree01 } from './experiments/quadtree';
+import { truchetTiles02 } from './released/truchet-tiles-02';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = quadtree01;
+const experimentalVariation = truchetTiles02;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
