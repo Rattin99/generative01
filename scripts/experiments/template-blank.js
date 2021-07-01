@@ -1,12 +1,11 @@
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale, orientation } from '../rndrgen/Sketch';
+import { instagram, largePrint } from '../rndrgen/Sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 
 export const templateBlank = () => {
     const config = {
         name: 'blankTemplate',
-        ratio: ratio.square,
-        scale: scale.standard,
+        ...instagram,
     };
 
     let ctx;

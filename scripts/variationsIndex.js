@@ -14,6 +14,7 @@ import { larrycarlson02 } from './released/larrycarlson02';
 import { meanderingRiver02 } from './released/meandering-river-02';
 import { meanderingRiver01 } from './released/meandering-river-01';
 import { truchetTiles } from './released/truchet-tiles';
+import { truchetTiles02 } from './released/truchet-tiles-02';
 
 export const variationsIndex = {
     5: {
@@ -79,5 +80,9 @@ export const variationsIndex = {
     23: {
         note: 'Multiscale Truchet Tiles',
         sketch: truchetTiles,
+    },
+    24: {
+        note: 'Interlaced Truchet Tiles',
+        sketch: truchetTiles02,
     },
 };

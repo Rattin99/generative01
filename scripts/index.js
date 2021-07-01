@@ -12,8 +12,8 @@ const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
-// const experimentalVariation = undefined;
-const experimentalVariation = truchetTiles02;
+const experimentalVariation = undefined;
+// const experimentalVariation = truchetTiles02;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

@@ -64,6 +64,18 @@ export const sketchSizeMode = {
     sketch: 2,
 };
 
+export const largePrint = {
+    ratio: ratio.a3plus,
+    scale: scale.hidpi,
+    multiplier: 1,
+    orientation: orientation.landscape,
+};
+
+export const instagram = {
+    ratio: ratio.square,
+    scale: scale.standard,
+};
+
 export const sketch = (canvasElId, smode = 0, debug) => {
     const mouse = {
         x: undefined,
