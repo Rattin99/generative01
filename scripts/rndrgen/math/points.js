@@ -5,6 +5,7 @@ import { getCurvePoints } from './curve-calc';
 export const point = (x, y) => ({ x, y });
 export const pointA = (x, y) => [x, y];
 
+export const pointObjectToPointArray = (p) => [p.x, p.y];
 export const pointArrayToPointObject = (a) => ({ x: a[0], y: a[1] });
 export const pointArrayToVector = (a) => new Vector(a[0], a[1]);
 export const vectorToPointArray = (v) => [v.x, v.y];
@@ -44,6 +45,8 @@ export const pointDistance = (pointA, pointB) => {
     const dy = pointA.y - pointB.y;
     return Math.sqrt(dx * dx + dy * dy);
 };
+
+export const midpoint = (pointA, pointB) => ({ x: (pointA.x + pointB.x) / 2, y: (pointA.y + pointB.y) / 2 });
 
 // https://stackoverflow.com/questions/13043945/how-do-i-calculate-the-position-of-a-point-in-html5-canvas-after-rotation
 export const pointRotateCoord = (point, angle) => ({

@@ -1,5 +1,5 @@
 import { Vector } from './Vector';
-import { pointDistance, pointsOrientation } from './points';
+import { midpoint, pointArrayToPointObject, pointDistance, pointsOrientation } from './points';
 
 // https://www.xarg.org/2010/02/reduce-the-length-of-a-line-segment-by-a-certain-amount/
 export const reduceLineFromStart = (p1, p2, r) => {
@@ -63,6 +63,33 @@ export const chaikinSmooth = (input, itr = 1) => {
     return itr === 1 ? output : chaikinSmooth(output, itr - 1);
 };
 
+// For closed shapes (circles) handle the ends
+export const chaikinSmooth2 = (input, itr = 1, endOffs = 1) => {
+    if (itr === 0) return input;
+    const output = [];
+
+    for (let i = 0; i < input.length; i++) {
+        const p0 = input[i];
+        let p1;
+        if (i === input.length - 1) {
+            p1 = input[endOffs];
+        } else {
+            p1 = input[i + 1];
+        }
+        const p0x = p0[0];
+        const p0y = p0[1];
+        const p1x = p1[0];
+        const p1y = p1[1];
+
+        const Q = [0.75 * p0x + 0.25 * p1x, 0.75 * p0y + 0.25 * p1y];
+        const R = [0.25 * p0x + 0.75 * p1x, 0.25 * p0y + 0.75 * p1y];
+        output.push(Q);
+        output.push(R);
+    }
+
+    return itr === 1 ? output : chaikinSmooth(output, itr - 1, endOffs);
+};
+
 // https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
 // returns true iff the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
 export const linesIntersect = (a, b, c, d, p, q, r, s) => {
@@ -119,23 +146,47 @@ export const mengerCurvature = (p1, p2, p3) => {
     return t4 / (la * lb * lc);
 };
 
+/*
+export const segment = (p1,p2) => ({
+        start: p1,
+        end: p2,
+    });
+
+export const segmentFromPA = (p1,p2) => segment(pointArrayToPointObject(p1), pointArrayToPointObject(p2))
+ */
+
 export const segment = (x1, y1, x2, y2) => {
     const start = new Vector(x1, y1);
     const end = new Vector(x2, y2);
-    return { start, end };
+    const mp = midpoint(start, end);
+    const mid = new Vector(mp.x, mp.y);
+    const orientation = pointsOrientation(start, end);
+    const length = pointDistance(start, end);
+    return { start, end, orientation, mid, length };
 };
 
 export const segmentOrientation = ({ start, end }) => pointsOrientation(start, end);
 
-export const segmentFromPoints = (points) => {
+export const segmentFromPoint = (p1, p2) => segment(p1.x, p1.y, p2.x, p2.y);
+
+export const segmentsFromPoints = (points) => {
     const seg = [];
-    for (let i = 0; i < points.length; i += 2) {
-        // if it's an uneven number, dupe the last point
-        const next = i + 1 === points.length ? i : i + 1;
+    for (let i = 0; i < points.length - 1; i++) {
+        const next = i + 1;
         seg.push(segment(points[i][0], points[i][1], points[next][0], points[next][1]));
     }
     return seg;
 };
+
+export const segArrayToPointsArray = (segs) =>
+    segs.reduce((acc, s) => {
+        const p = [
+            [s.start.x, s.start.y],
+            [s.end.x, s.end.y],
+        ];
+        acc = acc.concat(p);
+        return acc;
+    }, []);
 
 export const segmentsIntersect = (a, b) =>
     linesIntersect(a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y);

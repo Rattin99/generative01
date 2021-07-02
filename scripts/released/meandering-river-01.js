@@ -6,7 +6,7 @@ import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';
 import { simplexNoise2d } from '../rndrgen/math/attractors';
-import { getPointsOnCircle } from '../rndrgen/math/grids';
+import { getPointsOnCircleOld } from '../rndrgen/math/grids';
 import { renderFieldColor, renderFieldContour } from '../rndrgen/canvas/fields';
 import { randomNormalWholeBetween } from '../rndrgen/math/random';
 import { createSplineFromPointArray } from '../rndrgen/math/points';

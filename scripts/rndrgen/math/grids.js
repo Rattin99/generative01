@@ -1,7 +1,25 @@
 // [[x,y], ...]
 import { point } from './points';
+import { TAU } from './math';
 
-export const getPointsOnCircle = (offsetX, offsetY, radius, steps, close = false) => {
+// use chaikinSmooth2 and check close and end offsets
+export const circlePointsPA = (cx, cy, radius, step, startRot = 0, close = false) => {
+    step = step || Math.PI / 20;
+    const points = [];
+    for (let r = 0; r < TAU; r += step) {
+        const x = Math.cos(r + startRot) * radius + cx;
+        const y = Math.sin(r + startRot) * radius + cy;
+        points.push([x, y]);
+    }
+    if (close) {
+        const x = Math.cos(startRot) * radius + cx;
+        const y = Math.sin(startRot) * radius + cy;
+        points.push([x, y]);
+    }
+    return points;
+};
+
+export const getPointsOnCircleOld = (offsetX, offsetY, radius, steps, close = false) => {
     const startAngle = 270;
     const maxAngle = 360 + startAngle;
     const points = [];

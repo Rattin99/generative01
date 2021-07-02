@@ -25,15 +25,13 @@ export const truchetTiles02 = () => {
 
     const tiles = randomWholeBetween(5, 30) * 2;
     const lines = randomWholeBetween(2, 8);
-    const gap = randomWholeBetween(0, 4);
+    const gap = randomWholeBetween(0, 8);
 
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
 
         margin = Math.round(canvasWidth / 18);
-
-        const tiles = randomWholeBetween(10, 30) * 2;
 
         // 35x21 for a3plus
         rectangles = createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, tiles, tiles);

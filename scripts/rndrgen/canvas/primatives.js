@@ -169,15 +169,46 @@ export const pointPathPA = (context) => (points, color = 'black', width = 1, clo
         } else {
             context.lineTo(coords[0], coords[1]);
         }
-        if (drawPoint) {
-            circleFilled(context)(coords[0], coords[1], 1, 'red');
-        }
     });
     if (close) {
         context.lineTo(points[0][0], points[0][1]);
     }
     context.stroke();
     context.closePath();
+
+    if (drawPoint) {
+        points.forEach((coords, i) => {
+            if (drawPoint) {
+                circleFilled(context)(coords[0], coords[1], 3, 'red');
+            }
+        });
+    }
+};
+
+export const polygonPA = (context) => (points, color = 'black', close = false, drawPoint = false) => {
+    context.beginPath();
+    context.fillStyle = tinycolor(color).clone().toRgbString();
+
+    points.forEach((coords, i) => {
+        if (i === 0) {
+            context.moveTo(coords[0], coords[1]);
+        } else {
+            context.lineTo(coords[0], coords[1]);
+        }
+    });
+    if (close) {
+        context.lineTo(points[0][0], points[0][1]);
+    }
+    context.fill();
+    context.closePath();
+
+    if (drawPoint) {
+        points.forEach((coords, i) => {
+            if (drawPoint) {
+                circleFilled(context)(coords[0], coords[1], 3, 'red');
+            }
+        });
+    }
 };
 
 export const pointPathPO = (context) => (points, color = 'black', width = 1, close = false, drawPoint = false) => {
@@ -194,15 +225,20 @@ export const pointPathPO = (context) => (points, color = 'black', width = 1, clo
         } else {
             context.lineTo(coords.x, coords.y);
         }
-        if (drawPoint) {
-            circleFilled(context)(coords.x, coords.y, 1, 'red');
-        }
     });
     if (close) {
         context.lineTo(points[0].x, points[0].y);
     }
     context.stroke();
     context.closePath();
+
+    if (drawPoint) {
+        points.forEach((coords, i) => {
+            if (drawPoint) {
+                circleFilled(context)(coords.x, coords.y, 3, 'red');
+            }
+        });
+    }
 };
 
 /*

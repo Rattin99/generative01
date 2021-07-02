@@ -6,12 +6,14 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
+import { brushShape } from './experiments/brush-shape';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
-const experimentalVariation = undefined;
+// const experimentalVariation = undefined;
+const experimentalVariation = brushShape;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
