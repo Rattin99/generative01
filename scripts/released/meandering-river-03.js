@@ -1,8 +1,8 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
 import { background, strokeDash } from '../rndrgen/canvas/canvas';
-import { largePrint, orientation, ratio, scale } from '../rndrgen/Sketch';
-import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
+import { instagram, largePrint, orientation, ratio, scale } from '../rndrgen/Sketch';
+import { bicPenBlue, warmPink, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle, flowRight } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';
 import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
@@ -31,50 +31,31 @@ const createHorizontalPath = ({ width, height }, startX, startY, steps = 20) => 
 };
 
 export const meanderingRiver03 = () => {
-    const config = { name: 'meandering-river-03', ...largePrint };
+    const config = { name: 'meandering-river-03', ...instagram };
 
     let ctx;
     let canvasMidX;
     let canvasMidY;
+
     const renderScale = config.scale; // 1 or 2
-    const renderSteps = renderScale + 1;
+    const renderSteps = renderScale * 4;
+
+    const outlineThickness = 3 * renderScale;
+    const riverSmoothing = 0;
+    const riverWeight = 10 * renderScale;
     const rivers = [];
     let time = 0;
 
-    const backgroundColor = warmWhite;
+    const backgroundColor = warmPink;
+    const riverColor = warmPink.clone().brighten(10);
+    const oxbowColor = riverColor;
+    const outlineColor = bicPenBlue.clone().setAlpha(0.3);
 
-    const riverColor = warmWhite.clone().brighten(20);
-    const oxbowColor = riverColor.clone();
-
-    const flatColor = backgroundColor.clone().darken(10);
-    const isolowColor = flatColor.clone().darken(2);
-    const isohighColor = backgroundColor.clone().brighten(10);
-
-    const tintingColor = tinycolor('hsl(38, 38%, 64%)');
-    const palette = [
-        tinycolor('hsl(97, 9%, 73%)'),
-        tinycolor('hsl(51, 7%, 38%)'),
-        tinycolor('hsl(19, 39%, 47%)'),
-        tinycolor('hsl(166, 39%, 59%)'),
-        tinycolor.mix('hsl(97, 9%, 73%)', tintingColor, 25),
-        tinycolor.mix('hsl(51, 7%, 38%)', tintingColor, 25),
-        tinycolor.mix('hsl(19, 39%, 47%)', tintingColor, 25),
-        tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 25),
-        tinycolor.mix('hsl(97, 9%, 73%)', tintingColor, 55),
-        tinycolor.mix('hsl(51, 7%, 38%)', tintingColor, 55),
-        tinycolor.mix('hsl(19, 39%, 47%)', tintingColor, 55),
-        tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 55),
-        tinycolor.mix('hsl(97, 9%, 73%)', tintingColor, 75),
-        tinycolor.mix('hsl(51, 7%, 38%)', tintingColor, 75),
-        tinycolor.mix('hsl(19, 39%, 47%)', tintingColor, 75),
-        tinycolor.mix('hsl(166, 39%, 59%)', tintingColor, 75),
-    ].reverse();
+    const riverScale = 2;
 
     let noiseScale = 0.006 / renderScale;
     const noise = (x, y) => simplexNoise3d(x, y, time, noiseScale);
     // const noise = (x, y) => simplexNoise2d(x, y, noiseScale);
-    const maxHistory = 15;
-    const historyStep = 15;
 
     const setup = ({ canvas, context }) => {
         ctx = context;
@@ -83,13 +64,11 @@ export const meanderingRiver03 = () => {
 
         const horizpoints = createSplineFromPointArray(createHorizontalPath(canvas, 0, canvasMidY, 15));
 
-        const riverScale = 1.2;
-
         noiseScale /= riverScale * 2;
 
         const horizontal = new MeanderingRiver(horizpoints, {
-            maxHistory,
-            storeHistoryEvery: historyStep,
+            maxHistory: 15,
+            storeHistoryEvery: 15,
             fixedEndPoints: 2,
 
             oxbowProx: 3 * renderScale,
@@ -102,13 +81,13 @@ export const meanderingRiver03 = () => {
             curveSize: 2 * renderScale * riverScale,
             pointRemoveProx: 3 * renderScale * riverScale,
 
-            pushFlowVectorFn: flowRight,
+            // pushFlowVectorFn: flowRight,
             // pushFlowVectorFn: flowRightToMiddle(0.9, canvasMidY),
 
-            noiseFn: noise,
-            noiseMode: 'flowInTo',
-            noiseStrengthAffect: 5,
-            mixNoiseRatio: 0.3,
+            // noiseFn: noise,
+            // noiseMode: 'flowInTo',
+            // noiseStrengthAffect: 5,
+            // mixNoiseRatio: 0.2,
         });
 
         rivers.push(horizontal);
@@ -121,24 +100,7 @@ export const meanderingRiver03 = () => {
         }
 
         background(canvas, context)(backgroundColor);
-        // renderFieldColor(canvas, context, noise, 100, flatColor, backgroundColor, 4);
-
-        const slices = [
-            { nmin: -7, nmax: 7, omin: -1, omax: 1, color: isohighColor },
-            { nmin: -6, nmax: -4, omin: -1, omax: 1, color: isolowColor },
-            { nmin: -4, nmax: -2, omin: -1, omax: 1, color: isolowColor },
-            { nmin: -2, nmax: 0, omin: -1, omax: 1, color: isolowColor },
-            { nmin: 0, nmax: 2, omin: -1, omax: 1, color: isohighColor },
-            { nmin: 2, nmax: 4, omin: -1, omax: 1, color: isohighColor },
-            { nmin: 4, nmax: 6, omin: -1, omax: 1, color: isohighColor },
-        ];
-
-        renderIsolines(context, canvas, noise, 0, 50 * renderScale, true, slices);
     };
-
-    const outlineThickness = 3 * renderScale;
-    const riverSmoothing = 0;
-    const riverWeight = 10 * renderScale;
 
     const draw = ({ canvas, context }) => {
         // step
@@ -147,9 +109,6 @@ export const meanderingRiver03 = () => {
                 r.step();
             }
         });
-
-        // const outlineColor = palette[Math.round(time * 0.03) % palette.length]; // .clone().setAlpha(0.75);
-        const outlineColor = bicPenBlue.clone().darken(10).setAlpha(0.2);
 
         // outline
         rivers.forEach((r, i) => {

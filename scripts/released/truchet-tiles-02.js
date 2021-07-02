@@ -23,14 +23,20 @@ export const truchetTiles02 = () => {
 
     const colors = get2Tone(5, 15);
 
+    const tiles = randomWholeBetween(5, 30) * 2;
+    const lines = randomWholeBetween(2, 8);
+    const gap = randomWholeBetween(0, 4);
+
     const setup = ({ canvas, context }) => {
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
 
         margin = Math.round(canvasWidth / 18);
 
+        const tiles = randomWholeBetween(10, 30) * 2;
+
         // 35x21 for a3plus
-        rectangles = createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, 60, 60);
+        rectangles = createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, tiles, tiles);
     };
 
     let motif = 0;
@@ -46,7 +52,7 @@ export const truchetTiles02 = () => {
 
         rectangles.forEach((r) => {
             r.motif = randomWholeBetween(0, 6);
-            truchetInterlaced(context, r, 4, 0.5, 1, colors.dark, colors.light);
+            truchetInterlaced(context, r, lines, 0.5, gap, colors.dark, colors.light);
         });
 
         return -1;

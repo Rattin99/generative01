@@ -6,14 +6,12 @@ import normalize from 'normalize.css';
 import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
-import { meanderingRiver03 } from './released/meandering-river-03';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
-// const experimentalVariation = undefined;
-const experimentalVariation = meanderingRiver03;
+const experimentalVariation = undefined;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
