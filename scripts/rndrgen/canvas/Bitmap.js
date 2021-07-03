@@ -4,6 +4,16 @@ import { mapRange } from '../math/math';
 import { point } from '../math/points';
 import { averageNumArray } from '../utils';
 
+/*
+import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
+
+const image = new Bitmap(sourcePng);
+
+image.init(canvas, context); // in setup
+
+ */
+
 // const createColorArrayFromImageData = (imageData) => {
 //     const data = [];
 //     for (let y = 0, { height } = imageData; y < height; y++) {

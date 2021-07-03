@@ -4026,10 +4026,10 @@ const circleFilled = (context)=>(x, y, radius, color)=>{
         context.closePath();
     }
 ;
-const rect = (context)=>(x, y, w, h, strokeWidth = 1, color)=>{
+const rect = (context)=>(x, y, w, h, strokeWidth, color)=>{
         context.beginPath();
         if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        context.lineWidth = strokeWidth;
+        if (strokeWidth) context.lineWidth = strokeWidth;
         context.rect(x, y, w, h);
         context.stroke();
         context.closePath();
@@ -6390,7 +6390,15 @@ const flowFieldImage = ()=>{
 },{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-// const createColorArrayFromImageData = (imageData) => {
+/*
+import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
+
+const image = new Bitmap(sourcePng);
+
+image.init(canvas, context); // in setup
+
+ */ // const createColorArrayFromImageData = (imageData) => {
 //     const data = [];
 //     for (let y = 0, { height } = imageData; y < height; y++) {
 //         for (let x = 0, { width } = imageData; x < width; x++) {
@@ -9721,12 +9729,13 @@ var _random = require("../rndrgen/math/random");
 var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
 var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
 var _bitmap = require("../rndrgen/canvas/Bitmap");
+var _rectangle = require("../rndrgen/math/Rectangle");
 // Tyler Hobbs how to hack a painting
 // https://youtu.be/5R9eywArFTE?t=789
-const roughenPoly = (segPoly, detail = 3, spread = 1)=>{
+const roughenPoly = (segPoly, detail = 3, maxV = 0.5, spread = 1)=>{
     const roughSegment = (seg)=>{
         const rMix = _random.randomNormalNumberBetween(0.1, 1.9) + 0.1;
-        const rMag = _random.randomNormalNumberBetween(0, seg.length * seg.varience) * spread;
+        const rMag = _random.randomNormalNumberBetween(0, seg.length * seg.variance) * spread;
         // Technique from meander
         const tangent = seg.start.sub(seg.end);
         const biangle = tangent.angle() + 1.5708; // + 90 deg
@@ -9737,8 +9746,8 @@ const roughenPoly = (segPoly, detail = 3, spread = 1)=>{
         const newMid = seg.mid.add(mVector);
         const sa = _segments.segmentFromPoint(seg.start, newMid);
         const sb = _segments.segmentFromPoint(newMid, seg.end);
-        sa.varience = seg.varience * 1.1;
-        sb.varience = seg.varience * 1.1;
+        sa.variance = seg.variance * 1.1;
+        sb.variance = seg.variance * 1.1;
         return [
             sa,
             sb
@@ -9748,7 +9757,8 @@ const roughenPoly = (segPoly, detail = 3, spread = 1)=>{
         let res = [];
         for(let i = 0; i < segments.length; i++){
             const s = segments[i];
-            s.varience = s.varience || _random.randomNumberBetween(0, 1);
+            // Greater max variance = more spread
+            s.variance = s.variance || _random.randomNumberBetween(0.1, maxV);
             res = res.concat(roughSegment(s));
         }
         if ((++step) > ittrs) return res;
@@ -9756,23 +9766,27 @@ const roughenPoly = (segPoly, detail = 3, spread = 1)=>{
     };
     return roughPolySegments(segPoly, detail);
 };
-const waterColorBrush = (context)=>(x, y, size = 50, color = 'black', layers = 10, detail = 2)=>{
-        const poly = _grids.circlePointsPA(x, y, size, Math.PI / 6, 0, true);
+const waterColorBrush = (context)=>(x, y, size = 50, color = 'black', polySteps = 4, layers = 10, detail = 2, spreadIncr = 0)=>{
+        const maxVariance = 1.1;
+        const poly = _grids.circlePointsPA(x, y, size, Math.PI / polySteps, 0, true);
         const segpoly = _segments.segmentsFromPoints(poly);
-        const startingPoly = roughenPoly(segpoly, 2);
+        const startingPoly = roughenPoly(segpoly, detail, maxVariance);
         const alphas = _math.logInterval(layers, 1, 100).reverse();
         color = _tinycolor2Default.default(color);
-        // polygonPA(context)(segArrayToPointsArray(startingPoly), color);
+        const strength = 1;
         let spread = 1;
+        const alphaDiv = layers / 2;
+        let rough;
+        let points;
+        let currentColor;
         for(let i = 0; i < layers; i++){
-            const rough = roughenPoly(startingPoly, detail, spread);
-            const points = _segments.segArrayToPointsArray(rough);
-            const currentColor = color.clone().setAlpha(alphas[i] * 0.01 / layers);
-            // for (let s = 0; s < 3; s++) {
-            _primatives.polygonPA(context)(points, currentColor);
-            // }
-            spread += 0.02;
+            rough = roughenPoly(startingPoly, detail, maxVariance, spread);
+            points = _segments.segArrayToPointsArray(rough);
+            currentColor = color.clone().setAlpha(alphas[i] * 0.01 / alphaDiv);
+            for(let s = 0; s < strength; s++)_primatives.polygonPA(context)(points, currentColor);
+            spread += spreadIncr;
         }
+    // pointPathPA(context)(points, color, 1);
     // polygonPA(context)(segArrayToPointsArray(startingPoly), 'blue');
     // polygonPA(context)(segArrayToPointsArray(segpoly), 'green');
     }
@@ -9791,11 +9805,12 @@ const brushShape = ()=>{
     let maxX;
     let startY;
     let maxY;
-    const margin = 50;
+    const margin = 25;
     const renderScale = config.scale; // 1 or 2
     const backgroundColor = _palettes.paperWhite.clone();
     const palette = new _palettes.Palette();
     const image = new _bitmap.Bitmap(_kristijanArsovWoman400PngDefault.default);
+    let rectangles;
     const setup = ({ canvas , context  })=>{
         ctx = context;
         canvasWidth = canvas.width;
@@ -9807,17 +9822,27 @@ const brushShape = ()=>{
         startY = margin;
         maxY = canvas.height - margin * 2;
         image.init(canvas, context);
-        _canvas.background(canvas, context)(backgroundColor);
+        // rectangles = createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, tiles, tiles);
+        rectangles = _rectangle.createRectGrid(margin, margin, canvasWidth - margin * 2, canvasHeight - margin * 2, 3, 3, margin, margin);
+        _canvas.background(canvas, context)(backgroundColor.darken(10));
     };
     const draw = ({ canvas , context  })=>{
         // background(canvas, context)(backgroundColor);
         // const brushColor = palette.oneOf().clone();
-        const x = _random.randomNumberBetween(0, canvasWidth);
-        const y = _random.randomNumberBetween(0, canvasHeight);
-        const s = _random.randomNormalNumberBetween(5, 50);
-        const brushColor = image.pixelColorFromCanvas(x, y);
-        waterColorBrush(context)(x, y, s, brushColor, 10, 2);
-        return 1;
+        rectangles.forEach((r)=>{
+            const x = r.mx;
+            const y = r.my;
+            const s = r.w * 0.4;
+            const brushColor = _tinycolor2Default.default.random(); // palette.oneOf();
+            // rect(context)(r.x, r.y, r.w, r.h, 1, tinycolor(`rgba(0,0,0,.1)`));
+            waterColorBrush(context)(x, y, s, brushColor, 6, 40, 2, 0.1);
+        });
+        // const x = randomNumberBetween(0, canvasWidth);
+        // const y = randomNumberBetween(0, canvasHeight);
+        // const s = randomNormalNumberBetween(5, 50);
+        // const brushColor = image.pixelColorFromCanvas(x, y);
+        // waterColorBrush(context)(x, y, s, brushColor, 4,10, 2);
+        return -1;
     };
     return {
         config,
@@ -9826,6 +9851,6 @@ const brushShape = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/segments":"5KdqE","../rndrgen/math/points":"4RQVg","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","tinycolor2":"101FG","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/Bitmap":"17J8Q"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/segments":"5KdqE","../rndrgen/math/points":"4RQVg","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","tinycolor2":"101FG","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/Rectangle":"1Uf2J"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

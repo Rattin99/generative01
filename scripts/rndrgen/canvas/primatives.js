@@ -70,12 +70,15 @@ export const circleFilled = (context) => (x, y, radius, color) => {
     context.closePath();
 };
 
-export const rect = (context) => (x, y, w, h, strokeWidth = 1, color) => {
+export const rect = (context) => (x, y, w, h, strokeWidth, color) => {
     context.beginPath();
     if (color) {
         context.strokeStyle = tinycolor(color).toRgbString();
     }
-    context.lineWidth = strokeWidth;
+    if (strokeWidth) {
+        context.lineWidth = strokeWidth;
+    }
+
     context.rect(x, y, w, h);
     context.stroke();
     context.closePath();
