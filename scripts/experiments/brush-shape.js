@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { instagram, largePrint } from '../rndrgen/Sketch';
+import { instagram, largePrint } from '../rndrgen/sketch';
 import { Palette, paperWhite } from '../rndrgen/color/palettes';
 import { circlePointsPA } from '../rndrgen/math/grids';
 import { polygonPA, line, rect, pointPathPA } from '../rndrgen/canvas/primatives';

@@ -3,7 +3,7 @@ import random from 'canvas-sketch-util/random';
 import { uvFromAngle, quantize } from '../rndrgen/math/math';
 import { Particle } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { palettes } from '../rndrgen/color/palettes';
 import { Vector } from '../rndrgen/math/Vector';
 import { simplexNoise2d, simplexNoise3d, cliffordAttractor, jongAttractor } from '../rndrgen/math/attractors';

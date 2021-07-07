@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import { getGridCells } from '../rndrgen/math/grids';

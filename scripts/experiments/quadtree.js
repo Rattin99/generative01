@@ -1,5 +1,5 @@
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale, orientation } from '../rndrgen/Sketch';
+import { ratio, scale, orientation } from '../rndrgen/sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 import { point } from '../rndrgen/math/points';
 import { Rectangle } from '../rndrgen/math/Rectangle';

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale, orientation } from '../rndrgen/Sketch';
+import { ratio, scale, orientation } from '../rndrgen/sketch';
 import { bicPenBlue, get2Tone, paperWhite } from '../rndrgen/color/palettes';
 
 import { simplexNoise3d } from '../rndrgen/math/attractors';

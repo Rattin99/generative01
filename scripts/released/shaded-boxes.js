@@ -2,7 +2,7 @@ import tinycolor from 'tinycolor2';
 import { Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background, resetContext } from '../rndrgen/canvas/canvas';
 import { mapRange, uvFromAngle } from '../rndrgen/math/math';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { palettes, warmGreyDark, warmWhite, warmPink, paperWhite, bicPenBlue } from '../rndrgen/color/palettes';
 import { Box } from '../rndrgen/systems/Box';
 import { simplexNoise3d } from '../rndrgen/math/attractors';

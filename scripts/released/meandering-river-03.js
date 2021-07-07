@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { mapRange } from '../rndrgen/math/math';
 import { background, strokeDash } from '../rndrgen/canvas/canvas';
-import { instagram, largePrint, orientation, ratio, scale } from '../rndrgen/Sketch';
+import { instagram, largePrint, orientation, ratio, scale } from '../rndrgen/sketch';
 import { bicPenBlue, warmPink, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver, flowRightToMiddle, flowRight } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';

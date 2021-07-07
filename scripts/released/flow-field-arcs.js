@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { nicePalette, hslFromRange } from '../rndrgen/color/palettes';
 import {
     simplexNoise2d,

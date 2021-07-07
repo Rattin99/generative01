@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { Palette, warmWhite } from '../rndrgen/color/palettes';
 import { circleFilled, line } from '../rndrgen/canvas/primatives';
 import { create2dNoise, create3dNoise, randomNormalNumberBetween, randomNumberBetween } from '../rndrgen/math/random';

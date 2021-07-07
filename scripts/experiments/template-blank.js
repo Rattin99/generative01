@@ -1,5 +1,5 @@
 import { background } from '../rndrgen/canvas/canvas';
-import { instagram, largePrint } from '../rndrgen/Sketch';
+import { instagram, largePrint } from '../rndrgen/sketch';
 import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
 
 export const templateBlank = () => {

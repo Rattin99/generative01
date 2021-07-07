@@ -1,7 +1,7 @@
 import { background, currentContextScale } from '../rndrgen/canvas/canvas';
 import { round2 } from '../rndrgen/math/math';
 import { brightest, darkest, nicePalette } from '../rndrgen/color/palettes';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { textFilled, setTextAlignLeftTop, textStyles } from '../rndrgen/canvas/text';
 import { getGridCells } from '../rndrgen/math/grids';
 import { create2dNoiseAbs, oneOf, randomWholeBetween } from '../rndrgen/math/random';

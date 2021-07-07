@@ -412,7 +412,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5UHg8","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","./experiments/brush-shape":"RkIkf","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5UHg8":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -4398,7 +4398,7 @@ parcelHelpers.export(exports, "waves01b", ()=>waves01b
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _math = require("../rndrgen/math/math");
 var _random = require("../rndrgen/math/random");
 var _ribbon = require("../rndrgen/canvas/ribbon");
@@ -4532,658 +4532,7 @@ const waves01b = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/ribbon":"4jM8A","../scratch/shapes":"7F0mj","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2OcGA":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "orientation", ()=>orientation
-);
-parcelHelpers.export(exports, "ratio", ()=>ratio
-);
-parcelHelpers.export(exports, "scale", ()=>scale
-);
-parcelHelpers.export(exports, "sketchSizeMode", ()=>sketchSizeMode
-);
-parcelHelpers.export(exports, "largePrint", ()=>largePrint
-);
-parcelHelpers.export(exports, "instagram", ()=>instagram
-);
-parcelHelpers.export(exports, "sketch", ()=>sketch
-);
-/*
-Convenience canvas sketch runner. Based on p5js
-
-
-const variation = () => {
-    const config = {};
-
-    const setup = ({canvas, context}) => {
-        // create initial state
-    };
-
-    // will run every frame
-    const draw = ({canvas, context, mouse}) => {
-        // draw on every frame
-        return 1; // -1 to exit animation loop
-    };
-
-    return {
-        config,
-        setup,
-        draw,
-    };
-};
-
-TODO
-- [ ] merge screen shot code
-- [ ] Canvas Recorder  https://xosh.org/canvas-recorder/
-- [ ] coords of a mouse down to variation?
-- [ ] better touch input
-- [ ] svg https://github.com/canvg/canvg
-- [ ] great ideas here http://paperjs.org/features/
-*/ var _statsJs = require("stats.js");
-var _statsJsDefault = parcelHelpers.interopDefault(_statsJs);
-var _canvas = require("./canvas/canvas");
-var _utils = require("./utils");
-var _random = require("./math/random");
-var _math = require("./math/math");
-var _canvasRecorder = require("./canvas/CanvasRecorder");
-const orientation = {
-    portrait: 0,
-    landscape: 1
-};
-const ratio = {
-    a4: 0.773,
-    a3: 11 / 17,
-    a3plus: 13 / 19,
-    archd: 24 / 36,
-    golden: 0.6180339887498949,
-    square: -1,
-    auto: 1
-};
-const scale = {
-    standard: 1,
-    hidpi: 2
-};
-const sketchSizeMode = {
-    js: 0,
-    css: 1,
-    sketch: 2
-};
-const largePrint = {
-    ratio: ratio.a3plus,
-    scale: scale.hidpi,
-    multiplier: 1,
-    orientation: orientation.landscape
-};
-const instagram = {
-    ratio: ratio.square,
-    scale: scale.standard
-};
-const sketch = (canvasElId, smode = 0, debug)=>{
-    const mouse = {
-        x: undefined,
-        y: undefined,
-        isDown: false,
-        radius: 100
-    };
-    const sizeMode = smode;
-    const debugMode = debug;
-    let statsJS = null;
-    let hasStarted = false;
-    let fps = 0;
-    let drawRuns = 0;
-    let currentVariationFn;
-    let currentVariationRes;
-    let animationId;
-    let canvasRecorder;
-    let isRecording = false;
-    const pauseOnWindowBlur = true;
-    let isPaused = false;
-    const canvasSizeMultiple = 2;
-    const canvasSizeMultiplier = 0.9;
-    const canvas = document.getElementById(canvasElId);
-    const context = canvas.getContext('2d');
-    const getCanvas = (_)=>canvas
-    ;
-    const getContext = (_)=>context
-    ;
-    const getMouse = (_)=>mouse
-    ;
-    const mouseDown = (evt)=>{
-        mouse.isDown = true;
-    };
-    const mouseMove = (evt)=>{
-        const mult = _canvas.isHiDPICanvas() ? 2 : 1;
-        const canvasFrame = canvas.getBoundingClientRect();
-        mouse.x = (evt.x - canvasFrame.x) * mult;
-        mouse.y = (evt.y - canvasFrame.y) * mult;
-    };
-    const mouseUp = (evt)=>{
-        mouse.isDown = false;
-    };
-    const mouseOut = (evt)=>{
-        mouse.x = undefined;
-        mouse.y = undefined;
-        mouse.isDown = false;
-    };
-    const applyCanvasSize = (config, fraction)=>{
-        if (sizeMode === sketchSizeMode.css) // const s = canvas.getBoundingClientRect();
-        // resizeCanvas(canvas, context, s.width, s.height, 1);
-        return;
-        if (sizeMode === sketchSizeMode.sketch) return;
-        const width = _utils.defaultValue(config, 'width', window.innerWidth);
-        const height = _utils.defaultValue(config, 'height', window.innerHeight);
-        let finalWidth = width;
-        let finalHeight = height;
-        const cfgMultiplier = _utils.defaultValue(config, 'multiplier', fraction);
-        const cfgOrientation = _utils.defaultValue(config, 'orientation', orientation.landscape);
-        const cfgRatio = _utils.defaultValue(config, 'ratio', ratio.auto);
-        const cfgScale = _utils.defaultValue(config, 'scale', scale.standard);
-        if (cfgRatio === ratio.auto) {
-            finalWidth = width;
-            finalHeight = height;
-        } else if (cfgRatio === ratio.square) {
-            const smallestWindowSize = Math.min(width, height) * cfgMultiplier;
-            finalWidth = smallestWindowSize;
-            finalHeight = smallestWindowSize;
-        } else if (cfgOrientation === orientation.landscape) {
-            let w = width;
-            let h = Math.round(cfgRatio * width);
-            const delta = h - height;
-            if (delta > 0) {
-                w -= delta;
-                h -= delta;
-            }
-            finalWidth = w * cfgMultiplier;
-            finalHeight = h * cfgMultiplier;
-        } else if (cfgOrientation === orientation.portrait) {
-            let w = Math.round(cfgRatio * height);
-            let h = height;
-            const delta = w - width;
-            if (delta > 0) {
-                w -= delta;
-                h -= delta;
-            }
-            finalWidth = w * cfgMultiplier;
-            finalHeight = h * cfgMultiplier;
-        }
-        finalWidth = _math.roundToNearest(canvasSizeMultiple, finalWidth);
-        finalHeight = _math.roundToNearest(canvasSizeMultiple, finalHeight);
-        _canvas.resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
-        console.log(`Canvas size ${finalWidth} x ${finalHeight} at ${window.devicePixelRatio}dpr`);
-    };
-    /*
-    Passing in the sketch instance is jank. Refactor this to a class and just pass this
-     */ const run = (variation, sinstance)=>{
-        currentVariationFn = variation;
-        currentVariationRes = currentVariationFn();
-        const sketchInstance = sinstance;
-        if (!statsJS && debugMode) {
-            statsJS = new _statsJsDefault.default();
-            statsJS.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-            document.body.appendChild(statsJS.dom);
-        }
-        addEvents();
-        drawRuns = 0;
-        let currentDrawLimit;
-        let rendering = true;
-        let targetFpsInterval = 1000 / fps;
-        let lastAnimationFrameTime;
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        if (currentVariationRes.hasOwnProperty('config')) {
-            const { config  } = currentVariationRes;
-            applyCanvasSize(config, canvasSizeMultiplier);
-            if (config.fps) {
-                fps = config.fps;
-                targetFpsInterval = 1000 / fps;
-            }
-            if (config.drawLimit > 0) currentDrawLimit = config.drawLimit;
-        } else // TODO check for sizeMode
-        _canvas.resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
-        const checkDrawLimit = ()=>{
-            if (currentDrawLimit) return drawRuns < currentDrawLimit;
-            return true;
-        };
-        const startSketch = ()=>{
-            window.removeEventListener('load', startSketch);
-            hasStarted = true;
-            // default 1080p bps, 30fps
-            canvasRecorder = new _canvasRecorder.CanvasRecorder(canvas);
-            currentVariationRes.setup({
-                canvas,
-                context,
-                sketchInstance
-            });
-            const drawFrame = ()=>{
-                if (pauseOnWindowBlur && isPaused) return 1;
-                drawRuns++;
-                if (statsJS) statsJS.begin();
-                const res = currentVariationRes.draw({
-                    canvas,
-                    context,
-                    mouse
-                });
-                if (statsJS) statsJS.end();
-                return res;
-            };
-            const render = ()=>{
-                const result = drawFrame();
-                if (result !== -1 && checkDrawLimit()) animationId = requestAnimationFrame(render);
-            };
-            const renderAtFps = ()=>{
-                if (rendering) animationId = window.requestAnimationFrame(renderAtFps);
-                const now = Date.now();
-                const elapsed = now - lastAnimationFrameTime;
-                if (elapsed > targetFpsInterval) {
-                    lastAnimationFrameTime = now - elapsed % targetFpsInterval;
-                    const result = drawFrame();
-                    if (result === -1 || currentDrawLimit && drawRuns >= currentDrawLimit) rendering = false;
-                }
-            };
-            if (!fps) animationId = window.requestAnimationFrame(render);
-            else {
-                lastAnimationFrameTime = Date.now();
-                animationId = window.requestAnimationFrame(renderAtFps);
-            }
-        };
-        if (!hasStarted) window.addEventListener('load', startSketch);
-        else startSketch();
-    };
-    const stop = ()=>{
-        removeEvents();
-        window.cancelAnimationFrame(animationId);
-    };
-    const windowResize = (evt)=>{
-        // clear and rerun to avoid artifacts
-        if (animationId) {
-            stop();
-            run(currentVariationFn);
-        }
-    };
-    const windowFocus = (evt)=>{
-        if (pauseOnWindowBlur) isPaused = false;
-    };
-    const windowBlur = (evt)=>{
-        if (pauseOnWindowBlur) isPaused = true;
-    };
-    const addEvents = (_)=>{
-        window.addEventListener('mousedown', mouseDown);
-        window.addEventListener('touchstart', mouseDown);
-        window.addEventListener('mousemove', mouseMove);
-        window.addEventListener('touchmove', mouseMove);
-        window.addEventListener('mouseup', mouseUp);
-        window.addEventListener('touchend', mouseUp);
-        window.addEventListener('mouseout', mouseOut);
-        window.addEventListener('touchcancel', mouseOut);
-        window.addEventListener('resize', windowResize);
-        window.addEventListener('blur', windowBlur);
-        window.addEventListener('focus', windowFocus);
-    };
-    const removeEvents = (_)=>{
-        window.removeEventListener('mousedown', mouseDown);
-        window.removeEventListener('touchstart', mouseDown);
-        window.removeEventListener('mousemove', mouseMove);
-        window.removeEventListener('touchmove', mouseMove);
-        window.removeEventListener('mouseup', mouseUp);
-        window.removeEventListener('touchend', mouseUp);
-        window.removeEventListener('mouseout', mouseOut);
-        window.removeEventListener('touchcancel', mouseOut);
-        window.removeEventListener('resize', windowResize);
-        window.removeEventListener('blur', windowBlur);
-        window.removeEventListener('focus', windowFocus);
-    };
-    const getVariationName = ()=>{
-        const seed = _random.getRandomSeed();
-        let name = 'untitled';
-        if (currentVariationRes && currentVariationRes.hasOwnProperty('config') && currentVariationRes.config.hasOwnProperty('name')) name = currentVariationRes.config.name;
-        return `sketch-${name}-${seed}`;
-    };
-    const saveCanvasCapture = (evt)=>{
-        console.log('Saving capture', evt);
-        const imageURI = canvas.toDataURL('image/png');
-        evt.target.setAttribute('download', `${getVariationName()}.png`);
-        evt.target.href = imageURI;
-        evt.stopPropagation();
-        return false;
-    };
-    // https://xosh.org/canvas-recorder/
-    const saveCanvasRecording = (evt)=>{
-        if (!canvasRecorder) {
-            console.error('No canvas recorder defined!');
-            return false;
-        }
-        if (isRecording) {
-            isRecording = false;
-            canvasRecorder.stop();
-            canvasRecorder.save(`${getVariationName()}.webm`);
-            console.log('Stopping recording');
-        } else {
-            isRecording = true;
-            canvasRecorder.start();
-            console.log('Starting recording');
-        }
-        evt.stopPropagation();
-        return false;
-    };
-    const onCanvasDragOver = (evt)=>{
-        evt.preventDefault();
-    };
-    const onCanvasDragDrop = (imageDataHandler)=>(evt)=>{
-            evt.preventDefault();
-            evt.stopPropagation();
-            // console.log('drag drop', evt);
-            const dt = evt.dataTransfer;
-            const src = dt.files[0];
-            // loadImage(files[0], imageDataHandler);
-            //	Prevent any non-image file type from being read.
-            if (!src.type.match(/image.*/)) {
-                console.error('The dropped file is not an image: ', src.type);
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imageDataHandler(e.target.result);
-            };
-            reader.readAsDataURL(src);
-        }
-    ;
-    const enableDragUpload = (imageDataHandler)=>{
-        console.log('enabling drag upload!');
-        if (!canvas) {
-            console.warn('You need to init with a canvas el first!');
-            return;
-        }
-        // handling drag over is required to prevent browser from displaying dropped image
-        canvas.addEventListener('dragover', onCanvasDragOver, true);
-        canvas.addEventListener('drop', onCanvasDragDrop(imageDataHandler), true);
-    };
-    const disableDragUpload = (_)=>{
-        canvas.removeEventListener('dragover', onCanvasDragOver);
-        canvas.removeEventListener('drop', onCanvasDragDrop(imageDataHandler));
-    };
-    return {
-        variationName: getVariationName,
-        canvas: getCanvas,
-        context: getContext,
-        mouse: getMouse,
-        run,
-        stop,
-        saveCanvasCapture,
-        saveCanvasRecording,
-        enableDragUpload,
-        disableDragUpload
-    };
-};
-
-},{"stats.js":"6aCCi","./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","./math/math":"4t0bw","./canvas/CanvasRecorder":"1XROr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6aCCi":[function(require,module,exports) {
-// stats.js - http://github.com/mrdoob/stats.js
-(function(f, e) {
-    "object" === typeof exports && "undefined" !== typeof module ? module.exports = e() : "function" === typeof define && define.amd ? define(e) : f.Stats = e();
-})(this, function() {
-    var f = function() {
-        function e(a) {
-            c.appendChild(a.dom);
-            return a;
-        }
-        function u(a) {
-            for(var d = 0; d < c.children.length; d++)c.children[d].style.display = d === a ? "block" : "none";
-            l = a;
-        }
-        var l = 0, c = document.createElement("div");
-        c.style.cssText = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
-        c.addEventListener("click", function(a) {
-            a.preventDefault();
-            u((++l) % c.children.length);
-        }, false);
-        var k = (performance || Date).now(), g = k, a = 0, r = e(new f.Panel("FPS", "#0ff", "#002")), h = e(new f.Panel("MS", "#0f0", "#020"));
-        if (self.performance && self.performance.memory) var t = e(new f.Panel("MB", "#f08", "#201"));
-        u(0);
-        return {
-            REVISION: 16,
-            dom: c,
-            addPanel: e,
-            showPanel: u,
-            begin: function() {
-                k = (performance || Date).now();
-            },
-            end: function() {
-                a++;
-                var c1 = (performance || Date).now();
-                h.update(c1 - k, 200);
-                if (c1 > g + 1000 && (r.update(1000 * a / (c1 - g), 100), g = c1, a = 0, t)) {
-                    var d = performance.memory;
-                    t.update(d.usedJSHeapSize / 1048576, d.jsHeapSizeLimit / 1048576);
-                }
-                return c1;
-            },
-            update: function() {
-                k = this.end();
-            },
-            domElement: c,
-            setMode: u
-        };
-    };
-    f.Panel = function(e, f1, l) {
-        var c = Infinity, k = 0, g = Math.round, a = g(window.devicePixelRatio || 1), r = 80 * a, h = 48 * a, t = 3 * a, v = 2 * a, d = 3 * a, m = 15 * a, n = 74 * a, p = 30 * a, q = document.createElement("canvas");
-        q.width = r;
-        q.height = h;
-        q.style.cssText = "width:80px;height:48px";
-        var b = q.getContext("2d");
-        b.font = "bold " + 9 * a + "px Helvetica,Arial,sans-serif";
-        b.textBaseline = "top";
-        b.fillStyle = l;
-        b.fillRect(0, 0, r, h);
-        b.fillStyle = f1;
-        b.fillText(e, t, v);
-        b.fillRect(d, m, n, p);
-        b.fillStyle = l;
-        b.globalAlpha = 0.9;
-        b.fillRect(d, m, n, p);
-        return {
-            dom: q,
-            update: function(h1, w) {
-                c = Math.min(c, h1);
-                k = Math.max(k, h1);
-                b.fillStyle = l;
-                b.globalAlpha = 1;
-                b.fillRect(0, 0, r, m);
-                b.fillStyle = f1;
-                b.fillText(g(h1) + " " + e + " (" + g(c) + "-" + g(k) + ")", t, v);
-                b.drawImage(q, d + a, m, n - a, p, d, m, n - a, p);
-                b.fillRect(d + n - a, m, a, p);
-                b.fillStyle = l;
-                b.globalAlpha = 0.9;
-                b.fillRect(d + n - a, m, a, g((1 - h1 / w) * p));
-            }
-        };
-    };
-    return f;
-});
-
-},{}],"1kIwI":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
-);
-parcelHelpers.export(exports, "first", ()=>first
-);
-parcelHelpers.export(exports, "middle", ()=>middle
-);
-parcelHelpers.export(exports, "last", ()=>last
-);
-parcelHelpers.export(exports, "limitArrayLen", ()=>limitArrayLen
-);
-parcelHelpers.export(exports, "getArrayValuesFromStart", ()=>getArrayValuesFromStart
-);
-parcelHelpers.export(exports, "getArrayValuesFromEnd", ()=>getArrayValuesFromEnd
-);
-parcelHelpers.export(exports, "sumArray", ()=>sumArray
-);
-parcelHelpers.export(exports, "averageNumArray", ()=>averageNumArray
-);
-parcelHelpers.export(exports, "lowest", ()=>lowest
-);
-parcelHelpers.export(exports, "highest", ()=>highest
-);
-parcelHelpers.export(exports, "getQueryVariable", ()=>getQueryVariable
-);
-const defaultValue = (obj, key, value)=>obj.hasOwnProperty(key) ? obj[key] : value
-;
-const first = (arry)=>arry[0]
-;
-const middle = (arry)=>arry.slice(1, arry.length - 2)
-;
-const last = (arry)=>arry[arry.length - 1]
-;
-const limitArrayLen = (max, arr)=>{
-    const arrLength = arr.length;
-    if (arrLength > max) arr.splice(0, arrLength - max);
-    return arr;
-};
-const getArrayValuesFromStart = (arr, start, len)=>{
-    const values = [];
-    let index = start;
-    for(let i = 0; i < len; i++){
-        values.push(arr[index--]);
-        if (index < 0) index = arr.length - 1;
-    }
-    return values;
-};
-const getArrayValuesFromEnd = (arr, start, len)=>{
-    const values = [];
-    let index = start;
-    for(let i = 0; i < len; i++){
-        values.push(arr[index++]);
-        if (index === arr.length) index = 0;
-    }
-    return values;
-};
-const sumArray = (arry)=>arry.reduce((a, b)=>a + b
-    )
-;
-const averageNumArray = (arry)=>arry.reduce((a, b)=>a + b
-    ) / arry.length
-;
-const lowest = (arry)=>arry.reduce((acc, v)=>{
-        if (v < acc) acc = v;
-        return acc;
-    }, 0)
-;
-const highest = (arry)=>arry.reduce((acc, v)=>{
-        if (v > acc) acc = v;
-        return acc;
-    }, 0)
-;
-const getQueryVariable = (variable)=>{
-    const query = window.location.search.substring(1);
-    const vars = query.split('&');
-    for(let i = 0; i < vars.length; i++){
-        const pair = vars[i].split('=');
-        if (pair[0] === variable) return pair[1];
-    }
-    return false;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1XROr":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "bps", ()=>bps
-);
-// BITRATE = SCREEN_SIZE_VERTICAL x SCREEN_SIZE_HORIZONTAL X FPS X PIXEL_COLOR_DEPTH
-parcelHelpers.export(exports, "CanvasRecorder", ()=>CanvasRecorder
-);
-const bps = {
-    '4k': 40000000,
-    '2k': 16000000,
-    '1080p': 8000000,
-    '720p': 5000000,
-    '480p': 2500000,
-    '360p': 1000000
-};
-function CanvasRecorder(canvas, fps, video_bits_per_sec) {
-    this.start = startRecording;
-    this.stop = stopRecording;
-    this.save = download;
-    let recordedBlobs = [];
-    let supportedType = null;
-    let mediaRecorder = null;
-    const captureFPS = fps || 30;
-    const captureBPS = video_bits_per_sec || bps['1080p'];
-    const actualBPS = canvas.width * canvas.height * captureFPS * screen.colorDepth;
-    const stream = canvas.captureStream(captureFPS);
-    if (!stream) return;
-    const video = document.createElement('video');
-    video.style.display = 'none';
-    // console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
-    function startRecording() {
-        const types = [
-            'video/webm',
-            'video/webm,codecs=vp9',
-            'video/vp8',
-            'video/webm;codecs=vp8',
-            'video/webm;codecs=daala',
-            'video/webm;codecs=h264',
-            'video/mpeg', 
-        ];
-        for(const i in types)if (MediaRecorder.isTypeSupported(types[i])) {
-            supportedType = types[i];
-            break;
-        }
-        if (supportedType == null) console.log('No supported type found for MediaRecorder');
-        // https://w3c.github.io/mediacapture-record/MediaRecorder.html#mediarecorderoptions-section
-        const options = {
-            mimeType: supportedType,
-            videoBitsPerSecond: captureBPS
-        };
-        recordedBlobs = [];
-        try {
-            mediaRecorder = new MediaRecorder(stream, options);
-        } catch (e) {
-            console.error('MediaRecorder is not supported by this browser.');
-            console.error('Exception while creating MediaRecorder:', e);
-            return;
-        }
-        // console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-        mediaRecorder.onstop = handleStop;
-        mediaRecorder.ondataavailable = handleDataAvailable;
-        mediaRecorder.start(100); // collect 100ms of data blobs
-        console.log(`MediaRecorder started at ${captureBPS / 1000}kbps, ${captureFPS}fps`);
-    }
-    function handleDataAvailable(event) {
-        if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
-    }
-    function handleStop(event) {
-        // console.log('Recorder stopped: ', event);
-        const superBuffer = new Blob(recordedBlobs, {
-            type: supportedType
-        });
-        video.src = window.URL.createObjectURL(superBuffer);
-    }
-    function stopRecording() {
-        mediaRecorder.stop();
-        // console.log('Recorded Blobs: ', recordedBlobs);
-        video.controls = true;
-    }
-    function download(file_name) {
-        const name = file_name || 'recording.webm';
-        const blob = new Blob(recordedBlobs, {
-            type: supportedType
-        });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(()=>{
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 100);
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"4jM8A":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/ribbon":"4jM8A","../scratch/shapes":"7F0mj","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"4jM8A":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "lowestYPA", ()=>lowestYPA
@@ -5269,7 +4618,91 @@ const ribbonSegmented = (context)=>(sideA, sideB, color, { segments , gap , colo
     }
 ;
 
-},{"tinycolor2":"101FG","../math/random":"1SLuP","../utils":"1kIwI","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7F0mj":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../math/random":"1SLuP","../utils":"1kIwI","../math/math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1kIwI":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "defaultValue", ()=>defaultValue
+);
+parcelHelpers.export(exports, "first", ()=>first
+);
+parcelHelpers.export(exports, "middle", ()=>middle
+);
+parcelHelpers.export(exports, "last", ()=>last
+);
+parcelHelpers.export(exports, "limitArrayLen", ()=>limitArrayLen
+);
+parcelHelpers.export(exports, "getArrayValuesFromStart", ()=>getArrayValuesFromStart
+);
+parcelHelpers.export(exports, "getArrayValuesFromEnd", ()=>getArrayValuesFromEnd
+);
+parcelHelpers.export(exports, "sumArray", ()=>sumArray
+);
+parcelHelpers.export(exports, "averageNumArray", ()=>averageNumArray
+);
+parcelHelpers.export(exports, "lowest", ()=>lowest
+);
+parcelHelpers.export(exports, "highest", ()=>highest
+);
+parcelHelpers.export(exports, "getQueryVariable", ()=>getQueryVariable
+);
+const defaultValue = (obj, key, value)=>obj.hasOwnProperty(key) ? obj[key] : value
+;
+const first = (arry)=>arry[0]
+;
+const middle = (arry)=>arry.slice(1, arry.length - 2)
+;
+const last = (arry)=>arry[arry.length - 1]
+;
+const limitArrayLen = (max, arr)=>{
+    const arrLength = arr.length;
+    if (arrLength > max) arr.splice(0, arrLength - max);
+    return arr;
+};
+const getArrayValuesFromStart = (arr, start, len)=>{
+    const values = [];
+    let index = start;
+    for(let i = 0; i < len; i++){
+        values.push(arr[index--]);
+        if (index < 0) index = arr.length - 1;
+    }
+    return values;
+};
+const getArrayValuesFromEnd = (arr, start, len)=>{
+    const values = [];
+    let index = start;
+    for(let i = 0; i < len; i++){
+        values.push(arr[index++]);
+        if (index === arr.length) index = 0;
+    }
+    return values;
+};
+const sumArray = (arry)=>arry.reduce((a, b)=>a + b
+    )
+;
+const averageNumArray = (arry)=>arry.reduce((a, b)=>a + b
+    ) / arry.length
+;
+const lowest = (arry)=>arry.reduce((acc, v)=>{
+        if (v < acc) acc = v;
+        return acc;
+    }, 0)
+;
+const highest = (arry)=>arry.reduce((acc, v)=>{
+        if (v > acc) acc = v;
+        return acc;
+    }, 0)
+;
+const getQueryVariable = (variable)=>{
+    const query = window.location.search.substring(1);
+    const vars = query.split('&');
+    for(let i = 0; i < vars.length; i++){
+        const pair = vars[i].split('=');
+        if (pair[0] === variable) return pair[1];
+    }
+    return false;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7F0mj":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "spikedCircle", ()=>spikedCircle
@@ -5815,10 +5248,577 @@ class Palette {
     }
 }
 
-},{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"4t0bw","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3CNWv":[function(require,module,exports) {
+},{"tinycolor2":"101FG","nice-color-palettes":"6CT3X","../math/math":"4t0bw","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6CT3X":[function(require,module,exports) {
 module.exports = JSON.parse("[[\"#69d2e7\",\"#a7dbd8\",\"#e0e4cc\",\"#f38630\",\"#fa6900\"],[\"#fe4365\",\"#fc9d9a\",\"#f9cdad\",\"#c8c8a9\",\"#83af9b\"],[\"#ecd078\",\"#d95b43\",\"#c02942\",\"#542437\",\"#53777a\"],[\"#556270\",\"#4ecdc4\",\"#c7f464\",\"#ff6b6b\",\"#c44d58\"],[\"#774f38\",\"#e08e79\",\"#f1d4af\",\"#ece5ce\",\"#c5e0dc\"],[\"#e8ddcb\",\"#cdb380\",\"#036564\",\"#033649\",\"#031634\"],[\"#490a3d\",\"#bd1550\",\"#e97f02\",\"#f8ca00\",\"#8a9b0f\"],[\"#594f4f\",\"#547980\",\"#45ada8\",\"#9de0ad\",\"#e5fcc2\"],[\"#00a0b0\",\"#6a4a3c\",\"#cc333f\",\"#eb6841\",\"#edc951\"],[\"#e94e77\",\"#d68189\",\"#c6a49a\",\"#c6e5d9\",\"#f4ead5\"],[\"#3fb8af\",\"#7fc7af\",\"#dad8a7\",\"#ff9e9d\",\"#ff3d7f\"],[\"#d9ceb2\",\"#948c75\",\"#d5ded9\",\"#7a6a53\",\"#99b2b7\"],[\"#ffffff\",\"#cbe86b\",\"#f2e9e1\",\"#1c140d\",\"#cbe86b\"],[\"#efffcd\",\"#dce9be\",\"#555152\",\"#2e2633\",\"#99173c\"],[\"#343838\",\"#005f6b\",\"#008c9e\",\"#00b4cc\",\"#00dffc\"],[\"#413e4a\",\"#73626e\",\"#b38184\",\"#f0b49e\",\"#f7e4be\"],[\"#ff4e50\",\"#fc913a\",\"#f9d423\",\"#ede574\",\"#e1f5c4\"],[\"#99b898\",\"#fecea8\",\"#ff847c\",\"#e84a5f\",\"#2a363b\"],[\"#655643\",\"#80bca3\",\"#f6f7bd\",\"#e6ac27\",\"#bf4d28\"],[\"#00a8c6\",\"#40c0cb\",\"#f9f2e7\",\"#aee239\",\"#8fbe00\"],[\"#351330\",\"#424254\",\"#64908a\",\"#e8caa4\",\"#cc2a41\"],[\"#554236\",\"#f77825\",\"#d3ce3d\",\"#f1efa5\",\"#60b99a\"],[\"#5d4157\",\"#838689\",\"#a8caba\",\"#cad7b2\",\"#ebe3aa\"],[\"#8c2318\",\"#5e8c6a\",\"#88a65e\",\"#bfb35a\",\"#f2c45a\"],[\"#fad089\",\"#ff9c5b\",\"#f5634a\",\"#ed303c\",\"#3b8183\"],[\"#ff4242\",\"#f4fad2\",\"#d4ee5e\",\"#e1edb9\",\"#f0f2eb\"],[\"#f8b195\",\"#f67280\",\"#c06c84\",\"#6c5b7b\",\"#355c7d\"],[\"#d1e751\",\"#ffffff\",\"#000000\",\"#4dbce9\",\"#26ade4\"],[\"#1b676b\",\"#519548\",\"#88c425\",\"#bef202\",\"#eafde6\"],[\"#5e412f\",\"#fcebb6\",\"#78c0a8\",\"#f07818\",\"#f0a830\"],[\"#bcbdac\",\"#cfbe27\",\"#f27435\",\"#f02475\",\"#3b2d38\"],[\"#452632\",\"#91204d\",\"#e4844a\",\"#e8bf56\",\"#e2f7ce\"],[\"#eee6ab\",\"#c5bc8e\",\"#696758\",\"#45484b\",\"#36393b\"],[\"#f0d8a8\",\"#3d1c00\",\"#86b8b1\",\"#f2d694\",\"#fa2a00\"],[\"#2a044a\",\"#0b2e59\",\"#0d6759\",\"#7ab317\",\"#a0c55f\"],[\"#f04155\",\"#ff823a\",\"#f2f26f\",\"#fff7bd\",\"#95cfb7\"],[\"#b9d7d9\",\"#668284\",\"#2a2829\",\"#493736\",\"#7b3b3b\"],[\"#bbbb88\",\"#ccc68d\",\"#eedd99\",\"#eec290\",\"#eeaa88\"],[\"#b3cc57\",\"#ecf081\",\"#ffbe40\",\"#ef746f\",\"#ab3e5b\"],[\"#a3a948\",\"#edb92e\",\"#f85931\",\"#ce1836\",\"#009989\"],[\"#300030\",\"#480048\",\"#601848\",\"#c04848\",\"#f07241\"],[\"#67917a\",\"#170409\",\"#b8af03\",\"#ccbf82\",\"#e33258\"],[\"#aab3ab\",\"#c4cbb7\",\"#ebefc9\",\"#eee0b7\",\"#e8caaf\"],[\"#e8d5b7\",\"#0e2430\",\"#fc3a51\",\"#f5b349\",\"#e8d5b9\"],[\"#ab526b\",\"#bca297\",\"#c5ceae\",\"#f0e2a4\",\"#f4ebc3\"],[\"#607848\",\"#789048\",\"#c0d860\",\"#f0f0d8\",\"#604848\"],[\"#b6d8c0\",\"#c8d9bf\",\"#dadabd\",\"#ecdbbc\",\"#fedcba\"],[\"#a8e6ce\",\"#dcedc2\",\"#ffd3b5\",\"#ffaaa6\",\"#ff8c94\"],[\"#3e4147\",\"#fffedf\",\"#dfba69\",\"#5a2e2e\",\"#2a2c31\"],[\"#fc354c\",\"#29221f\",\"#13747d\",\"#0abfbc\",\"#fcf7c5\"],[\"#cc0c39\",\"#e6781e\",\"#c8cf02\",\"#f8fcc1\",\"#1693a7\"],[\"#1c2130\",\"#028f76\",\"#b3e099\",\"#ffeaad\",\"#d14334\"],[\"#a7c5bd\",\"#e5ddcb\",\"#eb7b59\",\"#cf4647\",\"#524656\"],[\"#dad6ca\",\"#1bb0ce\",\"#4f8699\",\"#6a5e72\",\"#563444\"],[\"#5c323e\",\"#a82743\",\"#e15e32\",\"#c0d23e\",\"#e5f04c\"],[\"#edebe6\",\"#d6e1c7\",\"#94c7b6\",\"#403b33\",\"#d3643b\"],[\"#fdf1cc\",\"#c6d6b8\",\"#987f69\",\"#e3ad40\",\"#fcd036\"],[\"#230f2b\",\"#f21d41\",\"#ebebbc\",\"#bce3c5\",\"#82b3ae\"],[\"#b9d3b0\",\"#81bda4\",\"#b28774\",\"#f88f79\",\"#f6aa93\"],[\"#3a111c\",\"#574951\",\"#83988e\",\"#bcdea5\",\"#e6f9bc\"],[\"#5e3929\",\"#cd8c52\",\"#b7d1a3\",\"#dee8be\",\"#fcf7d3\"],[\"#1c0113\",\"#6b0103\",\"#a30006\",\"#c21a01\",\"#f03c02\"],[\"#000000\",\"#9f111b\",\"#b11623\",\"#292c37\",\"#cccccc\"],[\"#382f32\",\"#ffeaf2\",\"#fcd9e5\",\"#fbc5d8\",\"#f1396d\"],[\"#e3dfba\",\"#c8d6bf\",\"#93ccc6\",\"#6cbdb5\",\"#1a1f1e\"],[\"#f6f6f6\",\"#e8e8e8\",\"#333333\",\"#990100\",\"#b90504\"],[\"#1b325f\",\"#9cc4e4\",\"#e9f2f9\",\"#3a89c9\",\"#f26c4f\"],[\"#a1dbb2\",\"#fee5ad\",\"#faca66\",\"#f7a541\",\"#f45d4c\"],[\"#c1b398\",\"#605951\",\"#fbeec2\",\"#61a6ab\",\"#accec0\"],[\"#5e9fa3\",\"#dcd1b4\",\"#fab87f\",\"#f87e7b\",\"#b05574\"],[\"#951f2b\",\"#f5f4d7\",\"#e0dfb1\",\"#a5a36c\",\"#535233\"],[\"#8dccad\",\"#988864\",\"#fea6a2\",\"#f9d6ac\",\"#ffe9af\"],[\"#2d2d29\",\"#215a6d\",\"#3ca2a2\",\"#92c7a3\",\"#dfece6\"],[\"#413d3d\",\"#040004\",\"#c8ff00\",\"#fa023c\",\"#4b000f\"],[\"#eff3cd\",\"#b2d5ba\",\"#61ada0\",\"#248f8d\",\"#605063\"],[\"#ffefd3\",\"#fffee4\",\"#d0ecea\",\"#9fd6d2\",\"#8b7a5e\"],[\"#cfffdd\",\"#b4dec1\",\"#5c5863\",\"#a85163\",\"#ff1f4c\"],[\"#9dc9ac\",\"#fffec7\",\"#f56218\",\"#ff9d2e\",\"#919167\"],[\"#4e395d\",\"#827085\",\"#8ebe94\",\"#ccfc8e\",\"#dc5b3e\"],[\"#a8a7a7\",\"#cc527a\",\"#e8175d\",\"#474747\",\"#363636\"],[\"#f8edd1\",\"#d88a8a\",\"#474843\",\"#9d9d93\",\"#c5cfc6\"],[\"#046d8b\",\"#309292\",\"#2fb8ac\",\"#93a42a\",\"#ecbe13\"],[\"#f38a8a\",\"#55443d\",\"#a0cab5\",\"#cde9ca\",\"#f1edd0\"],[\"#a70267\",\"#f10c49\",\"#fb6b41\",\"#f6d86b\",\"#339194\"],[\"#ff003c\",\"#ff8a00\",\"#fabe28\",\"#88c100\",\"#00c176\"],[\"#ffedbf\",\"#f7803c\",\"#f54828\",\"#2e0d23\",\"#f8e4c1\"],[\"#4e4d4a\",\"#353432\",\"#94ba65\",\"#2790b0\",\"#2b4e72\"],[\"#0ca5b0\",\"#4e3f30\",\"#fefeeb\",\"#f8f4e4\",\"#a5b3aa\"],[\"#4d3b3b\",\"#de6262\",\"#ffb88c\",\"#ffd0b3\",\"#f5e0d3\"],[\"#fffbb7\",\"#a6f6af\",\"#66b6ab\",\"#5b7c8d\",\"#4f2958\"],[\"#edf6ee\",\"#d1c089\",\"#b3204d\",\"#412e28\",\"#151101\"],[\"#9d7e79\",\"#ccac95\",\"#9a947c\",\"#748b83\",\"#5b756c\"],[\"#fcfef5\",\"#e9ffe1\",\"#cdcfb7\",\"#d6e6c3\",\"#fafbe3\"],[\"#9cddc8\",\"#bfd8ad\",\"#ddd9ab\",\"#f7af63\",\"#633d2e\"],[\"#30261c\",\"#403831\",\"#36544f\",\"#1f5f61\",\"#0b8185\"],[\"#aaff00\",\"#ffaa00\",\"#ff00aa\",\"#aa00ff\",\"#00aaff\"],[\"#d1313d\",\"#e5625c\",\"#f9bf76\",\"#8eb2c5\",\"#615375\"],[\"#ffe181\",\"#eee9e5\",\"#fad3b2\",\"#ffba7f\",\"#ff9c97\"],[\"#73c8a9\",\"#dee1b6\",\"#e1b866\",\"#bd5532\",\"#373b44\"],[\"#805841\",\"#dcf7f3\",\"#fffcdd\",\"#ffd8d8\",\"#f5a2a2\"]]");
 
-},{}],"2CMm3":[function(require,module,exports) {
+},{}],"2OcGA":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "orientation", ()=>orientation
+);
+parcelHelpers.export(exports, "ratio", ()=>ratio
+);
+parcelHelpers.export(exports, "scale", ()=>scale
+);
+parcelHelpers.export(exports, "sketchSizeMode", ()=>sketchSizeMode
+);
+parcelHelpers.export(exports, "largePrint", ()=>largePrint
+);
+parcelHelpers.export(exports, "instagram", ()=>instagram
+);
+parcelHelpers.export(exports, "sketch", ()=>sketch
+);
+/*
+Convenience canvas sketch runner. Based on p5js
+
+
+const variation = () => {
+    const config = {};
+
+    const setup = ({canvas, context}) => {
+        // create initial state
+    };
+
+    // will run every frame
+    const draw = ({canvas, context, mouse}) => {
+        // draw on every frame
+        return 1; // -1 to exit animation loop
+    };
+
+    return {
+        config,
+        setup,
+        draw,
+    };
+};
+
+TODO
+- [ ] merge screen shot code
+- [ ] Canvas Recorder  https://xosh.org/canvas-recorder/
+- [ ] coords of a mouse down to variation?
+- [ ] better touch input
+- [ ] svg https://github.com/canvg/canvg
+- [ ] great ideas here http://paperjs.org/features/
+*/ var _statsJs = require("stats.js");
+var _statsJsDefault = parcelHelpers.interopDefault(_statsJs);
+var _canvas = require("./canvas/canvas");
+var _utils = require("./utils");
+var _random = require("./math/random");
+var _math = require("./math/math");
+var _canvasRecorder = require("./canvas/CanvasRecorder");
+const orientation = {
+    portrait: 0,
+    landscape: 1
+};
+const ratio = {
+    a4: 0.773,
+    a3: 11 / 17,
+    a3plus: 13 / 19,
+    archd: 24 / 36,
+    golden: 0.6180339887498949,
+    square: -1,
+    auto: 1
+};
+const scale = {
+    standard: 1,
+    hidpi: 2
+};
+const sketchSizeMode = {
+    js: 0,
+    css: 1,
+    sketch: 2
+};
+const largePrint = {
+    ratio: ratio.a3plus,
+    scale: scale.hidpi,
+    multiplier: 1,
+    orientation: orientation.landscape
+};
+const instagram = {
+    ratio: ratio.square,
+    scale: scale.standard
+};
+const sketch = (canvasElId, smode = 0, debug)=>{
+    const mouse = {
+        x: undefined,
+        y: undefined,
+        isDown: false,
+        radius: 100
+    };
+    const sizeMode = smode;
+    const debugMode = debug;
+    let statsJS = null;
+    let hasStarted = false;
+    let fps = 0;
+    let drawRuns = 0;
+    let currentVariationFn;
+    let currentVariationRes;
+    let animationId;
+    let canvasRecorder;
+    let isRecording = false;
+    const pauseOnWindowBlur = true;
+    let isPaused = false;
+    const canvasSizeMultiple = 2;
+    const canvasSizeMultiplier = 0.9;
+    const canvas = document.getElementById(canvasElId);
+    const context = canvas.getContext('2d');
+    const getCanvas = (_)=>canvas
+    ;
+    const getContext = (_)=>context
+    ;
+    const getMouse = (_)=>mouse
+    ;
+    const mouseDown = (evt)=>{
+        mouse.isDown = true;
+    };
+    const mouseMove = (evt)=>{
+        const mult = _canvas.isHiDPICanvas() ? 2 : 1;
+        const canvasFrame = canvas.getBoundingClientRect();
+        mouse.x = (evt.x - canvasFrame.x) * mult;
+        mouse.y = (evt.y - canvasFrame.y) * mult;
+    };
+    const mouseUp = (evt)=>{
+        mouse.isDown = false;
+    };
+    const mouseOut = (evt)=>{
+        mouse.x = undefined;
+        mouse.y = undefined;
+        mouse.isDown = false;
+    };
+    const applyCanvasSize = (config, fraction)=>{
+        if (sizeMode === sketchSizeMode.css) // const s = canvas.getBoundingClientRect();
+        // resizeCanvas(canvas, context, s.width, s.height, 1);
+        return;
+        if (sizeMode === sketchSizeMode.sketch) return;
+        const width = _utils.defaultValue(config, 'width', window.innerWidth);
+        const height = _utils.defaultValue(config, 'height', window.innerHeight);
+        let finalWidth = width;
+        let finalHeight = height;
+        const cfgMultiplier = _utils.defaultValue(config, 'multiplier', fraction);
+        const cfgOrientation = _utils.defaultValue(config, 'orientation', orientation.landscape);
+        const cfgRatio = _utils.defaultValue(config, 'ratio', ratio.auto);
+        const cfgScale = _utils.defaultValue(config, 'scale', scale.standard);
+        if (cfgRatio === ratio.auto) {
+            finalWidth = width;
+            finalHeight = height;
+        } else if (cfgRatio === ratio.square) {
+            const smallestWindowSize = Math.min(width, height) * cfgMultiplier;
+            finalWidth = smallestWindowSize;
+            finalHeight = smallestWindowSize;
+        } else if (cfgOrientation === orientation.landscape) {
+            let w = width;
+            let h = Math.round(cfgRatio * width);
+            const delta = h - height;
+            if (delta > 0) {
+                w -= delta;
+                h -= delta;
+            }
+            finalWidth = w * cfgMultiplier;
+            finalHeight = h * cfgMultiplier;
+        } else if (cfgOrientation === orientation.portrait) {
+            let w = Math.round(cfgRatio * height);
+            let h = height;
+            const delta = w - width;
+            if (delta > 0) {
+                w -= delta;
+                h -= delta;
+            }
+            finalWidth = w * cfgMultiplier;
+            finalHeight = h * cfgMultiplier;
+        }
+        finalWidth = _math.roundToNearest(canvasSizeMultiple, finalWidth);
+        finalHeight = _math.roundToNearest(canvasSizeMultiple, finalHeight);
+        _canvas.resizeCanvas(canvas, context, finalWidth, finalHeight, cfgScale);
+        console.log(`Canvas size ${finalWidth} x ${finalHeight} at ${window.devicePixelRatio}dpr`);
+    };
+    /*
+    Passing in the sketch instance is jank. Refactor this to a class and just pass this
+     */ const run = (variation, sinstance)=>{
+        currentVariationFn = variation;
+        currentVariationRes = currentVariationFn();
+        const sketchInstance = sinstance;
+        if (!statsJS && debugMode) {
+            statsJS = new _statsJsDefault.default();
+            statsJS.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            document.body.appendChild(statsJS.dom);
+        }
+        addEvents();
+        drawRuns = 0;
+        let currentDrawLimit;
+        let rendering = true;
+        let targetFpsInterval = 1000 / fps;
+        let lastAnimationFrameTime;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        if (currentVariationRes.hasOwnProperty('config')) {
+            const { config  } = currentVariationRes;
+            applyCanvasSize(config, canvasSizeMultiplier);
+            if (config.fps) {
+                fps = config.fps;
+                targetFpsInterval = 1000 / fps;
+            }
+            if (config.drawLimit > 0) currentDrawLimit = config.drawLimit;
+        } else // TODO check for sizeMode
+        _canvas.resizeCanvas(canvas, context, window.innerWidth, window.innerHeight);
+        const checkDrawLimit = ()=>{
+            if (currentDrawLimit) return drawRuns < currentDrawLimit;
+            return true;
+        };
+        const startSketch = ()=>{
+            window.removeEventListener('load', startSketch);
+            hasStarted = true;
+            // default 1080p bps, 30fps
+            canvasRecorder = new _canvasRecorder.CanvasRecorder(canvas);
+            currentVariationRes.setup({
+                canvas,
+                context,
+                sketchInstance
+            });
+            const drawFrame = ()=>{
+                if (pauseOnWindowBlur && isPaused) return 1;
+                drawRuns++;
+                if (statsJS) statsJS.begin();
+                const res = currentVariationRes.draw({
+                    canvas,
+                    context,
+                    mouse
+                });
+                if (statsJS) statsJS.end();
+                return res;
+            };
+            const render = ()=>{
+                const result = drawFrame();
+                if (result !== -1 && checkDrawLimit()) animationId = requestAnimationFrame(render);
+            };
+            const renderAtFps = ()=>{
+                if (rendering) animationId = window.requestAnimationFrame(renderAtFps);
+                const now = Date.now();
+                const elapsed = now - lastAnimationFrameTime;
+                if (elapsed > targetFpsInterval) {
+                    lastAnimationFrameTime = now - elapsed % targetFpsInterval;
+                    const result = drawFrame();
+                    if (result === -1 || currentDrawLimit && drawRuns >= currentDrawLimit) rendering = false;
+                }
+            };
+            if (!fps) animationId = window.requestAnimationFrame(render);
+            else {
+                lastAnimationFrameTime = Date.now();
+                animationId = window.requestAnimationFrame(renderAtFps);
+            }
+        };
+        if (!hasStarted) window.addEventListener('load', startSketch);
+        else startSketch();
+    };
+    const stop = ()=>{
+        removeEvents();
+        window.cancelAnimationFrame(animationId);
+    };
+    const windowResize = (evt)=>{
+        // clear and rerun to avoid artifacts
+        if (animationId) {
+            stop();
+            run(currentVariationFn);
+        }
+    };
+    const windowFocus = (evt)=>{
+        if (pauseOnWindowBlur) isPaused = false;
+    };
+    const windowBlur = (evt)=>{
+        if (pauseOnWindowBlur) isPaused = true;
+    };
+    const addEvents = (_)=>{
+        window.addEventListener('mousedown', mouseDown);
+        window.addEventListener('touchstart', mouseDown);
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('touchmove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('touchend', mouseUp);
+        window.addEventListener('mouseout', mouseOut);
+        window.addEventListener('touchcancel', mouseOut);
+        window.addEventListener('resize', windowResize);
+        window.addEventListener('blur', windowBlur);
+        window.addEventListener('focus', windowFocus);
+    };
+    const removeEvents = (_)=>{
+        window.removeEventListener('mousedown', mouseDown);
+        window.removeEventListener('touchstart', mouseDown);
+        window.removeEventListener('mousemove', mouseMove);
+        window.removeEventListener('touchmove', mouseMove);
+        window.removeEventListener('mouseup', mouseUp);
+        window.removeEventListener('touchend', mouseUp);
+        window.removeEventListener('mouseout', mouseOut);
+        window.removeEventListener('touchcancel', mouseOut);
+        window.removeEventListener('resize', windowResize);
+        window.removeEventListener('blur', windowBlur);
+        window.removeEventListener('focus', windowFocus);
+    };
+    const getVariationName = ()=>{
+        const seed = _random.getRandomSeed();
+        let name = 'untitled';
+        if (currentVariationRes && currentVariationRes.hasOwnProperty('config') && currentVariationRes.config.hasOwnProperty('name')) name = currentVariationRes.config.name;
+        return `sketch-${name}-${seed}`;
+    };
+    const saveCanvasCapture = (evt)=>{
+        console.log('Saving capture', evt);
+        const imageURI = canvas.toDataURL('image/png');
+        evt.target.setAttribute('download', `${getVariationName()}.png`);
+        evt.target.href = imageURI;
+        evt.stopPropagation();
+        return false;
+    };
+    // https://xosh.org/canvas-recorder/
+    const saveCanvasRecording = (evt)=>{
+        if (!canvasRecorder) {
+            console.error('No canvas recorder defined!');
+            return false;
+        }
+        if (isRecording) {
+            isRecording = false;
+            canvasRecorder.stop();
+            canvasRecorder.save(`${getVariationName()}.webm`);
+            console.log('Stopping recording');
+        } else {
+            isRecording = true;
+            canvasRecorder.start();
+            console.log('Starting recording');
+        }
+        evt.stopPropagation();
+        return false;
+    };
+    const onCanvasDragOver = (evt)=>{
+        evt.preventDefault();
+    };
+    const onCanvasDragDrop = (imageDataHandler)=>(evt)=>{
+            evt.preventDefault();
+            evt.stopPropagation();
+            // console.log('drag drop', evt);
+            const dt = evt.dataTransfer;
+            const src = dt.files[0];
+            // loadImage(files[0], imageDataHandler);
+            //	Prevent any non-image file type from being read.
+            if (!src.type.match(/image.*/)) {
+                console.error('The dropped file is not an image: ', src.type);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageDataHandler(e.target.result);
+            };
+            reader.readAsDataURL(src);
+        }
+    ;
+    const enableDragUpload = (imageDataHandler)=>{
+        console.log('enabling drag upload!');
+        if (!canvas) {
+            console.warn('You need to init with a canvas el first!');
+            return;
+        }
+        // handling drag over is required to prevent browser from displaying dropped image
+        canvas.addEventListener('dragover', onCanvasDragOver, true);
+        canvas.addEventListener('drop', onCanvasDragDrop(imageDataHandler), true);
+    };
+    const disableDragUpload = (_)=>{
+        canvas.removeEventListener('dragover', onCanvasDragOver);
+        canvas.removeEventListener('drop', onCanvasDragDrop(imageDataHandler));
+    };
+    return {
+        variationName: getVariationName,
+        canvas: getCanvas,
+        context: getContext,
+        mouse: getMouse,
+        run,
+        stop,
+        saveCanvasCapture,
+        saveCanvasRecording,
+        enableDragUpload,
+        disableDragUpload
+    };
+};
+
+},{"stats.js":"6aCCi","./canvas/canvas":"73Br1","./utils":"1kIwI","./math/random":"1SLuP","./math/math":"4t0bw","./canvas/CanvasRecorder":"1XROr","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6aCCi":[function(require,module,exports) {
+// stats.js - http://github.com/mrdoob/stats.js
+(function(f, e) {
+    "object" === typeof exports && "undefined" !== typeof module ? module.exports = e() : "function" === typeof define && define.amd ? define(e) : f.Stats = e();
+})(this, function() {
+    var f = function() {
+        function e(a) {
+            c.appendChild(a.dom);
+            return a;
+        }
+        function u(a) {
+            for(var d = 0; d < c.children.length; d++)c.children[d].style.display = d === a ? "block" : "none";
+            l = a;
+        }
+        var l = 0, c = document.createElement("div");
+        c.style.cssText = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
+        c.addEventListener("click", function(a) {
+            a.preventDefault();
+            u((++l) % c.children.length);
+        }, false);
+        var k = (performance || Date).now(), g = k, a = 0, r = e(new f.Panel("FPS", "#0ff", "#002")), h = e(new f.Panel("MS", "#0f0", "#020"));
+        if (self.performance && self.performance.memory) var t = e(new f.Panel("MB", "#f08", "#201"));
+        u(0);
+        return {
+            REVISION: 16,
+            dom: c,
+            addPanel: e,
+            showPanel: u,
+            begin: function() {
+                k = (performance || Date).now();
+            },
+            end: function() {
+                a++;
+                var c1 = (performance || Date).now();
+                h.update(c1 - k, 200);
+                if (c1 > g + 1000 && (r.update(1000 * a / (c1 - g), 100), g = c1, a = 0, t)) {
+                    var d = performance.memory;
+                    t.update(d.usedJSHeapSize / 1048576, d.jsHeapSizeLimit / 1048576);
+                }
+                return c1;
+            },
+            update: function() {
+                k = this.end();
+            },
+            domElement: c,
+            setMode: u
+        };
+    };
+    f.Panel = function(e, f1, l) {
+        var c = Infinity, k = 0, g = Math.round, a = g(window.devicePixelRatio || 1), r = 80 * a, h = 48 * a, t = 3 * a, v = 2 * a, d = 3 * a, m = 15 * a, n = 74 * a, p = 30 * a, q = document.createElement("canvas");
+        q.width = r;
+        q.height = h;
+        q.style.cssText = "width:80px;height:48px";
+        var b = q.getContext("2d");
+        b.font = "bold " + 9 * a + "px Helvetica,Arial,sans-serif";
+        b.textBaseline = "top";
+        b.fillStyle = l;
+        b.fillRect(0, 0, r, h);
+        b.fillStyle = f1;
+        b.fillText(e, t, v);
+        b.fillRect(d, m, n, p);
+        b.fillStyle = l;
+        b.globalAlpha = 0.9;
+        b.fillRect(d, m, n, p);
+        return {
+            dom: q,
+            update: function(h1, w) {
+                c = Math.min(c, h1);
+                k = Math.max(k, h1);
+                b.fillStyle = l;
+                b.globalAlpha = 1;
+                b.fillRect(0, 0, r, m);
+                b.fillStyle = f1;
+                b.fillText(g(h1) + " " + e + " (" + g(c) + "-" + g(k) + ")", t, v);
+                b.drawImage(q, d + a, m, n - a, p, d, m, n - a, p);
+                b.fillRect(d + n - a, m, a, p);
+                b.fillStyle = l;
+                b.globalAlpha = 0.9;
+                b.fillRect(d + n - a, m, a, g((1 - h1 / w) * p));
+            }
+        };
+    };
+    return f;
+});
+
+},{}],"1XROr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "bps", ()=>bps
+);
+// BITRATE = SCREEN_SIZE_VERTICAL x SCREEN_SIZE_HORIZONTAL X FPS X PIXEL_COLOR_DEPTH
+parcelHelpers.export(exports, "CanvasRecorder", ()=>CanvasRecorder
+);
+const bps = {
+    '4k': 40000000,
+    '2k': 16000000,
+    '1080p': 8000000,
+    '720p': 5000000,
+    '480p': 2500000,
+    '360p': 1000000
+};
+function CanvasRecorder(canvas, fps, video_bits_per_sec) {
+    this.start = startRecording;
+    this.stop = stopRecording;
+    this.save = download;
+    let recordedBlobs = [];
+    let supportedType = null;
+    let mediaRecorder = null;
+    const captureFPS = fps || 30;
+    const captureBPS = video_bits_per_sec || bps['1080p'];
+    const actualBPS = canvas.width * canvas.height * captureFPS * screen.colorDepth;
+    const stream = canvas.captureStream(captureFPS);
+    if (!stream) return;
+    const video = document.createElement('video');
+    video.style.display = 'none';
+    // console.log(`Canvas record, full ${actualBPS / 1000}kbps`);
+    function startRecording() {
+        const types = [
+            'video/webm',
+            'video/webm,codecs=vp9',
+            'video/vp8',
+            'video/webm;codecs=vp8',
+            'video/webm;codecs=daala',
+            'video/webm;codecs=h264',
+            'video/mpeg', 
+        ];
+        for(const i in types)if (MediaRecorder.isTypeSupported(types[i])) {
+            supportedType = types[i];
+            break;
+        }
+        if (supportedType == null) console.log('No supported type found for MediaRecorder');
+        // https://w3c.github.io/mediacapture-record/MediaRecorder.html#mediarecorderoptions-section
+        const options = {
+            mimeType: supportedType,
+            videoBitsPerSecond: captureBPS
+        };
+        recordedBlobs = [];
+        try {
+            mediaRecorder = new MediaRecorder(stream, options);
+        } catch (e) {
+            console.error('MediaRecorder is not supported by this browser.');
+            console.error('Exception while creating MediaRecorder:', e);
+            return;
+        }
+        // console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+        mediaRecorder.onstop = handleStop;
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        mediaRecorder.start(100); // collect 100ms of data blobs
+        console.log(`MediaRecorder started at ${captureBPS / 1000}kbps, ${captureFPS}fps`);
+    }
+    function handleDataAvailable(event) {
+        if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
+    }
+    function handleStop(event) {
+        // console.log('Recorder stopped: ', event);
+        const superBuffer = new Blob(recordedBlobs, {
+            type: supportedType
+        });
+        video.src = window.URL.createObjectURL(superBuffer);
+    }
+    function stopRecording() {
+        mediaRecorder.stop();
+        // console.log('Recorded Blobs: ', recordedBlobs);
+        video.controls = true;
+    }
+    function download(file_name) {
+        const name = file_name || 'recording.webm';
+        const blob = new Blob(recordedBlobs, {
+            type: supportedType
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2CMm3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "lissajous01", ()=>lissajous01
@@ -5826,7 +5826,7 @@ parcelHelpers.export(exports, "lissajous01", ()=>lissajous01
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
 var _palettes = require("../rndrgen/color/palettes");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _text = require("../rndrgen/canvas/text");
 var _grids = require("../rndrgen/math/grids");
 var _random = require("../rndrgen/math/random");
@@ -5966,7 +5966,7 @@ const lissajous01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/color/palettes":"3qayM","../rndrgen/Sketch":"2OcGA","../rndrgen/canvas/text":"3weRL","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3weRL":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/text":"3weRL","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"3weRL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "setTextAlignLeftTop", ()=>setTextAlignLeftTop
@@ -6102,7 +6102,7 @@ const getPointGrid = (x, y, w, h, cols = 2, rows = 2)=>{
     return points;
 };
 
-},{"./points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./math":"4t0bw"}],"omRBU":[function(require,module,exports) {
+},{"./points":"4RQVg","./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldParticles", ()=>flowFieldParticles
@@ -6112,7 +6112,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _vector = require("../rndrgen/math/Vector");
 var _attractors = require("../rndrgen/math/attractors");
 var _palettes = require("../rndrgen/color/palettes");
@@ -6193,7 +6193,7 @@ const flowFieldParticles = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3Q1u4":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/color/palettes":"3qayM","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"3Q1u4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldArcs", ()=>flowFieldArcs
@@ -6201,7 +6201,7 @@ parcelHelpers.export(exports, "flowFieldArcs", ()=>flowFieldArcs
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
 var _math = require("../rndrgen/math/math");
@@ -6273,7 +6273,7 @@ const flowFieldArcs = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5P1Ch":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5P1Ch":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldImage", ()=>flowFieldImage
@@ -6283,7 +6283,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _vector = require("../rndrgen/math/Vector");
 var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
@@ -6387,7 +6387,7 @@ const flowFieldImage = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"17J8Q":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -6664,7 +6664,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
 var _random = require("../rndrgen/math/random");
@@ -6767,7 +6767,7 @@ const radialNoise = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3hmlu":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"3hmlu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons", ()=>flowFieldRibbons
@@ -6779,7 +6779,7 @@ var _randomDefault = parcelHelpers.interopDefault(_random);
 var _math = require("../rndrgen/math/math");
 var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _vector = require("../rndrgen/math/Vector");
 var _attractors = require("../rndrgen/math/attractors");
@@ -6899,7 +6899,7 @@ const flowFieldRibbons = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2IsLg":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"2IsLg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons2", ()=>flowFieldRibbons2
@@ -6911,7 +6911,7 @@ var _randomDefault = parcelHelpers.interopDefault(_random);
 var _math = require("../rndrgen/math/math");
 var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _vector = require("../rndrgen/math/Vector");
 var _attractors = require("../rndrgen/math/attractors");
@@ -7067,7 +7067,7 @@ const flowFieldRibbons2 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1wwAx":[function(require,module,exports) {
+},{"tinycolor2":"101FG","canvas-sketch-util/random":"5RUiF","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Vector":"1MSqh","../rndrgen/math/attractors":"BodqP","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"1wwAx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "shadedBoxes", ()=>shadedBoxes
@@ -7077,7 +7077,7 @@ var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _particle = require("../rndrgen/systems/Particle");
 var _canvas = require("../rndrgen/canvas/canvas");
 var _math = require("../rndrgen/math/math");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _box = require("../rndrgen/systems/Box");
 var _attractors = require("../rndrgen/math/attractors");
@@ -7175,7 +7175,7 @@ const shadedBoxes = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/Box":"5o59H","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/textures":"73mfQ","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5o59H":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/math":"4t0bw","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/Box":"5o59H","../rndrgen/math/attractors":"BodqP","../rndrgen/math/Vector":"1MSqh","../rndrgen/canvas/textures":"73mfQ","../rndrgen/canvas/particles":"33yaF","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5o59H":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Box", ()=>Box
@@ -7601,7 +7601,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPng = require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png");
@@ -7745,7 +7745,7 @@ const larrycarlson02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5WOur":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "alexander-krivitskiy-2wOEPBkaH7o-unsplash.c33afb25.png";
 
 },{"./bundle-url":"3seVR"}],"6SHt4":[function(require,module,exports) {
@@ -7756,7 +7756,7 @@ parcelHelpers.export(exports, "meanderingRiver02", ()=>meanderingRiver02
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
@@ -7939,7 +7939,7 @@ const meanderingRiver02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7Bn1Y":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"7Bn1Y":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 /*
@@ -8551,7 +8551,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
@@ -8747,7 +8747,7 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5BOkN":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5BOkN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "isoline", ()=>isoline
@@ -9504,7 +9504,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
@@ -9616,7 +9616,7 @@ const meanderingRiver03 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"7oc4r":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"7oc4r":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "version", ()=>version
@@ -9718,7 +9718,7 @@ parcelHelpers.export(exports, "brushShape", ()=>brushShape
 var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _grids = require("../rndrgen/math/grids");
 var _primatives = require("../rndrgen/canvas/primatives");
@@ -9851,6 +9851,6 @@ const brushShape = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/segments":"5KdqE","../rndrgen/math/points":"4RQVg","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","tinycolor2":"101FG","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/Rectangle":"1Uf2J"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/segments":"5KdqE","../rndrgen/math/points":"4RQVg","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/Rectangle":"1Uf2J","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

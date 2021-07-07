@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { orientation, ratio, scale } from '../rndrgen/Sketch';
+import { orientation, ratio, scale } from '../rndrgen/sketch';
 import { bicPenBlue, warmWhite } from '../rndrgen/color/palettes';
 import { MeanderingRiver } from '../rndrgen/systems/MeanderingRiver';
 import { chaikinSmooth } from '../rndrgen/math/segments';

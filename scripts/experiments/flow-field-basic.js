@@ -2,7 +2,7 @@ import tinycolor from 'tinycolor2';
 import { mapRange, uvFromAngle, angleFromVector, snapNumber, quantize, houghQuantize } from '../rndrgen/math/math';
 import { edgeWrap, Particle, createRandomParticleValues } from '../rndrgen/systems/Particle';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { nicePalette, hslFromRange } from '../rndrgen/color/palettes';
 import { Vector } from '../rndrgen/math/Vector';
 import {

@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2';
 import { degreesToRadians } from '../rndrgen/math/math';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, scale } from '../rndrgen/Sketch';
+import { ratio, scale } from '../rndrgen/sketch';
 import { brightest, darkest, hslFromRange, nicePalette } from '../rndrgen/color/palettes';
 import { simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
 import { randomPointAround, randomWholeBetween } from '../rndrgen/math/random';

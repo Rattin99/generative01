@@ -1,5 +1,5 @@
 import { background } from '../rndrgen/canvas/canvas';
-import { orientation, ratio } from '../rndrgen/Sketch';
+import { orientation, ratio } from '../rndrgen/sketch';
 
 export const blank = () => {
     const config = {

@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
-import { ratio, orientation, scale } from '../rndrgen/Sketch';
+import { ratio, orientation, scale } from '../rndrgen/sketch';
 import { mapRange} from '../rndrgen/math/math';
 import { randomNumberBetween } from '../rndrgen/math/random';
 import { ribbonSegmented ribbonSegment } from '../rndrgen/canvas/ribbon';
