@@ -37,20 +37,3 @@ const simplex2d = (x, y) => simplexNoise2d(x, y, 0.002);
 const simplex3d = (x, y) => simplexNoise3d(x, y, time, 0.0005);
 const clifford = (x, y, scale) => cliffordAttractor(canvas.width, canvas.height, x, y, scale);
 const jong = (x, y, scale) => jongAttractor(canvas.width, canvas.height, x, y, scale);
-
-// testing different attractor functions
-export const fieldFlowAtPoint = (x, y) => {
-    const simplex = simplexNoise2d(x, y, 0.01);
-    const theta = simplex;
-    // const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
-    // const r2 = (Math.pow(x, 2) + 0.8 * Math.pow(y, 1 / 2)) * 8 * Math.PI * 4;
-    // const theta = ((r1 + r2 + simplex) / 3) * 0.001;
-    // const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
-    // const theta = Math.atan2(y, x); // cones out from top left
-    // const theta = x + y + Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // bl to tr diag and cross perp lines
-    // const theta = Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // vertical lines
-    // const theta = Math.cos(x) * Math.sin(x) * attractorScale; // horizontal lines
-    // const theta = x * Math.sin(y) * attractorScale; // scribble
-    // const theta = Math.sin(x * attractorScale) + Math.sin(y * attractorScale); // diamonds
-    return theta * TAU;
-};
