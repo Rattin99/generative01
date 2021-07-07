@@ -1,11 +1,5 @@
 import csRandom from 'canvas-sketch-util/random';
-import { TAU } from './math';
-
-const create2dNoise = (u, v, amplitude = 1, frequency = 0.5) =>
-    csRandom.noise2D(u * frequency, v * frequency) * amplitude;
-
-const create3dNoise = (u, v, t, amplitude = 1, frequency = 0.5) =>
-    csRandom.noise3D(u * frequency, v * frequency, t * frequency) * amplitude;
+import { mapRange, TAU } from './math';
 
 export const noiseType = {
     none: -1,
@@ -14,10 +8,10 @@ export const noiseType = {
 };
 
 /*
-const theta = simplexNoise2d(x, y, 0.01);;
 const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
 const r2 = (Math.pow(x, 2) + 0.8 * Math.pow(y, 1 / 2)) * 8 * Math.PI * 4;
 const theta = ((r1 + r2 + simplex) / 3) * 0.001;
+
 const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
 const theta = Math.atan2(y, x); // cones out from top left
 const theta = x + y + Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // bl to tr diag and cross perp lines
@@ -28,18 +22,20 @@ const theta = Math.sin(x * attractorScale) + Math.sin(y * attractorScale); // di
 */
 
 export class Noise {
-    constructor(type, amplitude = 1, frequency = 0.001) {
+    constructor(type, amplitude = 1, frequency = 0.001, min = 0, max = 1) {
         this.type = type;
         this.amplitude = amplitude;
         this.frequency = frequency;
+        this.min = min;
+        this.max = max;
     }
 
     simplexNoise2d(x, y) {
-        return create2dNoise(x, y, this.amplitude, this.frequency);
+        return csRandom.noise2D(x * this.frequency, y * this.frequency) * this.amplitude;
     }
 
     simplexNoise3d(x, y, z) {
-        return create3dNoise(x, y, z, this.amplitude, this.frequency);
+        return csRandom.noise3D(x * this.frequency, y * this.frequency, z * this.frequency) * this.amplitude;
     }
 
     diagLines(x, y) {
@@ -51,17 +47,28 @@ export class Noise {
     }
 
     atPosition(x, y, z = 0) {
+        let value = 0;
         switch (this.type) {
-            case 0:
-                return this.simplexNoise2d(x, y);
-            case 1:
-                return this.simplexNoise3d(x, y, z);
+            case noiseType.simplex2d:
+                value = this.simplexNoise2d(x, y);
+                break;
+            case noiseType.simplex3d:
+                value = this.simplexNoise3d(x, y, z);
+                break;
             default:
-                return 1;
+                value = 1;
         }
+        if (this.min !== 0 && this.min !== 1) {
+            value = mapRange(0, 1, this.min, this.max, value);
+        }
+        return value;
     }
 
     atPositionRad(x, y, z = 0) {
         return this.atPosition(x, y, z) * TAU;
+    }
+
+    atPoint({ x, y, z }) {
+        return this.atPosition(x, y, z);
     }
 }
