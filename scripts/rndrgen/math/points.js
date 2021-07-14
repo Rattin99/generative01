@@ -5,6 +5,8 @@ import { getCurvePoints } from './curve-calc';
 export const point = (x, y) => ({ x, y });
 export const pointA = (x, y) => [x, y];
 
+export const midPoint = (a, b) => Math.round((b - a) / 2) + a;
+
 export const pointObjectToPointArray = (p) => [p.x, p.y];
 export const pointArrayToPointObject = (a) => ({ x: a[0], y: a[1] });
 export const pointArrayToVector = (a) => new Vector(a[0], a[1]);

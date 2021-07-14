@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import * as cnvs from './canvas';
-import { snapNumber } from '../math/math';
+import { snapNumber, TAU } from '../math/math';
 
 export const pixel = (context) => (x, y, color = 'black', mode = 'square', size) => {
     size = size || cnvs.currentContextScale();
@@ -57,7 +57,7 @@ export const circle = (context) => (x, y, radius, color) => {
         context.strokeStyle = tinycolor(color).toRgbString();
     }
 
-    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.arc(x, y, radius, 0, TAU, false);
     context.stroke();
     context.closePath();
 };

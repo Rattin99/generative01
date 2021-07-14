@@ -1,12 +1,12 @@
 import tinycolor from 'tinycolor2';
 import { background } from '../rndrgen/canvas/canvas';
 import { ratio, orientation, scale } from '../rndrgen/sketch';
-import { mapRange} from '../rndrgen/math/math';
+import { mapRange } from '../rndrgen/math/math';
 import { randomNumberBetween } from '../rndrgen/math/random';
-import { ribbonSegmented ribbonSegment } from '../rndrgen/canvas/ribbon';
+import { ribbonSegmented, ribbonSegment } from '../rndrgen/canvas/ribbon';
 import { splatter } from '../scratch/shapes';
 import { cliffordAttractor, simplexNoise2d, simplexNoise3d } from '../rndrgen/math/attractors';
-import {nicePalette} from "../rndrgen/color/palettes";
+import { nicePalette } from '../rndrgen/color/palettes';
 
 /*
 Original inspiration
@@ -158,7 +158,6 @@ export const waves01b = () => {
             ribbonSegment(context)(waveTop, waveBottom.reverse(), color, true, 0);
             drawDots(context, waveTop, currentY, color, renderScale, false);
             // ribbonSegmented(context)(waveTop, waveBottom, color, { segments: 15, gap: 0, colors: palette });
-
 
             currentY += incrementY;
         }

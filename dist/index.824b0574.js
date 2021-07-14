@@ -389,10 +389,12 @@ var _normalizeCssDefault = parcelHelpers.interopDefault(_normalizeCss);
 var _variationsIndex = require("./variationsIndex");
 var _rndrgen = require("./rndrgen/rndrgen");
 var _brushShape = require("./experiments/brush-shape");
+var _circles = require("./experiments/circles");
+var _circlesPacking = require("./experiments/circles-packing");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _brushShape.brushShape;
+const experimentalVariation = _circlesPacking.circlePacking01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -412,7 +414,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5UHg8","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","./experiments/brush-shape":"RkIkf","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5UHg8":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3492,6 +3494,8 @@ parcelHelpers.export(exports, "point", ()=>point
 );
 parcelHelpers.export(exports, "pointA", ()=>pointA
 );
+parcelHelpers.export(exports, "midPoint", ()=>midPoint
+);
 parcelHelpers.export(exports, "pointObjectToPointArray", ()=>pointObjectToPointArray
 );
 parcelHelpers.export(exports, "pointArrayToPointObject", ()=>pointArrayToPointObject
@@ -3542,6 +3546,8 @@ const pointA = (x, y)=>[
         x,
         y
     ]
+;
+const midPoint = (a, b)=>Math.round((b - a) / 2) + a
 ;
 const pointObjectToPointArray = (p)=>[
         p.x,
@@ -4013,7 +4019,7 @@ const circleOld = (context)=>(strokeWidth, x, y, radius, color)=>{
 const circle = (context)=>(x, y, radius, color)=>{
         context.beginPath();
         if (color) context.strokeStyle = _tinycolor2Default.default(color).toRgbString();
-        context.arc(x, y, radius, 0, Math.PI * 2, false);
+        context.arc(x, y, radius, 0, _math.TAU, false);
         context.stroke();
         context.closePath();
     }
@@ -4983,8 +4989,6 @@ parcelHelpers.export(exports, "cliffordAttractor", ()=>cliffordAttractor
 );
 parcelHelpers.export(exports, "jongAttractor", ()=>jongAttractor
 );
-parcelHelpers.export(exports, "fieldFlowAtPoint", ()=>fieldFlowAtPoint
-);
 var _math = require("./math");
 var _random = require("./random");
 const simplexNoise2d = (x, y, f = 0.0005)=>_random.create2dNoise(x, y, 1, f) * _math.TAU
@@ -5024,21 +5028,6 @@ const clifford = (x, y, scale)=>cliffordAttractor(canvas.width, canvas.height, x
 ;
 const jong = (x, y, scale)=>jongAttractor(canvas.width, canvas.height, x, y, scale)
 ;
-const fieldFlowAtPoint = (x, y)=>{
-    const simplex = simplexNoise2d(x, y, 0.01);
-    const theta = simplex;
-    // const r1 = (Math.sin(1.2 * x) + 0.2 * Math.atan(2 * y)) * 8 * Math.PI;
-    // const r2 = (Math.pow(x, 2) + 0.8 * Math.pow(y, 1 / 2)) * 8 * Math.PI * 4;
-    // const theta = ((r1 + r2 + simplex) / 3) * 0.001;
-    // const theta = ((Math.cos(x) + x + Math.sin(y)) * 24) % (Math.PI / 2); // wander dl like like
-    // const theta = Math.atan2(y, x); // cones out from top left
-    // const theta = x + y + Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // bl to tr diag and cross perp lines
-    // const theta = Math.cos(x * attractorScale) * Math.sin(x * attractorScale); // vertical lines
-    // const theta = Math.cos(x) * Math.sin(x) * attractorScale; // horizontal lines
-    // const theta = x * Math.sin(y) * attractorScale; // scribble
-    // const theta = Math.sin(x * attractorScale) + Math.sin(y * attractorScale); // diamonds
-    return theta * _math.TAU;
-};
 
 },{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3qayM":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -5248,7 +5237,7 @@ class Palette {
     }
 }
 
-},{"tinycolor2":"101FG","nice-color-palettes":"6CT3X","../math/math":"4t0bw","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6CT3X":[function(require,module,exports) {
+},{"tinycolor2":"101FG","nice-color-palettes":"3CNWv","../math/math":"4t0bw","../math/random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3CNWv":[function(require,module,exports) {
 module.exports = JSON.parse("[[\"#69d2e7\",\"#a7dbd8\",\"#e0e4cc\",\"#f38630\",\"#fa6900\"],[\"#fe4365\",\"#fc9d9a\",\"#f9cdad\",\"#c8c8a9\",\"#83af9b\"],[\"#ecd078\",\"#d95b43\",\"#c02942\",\"#542437\",\"#53777a\"],[\"#556270\",\"#4ecdc4\",\"#c7f464\",\"#ff6b6b\",\"#c44d58\"],[\"#774f38\",\"#e08e79\",\"#f1d4af\",\"#ece5ce\",\"#c5e0dc\"],[\"#e8ddcb\",\"#cdb380\",\"#036564\",\"#033649\",\"#031634\"],[\"#490a3d\",\"#bd1550\",\"#e97f02\",\"#f8ca00\",\"#8a9b0f\"],[\"#594f4f\",\"#547980\",\"#45ada8\",\"#9de0ad\",\"#e5fcc2\"],[\"#00a0b0\",\"#6a4a3c\",\"#cc333f\",\"#eb6841\",\"#edc951\"],[\"#e94e77\",\"#d68189\",\"#c6a49a\",\"#c6e5d9\",\"#f4ead5\"],[\"#3fb8af\",\"#7fc7af\",\"#dad8a7\",\"#ff9e9d\",\"#ff3d7f\"],[\"#d9ceb2\",\"#948c75\",\"#d5ded9\",\"#7a6a53\",\"#99b2b7\"],[\"#ffffff\",\"#cbe86b\",\"#f2e9e1\",\"#1c140d\",\"#cbe86b\"],[\"#efffcd\",\"#dce9be\",\"#555152\",\"#2e2633\",\"#99173c\"],[\"#343838\",\"#005f6b\",\"#008c9e\",\"#00b4cc\",\"#00dffc\"],[\"#413e4a\",\"#73626e\",\"#b38184\",\"#f0b49e\",\"#f7e4be\"],[\"#ff4e50\",\"#fc913a\",\"#f9d423\",\"#ede574\",\"#e1f5c4\"],[\"#99b898\",\"#fecea8\",\"#ff847c\",\"#e84a5f\",\"#2a363b\"],[\"#655643\",\"#80bca3\",\"#f6f7bd\",\"#e6ac27\",\"#bf4d28\"],[\"#00a8c6\",\"#40c0cb\",\"#f9f2e7\",\"#aee239\",\"#8fbe00\"],[\"#351330\",\"#424254\",\"#64908a\",\"#e8caa4\",\"#cc2a41\"],[\"#554236\",\"#f77825\",\"#d3ce3d\",\"#f1efa5\",\"#60b99a\"],[\"#5d4157\",\"#838689\",\"#a8caba\",\"#cad7b2\",\"#ebe3aa\"],[\"#8c2318\",\"#5e8c6a\",\"#88a65e\",\"#bfb35a\",\"#f2c45a\"],[\"#fad089\",\"#ff9c5b\",\"#f5634a\",\"#ed303c\",\"#3b8183\"],[\"#ff4242\",\"#f4fad2\",\"#d4ee5e\",\"#e1edb9\",\"#f0f2eb\"],[\"#f8b195\",\"#f67280\",\"#c06c84\",\"#6c5b7b\",\"#355c7d\"],[\"#d1e751\",\"#ffffff\",\"#000000\",\"#4dbce9\",\"#26ade4\"],[\"#1b676b\",\"#519548\",\"#88c425\",\"#bef202\",\"#eafde6\"],[\"#5e412f\",\"#fcebb6\",\"#78c0a8\",\"#f07818\",\"#f0a830\"],[\"#bcbdac\",\"#cfbe27\",\"#f27435\",\"#f02475\",\"#3b2d38\"],[\"#452632\",\"#91204d\",\"#e4844a\",\"#e8bf56\",\"#e2f7ce\"],[\"#eee6ab\",\"#c5bc8e\",\"#696758\",\"#45484b\",\"#36393b\"],[\"#f0d8a8\",\"#3d1c00\",\"#86b8b1\",\"#f2d694\",\"#fa2a00\"],[\"#2a044a\",\"#0b2e59\",\"#0d6759\",\"#7ab317\",\"#a0c55f\"],[\"#f04155\",\"#ff823a\",\"#f2f26f\",\"#fff7bd\",\"#95cfb7\"],[\"#b9d7d9\",\"#668284\",\"#2a2829\",\"#493736\",\"#7b3b3b\"],[\"#bbbb88\",\"#ccc68d\",\"#eedd99\",\"#eec290\",\"#eeaa88\"],[\"#b3cc57\",\"#ecf081\",\"#ffbe40\",\"#ef746f\",\"#ab3e5b\"],[\"#a3a948\",\"#edb92e\",\"#f85931\",\"#ce1836\",\"#009989\"],[\"#300030\",\"#480048\",\"#601848\",\"#c04848\",\"#f07241\"],[\"#67917a\",\"#170409\",\"#b8af03\",\"#ccbf82\",\"#e33258\"],[\"#aab3ab\",\"#c4cbb7\",\"#ebefc9\",\"#eee0b7\",\"#e8caaf\"],[\"#e8d5b7\",\"#0e2430\",\"#fc3a51\",\"#f5b349\",\"#e8d5b9\"],[\"#ab526b\",\"#bca297\",\"#c5ceae\",\"#f0e2a4\",\"#f4ebc3\"],[\"#607848\",\"#789048\",\"#c0d860\",\"#f0f0d8\",\"#604848\"],[\"#b6d8c0\",\"#c8d9bf\",\"#dadabd\",\"#ecdbbc\",\"#fedcba\"],[\"#a8e6ce\",\"#dcedc2\",\"#ffd3b5\",\"#ffaaa6\",\"#ff8c94\"],[\"#3e4147\",\"#fffedf\",\"#dfba69\",\"#5a2e2e\",\"#2a2c31\"],[\"#fc354c\",\"#29221f\",\"#13747d\",\"#0abfbc\",\"#fcf7c5\"],[\"#cc0c39\",\"#e6781e\",\"#c8cf02\",\"#f8fcc1\",\"#1693a7\"],[\"#1c2130\",\"#028f76\",\"#b3e099\",\"#ffeaad\",\"#d14334\"],[\"#a7c5bd\",\"#e5ddcb\",\"#eb7b59\",\"#cf4647\",\"#524656\"],[\"#dad6ca\",\"#1bb0ce\",\"#4f8699\",\"#6a5e72\",\"#563444\"],[\"#5c323e\",\"#a82743\",\"#e15e32\",\"#c0d23e\",\"#e5f04c\"],[\"#edebe6\",\"#d6e1c7\",\"#94c7b6\",\"#403b33\",\"#d3643b\"],[\"#fdf1cc\",\"#c6d6b8\",\"#987f69\",\"#e3ad40\",\"#fcd036\"],[\"#230f2b\",\"#f21d41\",\"#ebebbc\",\"#bce3c5\",\"#82b3ae\"],[\"#b9d3b0\",\"#81bda4\",\"#b28774\",\"#f88f79\",\"#f6aa93\"],[\"#3a111c\",\"#574951\",\"#83988e\",\"#bcdea5\",\"#e6f9bc\"],[\"#5e3929\",\"#cd8c52\",\"#b7d1a3\",\"#dee8be\",\"#fcf7d3\"],[\"#1c0113\",\"#6b0103\",\"#a30006\",\"#c21a01\",\"#f03c02\"],[\"#000000\",\"#9f111b\",\"#b11623\",\"#292c37\",\"#cccccc\"],[\"#382f32\",\"#ffeaf2\",\"#fcd9e5\",\"#fbc5d8\",\"#f1396d\"],[\"#e3dfba\",\"#c8d6bf\",\"#93ccc6\",\"#6cbdb5\",\"#1a1f1e\"],[\"#f6f6f6\",\"#e8e8e8\",\"#333333\",\"#990100\",\"#b90504\"],[\"#1b325f\",\"#9cc4e4\",\"#e9f2f9\",\"#3a89c9\",\"#f26c4f\"],[\"#a1dbb2\",\"#fee5ad\",\"#faca66\",\"#f7a541\",\"#f45d4c\"],[\"#c1b398\",\"#605951\",\"#fbeec2\",\"#61a6ab\",\"#accec0\"],[\"#5e9fa3\",\"#dcd1b4\",\"#fab87f\",\"#f87e7b\",\"#b05574\"],[\"#951f2b\",\"#f5f4d7\",\"#e0dfb1\",\"#a5a36c\",\"#535233\"],[\"#8dccad\",\"#988864\",\"#fea6a2\",\"#f9d6ac\",\"#ffe9af\"],[\"#2d2d29\",\"#215a6d\",\"#3ca2a2\",\"#92c7a3\",\"#dfece6\"],[\"#413d3d\",\"#040004\",\"#c8ff00\",\"#fa023c\",\"#4b000f\"],[\"#eff3cd\",\"#b2d5ba\",\"#61ada0\",\"#248f8d\",\"#605063\"],[\"#ffefd3\",\"#fffee4\",\"#d0ecea\",\"#9fd6d2\",\"#8b7a5e\"],[\"#cfffdd\",\"#b4dec1\",\"#5c5863\",\"#a85163\",\"#ff1f4c\"],[\"#9dc9ac\",\"#fffec7\",\"#f56218\",\"#ff9d2e\",\"#919167\"],[\"#4e395d\",\"#827085\",\"#8ebe94\",\"#ccfc8e\",\"#dc5b3e\"],[\"#a8a7a7\",\"#cc527a\",\"#e8175d\",\"#474747\",\"#363636\"],[\"#f8edd1\",\"#d88a8a\",\"#474843\",\"#9d9d93\",\"#c5cfc6\"],[\"#046d8b\",\"#309292\",\"#2fb8ac\",\"#93a42a\",\"#ecbe13\"],[\"#f38a8a\",\"#55443d\",\"#a0cab5\",\"#cde9ca\",\"#f1edd0\"],[\"#a70267\",\"#f10c49\",\"#fb6b41\",\"#f6d86b\",\"#339194\"],[\"#ff003c\",\"#ff8a00\",\"#fabe28\",\"#88c100\",\"#00c176\"],[\"#ffedbf\",\"#f7803c\",\"#f54828\",\"#2e0d23\",\"#f8e4c1\"],[\"#4e4d4a\",\"#353432\",\"#94ba65\",\"#2790b0\",\"#2b4e72\"],[\"#0ca5b0\",\"#4e3f30\",\"#fefeeb\",\"#f8f4e4\",\"#a5b3aa\"],[\"#4d3b3b\",\"#de6262\",\"#ffb88c\",\"#ffd0b3\",\"#f5e0d3\"],[\"#fffbb7\",\"#a6f6af\",\"#66b6ab\",\"#5b7c8d\",\"#4f2958\"],[\"#edf6ee\",\"#d1c089\",\"#b3204d\",\"#412e28\",\"#151101\"],[\"#9d7e79\",\"#ccac95\",\"#9a947c\",\"#748b83\",\"#5b756c\"],[\"#fcfef5\",\"#e9ffe1\",\"#cdcfb7\",\"#d6e6c3\",\"#fafbe3\"],[\"#9cddc8\",\"#bfd8ad\",\"#ddd9ab\",\"#f7af63\",\"#633d2e\"],[\"#30261c\",\"#403831\",\"#36544f\",\"#1f5f61\",\"#0b8185\"],[\"#aaff00\",\"#ffaa00\",\"#ff00aa\",\"#aa00ff\",\"#00aaff\"],[\"#d1313d\",\"#e5625c\",\"#f9bf76\",\"#8eb2c5\",\"#615375\"],[\"#ffe181\",\"#eee9e5\",\"#fad3b2\",\"#ffba7f\",\"#ff9c97\"],[\"#73c8a9\",\"#dee1b6\",\"#e1b866\",\"#bd5532\",\"#373b44\"],[\"#805841\",\"#dcf7f3\",\"#fffcdd\",\"#ffd8d8\",\"#f5a2a2\"]]");
 
 },{}],"2OcGA":[function(require,module,exports) {
@@ -6102,7 +6091,7 @@ const getPointGrid = (x, y, w, h, cols = 2, rows = 2)=>{
     return points;
 };
 
-},{"./points":"4RQVg","./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"omRBU":[function(require,module,exports) {
+},{"./points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./math":"4t0bw"}],"omRBU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldParticles", ()=>flowFieldParticles
@@ -6664,7 +6653,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/sketch");
+var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
 var _random = require("../rndrgen/math/random");
@@ -6767,7 +6756,7 @@ const radialNoise = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"3hmlu":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3hmlu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons", ()=>flowFieldRibbons
@@ -7601,7 +7590,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/sketch");
+var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPng = require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png");
@@ -7745,7 +7734,7 @@ const larrycarlson02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5WOur":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "alexander-krivitskiy-2wOEPBkaH7o-unsplash.c33afb25.png";
 
 },{"./bundle-url":"3seVR"}],"6SHt4":[function(require,module,exports) {
@@ -8551,7 +8540,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/sketch");
+var _sketch = require("../rndrgen/Sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
@@ -8747,7 +8736,7 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5BOkN":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5BOkN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "isoline", ()=>isoline
@@ -8851,14 +8840,8 @@ parcelHelpers.export(exports, "Square", ()=>Square
 parcelHelpers.export(exports, "createRectGrid", ()=>createRectGrid
 );
 var _math = require("./math");
+var _points = require("./points");
 var _random = require("./random");
-const point = (x, y)=>({
-        x,
-        y
-    })
-;
-const midPoint = (a, b)=>Math.round((b - a) / 2) + a
-;
 // a...d are 0 or 1
 const getStateFromCorners = (a, b, c, d)=>a * 8 + b * 4 + c * 2 + d * 1
 ;
@@ -8873,8 +8856,8 @@ class Rectangle {
         this.h = height;
         this.x2 = x + width;
         this.y2 = y + height;
-        this.mx = midPoint(this.x, this.x2);
-        this.my = midPoint(this.y, this.y2);
+        this.mx = _points.midPoint(this.x, this.x2);
+        this.my = _points.midPoint(this.y, this.y2);
         // -1 to 1 noise values
         this.corners = corners || [
             0,
@@ -8896,43 +8879,43 @@ class Rectangle {
         return this.average = (this.corners[0] + this.corners[2] + this.corners[2] + this.corners[3]) / 4;
     }
     get center() {
-        return point(this.mx, this.my);
+        return _points.point(this.mx, this.my);
     }
     get midTop() {
-        return point(this.mx, this.y);
+        return _points.point(this.mx, this.y);
     }
     get midRight() {
-        return point(this.x2, this.my);
+        return _points.point(this.x2, this.my);
     }
     get midBottom() {
-        return point(this.mx, this.y2);
+        return _points.point(this.mx, this.y2);
     }
     get midLeft() {
-        return point(this.x, this.my);
+        return _points.point(this.x, this.my);
     }
     get lerpTop() {
-        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[0], this.corners[1])), this.y);
+        return _points.point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[0], this.corners[1])), this.y);
     }
     get lerpRight() {
-        return point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.corners[1], this.corners[2])));
+        return _points.point(this.x2, _math.lerp(this.y, this.y2, lerpAmt(this.corners[1], this.corners[2])));
     }
     get lerpBottom() {
-        return point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[3], this.corners[2])), this.y2);
+        return _points.point(_math.lerp(this.x, this.x2, lerpAmt(this.corners[3], this.corners[2])), this.y2);
     }
     get lerpLeft() {
-        return point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
+        return _points.point(this.x, _math.lerp(this.y, this.y2, lerpAmt(this.corners[0], this.corners[3])));
     }
     get cornerAPx() {
-        return point(this.x, this.y);
+        return _points.point(this.x, this.y);
     }
     get cornerBPx() {
-        return point(this.x2, this.y);
+        return _points.point(this.x2, this.y);
     }
     get cornerCPx() {
-        return point(this.x2, this.y2);
+        return _points.point(this.x2, this.y2);
     }
     get cornerDPx() {
-        return point(this.x, this.y2);
+        return _points.point(this.x, this.y2);
     }
     getSides(smooth) {
         return {
@@ -8945,7 +8928,7 @@ class Rectangle {
     randomPointInside() {
         const x1 = _random.randomNormalWholeBetween(0, this.w) + this.x;
         const y1 = _random.randomNormalWholeBetween(0, this.h) + this.y;
-        return point(x1, y1);
+        return _points.point(x1, y1);
     }
     contains(p) {
         // return p.x >= this.x - this.w && p.x < this.x + this.w && p.y >= this.y - this.h && p.y < this.y + this.h;
@@ -8991,7 +8974,7 @@ const createRectGrid = (x2, y2, w, h, cols = 2, rows = 2, colgap = 0, rowgap = 0
     return rects;
 };
 
-},{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3y6eB":[function(require,module,exports) {
+},{"./math":"4t0bw","./random":"1SLuP","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./points":"4RQVg"}],"3y6eB":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "truchetTiles", ()=>truchetTiles
@@ -9851,6 +9834,313 @@ const brushShape = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/segments":"5KdqE","../rndrgen/math/points":"4RQVg","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/Rectangle":"1Uf2J","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/segments":"5KdqE","../rndrgen/math/points":"4RQVg","../rndrgen/math/math":"4t0bw","../rndrgen/math/random":"1SLuP","tinycolor2":"101FG","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/sketch":"2OcGA"}],"4o64S":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "circles01", ()=>circles01
+);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _circle = require("../rndrgen/math/Circle");
+const drawCircle = (context)=>({ x , y , radius  }, color = 'black')=>{
+        _primatives.circle(context)(x, y, radius, color);
+    }
+;
+const circles01 = ()=>{
+    const config = {
+        name: 'circles-01',
+        ..._sketch.instagram
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    const renderScale = config.scale; // 1 or 2
+    const backgroundColor = _palettes.paperWhite.clone();
+    const foreColor = _palettes.bicPenBlue.clone();
+    let c;
+    let r = 0;
+    const maxDepth = 3;
+    const setup = ({ canvas , context  })=>{
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        startX = margin;
+        maxX = canvas.width - margin * 2;
+        startY = margin;
+        maxY = canvas.height - margin * 2;
+        c = new _circle.Circle(canvasCenterX, canvasCenterY, canvasCenterX * 0.75);
+        _canvas.background(canvas, context)(backgroundColor);
+    // drawCircle(context)(c, foreColor);
+    };
+    const subdiv = (c1, depth = 0)=>{
+        if ((depth++) > maxDepth) return;
+        c1.subdivide(r);
+        r += Math.PI / 8;
+        c1.children.forEach((s)=>{
+            subdiv(s, depth);
+        });
+    };
+    const drawSubdiv = (c1)=>{
+        drawCircle(ctx)(c1, foreColor);
+        c1.children.forEach((s)=>{
+            drawSubdiv(s);
+        });
+    };
+    const draw = ({ canvas , context  })=>{
+        // background(canvas, context)(backgroundColor);
+        // c.subdivide(2);
+        subdiv(c);
+        drawSubdiv(c);
+        // console.log(c);
+        // c.children.forEach((s) => {
+        //     drawCircle(context)(s);
+        // });
+        // const p = c.randomPointInside();
+        // pixel(context)(p.x, p.y, foreColor);
+        return -1;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/Circle":"2UK2m"}],"2UK2m":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Circle", ()=>Circle
+);
+// For circle packing
+// https://www.youtube.com/watch?v=QHEQuoIKgNE&t=1s
+parcelHelpers.export(exports, "PackCircle", ()=>PackCircle
+);
+var _points = require("./points");
+var _random = require("./random");
+var _math = require("./math");
+class Circle {
+    constructor(x, y, radius){
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.diameter = radius * 2;
+        // array of subdivisions
+        this.children = [];
+        // 1 or -1
+        this.phase = 1;
+        this.depth = 0;
+    }
+    get center() {
+        return _points.point(this.x, this.y);
+    }
+    get midTop() {
+        return _points.point(this.x, this.y - this.radius);
+    }
+    get midRight() {
+        return _points.point(this.x + this.radius, this.y);
+    }
+    get midBottom() {
+        return _points.point(this.x, this.y + this.radius);
+    }
+    get midLeft() {
+        return _points.point(this.x - this.radius, this.y);
+    }
+    get bounds() {
+        return {
+            top: this.y - this.radius,
+            right: this.x + this.radius,
+            bottom: this.y + this.radius,
+            left: this.x - this.radius
+        };
+    }
+    randomPointInside() {
+        const radius1 = _random.randomWholeBetween(0, this.radius);
+        const angle = _random.randomNumberBetween(0, _math.TAU);
+        const x1 = radius1 * Math.cos(angle) + this.x;
+        const y1 = radius1 * Math.sin(angle) + this.y;
+        return _points.point(x1, y1);
+    }
+    contains(p, buffer = 0, onEdge = false) {
+        const dist = Math.abs(_points.pointDistance(p, this.center));
+        return onEdge ? dist <= this.radius + buffer : dist < this.radius + buffer;
+    }
+    intersects(circ, buffer = 0) {
+        const dist = Math.abs(_points.pointDistance(this.center, circ.center));
+        const rads = this.radius + circ.radius;
+        return dist - buffer < rads;
+    }
+    // https://en.wikipedia.org/wiki/Circle_packing_in_a_circle
+    subdivide(radian = 0) {
+        const pos = this.radius * (2 / 3);
+        const radius1 = this.radius * (1 / 3);
+        const step = 1.5708; // 90 degrees
+        let center = radian;
+        this.children.push(new Circle(this.x, this.y, radius1));
+        for(let i = 0; i < 4; i++){
+            const x1 = pos * Math.cos(center) + this.x;
+            const y1 = pos * Math.sin(center) + this.y;
+            this.children.push(new Circle(x1, y1, radius1));
+            center += step;
+        }
+        this.children.forEach((c)=>{
+            c.phase *= -1;
+            c.parent = this;
+            c.depth = this.depth + 1;
+        });
+    }
+}
+class PackCircle extends Circle {
+    constructor(x1, y1, r){
+        super(x1, y1, r);
+        this.growing = true;
+    }
+    grow() {
+        if (this.growing) this.radius += 1;
+    }
+    edges(rect) {
+        const b = this.bounds;
+        return b.left < rect.x || b.right > rect.x2 || b.top < rect.y || b.bottom > rect.y2;
+    }
+}
+
+},{"./points":"4RQVg","./random":"1SLuP","./math":"4t0bw","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5F9hs":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "circlePacking01", ()=>circlePacking01
+);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _circle = require("../rndrgen/math/Circle");
+var _rectangle = require("../rndrgen/math/Rectangle");
+var _circlePackingRandom = require("../rndrgen/systems/CirclePackingRandom");
+const drawCircle = (context)=>({ x , y , radius  }, color = 'black')=>{
+        _primatives.circle(context)(x, y, radius, color);
+    }
+;
+const circlePacking01 = ()=>{
+    const config = {
+        name: 'circle-packing-01',
+        ..._sketch.instagram
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    const renderScale = config.scale; // 1 or 2
+    const backgroundColor = _palettes.paperWhite.clone();
+    const foreColor = _palettes.bicPenBlue.clone();
+    let canvasBounds;
+    let canvasCircle;
+    const fill = _circlePackingRandom.randomCircleFill(500);
+    const setup = ({ canvas , context  })=>{
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        canvasBounds = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
+        canvasCircle = new _circle.PackCircle(canvasCenterX, canvasCenterY, canvasCenterX * 0.75);
+        _canvas.background(canvas, context)(backgroundColor);
+    };
+    const randomNewPoint = (_)=>canvasCircle.randomPointInside()
+    ;
+    const draw = ({ canvas , context  })=>{
+        const result = fill.insert(randomNewPoint);
+        _canvas.background(canvas, context)(backgroundColor);
+        fill.grow(canvasBounds);
+        fill.getCircles().forEach((c)=>drawCircle(ctx)(c, foreColor)
+        );
+        return result;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/Circle":"2UK2m","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/systems/CirclePackingRandom":"7MyN6"}],"7MyN6":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "randomCircleFill", ()=>randomCircleFill
+);
+var _circle = require("../math/Circle");
+const randomCircleFill = (maxCircles = 100, newPerFrame = 10, maxAttempts = 10)=>{
+    const circles = [];
+    // const newPerFrame = 10;
+    let newPlacementAttempts = 0;
+    // const maxAttempts = 10;
+    // const maxCircles = 300;
+    const getCircles = (_)=>circles
+    ;
+    const attemptNewCircle = (pointGenFn)=>{
+        // const x = randomNumberBetween(0, canvasWidth);
+        // const y = randomNumberBetween(0, canvasHeight);
+        const p = pointGenFn();
+        let inside = false;
+        // no new circle inside of an existing one
+        circles.forEach((c)=>{
+            if (c.contains(p, 5)) inside = true;
+        });
+        if (!inside) return new _circle.PackCircle(p.x, p.y, 2);
+        return null;
+    };
+    const insert = (pointGenFn)=>{
+        for(let i = 0; i < newPerFrame; i++){
+            const newc = attemptNewCircle(pointGenFn);
+            if (newc) {
+                circles.push(newc);
+                if (circles.length > maxCircles) {
+                    console.log('Max circles');
+                    return -1;
+                }
+                newPlacementAttempts = 0;
+            } else if ((++newPlacementAttempts) > maxAttempts) {
+                console.log('Max attempts exceeded');
+                return -1;
+            }
+        }
+        return 1;
+    };
+    const grow = (edges)=>{
+        circles.forEach((c)=>{
+            if (c.growing) {
+                if (c.edges(edges)) c.growing = false;
+                else circles.forEach((other)=>{
+                    if (c.growing && c !== other) {
+                        if (c.intersects(other, 2)) c.growing = false;
+                    }
+                });
+            }
+            c.grow();
+        });
+    };
+    return {
+        insert,
+        grow,
+        getCircles
+    };
+};
+
+},{"../math/Circle":"2UK2m","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

@@ -1,8 +1,6 @@
 import { lerp } from './math';
+import { point, midPoint } from './points';
 import { randomNormalWholeBetween } from './random';
-
-const point = (x, y) => ({ x, y });
-const midPoint = (a, b) => Math.round((b - a) / 2) + a;
 
 // a...d are 0 or 1
 const getStateFromCorners = (a, b, c, d) => a * 8 + b * 4 + c * 2 + d * 1;

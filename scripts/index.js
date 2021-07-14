@@ -7,13 +7,15 @@ import { variationsIndex } from './variationsIndex';
 
 import * as rndrgen from './rndrgen/rndrgen';
 import { brushShape } from './experiments/brush-shape';
+import { circles01 } from './experiments/circles';
+import { circlePacking01 } from './experiments/circles-packing';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = brushShape;
+const experimentalVariation = circlePacking01;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

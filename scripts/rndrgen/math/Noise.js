@@ -64,6 +64,10 @@ export class Noise {
         return value;
     }
 
+    /*
+    https://www.bit-101.com/blog/2021/07/mapping-perlin-noise-to-angles/
+    https://www.bit-101.com/blog/2021/07/curl-noise/
+     */
     atPositionRad(x, y, z = 0) {
         return this.atPosition(x, y, z) * TAU;
     }
