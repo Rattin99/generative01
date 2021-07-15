@@ -1,0 +1,102 @@
+import { background } from '../rndrgen/canvas/canvas';
+import { instagram } from '../rndrgen/sketch';
+import { bicPenBlue, paperWhite } from '../rndrgen/color/palettes';
+import { circle, circleFilled } from '../rndrgen/canvas/primatives';
+import { PackCircle } from '../rndrgen/math/Circle';
+import { Rectangle } from '../rndrgen/math/Rectangle';
+import { randomCircleFill } from '../rndrgen/systems/CirclePackingRandom';
+import sourcePng from '../../media/images/leaves-400.jpg';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
+import { flatDepthSortedAsc, quadTreeFromPoints } from '../rndrgen/math/QuadTree';
+import { randomNormalNumberBetween, randomNumberBetween, randomWholeBetween } from '../rndrgen/math/random';
+import { truchet } from '../rndrgen/systems/truchetTiles';
+
+const drawCircle = (context) => ({ x, y, radius }, color = 'black') => {
+    circleFilled(context)(x, y, radius, color);
+};
+
+// https://www.youtube.com/watch?v=QHEQuoIKgNE&t=1s
+
+/*
+Random space filling
+ */
+
+export const circlePacking02 = () => {
+    const config = {
+        name: 'circle-packing-02',
+        ...instagram,
+    };
+
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    const renderScale = config.scale; // 1 or 2
+
+    const backgroundColor = paperWhite.clone().darken(80);
+    const foreColor = bicPenBlue.clone();
+
+    const image = new Bitmap(sourcePng);
+
+    let canvasBounds;
+    let canvasCircle;
+
+    const fill = randomCircleFill(5000, 500);
+
+    const setup = ({ canvas, context }) => {
+        ctx = context;
+
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+
+        canvasBounds = new Rectangle(0, 0, canvasWidth, canvasHeight);
+        canvasCircle = new PackCircle(canvasCenterX, canvasCenterY, canvasCenterX * 0.75);
+
+        image.init(canvas, context);
+        const points = image.thresholdAsPoints(200, 130);
+        const quadtree = quadTreeFromPoints(canvasBounds, 10, points);
+
+        const startingCircles = [];
+        flatDepthSortedAsc(quadtree).forEach((q) => {
+            const rad = Math.max(q.boundary.w / 5, 1);
+            const radDif = q.boundary.w / 2 - rad;
+            const x = q.boundary.mx + randomNormalNumberBetween(-1 * radDif, radDif);
+            const y = q.boundary.my + randomNormalNumberBetween(-1 * radDif, radDif);
+            startingCircles.push(new PackCircle(x, y, rad));
+        });
+        fill.setCircles(startingCircles);
+
+        background(canvas, context)(backgroundColor);
+    };
+
+    const randomNewPointInCircle = (_) => canvasCircle.randomPointInside();
+    const randomNewPointInCanvas = (_) => ({
+        x: randomNumberBetween(0, canvasWidth),
+        y: randomNumberBetween(0, canvasHeight),
+    });
+
+    const draw = ({ canvas, context }) => {
+        const result = fill.insert(randomNewPointInCanvas);
+
+        background(canvas, context)(backgroundColor);
+
+        fill.grow(canvasBounds);
+
+        fill.getCircles().forEach((c) => drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y)));
+
+        return result;
+    };
+    return {
+        config,
+        setup,
+        draw,
+    };
+};

@@ -391,10 +391,11 @@ var _rndrgen = require("./rndrgen/rndrgen");
 var _brushShape = require("./experiments/brush-shape");
 var _circles = require("./experiments/circles");
 var _circlesPacking = require("./experiments/circles-packing");
+var _circlesPacking2 = require("./experiments/circles-packing-2");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _circlesPacking.circlePacking01;
+const experimentalVariation = _circlesPacking2.circlePacking02;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -414,7 +415,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs","./experiments/circles-packing-2":"1jzcE"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -10084,13 +10085,15 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "randomCircleFill", ()=>randomCircleFill
 );
 var _circle = require("../math/Circle");
-const randomCircleFill = (maxCircles = 100, newPerFrame = 10, maxAttempts = 10)=>{
-    const circles = [];
+const randomCircleFill = (maxCircles = 100, maxAttempts = 10, newPerFrame = 10)=>{
+    let circles = [];
     // const newPerFrame = 10;
     let newPlacementAttempts = 0;
     // const maxAttempts = 10;
     // const maxCircles = 300;
     const getCircles = (_)=>circles
+    ;
+    const setCircles = (c)=>circles = c
     ;
     const attemptNewCircle = (pointGenFn)=>{
         // const x = randomNumberBetween(0, canvasWidth);
@@ -10137,10 +10140,102 @@ const randomCircleFill = (maxCircles = 100, newPerFrame = 10, maxAttempts = 10)=
     return {
         insert,
         grow,
-        getCircles
+        getCircles,
+        setCircles
     };
 };
 
-},{"../math/Circle":"2UK2m","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../math/Circle":"2UK2m","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1jzcE":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "circlePacking02", ()=>circlePacking02
+);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _circle = require("../rndrgen/math/Circle");
+var _rectangle = require("../rndrgen/math/Rectangle");
+var _circlePackingRandom = require("../rndrgen/systems/CirclePackingRandom");
+var _leaves400Jpg = require("../../media/images/leaves-400.jpg");
+var _leaves400JpgDefault = parcelHelpers.interopDefault(_leaves400Jpg);
+var _bitmap = require("../rndrgen/canvas/Bitmap");
+var _quadTree = require("../rndrgen/math/QuadTree");
+var _random = require("../rndrgen/math/random");
+var _truchetTiles = require("../rndrgen/systems/truchetTiles");
+const drawCircle = (context)=>({ x , y , radius  }, color = 'black')=>{
+        _primatives.circleFilled(context)(x, y, radius, color);
+    }
+;
+const circlePacking02 = ()=>{
+    const config = {
+        name: 'circle-packing-02',
+        ..._sketch.instagram
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 50;
+    const renderScale = config.scale; // 1 or 2
+    const backgroundColor = _palettes.paperWhite.clone().darken(80);
+    const foreColor = _palettes.bicPenBlue.clone();
+    const image = new _bitmap.Bitmap(_leaves400JpgDefault.default);
+    let canvasBounds;
+    let canvasCircle;
+    const fill = _circlePackingRandom.randomCircleFill(5000, 500);
+    const setup = ({ canvas , context  })=>{
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        canvasBounds = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
+        canvasCircle = new _circle.PackCircle(canvasCenterX, canvasCenterY, canvasCenterX * 0.75);
+        image.init(canvas, context);
+        const points = image.thresholdAsPoints(200, 130);
+        const quadtree = _quadTree.quadTreeFromPoints(canvasBounds, 10, points);
+        const startingCircles = [];
+        _quadTree.flatDepthSortedAsc(quadtree).forEach((q)=>{
+            const rad = Math.max(q.boundary.w / 5, 1);
+            const radDif = q.boundary.w / 2 - rad;
+            const x = q.boundary.mx + _random.randomNormalNumberBetween(-1 * radDif, radDif);
+            const y = q.boundary.my + _random.randomNormalNumberBetween(-1 * radDif, radDif);
+            startingCircles.push(new _circle.PackCircle(x, y, rad));
+        });
+        fill.setCircles(startingCircles);
+        _canvas.background(canvas, context)(backgroundColor);
+    };
+    const randomNewPointInCircle = (_)=>canvasCircle.randomPointInside()
+    ;
+    const randomNewPointInCanvas = (_)=>({
+            x: _random.randomNumberBetween(0, canvasWidth),
+            y: _random.randomNumberBetween(0, canvasHeight)
+        })
+    ;
+    const draw = ({ canvas , context  })=>{
+        const result = fill.insert(randomNewPointInCanvas);
+        _canvas.background(canvas, context)(backgroundColor);
+        fill.grow(canvasBounds);
+        fill.getCircles().forEach((c)=>drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y))
+        );
+        return result;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/Circle":"2UK2m","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/systems/CirclePackingRandom":"7MyN6","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/QuadTree":"652jH","../rndrgen/math/random":"1SLuP","../rndrgen/systems/truchetTiles":"6w7Yv","../../media/images/leaves-400.jpg":"1M9zi"}],"1M9zi":[function(require,module,exports) {
+module.exports = require('./bundle-url').getBundleURL() + "leaves-400.c3850f57.jpg";
+
+},{"./bundle-url":"3seVR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

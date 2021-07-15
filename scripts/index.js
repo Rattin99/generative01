@@ -9,13 +9,14 @@ import * as rndrgen from './rndrgen/rndrgen';
 import { brushShape } from './experiments/brush-shape';
 import { circles01 } from './experiments/circles';
 import { circlePacking01 } from './experiments/circles-packing';
+import { circlePacking02 } from './experiments/circles-packing-2';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = circlePacking01;
+const experimentalVariation = circlePacking02;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

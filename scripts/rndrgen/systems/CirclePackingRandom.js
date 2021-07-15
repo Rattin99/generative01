@@ -6,14 +6,15 @@ import { PackCircle } from '../math/Circle';
 Random space filling
  */
 
-export const randomCircleFill = (maxCircles = 100, newPerFrame = 10, maxAttempts = 10) => {
-    const circles = [];
+export const randomCircleFill = (maxCircles = 100, maxAttempts = 10, newPerFrame = 10) => {
+    let circles = [];
     // const newPerFrame = 10;
     let newPlacementAttempts = 0;
     // const maxAttempts = 10;
     // const maxCircles = 300;
 
     const getCircles = (_) => circles;
+    const setCircles = (c) => (circles = c);
 
     const attemptNewCircle = (pointGenFn) => {
         // const x = randomNumberBetween(0, canvasWidth);
@@ -73,5 +74,6 @@ export const randomCircleFill = (maxCircles = 100, newPerFrame = 10, maxAttempts
         insert,
         grow,
         getCircles,
+        setCircles,
     };
 };
