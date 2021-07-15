@@ -392,6 +392,7 @@ var _brushShape = require("./experiments/brush-shape");
 var _circles = require("./experiments/circles");
 var _circlesPacking = require("./experiments/circles-packing");
 var _circlesPacking2 = require("./experiments/circles-packing-2");
+var _bitmapTest01 = require("./experiments/bitmap-test-01");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
@@ -415,7 +416,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs","./experiments/circles-packing-2":"1jzcE"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs","./experiments/circles-packing-2":"1jzcE","./experiments/bitmap-test-01":"7Izx5"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -3979,7 +3980,7 @@ const pixel = (context)=>(x, y, color = 'black', mode = 'square', size)=>{
         size = size || _canvas.currentContextScale();
         context.beginPath();
         context.fillStyle = _tinycolor2Default.default(color).toRgbString();
-        if (mode === 'circleOld') {
+        if (mode === 'circle') {
             context.beginPath();
             context.arc(x, y, size, 0, Math.PI * 2, false);
             context.fill();
@@ -6413,6 +6414,8 @@ var _canvas = require("./canvas");
 var _math = require("../math/math");
 var _points = require("../math/points");
 var _utils = require("../utils");
+var _primatives = require("./primatives");
+var _edgeDetect = require("./EdgeDetect");
 class Bitmap {
     constructor(src1){
         this.scaleX = 1;
@@ -6440,12 +6443,38 @@ class Bitmap {
         this.canvas = canvas;
         this.context = context;
         this.context.drawImage(this.image, 0, 0);
-        const imageWidth = this.image.width || this.canvas.width;
-        const imageHeight = this.image.height || this.canvas.height;
-        this.imageData = this.context.getImageData(0, 0, imageWidth, imageHeight);
-        this.scaleX = this.canvas.width / imageWidth;
-        this.scaleY = this.canvas.height / imageHeight;
+        this.imageWidth = this.image.width || this.canvas.width;
+        this.imageHeight = this.image.height || this.canvas.height;
+        this.rawImageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+        this.refreshImageData();
+        this.scaleX = this.canvas.width / this.imageWidth;
+        this.scaleY = this.canvas.height / this.imageHeight;
         if (wipe) _canvas.clear(this.canvas, this.context);
+    }
+    refreshImageData() {
+        this.imageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+    }
+    resetImageData() {
+        this.context.putImageData(this.rawImageData, 0, 0);
+        this.refreshImageData();
+    }
+    findEdges(method = 0, blur = false) {
+        this.edge = _edgeDetect.initialize(this.canvas);
+        if (blur) {
+            this.edge.blur();
+            this.edge.greyScale();
+        }
+        switch(method){
+            case 1:
+                this.edge.prewitt();
+                break;
+            case 2:
+                this.edge.roberts();
+                break;
+            default:
+                this.edge.sobel();
+        }
+        this.refreshImageData();
     }
     pixelColorRaw(x, y) {
         if (x < 0) x = 0;
@@ -6496,8 +6525,19 @@ class Bitmap {
         for(let i = x; i < x + w; i += res)for(let k = y; k < y + h; k += res)points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
         return _utils.averageNumArray(points);
     }
-    thresholdAsPoints(res, threshold = 128) {
-        const testFn = (g)=>g > threshold
+    showToCanvas(res) {
+        const { width , height  } = this.canvas;
+        res = res || width / 4;
+        const colw = width / res;
+        const rowh = height / res;
+        for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
+            const x = i * colw;
+            const y = j * rowh;
+            _primatives.rectFilled(this.context)(x, y, colw, rowh, this.pixelColorFromCanvas(x, y));
+        }
+    }
+    thresholdAsPoints(res, threshold = 128, inv = false) {
+        const testFn = (g)=>inv ? g < threshold : g > threshold
         ;
         const points = [];
         const { width , height  } = this.canvas;
@@ -6516,6 +6556,7 @@ class Bitmap {
         this.image.onload = function() {
             console.log(this, this.context);
             this.context.drawImage(this.image, 0, 0);
+            // TODO update raw as well
             this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
             this.scaleX = this.canvas.width / this.imageData.width;
             this.scaleY = this.canvas.height / this.imageData.height;
@@ -6535,7 +6576,967 @@ class Bitmap {
     }
 }
 
-},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../math/points":"4RQVg","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2bj6J":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../math/points":"4RQVg","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./primatives":"6MM7x","./EdgeDetect":"aLyCX"}],"aLyCX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Filters", ()=>Filters
+);
+parcelHelpers.export(exports, "EdgeDetect", ()=>EdgeDetect
+);
+parcelHelpers.export(exports, "initialize", ()=>initialize
+);
+/*
+
+Originally from https://github.com/cmisenas/canny-edge-detection
+Demo http://canny-edge-detection.herokuapp.com/
+
+Works the following way:
+1. Convert the canvas image to grayscale
+2. Smooth the image to reduce noise as much as possible. In this implementation, Gaussian filter can be applied
+    (max kernel size is 21).
+3. Determine the gradient intensity (amount of change) and direction for each pixel. This is done by convolving image
+    with the chosen filter. Currently, there are 3 operators you may choose from: Sobel, Prewitts, Cross
+4. Thin the resulting edges with non-maximum suppression.
+5. Remove weak/false edges. A process called hysteresis is used where there are two thresholds--high and low--to be
+    compared to each pixel.
+
+Modifications from 7/15/21, Matt Perkins
+* Merged to one file
+* conversion to ES6 classes
+* bootstrap functions (bottom of file)
+ */ var _cabbage = require("./Cabbage");
+// helpers.js
+const sumArr = function(arr) {
+    // receives an array and returns sum
+    let result = 0;
+    arr.map(function(el, idx) {
+        result += /^\s*function Array/.test(String(el.constructor)) ? sumArr(el) : el;
+    });
+    return result;
+};
+const COLORS = {
+    RED: {
+        r: 255,
+        g: 0,
+        b: 0
+    },
+    GREEN: {
+        r: 0,
+        g: 255,
+        b: 0
+    },
+    BLUE: {
+        r: 0,
+        g: 0,
+        b: 255
+    },
+    YELLOW: {
+        r: 255,
+        g: 255,
+        b: 0
+    },
+    PINK: {
+        r: 255,
+        g: 0,
+        b: 255
+    },
+    AQUA: {
+        r: 0,
+        g: 255,
+        b: 255
+    }
+};
+const roundDir = function(deg) {
+    // rounds degrees to 4 possible orientations: horizontal, vertical, and 2 diagonals
+    var deg = deg < 0 ? deg + 180 : deg;
+    if (deg >= 0 && deg <= 22.5 || deg > 157.5 && deg <= 180) return 0;
+    if (deg > 22.5 && deg <= 67.5) return 45;
+    if (deg > 67.5 && deg <= 112.5) return 90;
+    if (deg > 112.5 && deg <= 157.5) return 135;
+};
+const getPixelNeighbors = function(dir) {
+    const degrees = {
+        0: [
+            {
+                x: 1,
+                y: 2
+            },
+            {
+                x: 1,
+                y: 0
+            }, 
+        ],
+        45: [
+            {
+                x: 0,
+                y: 2
+            },
+            {
+                x: 2,
+                y: 0
+            }, 
+        ],
+        90: [
+            {
+                x: 0,
+                y: 1
+            },
+            {
+                x: 2,
+                y: 1
+            }, 
+        ],
+        135: [
+            {
+                x: 0,
+                y: 0
+            },
+            {
+                x: 2,
+                y: 2
+            }, 
+        ]
+    };
+    return degrees[dir];
+};
+const getEdgeNeighbors = function(i, imgData, threshold, includedEdges) {
+    const neighbors = [];
+    const pixel = new Pixel(i, imgData.width, imgData.height);
+    for(let j = 0; j < pixel.neighbors.length; j++)if (imgData.data[pixel.neighbors[j]] >= threshold && (includedEdges === undefined || includedEdges.indexOf(pixel.neighbors[j]) === -1)) neighbors.push(pixel.neighbors[j]);
+    return neighbors;
+};
+const createHistogram = function(cvs) {
+    const histogram = {
+        g: []
+    };
+    let size = 256;
+    let total = 0;
+    const imgData = cvs.getCurrentImg();
+    while(size--)histogram.g[size] = 0;
+    cvs.map(function(x, y, pixelIndex, cvsIndex) {
+        histogram.g[imgData.data[cvsIndex]]++;
+        total++;
+    });
+    histogram.length = total;
+    return histogram;
+};
+// mean threshold works better than median threshold
+// however is sensitive to noise
+// works best when Gaussian blur is applied first
+const calcMeanThreshold = function(cvs) {
+    const histogram = createHistogram(cvs);
+    let sum = 0;
+    const total = histogram.length;
+    histogram.g.forEach(function(e, i) {
+        sum += e * (i + 1);
+    });
+    return sum / total;
+};
+// does not work that well
+// median value is almost always 0 (black)
+// if background is bigger than foreground
+const calcMedianThreshold = function(cvs) {
+    const histogram = createHistogram(cvs);
+    const m = Math.round(histogram.length / 2);
+    let n = 0;
+    let median;
+    histogram.g.some(function(e, i) {
+        n += e;
+        if (n >= m) {
+            median = i;
+            return true;
+        }
+        return false;
+    });
+    return median;
+};
+const calcWeight = function(histogram, s, e) {
+    const total = histogram.reduce(function(i, j) {
+        return i + j;
+    }, 0);
+    const partHist = s === e ? [
+        histogram[s]
+    ] : histogram.slice(s, e);
+    const part = partHist.reduce(function(i, j) {
+        return i + j;
+    }, 0);
+    return parseFloat(part, 10) / total;
+};
+const calcMean = function(histogram, s, e) {
+    const partHist = s === e ? [
+        histogram[s]
+    ] : histogram.slice(s, e);
+    let val = total = 0;
+    partHist.forEach(function(el, i) {
+        val += (s + i) * el;
+        total += el;
+    });
+    return parseFloat(val, 10) / total;
+};
+const calcBetweenClassVariance = function(weight1, mean1, weight2, mean2) {
+    return weight1 * weight2 * (mean1 - mean2) * (mean1 - mean2);
+};
+const fastOtsu = function(canvas) {
+    const histogram = createHistogram(canvas);
+    const start = 0;
+    const end = histogram.g.length - 1;
+    let leftWeight;
+    let rightWeight;
+    let leftMean;
+    let rightMean;
+    const betweenClassVariances = [];
+    let max = -Infinity;
+    let threshold;
+    histogram.g.forEach(function(el, i) {
+        leftWeight = calcWeight(histogram.g, start, i);
+        rightWeight = calcWeight(histogram.g, i, end + 1);
+        leftMean = calcMean(histogram.g, start, i);
+        rightMean = calcMean(histogram.g, i, end + 1);
+        betweenClassVariances[i] = calcBetweenClassVariance(leftWeight, leftMean, rightWeight, rightMean);
+        if (betweenClassVariances[i] > max) {
+            max = betweenClassVariances[i];
+            threshold = i;
+        }
+    });
+    return threshold;
+};
+// filters.js
+const calculateGray = function(pixel) {
+    return 0.3 * pixel.r + 0.59 * pixel.g + 0.11 * pixel.b;
+};
+const generateKernel = function(sigma, size) {
+    const kernel = [];
+    const E = 2.718; // Euler's number rounded of to 3 places
+    for(let y = -(size - 1) / 2, i = 0; i < size; y++, i++){
+        kernel[i] = [];
+        for(let x = -(size - 1) / 2, j = 0; j < size; x++, j++)// create kernel round to 3 decimal places
+        kernel[i][j] = 1 / (2 * Math.PI * Math.pow(sigma, 2)) * Math.pow(E, -(Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2)) / (2 * Math.pow(sigma, 2)));
+    }
+    // normalize the kernel to make its sum 1
+    const normalize = 1 / sumArr(kernel);
+    for(let k = 0; k < kernel.length; k++)for(let l = 0; l < kernel[k].length; l++)kernel[k][l] = Math.round(normalize * kernel[k][l] * 1000) / 1000;
+    return kernel;
+};
+class Filters {
+    constructor(cvs){
+        this.cabbageCnvs = cvs;
+    }
+    grayscale() {
+        const that = this;
+        let grayLevel;
+        console.time('Grayscale Time');
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            grayLevel = calculateGray(that.cabbageCnvs.getPixel(cvsIndex));
+            that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, grayLevel);
+        });
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Grayscale Time');
+    }
+    gaussianBlur(sigma, size) {
+        const that = this;
+        const kernel = generateKernel(sigma, size);
+        console.time('Blur Time');
+        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
+            // ignore edges
+            // TODO: make this faster!
+            if (x !== 0 && y !== 0 && x !== that.cabbageCnvs.width - 1 && y !== that.cabbageCnvs.height - 1) {
+                let resultR = 0;
+                let resultG = 0;
+                let resultB = 0;
+                let pixel;
+                for(let i = 0; i < size; i++)for(let j = 0; j < size; j++){
+                    pixel = that.cabbageCnvs.getPixel(neighbors[i][j]);
+                    // return the existing pixel value multiplied by the kernel
+                    resultR += pixel.r * kernel[i][j];
+                    resultG += pixel.g * kernel[i][j];
+                    resultB += pixel.b * kernel[i][j];
+                }
+                that.cabbageCnvs.setPixel({
+                    x,
+                    y
+                }, {
+                    r: resultR,
+                    g: resultG,
+                    b: resultB
+                });
+            }
+        }, size);
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Blur Time');
+    }
+    invertColors() {
+        const that = this;
+        let pixel;
+        console.time('Invert Colors Time');
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            pixel = that.cabbageCnvs.getPixel(cvsIndex);
+            that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, {
+                r: 255 - pixel.r,
+                g: 255 - pixel.g,
+                b: 255 - pixel.b
+            });
+        });
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Invert Colors Time');
+    }
+}
+// canny.js
+const SOBEL_X_FILTER = [
+    [
+        -1,
+        0,
+        1
+    ],
+    [
+        -2,
+        0,
+        2
+    ],
+    [
+        -1,
+        0,
+        1
+    ], 
+];
+const SOBEL_Y_FILTER = [
+    [
+        1,
+        2,
+        1
+    ],
+    [
+        0,
+        0,
+        0
+    ],
+    [
+        -1,
+        -2,
+        -1
+    ], 
+];
+const ROBERTS_X_FILTER = [
+    [
+        1,
+        0
+    ],
+    [
+        0,
+        -1
+    ], 
+];
+const ROBERTS_Y_FILTER = [
+    [
+        0,
+        1
+    ],
+    [
+        -1,
+        0
+    ], 
+];
+const PREWITT_X_FILTER = [
+    [
+        -1,
+        0,
+        1
+    ],
+    [
+        -1,
+        0,
+        1
+    ],
+    [
+        -1,
+        0,
+        1
+    ], 
+];
+const PREWITT_Y_FILTER = [
+    [
+        -1,
+        -1,
+        -1
+    ],
+    [
+        0,
+        0,
+        0
+    ],
+    [
+        1,
+        1,
+        1
+    ], 
+];
+const OPERATORS = {
+    sobel: {
+        x: SOBEL_X_FILTER,
+        y: SOBEL_Y_FILTER,
+        len: SOBEL_X_FILTER.length
+    },
+    roberts: {
+        x: ROBERTS_X_FILTER,
+        y: ROBERTS_Y_FILTER,
+        len: ROBERTS_Y_FILTER.length
+    },
+    prewitt: {
+        x: PREWITT_X_FILTER,
+        y: PREWITT_Y_FILTER,
+        len: PREWITT_Y_FILTER.length
+    }
+};
+class EdgeDetect {
+    constructor(canvElem){
+        this.cabbageCnvs = canvElem;
+    }
+    // find intensity gradient of image
+    gradient(op) {
+        const imgDataCopy = this.cabbageCnvs.getCurrentImg();
+        const dirMap = [];
+        const gradMap = [];
+        const that = this;
+        console.time('Sobel Filter Time');
+        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
+            let edgeX = 0;
+            let edgeY = 0;
+            if (!that.cabbageCnvs.isBorder({
+                x,
+                y
+            })) {
+                for(let i = 0; i < OPERATORS[op].len; i++)for(let j = 0; j < OPERATORS[op].len; j++){
+                    if (!neighbors[i][j]) continue;
+                    edgeX += imgDataCopy.data[neighbors[i][j]] * OPERATORS[op].x[i][j];
+                    edgeY += imgDataCopy.data[neighbors[i][j]] * OPERATORS[op].y[i][j];
+                }
+            }
+            dirMap[cvsIndex] = roundDir(Math.atan2(edgeY, edgeX) * (180 / Math.PI));
+            gradMap[cvsIndex] = Math.round(Math.sqrt(edgeX * edgeX + edgeY * edgeY));
+            that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, gradMap[cvsIndex]);
+        }, 3);
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Sobel Filter Time');
+        this.cabbageCnvs.dirMap = dirMap;
+        this.cabbageCnvs.gradMap = gradMap;
+    }
+    nonMaximumSuppress() {
+        const that = this;
+        console.time('NMS Time');
+        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
+            const pixNeighbors = getPixelNeighbors(that.cabbageCnvs.dirMap[cvsIndex]);
+            // pixel neighbors to compare
+            const pix1 = that.cabbageCnvs.gradMap[neighbors[pixNeighbors[0].x][pixNeighbors[0].y]];
+            const pix2 = that.cabbageCnvs.gradMap[neighbors[pixNeighbors[1].x][pixNeighbors[1].y]];
+            if (pix1 > that.cabbageCnvs.gradMap[cvsIndex] || pix2 > that.cabbageCnvs.gradMap[cvsIndex] || pix2 === that.cabbageCnvs.gradMap[cvsIndex] && pix1 < that.cabbageCnvs.gradMap[cvsIndex]) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, 0);
+        }, 3);
+        this.cabbageCnvs.setImg();
+        console.timeEnd('NMS Time');
+    }
+    // TODO: Do not use sparse array for storing real edges
+    // mark strong and weak edges, discard others as false edges; only keep weak edges that are connected to strong edges
+    hysteresis() {
+        const that = this;
+        const imgDataCopy = this.cabbageCnvs.getCurrentImg();
+        const realEdges = []; // where real edges will be stored with the 1st pass
+        const t1 = fastOtsu(this.cabbageCnvs); // high threshold value
+        const t2 = t1 / 2; // low threshold value
+        // first pass
+        console.time('Hysteresis Time');
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            if (imgDataCopy.data[cvsIndex] > t1 && realEdges[cvsIndex] === undefined) {
+                // accept as a definite edge
+                const group = that._traverseEdge(cvsIndex, imgDataCopy, t2, []);
+                for(let i = 0; i < group.length; i++)realEdges[group[i]] = true;
+            }
+        });
+        // second pass
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            if (realEdges[cvsIndex] === undefined) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, 0);
+            else that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, 255);
+        });
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Hysteresis Time');
+    }
+    // just a quick function to look at the direction results
+    showDirMap() {
+        const that = this;
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            switch(that.cabbageCnvs.dirMap[cvsIndex]){
+                case 0:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.RED);
+                    break;
+                case 45:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.GREEN);
+                    break;
+                case 90:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.BLUE);
+                    break;
+                case 135:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.YELLOW);
+                    break;
+                default:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.PINK);
+            }
+        });
+        this.cabbageCnvs.setImg();
+    }
+    // TODO: Evaluate function use/fulness
+    showGradMap() {
+        const that = this;
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            if (that.cabbageCnvs.gradMap[cvsIndex] < 0) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.RED);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 200) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.GREEN);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 400) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.BLUE);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 600) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.YELLOW);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 800) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.AQUA);
+            else that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.PINK);
+        });
+        this.cabbageCnvs.setImg();
+    }
+    // TODO: Optimize prime!
+    // traverses the current pixel until a length has been reached
+    _traverseEdge(current, imgData, threshold, traversed) {
+        // initialize the group from the current pixel's perspective
+        let group = [
+            current
+        ];
+        // pass the traversed group to the getEdgeNeighbors so that it will not include those anymore
+        const neighbors = getEdgeNeighbors(current, imgData, threshold, traversed);
+        for(let i = 0; i < neighbors.length; i++)// recursively get the other edges connected
+        group = group.concat(this._traverseEdge(neighbors[i], imgData, threshold, traversed.concat(group)));
+        return group;
+    // if the pixel group is not above max length,
+    // it will return the pixels included in that small pixel group
+    }
+}
+const initialize = (canvas, sz = 3, sg = 1.5)=>{
+    const cabbageCanvas = new _cabbage.Cabbage(canvas);
+    const edgeDetect = new EdgeDetect(cabbageCanvas);
+    const filters = new Filters(cabbageCanvas);
+    cabbageCanvas.setImg();
+    let size;
+    let sigma;
+    const setSize = (s)=>size = s <= 1 || s > 21 ? 3 : s % 2 === 0 ? s - 1 : s
+    ;
+    const setSigma = (s)=>sigma = s < 1 || s > 10 ? 1.5 : s
+    ;
+    size = setSize(sz);
+    sigma = setSigma(sg);
+    const resetImage = (_)=>cabbageCanvas.resetImageData()
+    ;
+    const greyScale = (_)=>filters.grayscale()
+    ;
+    const blur = (_)=>filters.gaussianBlur(sigma, size)
+    ;
+    const invert = (_)=>filters.invertColors()
+    ;
+    const sobel = (_)=>edgeDetect.gradient('sobel')
+    ;
+    const roberts = (_)=>edgeDetect.gradient('roberts')
+    ;
+    const prewitt = (_)=>edgeDetect.gradient('prewitt')
+    ;
+    /*
+    edgeDetect.nonMaximumSuppress();
+    edgeDetect.hysteresis();
+    edgeDetect.showDirMap();
+    edgeDetect.showGradMap();
+     */ return {
+        setSize,
+        setSigma,
+        greyScale,
+        blur,
+        invert,
+        resetImage,
+        sobel,
+        roberts,
+        prewitt
+    };
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./Cabbage":"1nKM0"}],"1nKM0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Cabbage", ()=>Cabbage
+);
+/* Used by edge detect
+
+Originally from https://github.com/cmisenas/cabbage.js/blob/master/cabbage.js
+
+Modifications from 7/15/21, Matt Perkins
+* conversion to ES6 classes
+* Change constructor to use passed canvas element
+*/ const DIRECTIONS = [
+    'n',
+    'e',
+    's',
+    'w',
+    'ne',
+    'nw',
+    'se',
+    'sw'
+];
+const VALS = [
+    'r',
+    'g',
+    'b',
+    'a'
+];
+// Pixel is a dumb object that does not know about image data
+// It is only meant to be used by Cabbage directly for:
+// manipulating canvas values, storing and easy retrieval of rgba
+class Pixel {
+    constructor(x1, y1, vals){
+        const self = this;
+        this.x = x1;
+        this.y = y1;
+        this.neighbors = {
+        };
+        if (vals) VALS.forEach(function(d) {
+            self[d] = vals.shift();
+        });
+        DIRECTIONS.forEach(function(d) {
+            self.neighbors[d] = self[d]();
+        });
+    }
+    n() {
+        return {
+            x: this.x,
+            y: this.y - 1
+        };
+    }
+    e() {
+        return {
+            x: this.x + 1,
+            y: this.y
+        };
+    }
+    s() {
+        return {
+            x: this.x,
+            y: this.y + 1
+        };
+    }
+    w() {
+        return {
+            x: this.x - 1,
+            y: this.y
+        };
+    }
+    ne() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+    nw() {
+        return {
+            x: this.x - 1,
+            y: this.y - 1
+        };
+    }
+    se() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+    sw() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+}
+const doc = window.document;
+const COORDS = 'coordinate';
+const PIXIDX = 'pixel index';
+const IDIDX = 'image data index';
+class Cabbage {
+    // Original
+    // constructor(id, w, h, doc) {
+    //     doc = doc || doc;
+    //     this.width = w || 600;
+    //     this.height = h || 400;
+    //     this.elem = doc.getElementById(id) || this._createCanvas(id);
+    //     this.ctx = this.elem.getContext('2d');
+    //     this.origImg = {};
+    //     this.currImg = {};
+    // }
+    constructor(canvas){
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.elem = canvas;
+        this.ctx = this.elem.getContext('2d');
+        this.origImg = this.getCurrentImg();
+        this.currImg = this.getCurrentImg();
+        this.setImg();
+    }
+    loadImg(img, sx, sy) {
+        const self1 = this;
+        if (typeof img === 'string') this._createImage(img, function(usrImg) {
+            self1._img = usrImg;
+            if (usrImg.width !== self1.width || usrImg.height !== self1.height) {
+                self1.width = usrImg.width;
+                self1.height = usrImg.height;
+                self1.elem.width = self1.width;
+                self1.elem.height = self1.height;
+            }
+            self1.drawImage(sx, sy);
+        });
+        else if (/HTMLImageElement/.test(img.constructor)) {
+            this._img = img;
+            this.drawImage(sx, sy);
+        }
+        return this;
+    }
+    _createImage(imgSrc, fn) {
+        const self1 = this;
+        usrImg = new Image();
+        usrImg.onload = function() {
+            fn(usrImg);
+        };
+        usrImg.src = imgSrc;
+    }
+    _createCanvas(id) {
+        let elem;
+        elem = doc.createElement('canvas');
+        elem.id = id;
+        elem.width = this.width;
+        elem.height = this.height;
+        doc.body.insertBefore(elem, doc.body.firstChild);
+        return elem;
+    }
+    drawImage(sx, sy) {
+        this.ctx.drawImage(this._img, sx || 0, sy || 0);
+        this.refreshCurrImageData();
+        this.origImg = this.getCurrentImg();
+    }
+    // TODO: This looks sort of confusing
+    // rethink its use/name
+    setImg() {
+        this.putImageData(this.currImg, 0, 0);
+    }
+    /*
+        // Delete image data; leave canvas blank
+        deleteImg = function() {
+        };
+        */ // Reset to original data
+    resetImageData() {
+        // put back the original image to the canvas
+        this.putImageData(this.origImg);
+    }
+    // returns the actual current image data
+    getCurrentImg() {
+        return this.ctx.getImageData(0, 0, this.width, this.height);
+    }
+    // returns a copy of original image data
+    originalImg() {
+        return this.ctx.createImageData(this.origImg);
+    }
+    map(fn) {
+        let x1;
+        let y1;
+        let cvsIndex;
+        let pixelIndex;
+        for(y1 = 0; y1 < this.height; y1++)for(x1 = 0; x1 < this.width; x1++){
+            pixelIndex = y1 * this.width + x1;
+            cvsIndex = x1 * 4 + y1 * this.width * 4;
+            fn(x1, y1, pixelIndex, cvsIndex);
+        }
+    }
+    convolve(fn, size) {
+        let x1;
+        let y1;
+        let cvsIndex;
+        let pixelIndex;
+        let matrix;
+        size = size || 3;
+        for(y1 = 0; y1 < this.height; y1++)for(x1 = 0; x1 < this.width; x1++){
+            pixelIndex = y1 * this.width + x1;
+            cvsIndex = x1 * 4 + y1 * this.width * 4;
+            matrix = this._buildMatrix(x1, y1, size);
+            fn(matrix, x1, y1, pixelIndex, cvsIndex);
+        }
+    }
+    // returns the pixel object if it exists
+    // otherwise throws an error
+    getPixel(loc) {
+        let index;
+        let coords;
+        let rgba;
+        if (typeof loc === 'number') {
+            if (!this._checkValidIDIndex(loc)) this._throwValidationError(IDIDX, COORDS);
+            index = loc;
+            coords = this._convertIDIndexToCoords(loc);
+        } else {
+            if (!this._checkValidCoords(loc)) this._throwValidationError(COORDS, IDIDX);
+            index = this._convertCoordsToIDIndex(loc);
+            coords = loc;
+        }
+        rgba = Array.prototype.slice.call(this.currImg.data, index, index + 4);
+        return new Pixel(coords.x, coords.y, rgba);
+    }
+    // Modifies the current image data pixels
+    // Does not modify the canvas image
+    // That is the job of setImg
+    setPixel(pixel, val) {
+        const i = this._convertCoordsToIDIndex(pixel);
+        if (typeof val === 'number') {
+            this.currImg.data[i] = val;
+            this.currImg.data[i + 1] = val;
+            this.currImg.data[i + 2] = val;
+        } else {
+            this.currImg.data[i] = val.r;
+            this.currImg.data[i + 1] = val.g;
+            this.currImg.data[i + 2] = val.b;
+            this.currImg.data[i + 3] = val.a || 255;
+        }
+    // this._drawPixel(pixel, r, g, b, a);
+    }
+    _drawPixel(pixel, r, g, b, a) {
+        this.ctx.fillStyle = `rgba(${[
+            r,
+            g,
+            b,
+            a
+        ].join(', ')})`;
+        this.ctx.fillRect(pixel.x, pixel.y, 1, 1);
+    }
+    isBorder(coords) {
+        return coords.x === 0 && coords.y < this.height && coords.y >= 0 || coords.y === 0 && coords.x < this.width && coords.x >= 0 || coords.x === this.width - 1 && coords.y < this.height && coords.y >= 0 || coords.y === this.height - 1 && coords.x < this.width && coords.x >= 0;
+    }
+    isOutOfBounds(coords) {
+        return coords.x < 0 || coords.x > this.width - 1 || coords.y < 0 || coords.y > this.height - 1;
+    }
+    // Every putImageData done via object
+    // stores current image for faster access later
+    putImageData(id, x, y) {
+        this.ctx.putImageData(id, x || 0, y || 0);
+        this.refreshCurrImageData();
+    }
+    refreshCurrImageData() {
+        this.currImg = this.getCurrentImg();
+    }
+    _buildMatrix(cx, cy, size) {
+        const matrix = [];
+        let nx;
+        let ny;
+        const min = 3;
+        const max = Math.max(this.width, this.height); // temp max value
+        size = size || 3;
+        size = size % 2 === 0 ? size + 1 : size;
+        // TODO make it so that max size is dictated by the dimensions of the image
+        if (size < min || size > max) size = min;
+        for(let i = 0, y2 = -(size - 1) / 2; i < size; i++, y2++){
+            matrix[i] = [];
+            for(let j = 0, x2 = -(size - 1) / 2; j < size; j++, x2++){
+                nx = cx + x2;
+                ny = cy + y2;
+                if (nx < 0 || nx >= this.width || ny < 0 || ny >= this.height) matrix[i][j] = undefined;
+                else matrix[i][j] = this._convertCoordsToIDIndex({
+                    x: nx,
+                    y: ny
+                });
+            }
+        }
+        return matrix;
+    }
+    _convertCoordsToIDIndex(coords) {
+        const m = 4;
+        return (coords.y * this.width + coords.x) * m;
+    }
+    _convertCoordsToPixIndex(coords) {
+        return coords.y * this.width + coords.x;
+    }
+    _checkValidCoords(coords) {
+        return !!coords && coords.x === parseInt(coords.x, 10) && coords.y === parseInt(coords.y, 10) && coords.x >= 0 && coords.x < this.width && coords.y >= 0 && coords.y < this.height;
+    }
+    _checkValidPIndex(pIdx) {
+        return pIdx === parseInt(pIdx, 10) && pIdx >= 0 && pIdx < this.width * this.height;
+    }
+    _checkValidIDIndex(pIdx) {
+        return pIdx === parseInt(pIdx, 10) && pIdx >= 0 && pIdx < this.width * this.height * 4;
+    }
+    _convertIDIndexToCoords(idIdx) {
+        const m = 4;
+        if (idIdx % 4 > 0) idIdx -= idIdx % 4;
+        return {
+            x: idIdx % (this.width * m) / m,
+            y: Math.floor(idIdx / (this.width * m))
+        };
+    }
+    _convertIDIndexToPixIndex(idIdx) {
+        const m = 4;
+        return Math.floor(idIdx / m);
+    }
+    _convertPixIndexToCoords(pIdx) {
+        return {
+            x: pIdx % this.width,
+            y: Math.floor(pIdx / this.width)
+        };
+    }
+    _convertPixIndexToIDIndex(pIdx) {
+        return pIdx * 4;
+    }
+    _throwValidationError(from, to) {
+        const msg = `Invalid ${from}. Unable to convert to ${to}`;
+        throw new Error(msg);
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2bj6J":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "kristijan-arsov-woman-400.56b3ea5d.png";
 
 },{"./bundle-url":"3seVR"}],"1QEow":[function(require,module,exports) {
@@ -9411,16 +10412,21 @@ const quadTreeFromPoints = (boundary1, capacity1, points, margin1 = 0, maxd1 = 0
     );
     return quadtree;
 };
-const show = (context)=>(qt)=>{
-        const { x , y , w , h  } = qt.boundary;
-        if (qt.phase === -1) _primatives.rect(context)(x, y, w, h, 0.5, 'black');
-        else _primatives.rect(context)(x, y, w, h, 0.5, 'red');
+const show = (context)=>(qt, showParents = false, pointColor = 'blue', p1color = 'red', p2color = 'red')=>{
         qt.points.forEach((p)=>{
-            _primatives.pixel(context)(p.x, p.y, 'black', 'square', 2);
+            _primatives.pixel(context)(p.x, p.y, pointColor, 'circle', 1);
         });
-        if (qt.divided) qt.subdivisions.forEach((s)=>{
-            show(context)(s);
-        });
+        const { x , y , w , h  } = qt.boundary;
+        if (qt.divided) {
+            if (showParents) {
+                if (qt.phase === -1) _primatives.rect(context)(x, y, w, h, 1, p1color);
+                else _primatives.rect(context)(x, y, w, h, 1, p2color);
+            }
+            qt.subdivisions.forEach((s)=>{
+                show(context)(s, showParents, pointColor, p1color, p2color);
+            });
+        } else if (qt.phase === -1) _primatives.rect(context)(x, y, w, h, 1, p1color);
+        else _primatives.rect(context)(x, y, w, h, 1, p2color);
     }
 ;
 
@@ -10157,12 +11163,11 @@ var _primatives = require("../rndrgen/canvas/primatives");
 var _circle = require("../rndrgen/math/Circle");
 var _rectangle = require("../rndrgen/math/Rectangle");
 var _circlePackingRandom = require("../rndrgen/systems/CirclePackingRandom");
-var _leaves400Jpg = require("../../media/images/leaves-400.jpg");
-var _leaves400JpgDefault = parcelHelpers.interopDefault(_leaves400Jpg);
+var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
+var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _quadTree = require("../rndrgen/math/QuadTree");
 var _random = require("../rndrgen/math/random");
-var _truchetTiles = require("../rndrgen/systems/truchetTiles");
 const drawCircle = (context)=>({ x , y , radius  }, color = 'black')=>{
         _primatives.circleFilled(context)(x, y, radius, color);
     }
@@ -10185,10 +11190,11 @@ const circlePacking02 = ()=>{
     const renderScale = config.scale; // 1 or 2
     const backgroundColor = _palettes.paperWhite.clone().darken(80);
     const foreColor = _palettes.bicPenBlue.clone();
-    const image = new _bitmap.Bitmap(_leaves400JpgDefault.default);
+    const image = new _bitmap.Bitmap(_kristijanArsovWoman400PngDefault.default);
     let canvasBounds;
     let canvasCircle;
-    const fill = _circlePackingRandom.randomCircleFill(5000, 500);
+    let quadtree;
+    const fill = _circlePackingRandom.randomCircleFill(10000, 500);
     const setup = ({ canvas , context  })=>{
         ctx = context;
         canvasWidth = canvas.width;
@@ -10198,8 +11204,15 @@ const circlePacking02 = ()=>{
         canvasBounds = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
         canvasCircle = new _circle.PackCircle(canvasCenterX, canvasCenterY, canvasCenterX * 0.75);
         image.init(canvas, context);
-        const points = image.thresholdAsPoints(200, 130);
-        const quadtree = _quadTree.quadTreeFromPoints(canvasBounds, 10, points);
+        // const points = image.thresholdAsPoints(200, 130);
+        // quadtree = quadTreeFromPoints(canvasBounds, 10, points);
+        const res = canvasWidth / 5;
+        image.findEdges(2, false);
+        image.resetImageData();
+        const points = image.thresholdAsPoints(res, 110, true);
+        quadtree = _quadTree.quadTreeFromPoints(canvasBounds, 6, points);
+        image.showToCanvas(res);
+        // show(context)(quadtree);
         const startingCircles = [];
         _quadTree.flatDepthSortedAsc(quadtree).forEach((q)=>{
             const rad = Math.max(q.boundary.w / 5, 1);
@@ -10209,7 +11222,7 @@ const circlePacking02 = ()=>{
             startingCircles.push(new _circle.PackCircle(x, y, rad));
         });
         fill.setCircles(startingCircles);
-        _canvas.background(canvas, context)(backgroundColor);
+        _canvas.background(canvas, context)(backgroundColor.setAlpha(0.8));
     };
     const randomNewPointInCircle = (_)=>canvasCircle.randomPointInside()
     ;
@@ -10220,7 +11233,7 @@ const circlePacking02 = ()=>{
     ;
     const draw = ({ canvas , context  })=>{
         const result = fill.insert(randomNewPointInCanvas);
-        _canvas.background(canvas, context)(backgroundColor);
+        // background(canvas, context)(backgroundColor);
         fill.grow(canvasBounds);
         fill.getCircles().forEach((c)=>drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y))
         );
@@ -10233,7 +11246,74 @@ const circlePacking02 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/Circle":"2UK2m","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/systems/CirclePackingRandom":"7MyN6","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/QuadTree":"652jH","../rndrgen/math/random":"1SLuP","../rndrgen/systems/truchetTiles":"6w7Yv","../../media/images/leaves-400.jpg":"1M9zi"}],"1M9zi":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/Circle":"2UK2m","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/systems/CirclePackingRandom":"7MyN6","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/Bitmap":"17J8Q","../rndrgen/math/QuadTree":"652jH","../rndrgen/math/random":"1SLuP","../../media/images/kristijan-arsov-woman-400.png":"2bj6J"}],"7Izx5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "bitmapTest01", ()=>bitmapTest01
+);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _rectangle = require("../rndrgen/math/Rectangle");
+var _primatives = require("../rndrgen/canvas/primatives");
+var _quadTree = require("../rndrgen/math/QuadTree");
+var _bitmap = require("../rndrgen/canvas/Bitmap");
+var _edgeDetect = require("../rndrgen/canvas/EdgeDetect");
+var _leaves400Jpg = require("../../media/images/leaves-400.jpg");
+var _leaves400JpgDefault = parcelHelpers.interopDefault(_leaves400Jpg);
+const bitmapTest01 = ()=>{
+    const config = {
+        name: 'bitmapTest01',
+        ratio: _sketch.ratio.square,
+        scale: _sketch.scale.standard
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    const backgroundColor = _palettes.paperWhite.clone();
+    const foreColor = _palettes.bicPenBlue.clone();
+    let quadtree;
+    const image = new _bitmap.Bitmap(_leaves400JpgDefault.default);
+    let imageThresholdPoints;
+    let boundary;
+    const showPoints = (points, color = 'red')=>points.forEach((p)=>{
+            _primatives.pixel(ctx)(p.x, p.y, color, 'circle', 1);
+        })
+    ;
+    const setup = ({ canvas , context  })=>{
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        image.init(canvas, context, false);
+        boundary = new _rectangle.Rectangle(0, 0, canvasWidth, canvasHeight);
+    // imageThresholdPoints = image.thresholdAsPoints(100, 128, true);
+    // quadtree = quadTreeFromPoints(boundary, 4, imageThresholdPoints);
+    // background(canvas, context)(backgroundColor);
+    };
+    const draw = ({ canvas , context  })=>{
+        // background(canvas, context)(backgroundColor);
+        const res = canvasWidth / 5;
+        image.findEdges();
+        const t = image.thresholdAsPoints(res, 25, false);
+        image.resetImageData();
+        image.showToCanvas(res);
+        quadtree = _quadTree.quadTreeFromPoints(boundary, 4, t);
+        _quadTree.show(context)(quadtree);
+        // showPoints(t);
+        return -1;
+    };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../../media/images/leaves-400.jpg":"1M9zi","../rndrgen/canvas/EdgeDetect":"aLyCX"}],"1M9zi":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "leaves-400.c3850f57.jpg";
 
 },{"./bundle-url":"3seVR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")

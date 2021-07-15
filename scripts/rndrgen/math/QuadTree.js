@@ -135,20 +135,27 @@ export const quadTreeFromPoints = (boundary, capacity, points, margin = 0, maxd 
     return quadtree;
 };
 
-export const show = (context) => (qt) => {
-    const { x, y, w, h } = qt.boundary;
-    if (qt.phase === -1) {
-        rect(context)(x, y, w, h, 0.5, 'black');
-    } else {
-        rect(context)(x, y, w, h, 0.5, 'red');
-    }
-
+export const show = (context) => (qt, showParents = false, pointColor = 'blue', p1color = 'red', p2color = 'red') => {
     qt.points.forEach((p) => {
-        pixel(context)(p.x, p.y, 'black', 'square', 2);
+        pixel(context)(p.x, p.y, pointColor, 'circle', 1);
     });
+
+    const { x, y, w, h } = qt.boundary;
+
     if (qt.divided) {
+        if (showParents) {
+            if (qt.phase === -1) {
+                rect(context)(x, y, w, h, 1, p1color);
+            } else {
+                rect(context)(x, y, w, h, 1, p2color);
+            }
+        }
         qt.subdivisions.forEach((s) => {
-            show(context)(s);
+            show(context)(s, showParents, pointColor, p1color, p2color);
         });
+    } else if (qt.phase === -1) {
+        rect(context)(x, y, w, h, 1, p1color);
+    } else {
+        rect(context)(x, y, w, h, 1, p2color);
     }
 };

@@ -5,11 +5,10 @@ import { circle, circleFilled } from '../rndrgen/canvas/primatives';
 import { PackCircle } from '../rndrgen/math/Circle';
 import { Rectangle } from '../rndrgen/math/Rectangle';
 import { randomCircleFill } from '../rndrgen/systems/CirclePackingRandom';
-import sourcePng from '../../media/images/leaves-400.jpg';
+import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
-import { flatDepthSortedAsc, quadTreeFromPoints } from '../rndrgen/math/QuadTree';
+import { flatDepthSortedAsc, quadTreeFromPoints, show } from '../rndrgen/math/QuadTree';
 import { randomNormalNumberBetween, randomNumberBetween, randomWholeBetween } from '../rndrgen/math/random';
-import { truchet } from '../rndrgen/systems/truchetTiles';
 
 const drawCircle = (context) => ({ x, y, radius }, color = 'black') => {
     circleFilled(context)(x, y, radius, color);
@@ -46,8 +45,9 @@ export const circlePacking02 = () => {
 
     let canvasBounds;
     let canvasCircle;
+    let quadtree;
 
-    const fill = randomCircleFill(5000, 500);
+    const fill = randomCircleFill(10000, 500);
 
     const setup = ({ canvas, context }) => {
         ctx = context;
@@ -61,8 +61,18 @@ export const circlePacking02 = () => {
         canvasCircle = new PackCircle(canvasCenterX, canvasCenterY, canvasCenterX * 0.75);
 
         image.init(canvas, context);
-        const points = image.thresholdAsPoints(200, 130);
-        const quadtree = quadTreeFromPoints(canvasBounds, 10, points);
+        // const points = image.thresholdAsPoints(200, 130);
+        // quadtree = quadTreeFromPoints(canvasBounds, 10, points);
+
+        const res = canvasWidth / 5;
+        image.findEdges(2, false);
+        image.resetImageData();
+
+        const points = image.thresholdAsPoints(res, 110, true);
+        quadtree = quadTreeFromPoints(canvasBounds, 6, points);
+
+        image.showToCanvas(res);
+        // show(context)(quadtree);
 
         const startingCircles = [];
         flatDepthSortedAsc(quadtree).forEach((q) => {
@@ -74,7 +84,7 @@ export const circlePacking02 = () => {
         });
         fill.setCircles(startingCircles);
 
-        background(canvas, context)(backgroundColor);
+        background(canvas, context)(backgroundColor.setAlpha(0.8));
     };
 
     const randomNewPointInCircle = (_) => canvasCircle.randomPointInside();
@@ -86,7 +96,7 @@ export const circlePacking02 = () => {
     const draw = ({ canvas, context }) => {
         const result = fill.insert(randomNewPointInCanvas);
 
-        background(canvas, context)(backgroundColor);
+        // background(canvas, context)(backgroundColor);
 
         fill.grow(canvasBounds);
 

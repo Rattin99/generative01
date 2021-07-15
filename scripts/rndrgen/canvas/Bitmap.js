@@ -3,6 +3,8 @@ import { clear } from './canvas';
 import { mapRange } from '../math/math';
 import { point } from '../math/points';
 import { averageNumArray } from '../utils';
+import { rectFilled } from './primatives';
+import { initialize } from './EdgeDetect';
 
 /*
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
@@ -68,13 +70,45 @@ export class Bitmap {
         this.context = context;
         this.context.drawImage(this.image, 0, 0);
 
-        const imageWidth = this.image.width || this.canvas.width;
-        const imageHeight = this.image.height || this.canvas.height;
+        this.imageWidth = this.image.width || this.canvas.width;
+        this.imageHeight = this.image.height || this.canvas.height;
 
-        this.imageData = this.context.getImageData(0, 0, imageWidth, imageHeight);
-        this.scaleX = this.canvas.width / imageWidth;
-        this.scaleY = this.canvas.height / imageHeight;
+        this.rawImageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+        this.refreshImageData();
+
+        this.scaleX = this.canvas.width / this.imageWidth;
+        this.scaleY = this.canvas.height / this.imageHeight;
         if (wipe) clear(this.canvas, this.context);
+    }
+
+    refreshImageData() {
+        this.imageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    resetImageData() {
+        this.context.putImageData(this.rawImageData, 0, 0);
+        this.refreshImageData();
+    }
+
+    findEdges(method = 0, blur = false) {
+        this.edge = initialize(this.canvas);
+
+        if (blur) {
+            this.edge.blur();
+            this.edge.greyScale();
+        }
+
+        switch (method) {
+            case 1:
+                this.edge.prewitt();
+                break;
+            case 2:
+                this.edge.roberts();
+                break;
+            default:
+                this.edge.sobel();
+        }
+        this.refreshImageData();
     }
 
     pixelColorRaw(x, y) {
@@ -140,8 +174,25 @@ export class Bitmap {
         return averageNumArray(points);
     }
 
-    thresholdAsPoints(res, threshold = 128) {
-        const testFn = (g) => g > threshold;
+    showToCanvas(res) {
+        const { width, height } = this.canvas;
+
+        res = res || width / 4;
+
+        const colw = width / res;
+        const rowh = height / res;
+
+        for (let i = 0; i < res; i++) {
+            for (let j = 0; j < res; j++) {
+                const x = i * colw;
+                const y = j * rowh;
+                rectFilled(this.context)(x, y, colw, rowh, this.pixelColorFromCanvas(x, y));
+            }
+        }
+    }
+
+    thresholdAsPoints(res, threshold = 128, inv = false) {
+        const testFn = (g) => (inv ? g < threshold : g > threshold);
 
         const points = [];
         const { width, height } = this.canvas;
@@ -168,6 +219,7 @@ export class Bitmap {
         this.image.onload = function () {
             console.log(this, this.context);
             this.context.drawImage(this.image, 0, 0);
+            // TODO update raw as well
             this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
             this.scaleX = this.canvas.width / this.imageData.width;
             this.scaleY = this.canvas.height / this.imageData.height;

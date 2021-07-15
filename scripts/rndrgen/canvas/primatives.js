@@ -6,7 +6,7 @@ export const pixel = (context) => (x, y, color = 'black', mode = 'square', size)
     size = size || cnvs.currentContextScale();
     context.beginPath();
     context.fillStyle = tinycolor(color).toRgbString();
-    if (mode === 'circleOld') {
+    if (mode === 'circle') {
         context.beginPath();
         context.arc(x, y, size, 0, Math.PI * 2, false);
         context.fill();

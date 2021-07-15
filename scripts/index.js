@@ -10,6 +10,7 @@ import { brushShape } from './experiments/brush-shape';
 import { circles01 } from './experiments/circles';
 import { circlePacking01 } from './experiments/circles-packing';
 import { circlePacking02 } from './experiments/circles-packing-2';
+import { bitmapTest01 } from './experiments/bitmap-test-01';
 
 const debug = true;
 
