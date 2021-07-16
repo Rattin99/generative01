@@ -396,7 +396,7 @@ var _bitmapTest01 = require("./experiments/bitmap-test-01");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _circlesPacking2.circlePacking02;
+const experimentalVariation = _bitmapTest01.bitmapTest01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -6458,24 +6458,6 @@ class Bitmap {
         this.context.putImageData(this.rawImageData, 0, 0);
         this.refreshImageData();
     }
-    findEdges(method = 0, blur = false) {
-        this.edge = _edgeDetect.initialize(this.canvas);
-        if (blur) {
-            this.edge.blur();
-            this.edge.greyScale();
-        }
-        switch(method){
-            case 1:
-                this.edge.prewitt();
-                break;
-            case 2:
-                this.edge.roberts();
-                break;
-            default:
-                this.edge.sobel();
-        }
-        this.refreshImageData();
-    }
     pixelColorRaw(x, y) {
         if (x < 0) x = 0;
         if (y < 0) y = 0;
@@ -6573,6 +6555,55 @@ class Bitmap {
         // ctx.drawImage(dropImage, 0, 0, dropImage.width, dropImage.height);
         };
         this.image.src = src;
+    }
+    findEdgesCabbage(method = 0, blur = false) {
+        this.edge = _edgeDetect.initialize(this.canvas);
+        if (blur) {
+            this.edge.blur();
+            this.edge.greyScale();
+        }
+        switch(method){
+            case 1:
+                this.edge.prewitt();
+                break;
+            case 2:
+                this.edge.roberts();
+                break;
+            default:
+                this.edge.sobel();
+        }
+        this.refreshImageData();
+    }
+    findEdges(threshold = 30, edgeColor = 'white', backColor = 'black') {
+        const test = (current, other)=>current > other + threshold || current < other - threshold
+        ;
+        const showEdge = (x, y, diff)=>{
+            const color = _tinycolor2Default.default.mix(edgeColor, backColor, _math.mapRange(0, 255, 0, 100, diff));
+            _primatives.pixel(this.context)(x, y, color);
+        // pixel(this.context)(x, y, edgeColor);
+        };
+        for(let y = 0; y < this.imageData.height; y++)for(let x = 0; x < this.imageData.width; x++){
+            const current = this.pixelAverageGrey(x, y);
+            const left = this.pixelAverageGrey(x - 1, y);
+            const right = this.pixelAverageGrey(x + 1, y);
+            const top = this.pixelAverageGrey(x, y - 1);
+            const bottom = this.pixelAverageGrey(x, y + 1);
+            // if (test(current, left) || test(current, right) || test(current, top) || test(current, bottom)) {
+            if (current > left + threshold || current < left - threshold) {
+                const diff = Math.abs(current - left);
+                showEdge(x, y, diff);
+            } else if (current > right + threshold || current < right - threshold) {
+                const diff = Math.abs(current - right);
+                showEdge(x, y, diff);
+            } else if (current > top + threshold || current < top - threshold) {
+                const diff = Math.abs(current - top);
+                showEdge(x, y, diff);
+            } else if (current > bottom + threshold || current < bottom - threshold) {
+                const diff = Math.abs(current - bottom);
+                showEdge(x, y, diff);
+            } else _primatives.pixel(this.context)(x, y, backColor);
+        }
+        this.refreshImageData();
     }
 }
 
@@ -11259,8 +11290,8 @@ var _primatives = require("../rndrgen/canvas/primatives");
 var _quadTree = require("../rndrgen/math/QuadTree");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _edgeDetect = require("../rndrgen/canvas/EdgeDetect");
-var _leaves400Jpg = require("../../media/images/leaves-400.jpg");
-var _leaves400JpgDefault = parcelHelpers.interopDefault(_leaves400Jpg);
+var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
+var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
 const bitmapTest01 = ()=>{
     const config = {
         name: 'bitmapTest01',
@@ -11275,7 +11306,7 @@ const bitmapTest01 = ()=>{
     const backgroundColor = _palettes.paperWhite.clone();
     const foreColor = _palettes.bicPenBlue.clone();
     let quadtree;
-    const image = new _bitmap.Bitmap(_leaves400JpgDefault.default);
+    const image = new _bitmap.Bitmap(_kristijanArsovWoman400PngDefault.default);
     let imageThresholdPoints;
     let boundary;
     const showPoints = (points, color = 'red')=>points.forEach((p)=>{
@@ -11297,13 +11328,14 @@ const bitmapTest01 = ()=>{
     const draw = ({ canvas , context  })=>{
         // background(canvas, context)(backgroundColor);
         const res = canvasWidth / 5;
-        image.findEdges();
-        const t = image.thresholdAsPoints(res, 25, false);
-        image.resetImageData();
-        image.showToCanvas(res);
-        quadtree = _quadTree.quadTreeFromPoints(boundary, 4, t);
-        _quadTree.show(context)(quadtree);
-        // showPoints(t);
+        image.findEdges(25, 'white', 'black');
+        const t = image.thresholdAsPoints(res, 100, false);
+        _canvas.background(canvas, context)(backgroundColor);
+        // image.resetImageData();
+        // image.showToCanvas(res);
+        quadtree = _quadTree.quadTreeFromPoints(boundary, 1, t);
+        // show(context)(quadtree);
+        showPoints(t);
         return -1;
     };
     return {
@@ -11313,9 +11345,6 @@ const bitmapTest01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../../media/images/leaves-400.jpg":"1M9zi","../rndrgen/canvas/EdgeDetect":"aLyCX"}],"1M9zi":[function(require,module,exports) {
-module.exports = require('./bundle-url').getBundleURL() + "leaves-400.c3850f57.jpg";
-
-},{"./bundle-url":"3seVR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/EdgeDetect":"aLyCX","../../media/images/kristijan-arsov-woman-400.png":"2bj6J"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

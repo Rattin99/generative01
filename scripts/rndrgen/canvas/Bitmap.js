@@ -3,7 +3,7 @@ import { clear } from './canvas';
 import { mapRange } from '../math/math';
 import { point } from '../math/points';
 import { averageNumArray } from '../utils';
-import { rectFilled } from './primatives';
+import { pixel, rectFilled } from './primatives';
 import { initialize } from './EdgeDetect';
 
 /*
@@ -87,27 +87,6 @@ export class Bitmap {
 
     resetImageData() {
         this.context.putImageData(this.rawImageData, 0, 0);
-        this.refreshImageData();
-    }
-
-    findEdges(method = 0, blur = false) {
-        this.edge = initialize(this.canvas);
-
-        if (blur) {
-            this.edge.blur();
-            this.edge.greyScale();
-        }
-
-        switch (method) {
-            case 1:
-                this.edge.prewitt();
-                break;
-            case 2:
-                this.edge.roberts();
-                break;
-            default:
-                this.edge.sobel();
-        }
         this.refreshImageData();
     }
 
@@ -236,5 +215,67 @@ export class Bitmap {
             // ctx.drawImage(dropImage, 0, 0, dropImage.width, dropImage.height);
         };
         this.image.src = src;
+    }
+
+    findEdgesCabbage(method = 0, blur = false) {
+        this.edge = initialize(this.canvas);
+
+        if (blur) {
+            this.edge.blur();
+            this.edge.greyScale();
+        }
+
+        switch (method) {
+            case 1:
+                this.edge.prewitt();
+                break;
+            case 2:
+                this.edge.roberts();
+                break;
+            default:
+                this.edge.sobel();
+        }
+        this.refreshImageData();
+    }
+
+    findEdges(threshold = 30, edgeColor = 'white', backColor = 'black') {
+        const test = (current, other) => current > other + threshold || current < other - threshold;
+
+        const showEdge = (x, y, diff) => {
+            const color = tinycolor.mix(edgeColor, backColor, mapRange(0, 255, 0, 100, diff));
+            pixel(this.context)(x, y, color);
+            // pixel(this.context)(x, y, edgeColor);
+        };
+
+        for (let y = 0; y < this.imageData.height; y++) {
+            for (let x = 0; x < this.imageData.width; x++) {
+                const current = this.pixelAverageGrey(x, y);
+
+                const left = this.pixelAverageGrey(x - 1, y);
+                const right = this.pixelAverageGrey(x + 1, y);
+                const top = this.pixelAverageGrey(x, y - 1);
+                const bottom = this.pixelAverageGrey(x, y + 1);
+
+                // if (test(current, left) || test(current, right) || test(current, top) || test(current, bottom)) {
+
+                if (current > left + threshold || current < left - threshold) {
+                    const diff = Math.abs(current - left);
+                    showEdge(x, y, diff);
+                } else if (current > right + threshold || current < right - threshold) {
+                    const diff = Math.abs(current - right);
+                    showEdge(x, y, diff);
+                } else if (current > top + threshold || current < top - threshold) {
+                    const diff = Math.abs(current - top);
+                    showEdge(x, y, diff);
+                } else if (current > bottom + threshold || current < bottom - threshold) {
+                    const diff = Math.abs(current - bottom);
+                    showEdge(x, y, diff);
+                } else {
+                    pixel(this.context)(x, y, backColor);
+                }
+            }
+        }
+
+        this.refreshImageData();
     }
 }

@@ -6,7 +6,7 @@ import { pixel, rect } from '../rndrgen/canvas/primatives';
 import { QuadTree, quadTreeFromPoints, show } from '../rndrgen/math/QuadTree';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
 import { initialize } from '../rndrgen/canvas/EdgeDetect';
-import sourcePng from '../../media/images/leaves-400.jpg';
+import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
 
 export const bitmapTest01 = () => {
     const config = {
@@ -58,15 +58,15 @@ export const bitmapTest01 = () => {
         // background(canvas, context)(backgroundColor);
 
         const res = canvasWidth / 5;
-        image.findEdges();
-        const t = image.thresholdAsPoints(res, 25, false);
-        image.resetImageData();
-        image.showToCanvas(res);
+        image.findEdges(25, 'white', 'black');
+        const t = image.thresholdAsPoints(res, 100, false);
+        background(canvas, context)(backgroundColor);
+        // image.resetImageData();
+        // image.showToCanvas(res);
 
-        quadtree = quadTreeFromPoints(boundary, 4, t);
-
-        show(context)(quadtree);
-        // showPoints(t);
+        quadtree = quadTreeFromPoints(boundary, 1, t);
+        // show(context)(quadtree);
+        showPoints(t);
 
         return -1;
     };

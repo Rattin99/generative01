@@ -17,7 +17,7 @@ const debug = true;
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = circlePacking02;
+const experimentalVariation = bitmapTest01;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 
