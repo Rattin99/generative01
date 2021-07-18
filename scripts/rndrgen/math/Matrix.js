@@ -105,6 +105,17 @@ export class Matrix {
         return result;
     }
 
+    // sum all of the values
+    static sum(m) {
+        let result = 0;
+        for (let r = 0; r < m.rows; r++) {
+            for (let c = 0; c < m.cols; c++) {
+                result += m.data[r][c];
+            }
+        }
+        return result;
+    }
+
     add(v) {
         if (v instanceof Matrix) {
             for (let r = 0; r < this.rows; r++) {

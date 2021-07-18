@@ -6,8 +6,8 @@ Modifications from 7/15/21, Matt Perkins
 * conversion to ES6 classes
 * Change constructor to use passed canvas element
 */
-const DIRECTIONS = ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'];
-const VALS = ['r', 'g', 'b', 'a'];
+const pixelDirections = ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'];
+const pixelColorValues = ['r', 'g', 'b', 'a'];
 
 // Pixel is a dumb object that does not know about image data
 // It is only meant to be used by Cabbage directly for:
@@ -20,14 +20,15 @@ class Pixel {
         this.y = y;
         this.neighbors = {};
 
+        // TODO ?
         if (vals) {
-            VALS.forEach(function (d) {
-                self[d] = vals.shift();
+            pixelColorValues.forEach(function (d) {
+                this[d] = vals.shift();
             });
         }
 
-        DIRECTIONS.forEach(function (d) {
-            self.neighbors[d] = self[d]();
+        pixelDirections.forEach(function (d) {
+            this.neighbors[d] = self[d]();
         });
     }
 

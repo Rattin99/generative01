@@ -1922,6 +1922,8 @@ parcelHelpers.export(exports, "PI", ()=>PI
 );
 parcelHelpers.export(exports, "TAU", ()=>TAU
 );
+parcelHelpers.export(exports, "E", ()=>E
+);
 parcelHelpers.export(exports, "abs", ()=>abs
 );
 parcelHelpers.export(exports, "sin", ()=>sin
@@ -2003,6 +2005,7 @@ parcelHelpers.export(exports, "circleY", ()=>circleY
 const π = Math.PI;
 const { PI  } = Math;
 const TAU = Math.PI * 2;
+const E = 2.718; // Euler's number rounded of to 3 places
 const { abs  } = Math;
 const { sin  } = Math;
 const { cos  } = Math;
@@ -2010,7 +2013,7 @@ const { tan  } = Math;
 const { pow  } = Math;
 const { round  } = Math;
 const { floor  } = Math;
-const golden = 1.618033988749895;
+const golden = 1.618;
 const fibonacci = [
     0,
     1,
@@ -6381,188 +6384,21 @@ const flowFieldImage = ()=>{
 },{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-/*
-import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
-import { Bitmap } from '../rndrgen/canvas/Bitmap';
-
-const image = new Bitmap(sourcePng);
-
-image.init(canvas, context); // in setup
-
- */ // const createColorArrayFromImageData = (imageData) => {
-//     const data = [];
-//     for (let y = 0, { height } = imageData; y < height; y++) {
-//         for (let x = 0, { width } = imageData; x < width; x++) {
-//             data.push({ x, y, ...getImageColor(imageData, x, y) });
-//         }
-//     }
-//     return data;
-// };
-// const renderImage = () => {
-//     for (let x = startX; x < maxX; x++) {
-//         for (let y = startY; y < maxY; y++) {
-//             const color = image.pixelColorFromCanvas(x, y);
-//             pixel(ctx)(x, y, color, 'square', 1);
-//         }
-//     }
-// };
-parcelHelpers.export(exports, "Bitmap", ()=>Bitmap
+parcelHelpers.export(exports, "Pixel", ()=>Pixel
 );
-var _tinycolor2 = require("tinycolor2");
-var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
-var _canvas = require("./canvas");
-var _math = require("../math/math");
-var _points = require("../math/points");
-var _utils = require("../utils");
-var _primatives = require("./primatives");
-var _edgeDetect = require("./EdgeDetect");
-class Bitmap {
-    constructor(src1){
-        this.scaleX = 1;
-        this.scaleY = 1;
-        this.image = new Image();
-        this.image.src = src1;
-        this.imageData = undefined;
-    }
-    get width() {
-        return this.imageData.width;
-    }
-    get height() {
-        return this.imageData.height;
-    }
-    get data() {
-        return this.imageData;
-    }
-    toCanvasX(x) {
-        return Math.round(x * this.scaleX);
-    }
-    toCanvasY(y) {
-        return Math.round(y * this.scaley);
-    }
-    init(canvas, context, wipe = true) {
-        this.canvas = canvas;
-        this.context = context;
-        this.context.drawImage(this.image, 0, 0);
-        this.imageWidth = this.image.width || this.canvas.width;
-        this.imageHeight = this.image.height || this.canvas.height;
-        this.rawImageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
-        this.refreshImageData();
-        this.scaleX = this.canvas.width / this.imageWidth;
-        this.scaleY = this.canvas.height / this.imageHeight;
-        if (wipe) _canvas.clear(this.canvas, this.context);
-    }
-    refreshImageData() {
-        this.imageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
-    }
-    resetImageData() {
-        this.context.putImageData(this.rawImageData, 0, 0);
-        this.refreshImageData();
-    }
-    pixelColorRaw(x, y) {
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x >= this.width) x = this.width - 1;
-        if (y >= this.height) y = this.height - 1;
-        return {
-            r: this.imageData.data[y * 4 * this.imageData.width + x * 4],
-            g: this.imageData.data[y * 4 * this.imageData.width + x * 4 + 1],
-            b: this.imageData.data[y * 4 * this.imageData.width + x * 4 + 2],
-            a: this.imageData.data[y * 4 * this.imageData.width + x * 4 + 3]
-        };
-    }
-    pixelColor(x, y) {
-        return _tinycolor2Default.default(this.pixelColorRaw(x, y));
-    }
-    /*
-    Gray = 0.21R + 0.72G + 0.07B // Luminosity
-    Gray = (R + G + B) ÷ 3 // Average Brightness
-    Gray = 0.299R + 0.587G + 0.114B // rec601 standard
-    Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
-    Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
-     */ // https://sighack.com/post/averaging-rgb-colors-the-right-way
-    pixelAverageGrey(x, y) {
-        const color = this.pixelColorRaw(x, y);
-        return Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
-    }
-    pixelTheta(x, y) {
-        // return this.pixelColor(x, y).getBrightness() / 256;
-        return this.pixelAverageGrey(x, y) / 256;
-    }
-    pixelColorFromCanvas(x, y) {
-        return this.pixelColor(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
-    }
-    pixelAverageGreyFromCanvas(x, y) {
-        return this.pixelAverageGrey(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
-    }
-    pixelThetaFromCanvas(x, y) {
-        return this.pixelTheta(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
-    }
-    sizeFromPixelBrightness(x, y, size = 5, low = 0, max = 255) {
-        const pixelColor = this.pixelColorFromCanvas(x, y);
-        const brightness = 256 - pixelColor.getBrightness();
-        return _math.mapRange(low, max, 0, size, brightness);
-    }
-    averageGreyFromCell(x, y, w, h, res = 2) {
-        const points = [];
-        for(let i = x; i < x + w; i += res)for(let k = y; k < y + h; k += res)points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
-        return _utils.averageNumArray(points);
-    }
-    showToCanvas(res) {
-        const { width , height  } = this.canvas;
-        res = res || width / 4;
-        const colw = width / res;
-        const rowh = height / res;
-        for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
-            const x = i * colw;
-            const y = j * rowh;
-            _primatives.rectFilled(this.context)(x, y, colw, rowh, this.pixelColorFromCanvas(x, y));
-        }
-    }
-    thresholdAsPoints(res, threshold = 128, inv = false) {
-        const testFn = (g)=>inv ? g < threshold : g > threshold
-        ;
-        const points = [];
-        const { width , height  } = this.canvas;
-        const colw = width / res;
-        const rowh = height / res;
-        for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
-            const x = i * colw;
-            const y = j * rowh;
-            if (testFn(this.pixelAverageGreyFromCanvas(x, y))) points.push(_points.point(x, y));
-        }
-        return points;
-    }
-    loadImageData(src, wipe = true) {
-        // const MAX_HEIGHT = 100;
-        this.image = new Image();
-        this.image.onload = function() {
-            console.log(this, this.context);
-            this.context.drawImage(this.image, 0, 0);
-            // TODO update raw as well
-            this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
-            this.scaleX = this.canvas.width / this.imageData.width;
-            this.scaleY = this.canvas.height / this.imageData.height;
-            if (wipe) _canvas.clear(this.canvas, this.context);
-        // const canvas = document.getElementById('myCanvas');
-        // if (dropImage.height > MAX_HEIGHT) {
-        //     dropImage.width *= MAX_HEIGHT / dropImage.height;
-        //     dropImage.height = MAX_HEIGHT;
-        // }
-        // const ctx = canvas.getContext('2d');
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // canvas.width = dropImage.width;
-        // canvas.height = dropImage.height;
-        // ctx.drawImage(dropImage, 0, 0, dropImage.width, dropImage.height);
-        };
-        this.image.src = src;
-    }
+//----------------------------------------------------------------------------------------------------------------------
+parcelHelpers.export(exports, "Bitmap", ()=>Bitmap
+); // scratch
+ /*
     findEdgesCabbage(method = 0, blur = false) {
-        this.edge = _edgeDetect.initialize(this.canvas);
+        this.edge = initialize(this.canvas);
+
         if (blur) {
             this.edge.blur();
             this.edge.greyScale();
         }
-        switch(method){
+
+        switch (method) {
             case 1:
                 this.edge.prewitt();
                 break;
@@ -6574,350 +6410,138 @@ class Bitmap {
         }
         this.refreshImageData();
     }
-    findEdges(threshold = 30, edgeColor = 'white', backColor = 'black') {
-        const test = (current, other)=>current > other + threshold || current < other - threshold
-        ;
-        const showEdge = (x, y, diff)=>{
-            const color = _tinycolor2Default.default.mix(edgeColor, backColor, _math.mapRange(0, 255, 0, 100, diff));
-            _primatives.pixel(this.context)(x, y, color);
-        // pixel(this.context)(x, y, edgeColor);
-        };
-        for(let y = 0; y < this.imageData.height; y++)for(let x = 0; x < this.imageData.width; x++){
-            const current = this.pixelAverageGrey(x, y);
-            const left = this.pixelAverageGrey(x - 1, y);
-            const right = this.pixelAverageGrey(x + 1, y);
-            const top = this.pixelAverageGrey(x, y - 1);
-            const bottom = this.pixelAverageGrey(x, y + 1);
-            // if (test(current, left) || test(current, right) || test(current, top) || test(current, bottom)) {
-            if (current > left + threshold || current < left - threshold) {
-                const diff = Math.abs(current - left);
-                showEdge(x, y, diff);
-            } else if (current > right + threshold || current < right - threshold) {
-                const diff = Math.abs(current - right);
-                showEdge(x, y, diff);
-            } else if (current > top + threshold || current < top - threshold) {
-                const diff = Math.abs(current - top);
-                showEdge(x, y, diff);
-            } else if (current > bottom + threshold || current < bottom - threshold) {
-                const diff = Math.abs(current - bottom);
-                showEdge(x, y, diff);
-            } else _primatives.pixel(this.context)(x, y, backColor);
+
+const createColorArrayFromImageData = (imageData) => {
+    const data = [];
+    for (let y = 0, { height } = imageData; y < height; y++) {
+        for (let x = 0, { width } = imageData; x < width; x++) {
+            data.push({ x, y, ...getImageColor(imageData, x, y) });
         }
-        this.refreshImageData();
+    }
+    return data;
+};
+
+const renderImage = () => {
+    for (let x = startX; x < maxX; x++) {
+        for (let y = startY; y < maxY; y++) {
+            const color = image.pixelColorFromCanvas(x, y);
+            pixel(ctx)(x, y, color, 'square', 1);
+        }
+    }
+};
+*/ 
+var _tinycolor2 = require("tinycolor2");
+var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
+var _canvas = require("./canvas");
+var _math = require("../math/math");
+var _points = require("../math/points");
+var _utils = require("../utils");
+var _primatives = require("./primatives");
+// import { initialize } from './EdgeDetect';
+var _matrix = require("../math/Matrix");
+/*
+import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
+import { Bitmap } from '../rndrgen/canvas/Bitmap';
+
+const image = new Bitmap(sourcePng);
+
+image.init(canvas, context); // in setup
+
+ */ // from https://github.com/cmisenas/cabbage.js/blob/master/cabbage.js
+const pixelDirections = [
+    'n',
+    'e',
+    's',
+    'w',
+    'ne',
+    'nw',
+    'se',
+    'sw'
+];
+const pixelColorValues = [
+    'r',
+    'g',
+    'b',
+    'a'
+];
+class Pixel {
+    constructor(x1, y1, vals){
+        this.x = x1;
+        this.y = y1;
+        this.neighbors = {
+        };
+        // wat?
+        if (vals) pixelColorValues.forEach((d)=>{
+            this[d] = vals.shift();
+        });
+        pixelDirections.forEach((d)=>{
+            this.neighbors[d] = this[d]();
+        });
+    }
+    n() {
+        return {
+            x: this.x,
+            y: this.y - 1
+        };
+    }
+    e() {
+        return {
+            x: this.x + 1,
+            y: this.y
+        };
+    }
+    s() {
+        return {
+            x: this.x,
+            y: this.y + 1
+        };
+    }
+    w() {
+        return {
+            x: this.x - 1,
+            y: this.y
+        };
+    }
+    ne() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+    nw() {
+        return {
+            x: this.x - 1,
+            y: this.y - 1
+        };
+    }
+    se() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+    sw() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
     }
 }
-
-},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../math/points":"4RQVg","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./primatives":"6MM7x","./EdgeDetect":"aLyCX"}],"aLyCX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Filters", ()=>Filters
-);
-parcelHelpers.export(exports, "EdgeDetect", ()=>EdgeDetect
-);
-parcelHelpers.export(exports, "initialize", ()=>initialize
-);
-/*
-
-Originally from https://github.com/cmisenas/canny-edge-detection
-Demo http://canny-edge-detection.herokuapp.com/
-
-Works the following way:
-1. Convert the canvas image to grayscale
-2. Smooth the image to reduce noise as much as possible. In this implementation, Gaussian filter can be applied
-    (max kernel size is 21).
-3. Determine the gradient intensity (amount of change) and direction for each pixel. This is done by convolving image
-    with the chosen filter. Currently, there are 3 operators you may choose from: Sobel, Prewitts, Cross
-4. Thin the resulting edges with non-maximum suppression.
-5. Remove weak/false edges. A process called hysteresis is used where there are two thresholds--high and low--to be
-    compared to each pixel.
-
-Modifications from 7/15/21, Matt Perkins
-* Merged to one file
-* conversion to ES6 classes
-* bootstrap functions (bottom of file)
- */ var _cabbage = require("./Cabbage");
-// helpers.js
-const sumArr = function(arr) {
-    // receives an array and returns sum
-    let result = 0;
-    arr.map(function(el, idx) {
-        result += /^\s*function Array/.test(String(el.constructor)) ? sumArr(el) : el;
-    });
-    return result;
-};
-const COLORS = {
-    RED: {
-        r: 255,
-        g: 0,
-        b: 0
-    },
-    GREEN: {
-        r: 0,
-        g: 255,
-        b: 0
-    },
-    BLUE: {
-        r: 0,
-        g: 0,
-        b: 255
-    },
-    YELLOW: {
-        r: 255,
-        g: 255,
-        b: 0
-    },
-    PINK: {
-        r: 255,
-        g: 0,
-        b: 255
-    },
-    AQUA: {
-        r: 0,
-        g: 255,
-        b: 255
-    }
-};
-const roundDir = function(deg) {
-    // rounds degrees to 4 possible orientations: horizontal, vertical, and 2 diagonals
-    var deg = deg < 0 ? deg + 180 : deg;
-    if (deg >= 0 && deg <= 22.5 || deg > 157.5 && deg <= 180) return 0;
-    if (deg > 22.5 && deg <= 67.5) return 45;
-    if (deg > 67.5 && deg <= 112.5) return 90;
-    if (deg > 112.5 && deg <= 157.5) return 135;
-};
-const getPixelNeighbors = function(dir) {
-    const degrees = {
-        0: [
-            {
-                x: 1,
-                y: 2
-            },
-            {
-                x: 1,
-                y: 0
-            }, 
-        ],
-        45: [
-            {
-                x: 0,
-                y: 2
-            },
-            {
-                x: 2,
-                y: 0
-            }, 
-        ],
-        90: [
-            {
-                x: 0,
-                y: 1
-            },
-            {
-                x: 2,
-                y: 1
-            }, 
-        ],
-        135: [
-            {
-                x: 0,
-                y: 0
-            },
-            {
-                x: 2,
-                y: 2
-            }, 
-        ]
-    };
-    return degrees[dir];
-};
-const getEdgeNeighbors = function(i, imgData, threshold, includedEdges) {
-    const neighbors = [];
-    const pixel = new Pixel(i, imgData.width, imgData.height);
-    for(let j = 0; j < pixel.neighbors.length; j++)if (imgData.data[pixel.neighbors[j]] >= threshold && (includedEdges === undefined || includedEdges.indexOf(pixel.neighbors[j]) === -1)) neighbors.push(pixel.neighbors[j]);
-    return neighbors;
-};
-const createHistogram = function(cvs) {
-    const histogram = {
-        g: []
-    };
-    let size = 256;
-    let total = 0;
-    const imgData = cvs.getCurrentImg();
-    while(size--)histogram.g[size] = 0;
-    cvs.map(function(x, y, pixelIndex, cvsIndex) {
-        histogram.g[imgData.data[cvsIndex]]++;
-        total++;
-    });
-    histogram.length = total;
-    return histogram;
-};
-// mean threshold works better than median threshold
-// however is sensitive to noise
-// works best when Gaussian blur is applied first
-const calcMeanThreshold = function(cvs) {
-    const histogram = createHistogram(cvs);
-    let sum = 0;
-    const total = histogram.length;
-    histogram.g.forEach(function(e, i) {
-        sum += e * (i + 1);
-    });
-    return sum / total;
-};
-// does not work that well
-// median value is almost always 0 (black)
-// if background is bigger than foreground
-const calcMedianThreshold = function(cvs) {
-    const histogram = createHistogram(cvs);
-    const m = Math.round(histogram.length / 2);
-    let n = 0;
-    let median;
-    histogram.g.some(function(e, i) {
-        n += e;
-        if (n >= m) {
-            median = i;
-            return true;
-        }
-        return false;
-    });
-    return median;
-};
-const calcWeight = function(histogram, s, e) {
-    const total = histogram.reduce(function(i, j) {
-        return i + j;
-    }, 0);
-    const partHist = s === e ? [
-        histogram[s]
-    ] : histogram.slice(s, e);
-    const part = partHist.reduce(function(i, j) {
-        return i + j;
-    }, 0);
-    return parseFloat(part, 10) / total;
-};
-const calcMean = function(histogram, s, e) {
-    const partHist = s === e ? [
-        histogram[s]
-    ] : histogram.slice(s, e);
-    let val = total = 0;
-    partHist.forEach(function(el, i) {
-        val += (s + i) * el;
-        total += el;
-    });
-    return parseFloat(val, 10) / total;
-};
-const calcBetweenClassVariance = function(weight1, mean1, weight2, mean2) {
-    return weight1 * weight2 * (mean1 - mean2) * (mean1 - mean2);
-};
-const fastOtsu = function(canvas) {
-    const histogram = createHistogram(canvas);
-    const start = 0;
-    const end = histogram.g.length - 1;
-    let leftWeight;
-    let rightWeight;
-    let leftMean;
-    let rightMean;
-    const betweenClassVariances = [];
-    let max = -Infinity;
-    let threshold;
-    histogram.g.forEach(function(el, i) {
-        leftWeight = calcWeight(histogram.g, start, i);
-        rightWeight = calcWeight(histogram.g, i, end + 1);
-        leftMean = calcMean(histogram.g, start, i);
-        rightMean = calcMean(histogram.g, i, end + 1);
-        betweenClassVariances[i] = calcBetweenClassVariance(leftWeight, leftMean, rightWeight, rightMean);
-        if (betweenClassVariances[i] > max) {
-            max = betweenClassVariances[i];
-            threshold = i;
-        }
-    });
-    return threshold;
-};
-// filters.js
-const calculateGray = function(pixel) {
-    return 0.3 * pixel.r + 0.59 * pixel.g + 0.11 * pixel.b;
-};
+// from https://github.com/cmisenas/canny-edge-detection
+// Generate normal kernel for gausian blur
 const generateKernel = function(sigma, size) {
     const kernel = [];
-    const E = 2.718; // Euler's number rounded of to 3 places
-    for(let y = -(size - 1) / 2, i = 0; i < size; y++, i++){
+    // const E = 2.718; // Euler's number rounded of to 3 places
+    for(let y1 = -(size - 1) / 2, i = 0; i < size; y1++, i++){
         kernel[i] = [];
-        for(let x = -(size - 1) / 2, j = 0; j < size; x++, j++)// create kernel round to 3 decimal places
-        kernel[i][j] = 1 / (2 * Math.PI * Math.pow(sigma, 2)) * Math.pow(E, -(Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2)) / (2 * Math.pow(sigma, 2)));
+        for(let x1 = -(size - 1) / 2, j = 0; j < size; x1++, j++)// create kernel round to 3 decimal places
+        kernel[i][j] = 1 / (2 * Math.PI * Math.pow(sigma, 2)) * Math.pow(_math.E, -(Math.pow(Math.abs(x1), 2) + Math.pow(Math.abs(y1), 2)) / (2 * Math.pow(sigma, 2)));
     }
     // normalize the kernel to make its sum 1
-    const normalize = 1 / sumArr(kernel);
+    const normalize = 1 / _matrix.Matrix.sum(kernel);
     for(let k = 0; k < kernel.length; k++)for(let l = 0; l < kernel[k].length; l++)kernel[k][l] = Math.round(normalize * kernel[k][l] * 1000) / 1000;
     return kernel;
 };
-class Filters {
-    constructor(cvs){
-        this.cabbageCnvs = cvs;
-    }
-    grayscale() {
-        const that = this;
-        let grayLevel;
-        console.time('Grayscale Time');
-        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
-            grayLevel = calculateGray(that.cabbageCnvs.getPixel(cvsIndex));
-            that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, grayLevel);
-        });
-        this.cabbageCnvs.setImg();
-        console.timeEnd('Grayscale Time');
-    }
-    gaussianBlur(sigma, size) {
-        const that = this;
-        const kernel = generateKernel(sigma, size);
-        console.time('Blur Time');
-        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
-            // ignore edges
-            // TODO: make this faster!
-            if (x !== 0 && y !== 0 && x !== that.cabbageCnvs.width - 1 && y !== that.cabbageCnvs.height - 1) {
-                let resultR = 0;
-                let resultG = 0;
-                let resultB = 0;
-                let pixel;
-                for(let i = 0; i < size; i++)for(let j = 0; j < size; j++){
-                    pixel = that.cabbageCnvs.getPixel(neighbors[i][j]);
-                    // return the existing pixel value multiplied by the kernel
-                    resultR += pixel.r * kernel[i][j];
-                    resultG += pixel.g * kernel[i][j];
-                    resultB += pixel.b * kernel[i][j];
-                }
-                that.cabbageCnvs.setPixel({
-                    x,
-                    y
-                }, {
-                    r: resultR,
-                    g: resultG,
-                    b: resultB
-                });
-            }
-        }, size);
-        this.cabbageCnvs.setImg();
-        console.timeEnd('Blur Time');
-    }
-    invertColors() {
-        const that = this;
-        let pixel;
-        console.time('Invert Colors Time');
-        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
-            pixel = that.cabbageCnvs.getPixel(cvsIndex);
-            that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, {
-                r: 255 - pixel.r,
-                g: 255 - pixel.g,
-                b: 255 - pixel.b
-            });
-        });
-        this.cabbageCnvs.setImg();
-        console.timeEnd('Invert Colors Time');
-    }
-}
-// canny.js
 const SOBEL_X_FILTER = [
     [
         -1,
@@ -7006,7 +6630,7 @@ const PREWITT_Y_FILTER = [
         1
     ], 
 ];
-const OPERATORS = {
+const findEdgeKernels = {
     sobel: {
         x: SOBEL_X_FILTER,
         y: SOBEL_Y_FILTER,
@@ -7023,547 +6647,333 @@ const OPERATORS = {
         len: PREWITT_Y_FILTER.length
     }
 };
-class EdgeDetect {
-    constructor(canvElem){
-        this.cabbageCnvs = canvElem;
+class Bitmap {
+    constructor(src1){
+        this.scaleX = 1;
+        this.scaleY = 1;
+        this.image = new Image();
+        this.image.src = src1;
+        this.imageData = undefined;
     }
-    // find intensity gradient of image
-    gradient(op) {
-        const imgDataCopy = this.cabbageCnvs.getCurrentImg();
-        const dirMap = [];
-        const gradMap = [];
-        const that = this;
-        console.time('Sobel Filter Time');
-        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
-            let edgeX = 0;
-            let edgeY = 0;
-            if (!that.cabbageCnvs.isBorder({
-                x,
-                y
-            })) {
-                for(let i = 0; i < OPERATORS[op].len; i++)for(let j = 0; j < OPERATORS[op].len; j++){
-                    if (!neighbors[i][j]) continue;
-                    edgeX += imgDataCopy.data[neighbors[i][j]] * OPERATORS[op].x[i][j];
-                    edgeY += imgDataCopy.data[neighbors[i][j]] * OPERATORS[op].y[i][j];
-                }
-            }
-            dirMap[cvsIndex] = roundDir(Math.atan2(edgeY, edgeX) * (180 / Math.PI));
-            gradMap[cvsIndex] = Math.round(Math.sqrt(edgeX * edgeX + edgeY * edgeY));
-            that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, gradMap[cvsIndex]);
-        }, 3);
-        this.cabbageCnvs.setImg();
-        console.timeEnd('Sobel Filter Time');
-        this.cabbageCnvs.dirMap = dirMap;
-        this.cabbageCnvs.gradMap = gradMap;
+    get width() {
+        return this.imageData.width;
     }
-    nonMaximumSuppress() {
-        const that = this;
-        console.time('NMS Time');
-        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
-            const pixNeighbors = getPixelNeighbors(that.cabbageCnvs.dirMap[cvsIndex]);
-            // pixel neighbors to compare
-            const pix1 = that.cabbageCnvs.gradMap[neighbors[pixNeighbors[0].x][pixNeighbors[0].y]];
-            const pix2 = that.cabbageCnvs.gradMap[neighbors[pixNeighbors[1].x][pixNeighbors[1].y]];
-            if (pix1 > that.cabbageCnvs.gradMap[cvsIndex] || pix2 > that.cabbageCnvs.gradMap[cvsIndex] || pix2 === that.cabbageCnvs.gradMap[cvsIndex] && pix1 < that.cabbageCnvs.gradMap[cvsIndex]) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, 0);
-        }, 3);
-        this.cabbageCnvs.setImg();
-        console.timeEnd('NMS Time');
+    get height() {
+        return this.imageData.height;
     }
-    // TODO: Do not use sparse array for storing real edges
-    // mark strong and weak edges, discard others as false edges; only keep weak edges that are connected to strong edges
-    hysteresis() {
-        const that = this;
-        const imgDataCopy = this.cabbageCnvs.getCurrentImg();
-        const realEdges = []; // where real edges will be stored with the 1st pass
-        const t1 = fastOtsu(this.cabbageCnvs); // high threshold value
-        const t2 = t1 / 2; // low threshold value
-        // first pass
-        console.time('Hysteresis Time');
-        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
-            if (imgDataCopy.data[cvsIndex] > t1 && realEdges[cvsIndex] === undefined) {
-                // accept as a definite edge
-                const group = that._traverseEdge(cvsIndex, imgDataCopy, t2, []);
-                for(let i = 0; i < group.length; i++)realEdges[group[i]] = true;
-            }
+    get data() {
+        return this.imageData;
+    }
+    toCanvasX(x) {
+        return Math.round(x * this.scaleX);
+    }
+    toCanvasY(y) {
+        return Math.round(y * this.scaleY);
+    }
+    init(canvas, context, wipe = true) {
+        this.canvas = canvas;
+        this.context = context;
+        this.context.drawImage(this.image, 0, 0);
+        this.imageWidth = this.image.width || this.canvas.width;
+        this.imageHeight = this.image.height || this.canvas.height;
+        this.rawImageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+        this.refreshImageData();
+        this.scaleX = this.canvas.width / this.imageWidth;
+        this.scaleY = this.canvas.height / this.imageHeight;
+        if (wipe) _canvas.clear(this.canvas, this.context);
+    }
+    refreshImageData() {
+        this.imageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+    }
+    resetImageData() {
+        this.context.putImageData(this.rawImageData, 0, 0);
+        this.refreshImageData();
+    }
+    pixelIsBorder(x, y) {
+        return x === 0 && y < this.height && y >= 0 || y === 0 && x < this.width && x >= 0 || x === this.width - 1 && y < this.height && y >= 0 || y === this.height - 1 && x < this.width && x >= 0;
+    }
+    pixelIsOutOfBounds(x, y) {
+        return x < 0 || x > this.width - 1 || y < 0 || y > this.height - 1;
+    }
+    // TODO: implement bounds wrapping
+    pixelColorRaw(x, y) {
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x >= this.width) x = this.width - 1;
+        if (y >= this.height) y = this.height - 1;
+        return {
+            r: this.imageData.data[y * 4 * this.imageData.width + x * 4],
+            g: this.imageData.data[y * 4 * this.imageData.width + x * 4 + 1],
+            b: this.imageData.data[y * 4 * this.imageData.width + x * 4 + 2],
+            a: this.imageData.data[y * 4 * this.imageData.width + x * 4 + 3]
+        };
+    }
+    pixelColor(x, y) {
+        return _tinycolor2Default.default(this.pixelColorRaw(x, y));
+    }
+    // 0.3 * pixel.r + 0.59 * pixel.g + 0.11 * pixel.b;
+    /*
+    Gray = 0.21R + 0.72G + 0.07B // Luminosity
+    Gray = (R + G + B) ÷ 3 // Average Brightness
+    Gray = 0.299R + 0.587G + 0.114B // rec601 standard
+    Gray = 0.2126R + 0.7152G + 0.0722B // ITU-R BT.709 standard
+    Gray = 0.2627R + 0.6780G + 0.0593B // ITU-R BT.2100 standard
+     */ // https://sighack.com/post/averaging-rgb-colors-the-right-way
+    pixelAverageGrey(x, y) {
+        const color = this.pixelColorRaw(x, y);
+        return Math.sqrt((color.r * color.r + color.g * color.g + color.b * color.b) / 3);
+    }
+    pixelTheta(x, y) {
+        // return this.pixelColor(x, y).getBrightness() / 256;
+        return this.pixelAverageGrey(x, y) / 256;
+    }
+    pixelColorFromCanvas(x, y) {
+        return this.pixelColor(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
+    }
+    pixelAverageGreyFromCanvas(x, y) {
+        return this.pixelAverageGrey(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
+    }
+    pixelThetaFromCanvas(x, y) {
+        return this.pixelTheta(Math.round(x / this.scaleX), Math.round(y / this.scaleY));
+    }
+    sizeFromPixelBrightness(x, y, size = 5, low = 0, max = 255) {
+        const pixelColor = this.pixelColorFromCanvas(x, y);
+        const brightness = 256 - pixelColor.getBrightness();
+        return _math.mapRange(low, max, 0, size, brightness);
+    }
+    averageGreyFromCell(x, y, w, h, res = 2) {
+        const points = [];
+        for(let i = x; i < x + w; i += res)for(let k = y; k < y + h; k += res)points.push(this.pixelAverageGrey(Math.round(i / this.scaleX), Math.round(k / this.scaleY)));
+        return _utils.averageNumArray(points);
+    }
+    showToCanvas(res) {
+        const { width , height  } = this.canvas;
+        res = res || width / 4;
+        const colw = width / res;
+        const rowh = height / res;
+        for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
+            const x2 = i * colw;
+            const y2 = j * rowh;
+            _primatives.rectFilled(this.context)(x2, y2, colw, rowh, this.pixelColorFromCanvas(x2, y2));
+        }
+    }
+    thresholdAsPoints(res, threshold = 128, inv = false) {
+        const testFn = (g)=>inv ? g < threshold : g > threshold
+        ;
+        const points = [];
+        const { width , height  } = this.canvas;
+        const colw = width / res;
+        const rowh = height / res;
+        for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
+            const x2 = i * colw;
+            const y2 = j * rowh;
+            if (testFn(this.pixelAverageGreyFromCanvas(x2, y2))) points.push(_points.point(x2, y2));
+        }
+        return points;
+    }
+    // create a NxN matrix of x,y coords centered around px and py and map a fn
+    // const logPos = (x, y) => `${x}, ${y}`;
+    mapPixelPositionMatrix(mapper, px, py, border = 1) {
+        const defaultMapper = (x2, y2)=>({
+                x: x2,
+                y: y2
+            })
+        ;
+        mapper = mapper || defaultMapper;
+        const size = border * 2 + 1;
+        const startside = border * -1;
+        const sidelen = border * 2 - (border - 1);
+        const m = new _matrix.Matrix(size, size);
+        for(let r = startside; r < sidelen; r++)for(let c = startside; c < sidelen; c++){
+            const x2 = px + c;
+            const y2 = py + r;
+            m.data[r + border][c + border] = mapper(x2, y2);
+        }
+        return m;
+    }
+    // passes mapper current x,y and then sets the pixel to the returned color value
+    map(mapper, save = true) {
+        for(let x2 = 0; x2 < this.imageData.width; x2++)for(let y2 = 0; y2 < this.imageData.height; y2++){
+            const result = mapper(x2, y2);
+            _primatives.pixel(this.context)(x2, y2, result);
+        }
+        if (save) this.refreshImageData();
+    }
+    greyscale() {
+        this.map((x2, y2)=>{
+            const grey = this.pixelAverageGrey(x2, y2);
+            return _tinycolor2Default.default({
+                r: grey,
+                g: grey,
+                b: grey
+            });
         });
-        // second pass
-        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
-            if (realEdges[cvsIndex] === undefined) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, 0);
-            else that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, 255);
-        });
-        this.cabbageCnvs.setImg();
-        console.timeEnd('Hysteresis Time');
     }
-    // just a quick function to look at the direction results
-    showDirMap() {
-        const that = this;
-        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
-            switch(that.cabbageCnvs.dirMap[cvsIndex]){
-                case 0:
-                    that.cabbageCnvs.setPixel({
-                        x,
-                        y
-                    }, COLORS.RED);
-                    break;
-                case 45:
-                    that.cabbageCnvs.setPixel({
-                        x,
-                        y
-                    }, COLORS.GREEN);
-                    break;
-                case 90:
-                    that.cabbageCnvs.setPixel({
-                        x,
-                        y
-                    }, COLORS.BLUE);
-                    break;
-                case 135:
-                    that.cabbageCnvs.setPixel({
-                        x,
-                        y
-                    }, COLORS.YELLOW);
-                    break;
-                default:
-                    that.cabbageCnvs.setPixel({
-                        x,
-                        y
-                    }, COLORS.PINK);
-            }
+    invert() {
+        this.map((x2, y2)=>{
+            const color = this.pixelColorRaw(x2, y2);
+            return _tinycolor2Default.default({
+                r: 255 - color.r,
+                g: 255 - color.g,
+                b: 255 - color.b
+            });
         });
-        this.cabbageCnvs.setImg();
     }
-    // TODO: Evaluate function use/fulness
-    showGradMap() {
-        const that = this;
-        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
-            if (that.cabbageCnvs.gradMap[cvsIndex] < 0) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, COLORS.RED);
-            else if (that.cabbageCnvs.gradMap[cvsIndex] < 200) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, COLORS.GREEN);
-            else if (that.cabbageCnvs.gradMap[cvsIndex] < 400) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, COLORS.BLUE);
-            else if (that.cabbageCnvs.gradMap[cvsIndex] < 600) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, COLORS.YELLOW);
-            else if (that.cabbageCnvs.gradMap[cvsIndex] < 800) that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, COLORS.AQUA);
-            else that.cabbageCnvs.setPixel({
-                x,
-                y
-            }, COLORS.PINK);
+    findEdges(threshold = 30, edgeColor = 'white', backColor = 'black', edgeStrength = 255) {
+        this.map((x2, y2)=>{
+            let diff = 0;
+            const current = this.pixelAverageGrey(x2, y2);
+            const left = this.pixelAverageGrey(x2 - 1, y2);
+            const right = this.pixelAverageGrey(x2 + 1, y2);
+            const top = this.pixelAverageGrey(x2, y2 - 1);
+            const bottom = this.pixelAverageGrey(x2, y2 + 1);
+            if (current > left + threshold || current < left - threshold) diff = Math.abs(current - left);
+            else if (current > right + threshold || current < right - threshold) diff = Math.abs(current - right);
+            else if (current > top + threshold || current < top - threshold) diff = Math.abs(current - top);
+            else if (current > bottom + threshold || current < bottom - threshold) diff = Math.abs(current - bottom);
+            return _tinycolor2Default.default.mix(backColor, edgeColor, _math.mapRange(0, edgeStrength, 0, 100, diff));
         });
-        this.cabbageCnvs.setImg();
     }
-    // TODO: Optimize prime!
-    // traverses the current pixel until a length has been reached
-    _traverseEdge(current, imgData, threshold, traversed) {
-        // initialize the group from the current pixel's perspective
-        let group = [
-            current
-        ];
-        // pass the traversed group to the getEdgeNeighbors so that it will not include those anymore
-        const neighbors = getEdgeNeighbors(current, imgData, threshold, traversed);
-        for(let i = 0; i < neighbors.length; i++)// recursively get the other edges connected
-        group = group.concat(this._traverseEdge(neighbors[i], imgData, threshold, traversed.concat(group)));
-        return group;
-    // if the pixel group is not above max length,
-    // it will return the pixels included in that small pixel group
+    loadImageData(src, wipe = true) {
+        // const MAX_HEIGHT = 100;
+        this.image = new Image();
+        this.image.onload = function() {
+            console.log(this, this.context);
+            this.context.drawImage(this.image, 0, 0);
+            // TODO update raw as well
+            this.imageData = this.context.getImageData(0, 0, this.image.width, this.image.width);
+            this.scaleX = this.canvas.width / this.imageData.width;
+            this.scaleY = this.canvas.height / this.imageData.height;
+            if (wipe) _canvas.clear(this.canvas, this.context);
+        // const canvas = document.getElementById('myCanvas');
+        // if (dropImage.height > MAX_HEIGHT) {
+        //     dropImage.width *= MAX_HEIGHT / dropImage.height;
+        //     dropImage.height = MAX_HEIGHT;
+        // }
+        // const ctx = canvas.getContext('2d');
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // canvas.width = dropImage.width;
+        // canvas.height = dropImage.height;
+        // ctx.drawImage(dropImage, 0, 0, dropImage.width, dropImage.height);
+        };
+        this.image.src = src;
     }
 }
-const initialize = (canvas, sz = 3, sg = 1.5)=>{
-    const cabbageCanvas = new _cabbage.Cabbage(canvas);
-    const edgeDetect = new EdgeDetect(cabbageCanvas);
-    const filters = new Filters(cabbageCanvas);
-    cabbageCanvas.setImg();
-    let size;
-    let sigma;
-    const setSize = (s)=>size = s <= 1 || s > 21 ? 3 : s % 2 === 0 ? s - 1 : s
-    ;
-    const setSigma = (s)=>sigma = s < 1 || s > 10 ? 1.5 : s
-    ;
-    size = setSize(sz);
-    sigma = setSigma(sg);
-    const resetImage = (_)=>cabbageCanvas.resetImageData()
-    ;
-    const greyScale = (_)=>filters.grayscale()
-    ;
-    const blur = (_)=>filters.gaussianBlur(sigma, size)
-    ;
-    const invert = (_)=>filters.invertColors()
-    ;
-    const sobel = (_)=>edgeDetect.gradient('sobel')
-    ;
-    const roberts = (_)=>edgeDetect.gradient('roberts')
-    ;
-    const prewitt = (_)=>edgeDetect.gradient('prewitt')
-    ;
-    /*
-    edgeDetect.nonMaximumSuppress();
-    edgeDetect.hysteresis();
-    edgeDetect.showDirMap();
-    edgeDetect.showGradMap();
-     */ return {
-        setSize,
-        setSigma,
-        greyScale,
-        blur,
-        invert,
-        resetImage,
-        sobel,
-        roberts,
-        prewitt
-    };
-};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./Cabbage":"1nKM0"}],"1nKM0":[function(require,module,exports) {
+},{"tinycolor2":"101FG","./canvas":"73Br1","../math/math":"4t0bw","../math/points":"4RQVg","../utils":"1kIwI","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./primatives":"6MM7x","../math/Matrix":"FKKRL"}],"FKKRL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Cabbage", ()=>Cabbage
+/*
+10.6: Neural Networks: Matrix Math Part 1 - The Nature of Code
+https://www.youtube.com/watch?v=uSzGdfdOoG8&list=PLRqwX-V7Uu6aCibgK1PTWWu9by6XFdCfh&index=6
+https://github.com/CodingTrain/website/blob/main/Courses/natureofcode/10.18-toy_neural_network/lib/matrix.js
+
+Alternativly use math.js or gpu.js + others
+*/ parcelHelpers.export(exports, "Matrix", ()=>Matrix
 );
-/* Used by edge detect
-
-Originally from https://github.com/cmisenas/cabbage.js/blob/master/cabbage.js
-
-Modifications from 7/15/21, Matt Perkins
-* conversion to ES6 classes
-* Change constructor to use passed canvas element
-*/ const DIRECTIONS = [
-    'n',
-    'e',
-    's',
-    'w',
-    'ne',
-    'nw',
-    'se',
-    'sw'
-];
-const VALS = [
-    'r',
-    'g',
-    'b',
-    'a'
-];
-// Pixel is a dumb object that does not know about image data
-// It is only meant to be used by Cabbage directly for:
-// manipulating canvas values, storing and easy retrieval of rgba
-class Pixel {
-    constructor(x1, y1, vals){
-        const self = this;
-        this.x = x1;
-        this.y = y1;
-        this.neighbors = {
-        };
-        if (vals) VALS.forEach(function(d) {
-            self[d] = vals.shift();
-        });
-        DIRECTIONS.forEach(function(d) {
-            self.neighbors[d] = self[d]();
-        });
-    }
-    n() {
-        return {
-            x: this.x,
-            y: this.y - 1
-        };
-    }
-    e() {
-        return {
-            x: this.x + 1,
-            y: this.y
-        };
-    }
-    s() {
-        return {
-            x: this.x,
-            y: this.y + 1
-        };
-    }
-    w() {
-        return {
-            x: this.x - 1,
-            y: this.y
-        };
-    }
-    ne() {
-        return {
-            x: this.x + 1,
-            y: this.y - 1
-        };
-    }
-    nw() {
-        return {
-            x: this.x - 1,
-            y: this.y - 1
-        };
-    }
-    se() {
-        return {
-            x: this.x + 1,
-            y: this.y - 1
-        };
-    }
-    sw() {
-        return {
-            x: this.x + 1,
-            y: this.y - 1
-        };
-    }
-}
-const doc = window.document;
-const COORDS = 'coordinate';
-const PIXIDX = 'pixel index';
-const IDIDX = 'image data index';
-class Cabbage {
-    // Original
-    // constructor(id, w, h, doc) {
-    //     doc = doc || doc;
-    //     this.width = w || 600;
-    //     this.height = h || 400;
-    //     this.elem = doc.getElementById(id) || this._createCanvas(id);
-    //     this.ctx = this.elem.getContext('2d');
-    //     this.origImg = {};
-    //     this.currImg = {};
-    // }
-    constructor(canvas){
-        this.width = canvas.width;
-        this.height = canvas.height;
-        this.elem = canvas;
-        this.ctx = this.elem.getContext('2d');
-        this.origImg = this.getCurrentImg();
-        this.currImg = this.getCurrentImg();
-        this.setImg();
-    }
-    loadImg(img, sx, sy) {
-        const self1 = this;
-        if (typeof img === 'string') this._createImage(img, function(usrImg) {
-            self1._img = usrImg;
-            if (usrImg.width !== self1.width || usrImg.height !== self1.height) {
-                self1.width = usrImg.width;
-                self1.height = usrImg.height;
-                self1.elem.width = self1.width;
-                self1.elem.height = self1.height;
-            }
-            self1.drawImage(sx, sy);
-        });
-        else if (/HTMLImageElement/.test(img.constructor)) {
-            this._img = img;
-            this.drawImage(sx, sy);
+class Matrix {
+    constructor(rows, cols){
+        if (rows === undefined || cols === undefined) {
+            console.error('Must init Matrix with rows and cols');
+            return;
         }
-        return this;
+        this.rows = rows;
+        this.cols = cols;
+        this.data = [];
+        this.fill(0);
     }
-    _createImage(imgSrc, fn) {
-        const self1 = this;
-        usrImg = new Image();
-        usrImg.onload = function() {
-            fn(usrImg);
-        };
-        usrImg.src = imgSrc;
+    // Initialize and fill array
+    fill(v = 0) {
+        for(let r = 0; r < this.rows; r++){
+            this.data[r] = [];
+            for(let c = 0; c < this.cols; c++)this.data[r][c] = v;
+        }
     }
-    _createCanvas(id) {
-        let elem;
-        elem = doc.createElement('canvas');
-        elem.id = id;
-        elem.width = this.width;
-        elem.height = this.height;
-        doc.body.insertBefore(elem, doc.body.firstChild);
-        return elem;
+    log() {
+        console.table(this.data);
     }
-    drawImage(sx, sy) {
-        this.ctx.drawImage(this._img, sx || 0, sy || 0);
-        this.refreshCurrImageData();
-        this.origImg = this.getCurrentImg();
-    }
-    // TODO: This looks sort of confusing
-    // rethink its use/name
-    setImg() {
-        this.putImageData(this.currImg, 0, 0);
-    }
-    /*
-        // Delete image data; leave canvas blank
-        deleteImg = function() {
-        };
-        */ // Reset to original data
-    resetImageData() {
-        // put back the original image to the canvas
-        this.putImageData(this.origImg);
-    }
-    // returns the actual current image data
-    getCurrentImg() {
-        return this.ctx.getImageData(0, 0, this.width, this.height);
-    }
-    // returns a copy of original image data
-    originalImg() {
-        return this.ctx.createImageData(this.origImg);
+    isCompatibleMatrix(m) {
+        return m instanceof Matrix && m.rows === this.rows && m.cols === this.cols;
     }
     map(fn) {
-        let x1;
-        let y1;
-        let cvsIndex;
-        let pixelIndex;
-        for(y1 = 0; y1 < this.height; y1++)for(x1 = 0; x1 < this.width; x1++){
-            pixelIndex = y1 * this.width + x1;
-            cvsIndex = x1 * 4 + y1 * this.width * 4;
-            fn(x1, y1, pixelIndex, cvsIndex);
-        }
+        for(let r = 0; r < this.rows; r++)for(let c = 0; c < this.cols; c++)this.data[r][c] = fn(this.data[r][c], r, c);
     }
-    convolve(fn, size) {
-        let x1;
-        let y1;
-        let cvsIndex;
-        let pixelIndex;
-        let matrix;
-        size = size || 3;
-        for(y1 = 0; y1 < this.height; y1++)for(x1 = 0; x1 < this.width; x1++){
-            pixelIndex = y1 * this.width + x1;
-            cvsIndex = x1 * 4 + y1 * this.width * 4;
-            matrix = this._buildMatrix(x1, y1, size);
-            fn(matrix, x1, y1, pixelIndex, cvsIndex);
-        }
+    static map(m1, fn) {
+        const result = new Matrix(m1.rows, m1.cols);
+        for(let r = 0; r < m1.rows; r++)for(let c = 0; c < m1.cols; c++)result.data[r][c] = fn(m1.data[r][c], r, c);
+        return result;
     }
-    // returns the pixel object if it exists
-    // otherwise throws an error
-    getPixel(loc) {
-        let index;
-        let coords;
-        let rgba;
-        if (typeof loc === 'number') {
-            if (!this._checkValidIDIndex(loc)) this._throwValidationError(IDIDX, COORDS);
-            index = loc;
-            coords = this._convertIDIndexToCoords(loc);
+    static fromArray(arr) {
+        const m = new Matrix(arr.length, 1);
+        for(let i = 0; i < arr.length; i++)m.data[i][0] = arr[i];
+        return m;
+    }
+    toArray() {
+        const arr = [];
+        for(let c = 0; c < this.cols; c++)for(let r = 0; r < this.rows; r++)arr.push(this.data[r][c]);
+        return arr;
+    }
+    randomize() {
+        // for (let r = 0; r < this.rows; r++) {
+        //     this.data[r] = [];
+        //     for (let c = 0; c < this.cols; c++) {
+        //         this.data[r][c] = Math.floor(Math.random() * 10);
+        //     }
+        // }
+        // this.map((x) => Math.floor(Math.random() * 10));
+        this.map((x)=>Math.random() * 2 - 1
+        );
+    }
+    // rows, cols -> cols, rows
+    static transpose(m) {
+        const result = new Matrix(m.cols, m.rows);
+        for(let r = 0; r < m.rows; r++)for(let c = 0; c < m.cols; c++)result.data[c][r] = m.data[r][c];
+        return result;
+    }
+    static add(m1, m2) {
+        const result = new Matrix(m1.rows, m1.cols);
+        for(let r = 0; r < m1.rows; r++)for(let c = 0; c < m1.cols; c++)result.data[r][c] = m1.data[r][c] + m2.data[r][c];
+        return result;
+    }
+    // sum all of the values
+    static sum(m) {
+        let result = 0;
+        for(let r = 0; r < m.rows; r++)for(let c = 0; c < m.cols; c++)result += m.data[r][c];
+        return result;
+    }
+    add(v) {
+        if (v instanceof Matrix) {
+            for(let r = 0; r < this.rows; r++)for(let c = 0; c < this.cols; c++)this.data[r][c] += v.data[r][c];
         } else {
-            if (!this._checkValidCoords(loc)) this._throwValidationError(COORDS, IDIDX);
-            index = this._convertCoordsToIDIndex(loc);
-            coords = loc;
+            for(let r = 0; r < this.rows; r++)for(let c = 0; c < this.cols; c++)this.data[r][c] += v;
         }
-        rgba = Array.prototype.slice.call(this.currImg.data, index, index + 4);
-        return new Pixel(coords.x, coords.y, rgba);
     }
-    // Modifies the current image data pixels
-    // Does not modify the canvas image
-    // That is the job of setImg
-    setPixel(pixel, val) {
-        const i = this._convertCoordsToIDIndex(pixel);
-        if (typeof val === 'number') {
-            this.currImg.data[i] = val;
-            this.currImg.data[i + 1] = val;
-            this.currImg.data[i + 2] = val;
+    static subtract(m1, m2) {
+        const result = new Matrix(m1.rows, m1.cols);
+        for(let r = 0; r < m1.rows; r++)for(let c = 0; c < m1.cols; c++)result.data[r][c] = m1.data[r][c] - m2.data[r][c];
+        return result;
+    }
+    subtract(v) {
+        for(let r = 0; r < this.rows; r++)for(let c = 0; c < this.cols; c++)this.data[r][c] -= v;
+    }
+    // Matrix product
+    static multiply(m1, m2) {
+        if (m1.cols !== m2.rows) return null; // can't do the op
+        const result = new Matrix(m1.rows, m2.cols);
+        for(let i = 0; i < result.rows; i++)for(let j = 0; j < result.cols; j++){
+            let sum = 0;
+            for(let k = 0; k < m1.cols; k++)sum += m1.data[i][k] * m2.data[k][j];
+            result.data[i][j] = sum;
+        }
+        return result;
+    }
+    multiply(v) {
+        if (v instanceof Matrix) {
+            // Element wise, Hadamard product
+            for(let r = 0; r < this.rows; r++)for(let c = 0; c < this.cols; c++)this.data[r][c] *= v.data[r][c];
         } else {
-            this.currImg.data[i] = val.r;
-            this.currImg.data[i + 1] = val.g;
-            this.currImg.data[i + 2] = val.b;
-            this.currImg.data[i + 3] = val.a || 255;
+            for(let r = 0; r < this.rows; r++)for(let c = 0; c < this.cols; c++)this.data[r][c] *= v;
         }
-    // this._drawPixel(pixel, r, g, b, a);
-    }
-    _drawPixel(pixel, r, g, b, a) {
-        this.ctx.fillStyle = `rgba(${[
-            r,
-            g,
-            b,
-            a
-        ].join(', ')})`;
-        this.ctx.fillRect(pixel.x, pixel.y, 1, 1);
-    }
-    isBorder(coords) {
-        return coords.x === 0 && coords.y < this.height && coords.y >= 0 || coords.y === 0 && coords.x < this.width && coords.x >= 0 || coords.x === this.width - 1 && coords.y < this.height && coords.y >= 0 || coords.y === this.height - 1 && coords.x < this.width && coords.x >= 0;
-    }
-    isOutOfBounds(coords) {
-        return coords.x < 0 || coords.x > this.width - 1 || coords.y < 0 || coords.y > this.height - 1;
-    }
-    // Every putImageData done via object
-    // stores current image for faster access later
-    putImageData(id, x, y) {
-        this.ctx.putImageData(id, x || 0, y || 0);
-        this.refreshCurrImageData();
-    }
-    refreshCurrImageData() {
-        this.currImg = this.getCurrentImg();
-    }
-    _buildMatrix(cx, cy, size) {
-        const matrix = [];
-        let nx;
-        let ny;
-        const min = 3;
-        const max = Math.max(this.width, this.height); // temp max value
-        size = size || 3;
-        size = size % 2 === 0 ? size + 1 : size;
-        // TODO make it so that max size is dictated by the dimensions of the image
-        if (size < min || size > max) size = min;
-        for(let i = 0, y2 = -(size - 1) / 2; i < size; i++, y2++){
-            matrix[i] = [];
-            for(let j = 0, x2 = -(size - 1) / 2; j < size; j++, x2++){
-                nx = cx + x2;
-                ny = cy + y2;
-                if (nx < 0 || nx >= this.width || ny < 0 || ny >= this.height) matrix[i][j] = undefined;
-                else matrix[i][j] = this._convertCoordsToIDIndex({
-                    x: nx,
-                    y: ny
-                });
-            }
-        }
-        return matrix;
-    }
-    _convertCoordsToIDIndex(coords) {
-        const m = 4;
-        return (coords.y * this.width + coords.x) * m;
-    }
-    _convertCoordsToPixIndex(coords) {
-        return coords.y * this.width + coords.x;
-    }
-    _checkValidCoords(coords) {
-        return !!coords && coords.x === parseInt(coords.x, 10) && coords.y === parseInt(coords.y, 10) && coords.x >= 0 && coords.x < this.width && coords.y >= 0 && coords.y < this.height;
-    }
-    _checkValidPIndex(pIdx) {
-        return pIdx === parseInt(pIdx, 10) && pIdx >= 0 && pIdx < this.width * this.height;
-    }
-    _checkValidIDIndex(pIdx) {
-        return pIdx === parseInt(pIdx, 10) && pIdx >= 0 && pIdx < this.width * this.height * 4;
-    }
-    _convertIDIndexToCoords(idIdx) {
-        const m = 4;
-        if (idIdx % 4 > 0) idIdx -= idIdx % 4;
-        return {
-            x: idIdx % (this.width * m) / m,
-            y: Math.floor(idIdx / (this.width * m))
-        };
-    }
-    _convertIDIndexToPixIndex(idIdx) {
-        const m = 4;
-        return Math.floor(idIdx / m);
-    }
-    _convertPixIndexToCoords(pIdx) {
-        return {
-            x: pIdx % this.width,
-            y: Math.floor(pIdx / this.width)
-        };
-    }
-    _convertPixIndexToIDIndex(pIdx) {
-        return pIdx * 4;
-    }
-    _throwValidationError(from, to) {
-        const msg = `Invalid ${from}. Unable to convert to ${to}`;
-        throw new Error(msg);
     }
 }
 
@@ -11327,15 +10737,18 @@ const bitmapTest01 = ()=>{
     };
     const draw = ({ canvas , context  })=>{
         // background(canvas, context)(backgroundColor);
+        // image.mapPixelPositionMatrix(logPos, 0, 0, 1).log();
         const res = canvasWidth / 5;
-        image.findEdges(25, 'white', 'black');
-        const t = image.thresholdAsPoints(res, 100, false);
-        _canvas.background(canvas, context)(backgroundColor);
+        image.invert();
+        image.greyscale();
+        // image.findEdges(50, 'white', 'black', 64);
+        // const t = image.thresholdAsPoints(res, 100, false);
+        // background(canvas, context)(backgroundColor);
         // image.resetImageData();
-        // image.showToCanvas(res);
-        quadtree = _quadTree.quadTreeFromPoints(boundary, 1, t);
-        // show(context)(quadtree);
-        showPoints(t);
+        image.showToCanvas(res);
+        // quadtree = quadTreeFromPoints(boundary, 1, t);
+        // if (quadtree) show(context)(quadtree);
+        // if (t) showPoints(t);
         return -1;
     };
     return {
@@ -11345,6 +10758,967 @@ const bitmapTest01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/EdgeDetect":"aLyCX","../../media/images/kristijan-arsov-woman-400.png":"2bj6J"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/EdgeDetect":"aLyCX","../../media/images/kristijan-arsov-woman-400.png":"2bj6J"}],"aLyCX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Filters", ()=>Filters
+);
+parcelHelpers.export(exports, "EdgeDetect", ()=>EdgeDetect
+);
+parcelHelpers.export(exports, "initialize", ()=>initialize
+);
+/*
+
+Originally from https://github.com/cmisenas/canny-edge-detection
+Demo http://canny-edge-detection.herokuapp.com/
+
+Works the following way:
+1. Convert the canvas image to grayscale
+2. Smooth the image to reduce noise as much as possible. In this implementation, Gaussian filter can be applied
+    (max kernel size is 21).
+3. Determine the gradient intensity (amount of change) and direction for each pixel. This is done by convolving image
+    with the chosen filter. Currently, there are 3 operators you may choose from: Sobel, Prewitts, Cross
+4. Thin the resulting edges with non-maximum suppression.
+5. Remove weak/false edges. A process called hysteresis is used where there are two thresholds--high and low--to be
+    compared to each pixel.
+
+Modifications from 7/15/21, Matt Perkins
+* Merged to one file
+* conversion to ES6 classes
+* bootstrap functions (bottom of file)
+ */ var _cabbage = require("./Cabbage");
+// helpers.js
+const sumArr = function(arr) {
+    // receives an array and returns sum
+    let result = 0;
+    arr.map(function(el, idx) {
+        result += /^\s*function Array/.test(String(el.constructor)) ? sumArr(el) : el;
+    });
+    return result;
+};
+const COLORS = {
+    RED: {
+        r: 255,
+        g: 0,
+        b: 0
+    },
+    GREEN: {
+        r: 0,
+        g: 255,
+        b: 0
+    },
+    BLUE: {
+        r: 0,
+        g: 0,
+        b: 255
+    },
+    YELLOW: {
+        r: 255,
+        g: 255,
+        b: 0
+    },
+    PINK: {
+        r: 255,
+        g: 0,
+        b: 255
+    },
+    AQUA: {
+        r: 0,
+        g: 255,
+        b: 255
+    }
+};
+const roundDir = function(deg) {
+    // rounds degrees to 4 possible orientations: horizontal, vertical, and 2 diagonals
+    var deg = deg < 0 ? deg + 180 : deg;
+    if (deg >= 0 && deg <= 22.5 || deg > 157.5 && deg <= 180) return 0;
+    if (deg > 22.5 && deg <= 67.5) return 45;
+    if (deg > 67.5 && deg <= 112.5) return 90;
+    if (deg > 112.5 && deg <= 157.5) return 135;
+};
+const getPixelNeighbors = function(dir) {
+    const degrees = {
+        0: [
+            {
+                x: 1,
+                y: 2
+            },
+            {
+                x: 1,
+                y: 0
+            }, 
+        ],
+        45: [
+            {
+                x: 0,
+                y: 2
+            },
+            {
+                x: 2,
+                y: 0
+            }, 
+        ],
+        90: [
+            {
+                x: 0,
+                y: 1
+            },
+            {
+                x: 2,
+                y: 1
+            }, 
+        ],
+        135: [
+            {
+                x: 0,
+                y: 0
+            },
+            {
+                x: 2,
+                y: 2
+            }, 
+        ]
+    };
+    return degrees[dir];
+};
+const getEdgeNeighbors = function(i, imgData, threshold, includedEdges) {
+    const neighbors = [];
+    const pixel = new Pixel(i, imgData.width, imgData.height);
+    for(let j = 0; j < pixel.neighbors.length; j++)if (imgData.data[pixel.neighbors[j]] >= threshold && (includedEdges === undefined || includedEdges.indexOf(pixel.neighbors[j]) === -1)) neighbors.push(pixel.neighbors[j]);
+    return neighbors;
+};
+const createHistogram = function(cvs) {
+    const histogram = {
+        g: []
+    };
+    let size = 256;
+    let total = 0;
+    const imgData = cvs.getCurrentImg();
+    while(size--)histogram.g[size] = 0;
+    cvs.map(function(x, y, pixelIndex, cvsIndex) {
+        histogram.g[imgData.data[cvsIndex]]++;
+        total++;
+    });
+    histogram.length = total;
+    return histogram;
+};
+// mean threshold works better than median threshold
+// however is sensitive to noise
+// works best when Gaussian blur is applied first
+const calcMeanThreshold = function(cvs) {
+    const histogram = createHistogram(cvs);
+    let sum = 0;
+    const total = histogram.length;
+    histogram.g.forEach(function(e, i) {
+        sum += e * (i + 1);
+    });
+    return sum / total;
+};
+// does not work that well
+// median value is almost always 0 (black)
+// if background is bigger than foreground
+const calcMedianThreshold = function(cvs) {
+    const histogram = createHistogram(cvs);
+    const m = Math.round(histogram.length / 2);
+    let n = 0;
+    let median;
+    histogram.g.some(function(e, i) {
+        n += e;
+        if (n >= m) {
+            median = i;
+            return true;
+        }
+        return false;
+    });
+    return median;
+};
+const calcWeight = function(histogram, s, e) {
+    const total = histogram.reduce(function(i, j) {
+        return i + j;
+    }, 0);
+    const partHist = s === e ? [
+        histogram[s]
+    ] : histogram.slice(s, e);
+    const part = partHist.reduce(function(i, j) {
+        return i + j;
+    }, 0);
+    return parseFloat(part, 10) / total;
+};
+const calcMean = function(histogram, s, e) {
+    const partHist = s === e ? [
+        histogram[s]
+    ] : histogram.slice(s, e);
+    let val = total = 0;
+    partHist.forEach(function(el, i) {
+        val += (s + i) * el;
+        total += el;
+    });
+    return parseFloat(val, 10) / total;
+};
+const calcBetweenClassVariance = function(weight1, mean1, weight2, mean2) {
+    return weight1 * weight2 * (mean1 - mean2) * (mean1 - mean2);
+};
+const fastOtsu = function(canvas) {
+    const histogram = createHistogram(canvas);
+    const start = 0;
+    const end = histogram.g.length - 1;
+    let leftWeight;
+    let rightWeight;
+    let leftMean;
+    let rightMean;
+    const betweenClassVariances = [];
+    let max = -Infinity;
+    let threshold;
+    histogram.g.forEach(function(el, i) {
+        leftWeight = calcWeight(histogram.g, start, i);
+        rightWeight = calcWeight(histogram.g, i, end + 1);
+        leftMean = calcMean(histogram.g, start, i);
+        rightMean = calcMean(histogram.g, i, end + 1);
+        betweenClassVariances[i] = calcBetweenClassVariance(leftWeight, leftMean, rightWeight, rightMean);
+        if (betweenClassVariances[i] > max) {
+            max = betweenClassVariances[i];
+            threshold = i;
+        }
+    });
+    return threshold;
+};
+// filters.js
+const calculateGray = function(pixel) {
+    return 0.3 * pixel.r + 0.59 * pixel.g + 0.11 * pixel.b;
+};
+const generateKernel = function(sigma, size) {
+    const kernel = [];
+    const E = 2.718; // Euler's number rounded of to 3 places
+    for(let y = -(size - 1) / 2, i = 0; i < size; y++, i++){
+        kernel[i] = [];
+        for(let x = -(size - 1) / 2, j = 0; j < size; x++, j++)// create kernel round to 3 decimal places
+        kernel[i][j] = 1 / (2 * Math.PI * Math.pow(sigma, 2)) * Math.pow(E, -(Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2)) / (2 * Math.pow(sigma, 2)));
+    }
+    // normalize the kernel to make its sum 1
+    const normalize = 1 / sumArr(kernel);
+    for(let k = 0; k < kernel.length; k++)for(let l = 0; l < kernel[k].length; l++)kernel[k][l] = Math.round(normalize * kernel[k][l] * 1000) / 1000;
+    return kernel;
+};
+class Filters {
+    constructor(cvs){
+        this.cabbageCnvs = cvs;
+    }
+    grayscale() {
+        const that = this;
+        let grayLevel;
+        console.time('Grayscale Time');
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            grayLevel = calculateGray(that.cabbageCnvs.getPixel(cvsIndex));
+            that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, grayLevel);
+        });
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Grayscale Time');
+    }
+    gaussianBlur(sigma, size) {
+        const that = this;
+        const kernel = generateKernel(sigma, size);
+        console.time('Blur Time');
+        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
+            // ignore edges
+            // TODO: make this faster!
+            if (x !== 0 && y !== 0 && x !== that.cabbageCnvs.width - 1 && y !== that.cabbageCnvs.height - 1) {
+                let resultR = 0;
+                let resultG = 0;
+                let resultB = 0;
+                let pixel;
+                for(let i = 0; i < size; i++)for(let j = 0; j < size; j++){
+                    pixel = that.cabbageCnvs.getPixel(neighbors[i][j]);
+                    // return the existing pixel value multiplied by the kernel
+                    resultR += pixel.r * kernel[i][j];
+                    resultG += pixel.g * kernel[i][j];
+                    resultB += pixel.b * kernel[i][j];
+                }
+                that.cabbageCnvs.setPixel({
+                    x,
+                    y
+                }, {
+                    r: resultR,
+                    g: resultG,
+                    b: resultB
+                });
+            }
+        }, size);
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Blur Time');
+    }
+    invertColors() {
+        const that = this;
+        let pixel;
+        console.time('Invert Colors Time');
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            pixel = that.cabbageCnvs.getPixel(cvsIndex);
+            that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, {
+                r: 255 - pixel.r,
+                g: 255 - pixel.g,
+                b: 255 - pixel.b
+            });
+        });
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Invert Colors Time');
+    }
+}
+// canny.js
+const SOBEL_X_FILTER = [
+    [
+        -1,
+        0,
+        1
+    ],
+    [
+        -2,
+        0,
+        2
+    ],
+    [
+        -1,
+        0,
+        1
+    ], 
+];
+const SOBEL_Y_FILTER = [
+    [
+        1,
+        2,
+        1
+    ],
+    [
+        0,
+        0,
+        0
+    ],
+    [
+        -1,
+        -2,
+        -1
+    ], 
+];
+const ROBERTS_X_FILTER = [
+    [
+        1,
+        0
+    ],
+    [
+        0,
+        -1
+    ], 
+];
+const ROBERTS_Y_FILTER = [
+    [
+        0,
+        1
+    ],
+    [
+        -1,
+        0
+    ], 
+];
+const PREWITT_X_FILTER = [
+    [
+        -1,
+        0,
+        1
+    ],
+    [
+        -1,
+        0,
+        1
+    ],
+    [
+        -1,
+        0,
+        1
+    ], 
+];
+const PREWITT_Y_FILTER = [
+    [
+        -1,
+        -1,
+        -1
+    ],
+    [
+        0,
+        0,
+        0
+    ],
+    [
+        1,
+        1,
+        1
+    ], 
+];
+const OPERATORS = {
+    sobel: {
+        x: SOBEL_X_FILTER,
+        y: SOBEL_Y_FILTER,
+        len: SOBEL_X_FILTER.length
+    },
+    roberts: {
+        x: ROBERTS_X_FILTER,
+        y: ROBERTS_Y_FILTER,
+        len: ROBERTS_Y_FILTER.length
+    },
+    prewitt: {
+        x: PREWITT_X_FILTER,
+        y: PREWITT_Y_FILTER,
+        len: PREWITT_Y_FILTER.length
+    }
+};
+class EdgeDetect {
+    constructor(canvElem){
+        this.cabbageCnvs = canvElem;
+    }
+    // find intensity gradient of image
+    gradient(op) {
+        const imgDataCopy = this.cabbageCnvs.getCurrentImg();
+        const dirMap = [];
+        const gradMap = [];
+        const that = this;
+        console.time('Sobel Filter Time');
+        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
+            let edgeX = 0;
+            let edgeY = 0;
+            if (!that.cabbageCnvs.isBorder({
+                x,
+                y
+            })) {
+                for(let i = 0; i < OPERATORS[op].len; i++)for(let j = 0; j < OPERATORS[op].len; j++){
+                    if (!neighbors[i][j]) continue;
+                    edgeX += imgDataCopy.data[neighbors[i][j]] * OPERATORS[op].x[i][j];
+                    edgeY += imgDataCopy.data[neighbors[i][j]] * OPERATORS[op].y[i][j];
+                }
+            }
+            dirMap[cvsIndex] = roundDir(Math.atan2(edgeY, edgeX) * (180 / Math.PI));
+            gradMap[cvsIndex] = Math.round(Math.sqrt(edgeX * edgeX + edgeY * edgeY));
+            that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, gradMap[cvsIndex]);
+        }, 3);
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Sobel Filter Time');
+        this.cabbageCnvs.dirMap = dirMap;
+        this.cabbageCnvs.gradMap = gradMap;
+    }
+    nonMaximumSuppress() {
+        const that = this;
+        console.time('NMS Time');
+        this.cabbageCnvs.convolve(function(neighbors, x, y, pixelIndex, cvsIndex) {
+            const pixNeighbors = getPixelNeighbors(that.cabbageCnvs.dirMap[cvsIndex]);
+            // pixel neighbors to compare
+            const pix1 = that.cabbageCnvs.gradMap[neighbors[pixNeighbors[0].x][pixNeighbors[0].y]];
+            const pix2 = that.cabbageCnvs.gradMap[neighbors[pixNeighbors[1].x][pixNeighbors[1].y]];
+            if (pix1 > that.cabbageCnvs.gradMap[cvsIndex] || pix2 > that.cabbageCnvs.gradMap[cvsIndex] || pix2 === that.cabbageCnvs.gradMap[cvsIndex] && pix1 < that.cabbageCnvs.gradMap[cvsIndex]) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, 0);
+        }, 3);
+        this.cabbageCnvs.setImg();
+        console.timeEnd('NMS Time');
+    }
+    // TODO: Do not use sparse array for storing real edges
+    // mark strong and weak edges, discard others as false edges; only keep weak edges that are connected to strong edges
+    hysteresis() {
+        const that = this;
+        const imgDataCopy = this.cabbageCnvs.getCurrentImg();
+        const realEdges = []; // where real edges will be stored with the 1st pass
+        const t1 = fastOtsu(this.cabbageCnvs); // high threshold value
+        const t2 = t1 / 2; // low threshold value
+        // first pass
+        console.time('Hysteresis Time');
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            if (imgDataCopy.data[cvsIndex] > t1 && realEdges[cvsIndex] === undefined) {
+                // accept as a definite edge
+                const group = that._traverseEdge(cvsIndex, imgDataCopy, t2, []);
+                for(let i = 0; i < group.length; i++)realEdges[group[i]] = true;
+            }
+        });
+        // second pass
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            if (realEdges[cvsIndex] === undefined) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, 0);
+            else that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, 255);
+        });
+        this.cabbageCnvs.setImg();
+        console.timeEnd('Hysteresis Time');
+    }
+    // just a quick function to look at the direction results
+    showDirMap() {
+        const that = this;
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            switch(that.cabbageCnvs.dirMap[cvsIndex]){
+                case 0:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.RED);
+                    break;
+                case 45:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.GREEN);
+                    break;
+                case 90:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.BLUE);
+                    break;
+                case 135:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.YELLOW);
+                    break;
+                default:
+                    that.cabbageCnvs.setPixel({
+                        x,
+                        y
+                    }, COLORS.PINK);
+            }
+        });
+        this.cabbageCnvs.setImg();
+    }
+    // TODO: Evaluate function use/fulness
+    showGradMap() {
+        const that = this;
+        this.cabbageCnvs.map(function(x, y, pixelIndex, cvsIndex) {
+            if (that.cabbageCnvs.gradMap[cvsIndex] < 0) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.RED);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 200) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.GREEN);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 400) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.BLUE);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 600) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.YELLOW);
+            else if (that.cabbageCnvs.gradMap[cvsIndex] < 800) that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.AQUA);
+            else that.cabbageCnvs.setPixel({
+                x,
+                y
+            }, COLORS.PINK);
+        });
+        this.cabbageCnvs.setImg();
+    }
+    // TODO: Optimize prime!
+    // traverses the current pixel until a length has been reached
+    _traverseEdge(current, imgData, threshold, traversed) {
+        // initialize the group from the current pixel's perspective
+        let group = [
+            current
+        ];
+        // pass the traversed group to the getEdgeNeighbors so that it will not include those anymore
+        const neighbors = getEdgeNeighbors(current, imgData, threshold, traversed);
+        for(let i = 0; i < neighbors.length; i++)// recursively get the other edges connected
+        group = group.concat(this._traverseEdge(neighbors[i], imgData, threshold, traversed.concat(group)));
+        return group;
+    // if the pixel group is not above max length,
+    // it will return the pixels included in that small pixel group
+    }
+}
+const initialize = (canvas, sz = 3, sg = 1.5)=>{
+    const cabbageCanvas = new _cabbage.Cabbage(canvas);
+    const edgeDetect = new EdgeDetect(cabbageCanvas);
+    const filters = new Filters(cabbageCanvas);
+    cabbageCanvas.setImg();
+    let size;
+    let sigma;
+    const setSize = (s)=>size = s <= 1 || s > 21 ? 3 : s % 2 === 0 ? s - 1 : s
+    ;
+    const setSigma = (s)=>sigma = s < 1 || s > 10 ? 1.5 : s
+    ;
+    size = setSize(sz);
+    sigma = setSigma(sg);
+    const resetImage = (_)=>cabbageCanvas.resetImageData()
+    ;
+    const greyScale = (_)=>filters.grayscale()
+    ;
+    const blur = (_)=>filters.gaussianBlur(sigma, size)
+    ;
+    const invert = (_)=>filters.invertColors()
+    ;
+    const sobel = (_)=>edgeDetect.gradient('sobel')
+    ;
+    const roberts = (_)=>edgeDetect.gradient('roberts')
+    ;
+    const prewitt = (_)=>edgeDetect.gradient('prewitt')
+    ;
+    /*
+    edgeDetect.nonMaximumSuppress();
+    edgeDetect.hysteresis();
+    edgeDetect.showDirMap();
+    edgeDetect.showGradMap();
+     */ return {
+        setSize,
+        setSigma,
+        greyScale,
+        blur,
+        invert,
+        resetImage,
+        sobel,
+        roberts,
+        prewitt
+    };
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./Cabbage":"1nKM0"}],"1nKM0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Cabbage", ()=>Cabbage
+);
+/* Used by edge detect
+
+Originally from https://github.com/cmisenas/cabbage.js/blob/master/cabbage.js
+
+Modifications from 7/15/21, Matt Perkins
+* conversion to ES6 classes
+* Change constructor to use passed canvas element
+*/ const pixelDirections = [
+    'n',
+    'e',
+    's',
+    'w',
+    'ne',
+    'nw',
+    'se',
+    'sw'
+];
+const pixelColorValues = [
+    'r',
+    'g',
+    'b',
+    'a'
+];
+// Pixel is a dumb object that does not know about image data
+// It is only meant to be used by Cabbage directly for:
+// manipulating canvas values, storing and easy retrieval of rgba
+class Pixel {
+    constructor(x1, y1, vals){
+        const self = this;
+        this.x = x1;
+        this.y = y1;
+        this.neighbors = {
+        };
+        // TODO ?
+        if (vals) pixelColorValues.forEach(function(d) {
+            this[d] = vals.shift();
+        });
+        pixelDirections.forEach(function(d) {
+            this.neighbors[d] = self[d]();
+        });
+    }
+    n() {
+        return {
+            x: this.x,
+            y: this.y - 1
+        };
+    }
+    e() {
+        return {
+            x: this.x + 1,
+            y: this.y
+        };
+    }
+    s() {
+        return {
+            x: this.x,
+            y: this.y + 1
+        };
+    }
+    w() {
+        return {
+            x: this.x - 1,
+            y: this.y
+        };
+    }
+    ne() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+    nw() {
+        return {
+            x: this.x - 1,
+            y: this.y - 1
+        };
+    }
+    se() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+    sw() {
+        return {
+            x: this.x + 1,
+            y: this.y - 1
+        };
+    }
+}
+const doc = window.document;
+const COORDS = 'coordinate';
+const PIXIDX = 'pixel index';
+const IDIDX = 'image data index';
+class Cabbage {
+    // Original
+    // constructor(id, w, h, doc) {
+    //     doc = doc || doc;
+    //     this.width = w || 600;
+    //     this.height = h || 400;
+    //     this.elem = doc.getElementById(id) || this._createCanvas(id);
+    //     this.ctx = this.elem.getContext('2d');
+    //     this.origImg = {};
+    //     this.currImg = {};
+    // }
+    constructor(canvas){
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.elem = canvas;
+        this.ctx = this.elem.getContext('2d');
+        this.origImg = this.getCurrentImg();
+        this.currImg = this.getCurrentImg();
+        this.setImg();
+    }
+    loadImg(img, sx, sy) {
+        const self1 = this;
+        if (typeof img === 'string') this._createImage(img, function(usrImg) {
+            self1._img = usrImg;
+            if (usrImg.width !== self1.width || usrImg.height !== self1.height) {
+                self1.width = usrImg.width;
+                self1.height = usrImg.height;
+                self1.elem.width = self1.width;
+                self1.elem.height = self1.height;
+            }
+            self1.drawImage(sx, sy);
+        });
+        else if (/HTMLImageElement/.test(img.constructor)) {
+            this._img = img;
+            this.drawImage(sx, sy);
+        }
+        return this;
+    }
+    _createImage(imgSrc, fn) {
+        const self1 = this;
+        usrImg = new Image();
+        usrImg.onload = function() {
+            fn(usrImg);
+        };
+        usrImg.src = imgSrc;
+    }
+    _createCanvas(id) {
+        let elem;
+        elem = doc.createElement('canvas');
+        elem.id = id;
+        elem.width = this.width;
+        elem.height = this.height;
+        doc.body.insertBefore(elem, doc.body.firstChild);
+        return elem;
+    }
+    drawImage(sx, sy) {
+        this.ctx.drawImage(this._img, sx || 0, sy || 0);
+        this.refreshCurrImageData();
+        this.origImg = this.getCurrentImg();
+    }
+    // TODO: This looks sort of confusing
+    // rethink its use/name
+    setImg() {
+        this.putImageData(this.currImg, 0, 0);
+    }
+    /*
+        // Delete image data; leave canvas blank
+        deleteImg = function() {
+        };
+        */ // Reset to original data
+    resetImageData() {
+        // put back the original image to the canvas
+        this.putImageData(this.origImg);
+    }
+    // returns the actual current image data
+    getCurrentImg() {
+        return this.ctx.getImageData(0, 0, this.width, this.height);
+    }
+    // returns a copy of original image data
+    originalImg() {
+        return this.ctx.createImageData(this.origImg);
+    }
+    map(fn) {
+        let x1;
+        let y1;
+        let cvsIndex;
+        let pixelIndex;
+        for(y1 = 0; y1 < this.height; y1++)for(x1 = 0; x1 < this.width; x1++){
+            pixelIndex = y1 * this.width + x1;
+            cvsIndex = x1 * 4 + y1 * this.width * 4;
+            fn(x1, y1, pixelIndex, cvsIndex);
+        }
+    }
+    convolve(fn, size) {
+        let x1;
+        let y1;
+        let cvsIndex;
+        let pixelIndex;
+        let matrix;
+        size = size || 3;
+        for(y1 = 0; y1 < this.height; y1++)for(x1 = 0; x1 < this.width; x1++){
+            pixelIndex = y1 * this.width + x1;
+            cvsIndex = x1 * 4 + y1 * this.width * 4;
+            matrix = this._buildMatrix(x1, y1, size);
+            fn(matrix, x1, y1, pixelIndex, cvsIndex);
+        }
+    }
+    // returns the pixel object if it exists
+    // otherwise throws an error
+    getPixel(loc) {
+        let index;
+        let coords;
+        let rgba;
+        if (typeof loc === 'number') {
+            if (!this._checkValidIDIndex(loc)) this._throwValidationError(IDIDX, COORDS);
+            index = loc;
+            coords = this._convertIDIndexToCoords(loc);
+        } else {
+            if (!this._checkValidCoords(loc)) this._throwValidationError(COORDS, IDIDX);
+            index = this._convertCoordsToIDIndex(loc);
+            coords = loc;
+        }
+        rgba = Array.prototype.slice.call(this.currImg.data, index, index + 4);
+        return new Pixel(coords.x, coords.y, rgba);
+    }
+    // Modifies the current image data pixels
+    // Does not modify the canvas image
+    // That is the job of setImg
+    setPixel(pixel, val) {
+        const i = this._convertCoordsToIDIndex(pixel);
+        if (typeof val === 'number') {
+            this.currImg.data[i] = val;
+            this.currImg.data[i + 1] = val;
+            this.currImg.data[i + 2] = val;
+        } else {
+            this.currImg.data[i] = val.r;
+            this.currImg.data[i + 1] = val.g;
+            this.currImg.data[i + 2] = val.b;
+            this.currImg.data[i + 3] = val.a || 255;
+        }
+    // this._drawPixel(pixel, r, g, b, a);
+    }
+    _drawPixel(pixel, r, g, b, a) {
+        this.ctx.fillStyle = `rgba(${[
+            r,
+            g,
+            b,
+            a
+        ].join(', ')})`;
+        this.ctx.fillRect(pixel.x, pixel.y, 1, 1);
+    }
+    isBorder(coords) {
+        return coords.x === 0 && coords.y < this.height && coords.y >= 0 || coords.y === 0 && coords.x < this.width && coords.x >= 0 || coords.x === this.width - 1 && coords.y < this.height && coords.y >= 0 || coords.y === this.height - 1 && coords.x < this.width && coords.x >= 0;
+    }
+    isOutOfBounds(coords) {
+        return coords.x < 0 || coords.x > this.width - 1 || coords.y < 0 || coords.y > this.height - 1;
+    }
+    // Every putImageData done via object
+    // stores current image for faster access later
+    putImageData(id, x, y) {
+        this.ctx.putImageData(id, x || 0, y || 0);
+        this.refreshCurrImageData();
+    }
+    refreshCurrImageData() {
+        this.currImg = this.getCurrentImg();
+    }
+    _buildMatrix(cx, cy, size) {
+        const matrix = [];
+        let nx;
+        let ny;
+        const min = 3;
+        const max = Math.max(this.width, this.height); // temp max value
+        size = size || 3;
+        size = size % 2 === 0 ? size + 1 : size;
+        // TODO make it so that max size is dictated by the dimensions of the image
+        if (size < min || size > max) size = min;
+        for(let i = 0, y2 = -(size - 1) / 2; i < size; i++, y2++){
+            matrix[i] = [];
+            for(let j = 0, x2 = -(size - 1) / 2; j < size; j++, x2++){
+                nx = cx + x2;
+                ny = cy + y2;
+                if (nx < 0 || nx >= this.width || ny < 0 || ny >= this.height) matrix[i][j] = undefined;
+                else matrix[i][j] = this._convertCoordsToIDIndex({
+                    x: nx,
+                    y: ny
+                });
+            }
+        }
+        return matrix;
+    }
+    _convertCoordsToIDIndex(coords) {
+        const m = 4;
+        return (coords.y * this.width + coords.x) * m;
+    }
+    _convertCoordsToPixIndex(coords) {
+        return coords.y * this.width + coords.x;
+    }
+    _checkValidCoords(coords) {
+        return !!coords && coords.x === parseInt(coords.x, 10) && coords.y === parseInt(coords.y, 10) && coords.x >= 0 && coords.x < this.width && coords.y >= 0 && coords.y < this.height;
+    }
+    _checkValidPIndex(pIdx) {
+        return pIdx === parseInt(pIdx, 10) && pIdx >= 0 && pIdx < this.width * this.height;
+    }
+    _checkValidIDIndex(pIdx) {
+        return pIdx === parseInt(pIdx, 10) && pIdx >= 0 && pIdx < this.width * this.height * 4;
+    }
+    _convertIDIndexToCoords(idIdx) {
+        const m = 4;
+        if (idIdx % 4 > 0) idIdx -= idIdx % 4;
+        return {
+            x: idIdx % (this.width * m) / m,
+            y: Math.floor(idIdx / (this.width * m))
+        };
+    }
+    _convertIDIndexToPixIndex(idIdx) {
+        const m = 4;
+        return Math.floor(idIdx / m);
+    }
+    _convertPixIndexToCoords(pIdx) {
+        return {
+            x: pIdx % this.width,
+            y: Math.floor(pIdx / this.width)
+        };
+    }
+    _convertPixIndexToIDIndex(pIdx) {
+        return pIdx * 4;
+    }
+    _throwValidationError(from, to) {
+        const msg = `Invalid ${from}. Unable to convert to ${to}`;
+        throw new Error(msg);
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

@@ -9,6 +9,10 @@ import { Vector } from './Vector';
 export const π = Math.PI;
 export const { PI } = Math;
 export const TAU = Math.PI * 2;
+
+// 2.7182818284590452353602874713527
+export const E = 2.718; // Euler's number rounded of to 3 places
+
 export const { abs } = Math;
 export const { sin } = Math;
 export const { cos } = Math;
@@ -17,8 +21,8 @@ export const { pow } = Math;
 export const { round } = Math;
 export const { floor } = Math;
 
-// φ phi
-export const golden = 1.6180339887498948482;
+// φ phi 1.6180339887498948482
+export const golden = 1.618;
 // g angles: 222.5, 137.5
 
 export const fibonacci = [
