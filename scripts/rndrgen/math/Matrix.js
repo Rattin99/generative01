@@ -19,6 +19,10 @@ export class Matrix {
         this.fill(0);
     }
 
+    get size() {
+        return Math.max(this.rows, this.cols);
+    }
+
     // Initialize and fill array
     fill(v = 0) {
         for (let r = 0; r < this.rows; r++) {
@@ -55,10 +59,24 @@ export class Matrix {
         return result;
     }
 
+    // Flat array to a single row matrix
     static fromArray(arr) {
         const m = new Matrix(arr.length, 1);
         for (let i = 0; i < arr.length; i++) {
             m.data[i][0] = arr[i];
+        }
+        return m;
+    }
+
+    // Nested/2d array to a 2d array [[a,b,c],[d,e,f],[g,h,i]] -> Matrix 3x3
+    static fromArray2(arr) {
+        const rows = arr.length;
+        const cols = arr[0].length;
+        const m = new Matrix(rows, cols);
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                m.data[r][c] = arr[r][c];
+            }
         }
         return m;
     }

@@ -57,21 +57,21 @@ export const bitmapTest01 = () => {
     const draw = ({ canvas, context }) => {
         // background(canvas, context)(backgroundColor);
 
-        // image.mapPixelPositionMatrix(logPos, 0, 0, 1).log();
-
         const res = canvasWidth / 5;
-        image.invert();
-        image.greyscale();
+        // image.invert();
+        // image.greyscale();
 
-        // image.findEdges(50, 'white', 'black', 64);
-        // const t = image.thresholdAsPoints(res, 100, false);
-        // background(canvas, context)(backgroundColor);
-        // image.resetImageData();
+        image.boxBlur(1);
+        // image.sharpen();
+        image.findEdges(20, 'white', 'black', 64);
+        const t = image.thresholdAsPoints(res, 20, false);
+        background(canvas, context)(backgroundColor);
+        image.resetImageData();
         image.showToCanvas(res);
 
-        // quadtree = quadTreeFromPoints(boundary, 1, t);
-        // if (quadtree) show(context)(quadtree);
-        // if (t) showPoints(t);
+        quadtree = quadTreeFromPoints(boundary, 1, t);
+        if (quadtree) show(context)(quadtree);
+        if (t) showPoints(t);
 
         return -1;
     };

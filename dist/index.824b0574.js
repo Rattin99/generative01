@@ -6384,17 +6384,14 @@ const flowFieldImage = ()=>{
 },{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/systems/Particle":"344El","../rndrgen/canvas/canvas":"73Br1","../rndrgen/math/Vector":"1MSqh","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/points":"4RQVg","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"17J8Q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Pixel", ()=>Pixel
-);
-//----------------------------------------------------------------------------------------------------------------------
 parcelHelpers.export(exports, "Bitmap", ()=>Bitmap
 ); // scratch
  /*
-    findEdgesCabbage(method = 0, blur = false) {
+    findEdgesCabbage(method = 0, boxBlur = false) {
         this.edge = initialize(this.canvas);
 
-        if (blur) {
-            this.edge.blur();
+        if (boxBlur) {
+            this.edge.boxBlur();
             this.edge.greyScale();
         }
 
@@ -6448,205 +6445,89 @@ const image = new Bitmap(sourcePng);
 image.init(canvas, context); // in setup
 
  */ // from https://github.com/cmisenas/cabbage.js/blob/master/cabbage.js
-const pixelDirections = [
-    'n',
-    'e',
-    's',
-    'w',
-    'ne',
-    'nw',
-    'se',
-    'sw'
-];
-const pixelColorValues = [
+// const pixelDirections = ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'];
+// const pixelColorValues = ['r', 'g', 'b', 'a'];
+//
+// export class Pixel {
+//     constructor(x, y, vals) {
+//         this.x = x;
+//         this.y = y;
+//         this.neighbors = {};
+//
+//         // wat?
+//         if (vals) {
+//             pixelColorValues.forEach((d) => {
+//                 this[d] = vals.shift();
+//             });
+//         }
+//
+//         pixelDirections.forEach((d) => {
+//             this.neighbors[d] = this[d]();
+//         });
+//     }
+//
+//     n() {
+//         return { x: this.x, y: this.y - 1 };
+//     }
+//
+//     e() {
+//         return { x: this.x + 1, y: this.y };
+//     }
+//
+//     s() {
+//         return { x: this.x, y: this.y + 1 };
+//     }
+//
+//     w() {
+//         return { x: this.x - 1, y: this.y };
+//     }
+//
+//     ne() {
+//         return { x: this.x + 1, y: this.y - 1 };
+//     }
+//
+//     nw() {
+//         return { x: this.x - 1, y: this.y - 1 };
+//     }
+//
+//     se() {
+//         return { x: this.x + 1, y: this.y - 1 };
+//     }
+//
+//     sw() {
+//         return { x: this.x + 1, y: this.y - 1 };
+//     }
+// }
+// from https://github.com/cmisenas/canny-edge-detection
+// const generateGausianKernel = function (sigma, size) {
+//     const kernel = [];
+//     const E = 2.718; // Euler's number rounded of to 3 places
+//     for (let y = -(size - 1) / 2, i = 0; i < size; y++, i++) {
+//         kernel[i] = [];
+//         for (let x = -(size - 1) / 2, j = 0; j < size; x++, j++) {
+//             // create kernel round to 3 decimal places
+//             kernel[i][j] =
+//                 (1 / (2 * Math.PI * Math.pow(sigma, 2))) *
+//                 Math.pow(E, -(Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2)) / (2 * Math.pow(sigma, 2)));
+//         }
+//     }
+//     // normalize the kernel to make its sum 1
+//     // const normalize = 1 / Matrix.sum(kernel);
+//     // for (let k = 0; k < kernel.length; k++) {
+//     //     for (let l = 0; l < kernel[k].length; l++) {
+//     //         kernel[k][l] = Math.round(normalize * kernel[k][l] * 1000) / 1000;
+//     //     }
+//     // }
+//     return kernel;
+// };
+//
+// Matrix.fromArray2(generateGausianKernel(1, 10)).log();
+//----------------------------------------------------------------------------------------------------------------------
+const colorChannels = [
     'r',
     'g',
-    'b',
-    'a'
+    'b'
 ];
-class Pixel {
-    constructor(x1, y1, vals){
-        this.x = x1;
-        this.y = y1;
-        this.neighbors = {
-        };
-        // wat?
-        if (vals) pixelColorValues.forEach((d)=>{
-            this[d] = vals.shift();
-        });
-        pixelDirections.forEach((d)=>{
-            this.neighbors[d] = this[d]();
-        });
-    }
-    n() {
-        return {
-            x: this.x,
-            y: this.y - 1
-        };
-    }
-    e() {
-        return {
-            x: this.x + 1,
-            y: this.y
-        };
-    }
-    s() {
-        return {
-            x: this.x,
-            y: this.y + 1
-        };
-    }
-    w() {
-        return {
-            x: this.x - 1,
-            y: this.y
-        };
-    }
-    ne() {
-        return {
-            x: this.x + 1,
-            y: this.y - 1
-        };
-    }
-    nw() {
-        return {
-            x: this.x - 1,
-            y: this.y - 1
-        };
-    }
-    se() {
-        return {
-            x: this.x + 1,
-            y: this.y - 1
-        };
-    }
-    sw() {
-        return {
-            x: this.x + 1,
-            y: this.y - 1
-        };
-    }
-}
-// from https://github.com/cmisenas/canny-edge-detection
-// Generate normal kernel for gausian blur
-const generateKernel = function(sigma, size) {
-    const kernel = [];
-    // const E = 2.718; // Euler's number rounded of to 3 places
-    for(let y1 = -(size - 1) / 2, i = 0; i < size; y1++, i++){
-        kernel[i] = [];
-        for(let x1 = -(size - 1) / 2, j = 0; j < size; x1++, j++)// create kernel round to 3 decimal places
-        kernel[i][j] = 1 / (2 * Math.PI * Math.pow(sigma, 2)) * Math.pow(_math.E, -(Math.pow(Math.abs(x1), 2) + Math.pow(Math.abs(y1), 2)) / (2 * Math.pow(sigma, 2)));
-    }
-    // normalize the kernel to make its sum 1
-    const normalize = 1 / _matrix.Matrix.sum(kernel);
-    for(let k = 0; k < kernel.length; k++)for(let l = 0; l < kernel[k].length; l++)kernel[k][l] = Math.round(normalize * kernel[k][l] * 1000) / 1000;
-    return kernel;
-};
-const SOBEL_X_FILTER = [
-    [
-        -1,
-        0,
-        1
-    ],
-    [
-        -2,
-        0,
-        2
-    ],
-    [
-        -1,
-        0,
-        1
-    ], 
-];
-const SOBEL_Y_FILTER = [
-    [
-        1,
-        2,
-        1
-    ],
-    [
-        0,
-        0,
-        0
-    ],
-    [
-        -1,
-        -2,
-        -1
-    ], 
-];
-const ROBERTS_X_FILTER = [
-    [
-        1,
-        0
-    ],
-    [
-        0,
-        -1
-    ], 
-];
-const ROBERTS_Y_FILTER = [
-    [
-        0,
-        1
-    ],
-    [
-        -1,
-        0
-    ], 
-];
-const PREWITT_X_FILTER = [
-    [
-        -1,
-        0,
-        1
-    ],
-    [
-        -1,
-        0,
-        1
-    ],
-    [
-        -1,
-        0,
-        1
-    ], 
-];
-const PREWITT_Y_FILTER = [
-    [
-        -1,
-        -1,
-        -1
-    ],
-    [
-        0,
-        0,
-        0
-    ],
-    [
-        1,
-        1,
-        1
-    ], 
-];
-const findEdgeKernels = {
-    sobel: {
-        x: SOBEL_X_FILTER,
-        y: SOBEL_Y_FILTER,
-        len: SOBEL_X_FILTER.length
-    },
-    roberts: {
-        x: ROBERTS_X_FILTER,
-        y: ROBERTS_Y_FILTER,
-        len: ROBERTS_Y_FILTER.length
-    },
-    prewitt: {
-        x: PREWITT_X_FILTER,
-        y: PREWITT_Y_FILTER,
-        len: PREWITT_Y_FILTER.length
-    }
-};
 class Bitmap {
     constructor(src1){
         this.scaleX = 1;
@@ -6752,9 +6633,9 @@ class Bitmap {
         const colw = width / res;
         const rowh = height / res;
         for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
-            const x2 = i * colw;
-            const y2 = j * rowh;
-            _primatives.rectFilled(this.context)(x2, y2, colw, rowh, this.pixelColorFromCanvas(x2, y2));
+            const x = i * colw;
+            const y = j * rowh;
+            _primatives.rectFilled(this.context)(x, y, colw, rowh, this.pixelColorFromCanvas(x, y));
         }
     }
     thresholdAsPoints(res, threshold = 128, inv = false) {
@@ -6765,43 +6646,45 @@ class Bitmap {
         const colw = width / res;
         const rowh = height / res;
         for(let i = 0; i < res; i++)for(let j = 0; j < res; j++){
-            const x2 = i * colw;
-            const y2 = j * rowh;
-            if (testFn(this.pixelAverageGreyFromCanvas(x2, y2))) points.push(_points.point(x2, y2));
+            const x = i * colw;
+            const y = j * rowh;
+            if (testFn(this.pixelAverageGreyFromCanvas(x, y))) points.push(_points.point(x, y));
         }
         return points;
     }
+    // TODO Optimize this
     // create a NxN matrix of x,y coords centered around px and py and map a fn
     // const logPos = (x, y) => `${x}, ${y}`;
-    mapPixelPositionMatrix(mapper, px, py, border = 1) {
-        const defaultMapper = (x2, y2)=>({
-                x: x2,
-                y: y2
+    // const colorChannel = (channel) => (x, y) => this.pixelColorRaw(x, y)[channel];
+    mapPixelPositionMatrix(mapper, px, py, range = 1) {
+        const defaultMapper = (x, y)=>({
+                x,
+                y
             })
         ;
         mapper = mapper || defaultMapper;
-        const size = border * 2 + 1;
-        const startside = border * -1;
-        const sidelen = border * 2 - (border - 1);
+        const size = range * 2 + 1;
+        const startside = range * -1;
+        const sidelen = range * 2 - (range - 1);
         const m = new _matrix.Matrix(size, size);
         for(let r = startside; r < sidelen; r++)for(let c = startside; c < sidelen; c++){
-            const x2 = px + c;
-            const y2 = py + r;
-            m.data[r + border][c + border] = mapper(x2, y2);
+            const x = px + c;
+            const y = py + r;
+            m.data[r + range][c + range] = mapper(x, y);
         }
         return m;
     }
     // passes mapper current x,y and then sets the pixel to the returned color value
     map(mapper, save = true) {
-        for(let x2 = 0; x2 < this.imageData.width; x2++)for(let y2 = 0; y2 < this.imageData.height; y2++){
-            const result = mapper(x2, y2);
-            _primatives.pixel(this.context)(x2, y2, result);
+        for(let x = 0; x < this.imageData.width; x++)for(let y = 0; y < this.imageData.height; y++){
+            const result = mapper(x, y);
+            _primatives.pixel(this.context)(x, y, result);
         }
         if (save) this.refreshImageData();
     }
     greyscale() {
-        this.map((x2, y2)=>{
-            const grey = this.pixelAverageGrey(x2, y2);
+        this.map((x, y)=>{
+            const grey = this.pixelAverageGrey(x, y);
             return _tinycolor2Default.default({
                 r: grey,
                 g: grey,
@@ -6810,8 +6693,8 @@ class Bitmap {
         });
     }
     invert() {
-        this.map((x2, y2)=>{
-            const color = this.pixelColorRaw(x2, y2);
+        this.map((x, y)=>{
+            const color = this.pixelColorRaw(x, y);
             return _tinycolor2Default.default({
                 r: 255 - color.r,
                 g: 255 - color.g,
@@ -6819,14 +6702,67 @@ class Bitmap {
             });
         });
     }
+    // https://www.codingame.com/playgrounds/2524/basic-image-manipulation/filtering
+    // TODO optimize w/ seperable filters https://www.youtube.com/watch?v=SiJpkucGa1o
+    convolve(kernel) {
+        // Needs to be odd
+        const kernelSize = kernel.size;
+        const pxMatrixSize = (kernelSize - 1) / 2;
+        const kernelSum = _matrix.Matrix.sum(kernel);
+        const colorChannel = (channel)=>(x, y)=>this.pixelColorRaw(x, y)[channel]
+        ;
+        this.map((x, y)=>{
+            const newColors = [];
+            colorChannels.forEach((c)=>{
+                // get a matrix around the pixel
+                const colorMatrix = this.mapPixelPositionMatrix(colorChannel(c), x, y, pxMatrixSize);
+                // for each color channel multiply by the matrix
+                colorMatrix.multiply(kernel);
+                // sum both, div by the boxBlur matrix
+                newColors.push(_matrix.Matrix.sum(colorMatrix) / kernelSum);
+            });
+            // averaged color value of the pixel, set the color channel to that value
+            return _tinycolor2Default.default({
+                r: newColors[0],
+                g: newColors[1],
+                b: newColors[2]
+            });
+        });
+    }
+    boxBlur(size = 1) {
+        const kernelSize = size * 2 + 1;
+        const kernel = new _matrix.Matrix(kernelSize, kernelSize);
+        kernel.fill(1);
+        this.convolve(kernel);
+    }
+    sharpen(amount = 1) {
+        const sharpenKernel = _matrix.Matrix.fromArray2([
+            [
+                0,
+                -0.5,
+                0
+            ],
+            [
+                -0.5,
+                3,
+                -0.5
+            ],
+            [
+                0,
+                -0.5,
+                0
+            ], 
+        ]);
+        for(let i = 0; i < amount; i++)this.convolve(sharpenKernel);
+    }
     findEdges(threshold = 30, edgeColor = 'white', backColor = 'black', edgeStrength = 255) {
-        this.map((x2, y2)=>{
+        this.map((x, y)=>{
             let diff = 0;
-            const current = this.pixelAverageGrey(x2, y2);
-            const left = this.pixelAverageGrey(x2 - 1, y2);
-            const right = this.pixelAverageGrey(x2 + 1, y2);
-            const top = this.pixelAverageGrey(x2, y2 - 1);
-            const bottom = this.pixelAverageGrey(x2, y2 + 1);
+            const current = this.pixelAverageGrey(x, y);
+            const left = this.pixelAverageGrey(x - 1, y);
+            const right = this.pixelAverageGrey(x + 1, y);
+            const top = this.pixelAverageGrey(x, y - 1);
+            const bottom = this.pixelAverageGrey(x, y + 1);
             if (current > left + threshold || current < left - threshold) diff = Math.abs(current - left);
             else if (current > right + threshold || current < right - threshold) diff = Math.abs(current - right);
             else if (current > top + threshold || current < top - threshold) diff = Math.abs(current - top);
@@ -6834,6 +6770,37 @@ class Bitmap {
             return _tinycolor2Default.default.mix(backColor, edgeColor, _math.mapRange(0, edgeStrength, 0, 100, diff));
         });
     }
+    // sobel() {
+    //     const sobelXKernel = Matrix.fromArray2([
+    //         [-1, 0, 1],
+    //         [-2, 0, 2],
+    //         [-1, 0, 1],
+    //     ]);
+    //     const sobelYKernel = Matrix.fromArray2([
+    //         [1, 2, 1],
+    //         [0, 0, 0],
+    //         [-1, -2, -1],
+    //     ]);
+    //     const robertsXKernel = Matrix.fromArray2([
+    //         [1, 0],
+    //         [0, -1],
+    //     ]);
+    //     const robertsYKernel = Matrix.fromArray2([
+    //         [0, 1],
+    //         [-1, 0],
+    //     ]);
+    //     const prewittXKernel = Matrix.fromArray2([
+    //         [-1, 0, 1],
+    //         [-1, 0, 1],
+    //         [-1, 0, 1],
+    //     ]);
+    //     const prewittYKernel = Matrix.fromArray2([
+    //         [-1, -1, -1],
+    //         [0, 0, 0],
+    //         [1, 1, 1],
+    //     ]);
+    // }
+    // IN DEV - loading a new image that's been dropped onto the canvas
     loadImageData(src, wipe = true) {
         // const MAX_HEIGHT = 100;
         this.image = new Image();
@@ -6882,6 +6849,9 @@ class Matrix {
         this.data = [];
         this.fill(0);
     }
+    get size() {
+        return Math.max(this.rows, this.cols);
+    }
     // Initialize and fill array
     fill(v = 0) {
         for(let r = 0; r < this.rows; r++){
@@ -6903,9 +6873,18 @@ class Matrix {
         for(let r = 0; r < m1.rows; r++)for(let c = 0; c < m1.cols; c++)result.data[r][c] = fn(m1.data[r][c], r, c);
         return result;
     }
+    // Flat array to a single row matrix
     static fromArray(arr) {
         const m = new Matrix(arr.length, 1);
         for(let i = 0; i < arr.length; i++)m.data[i][0] = arr[i];
+        return m;
+    }
+    // Nested/2d array to a 2d array [[a,b,c],[d,e,f],[g,h,i]] -> Matrix 3x3
+    static fromArray2(arr) {
+        const rows1 = arr.length;
+        const cols1 = arr[0].length;
+        const m = new Matrix(rows1, cols1);
+        for(let r = 0; r < rows1; r++)for(let c = 0; c < cols1; c++)m.data[r][c] = arr[r][c];
         return m;
     }
     toArray() {
@@ -10737,18 +10716,19 @@ const bitmapTest01 = ()=>{
     };
     const draw = ({ canvas , context  })=>{
         // background(canvas, context)(backgroundColor);
-        // image.mapPixelPositionMatrix(logPos, 0, 0, 1).log();
         const res = canvasWidth / 5;
-        image.invert();
-        image.greyscale();
-        // image.findEdges(50, 'white', 'black', 64);
-        // const t = image.thresholdAsPoints(res, 100, false);
-        // background(canvas, context)(backgroundColor);
-        // image.resetImageData();
+        // image.invert();
+        // image.greyscale();
+        image.boxBlur(1);
+        // image.sharpen();
+        image.findEdges(20, 'white', 'black', 64);
+        const t = image.thresholdAsPoints(res, 20, false);
+        _canvas.background(canvas, context)(backgroundColor);
+        image.resetImageData();
         image.showToCanvas(res);
-        // quadtree = quadTreeFromPoints(boundary, 1, t);
-        // if (quadtree) show(context)(quadtree);
-        // if (t) showPoints(t);
+        quadtree = _quadTree.quadTreeFromPoints(boundary, 1, t);
+        if (quadtree) _quadTree.show(context)(quadtree);
+        if (t) showPoints(t);
         return -1;
     };
     return {
@@ -10904,7 +10884,7 @@ const createHistogram = function(cvs) {
 };
 // mean threshold works better than median threshold
 // however is sensitive to noise
-// works best when Gaussian blur is applied first
+// works best when Gaussian boxBlur is applied first
 const calcMeanThreshold = function(cvs) {
     const histogram = createHistogram(cvs);
     let sum = 0;

@@ -110,7 +110,7 @@ const createHistogram = function (cvs) {
 
 // mean threshold works better than median threshold
 // however is sensitive to noise
-// works best when Gaussian blur is applied first
+// works best when Gaussian boxBlur is applied first
 const calcMeanThreshold = function (cvs) {
     const histogram = createHistogram(cvs);
     let sum = 0;
