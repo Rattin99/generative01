@@ -396,7 +396,7 @@ var _bitmapTest01 = require("./experiments/bitmap-test-01");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _circlesPacking2.circlePacking02;
+const experimentalVariation = _bitmapTest01.bitmapTest01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -6563,6 +6563,9 @@ class Bitmap {
         this.scaleY = this.canvas.height / this.imageHeight;
         if (wipe) _canvas.clear(this.canvas, this.context);
     }
+    getImageData() {
+        return this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
+    }
     refreshImageData() {
         this.imageData = this.context.getImageData(0, 0, this.imageWidth, this.imageHeight);
     }
@@ -6576,6 +6579,19 @@ class Bitmap {
     pixelIsOutOfBounds(x, y) {
         return x < 0 || x > this.width - 1 || y < 0 || y > this.height - 1;
     }
+    pixelIndexValue(x, y) {
+        return y * this.imageData.width + x * 4;
+    }
+    pixelColorFromImageData(imagedata, x, y) {
+        const { data , width  } = imagedata;
+        return {
+            r: data[y * 4 * width + x * 4],
+            g: data[y * 4 * width + x * 4 + 1],
+            b: data[y * 4 * width + x * 4 + 2],
+            a: data[y * 4 * width + x * 4 + 3]
+        };
+    }
+    // Possible faster way https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/
     // TODO: implement bounds wrapping
     pixelColorRaw(x, y) {
         if (x < 0) x = 0;
@@ -6675,12 +6691,11 @@ class Bitmap {
         return m;
     }
     // passes mapper current x,y and then sets the pixel to the returned color value
-    map(mapper, save = true) {
+    map(mapper) {
         for(let x = 0; x < this.imageData.width; x++)for(let y = 0; y < this.imageData.height; y++){
             const result = mapper(x, y);
             _primatives.pixel(this.context)(x, y, result);
         }
-        if (save) this.refreshImageData();
     }
     greyscale() {
         this.map((x, y)=>{
@@ -6691,6 +6706,7 @@ class Bitmap {
                 b: grey
             });
         });
+        this.refreshImageData();
     }
     invert() {
         this.map((x, y)=>{
@@ -6701,14 +6717,16 @@ class Bitmap {
                 b: 255 - color.b
             });
         });
+        this.refreshImageData();
     }
     // https://www.codingame.com/playgrounds/2524/basic-image-manipulation/filtering
     // TODO optimize w/ seperable filters https://www.youtube.com/watch?v=SiJpkucGa1o
-    convolve(kernel) {
+    convolveColorChannels(kernel) {
         // Needs to be odd
         const kernelSize = kernel.size;
         const pxMatrixSize = (kernelSize - 1) / 2;
-        const kernelSum = _matrix.Matrix.sum(kernel);
+        let kernelSum = _matrix.Matrix.sum(kernel);
+        if (kernelSum === 0) kernelSum = 1;
         const colorChannel = (channel)=>(x, y)=>this.pixelColorRaw(x, y)[channel]
         ;
         this.map((x, y)=>{
@@ -6733,7 +6751,8 @@ class Bitmap {
         const kernelSize = size * 2 + 1;
         const kernel = new _matrix.Matrix(kernelSize, kernelSize);
         kernel.fill(1);
-        this.convolve(kernel);
+        this.convolveColorChannels(kernel);
+        this.refreshImageData();
     }
     sharpen(amount = 1) {
         const sharpenKernel = _matrix.Matrix.fromArray2([
@@ -6753,7 +6772,8 @@ class Bitmap {
                 0
             ], 
         ]);
-        for(let i = 0; i < amount; i++)this.convolve(sharpenKernel);
+        for(let i = 0; i < amount; i++)this.convolveColorChannels(sharpenKernel);
+        this.refreshImageData();
     }
     findEdges(threshold = 30, edgeColor = 'white', backColor = 'black', edgeStrength = 255) {
         this.map((x, y)=>{
@@ -6770,36 +6790,143 @@ class Bitmap {
             return _tinycolor2Default.default.mix(backColor, edgeColor, _math.mapRange(0, edgeStrength, 0, 100, diff));
         });
     }
-    // sobel() {
-    //     const sobelXKernel = Matrix.fromArray2([
-    //         [-1, 0, 1],
-    //         [-2, 0, 2],
-    //         [-1, 0, 1],
-    //     ]);
-    //     const sobelYKernel = Matrix.fromArray2([
-    //         [1, 2, 1],
-    //         [0, 0, 0],
-    //         [-1, -2, -1],
-    //     ]);
-    //     const robertsXKernel = Matrix.fromArray2([
-    //         [1, 0],
-    //         [0, -1],
-    //     ]);
-    //     const robertsYKernel = Matrix.fromArray2([
-    //         [0, 1],
-    //         [-1, 0],
-    //     ]);
-    //     const prewittXKernel = Matrix.fromArray2([
-    //         [-1, 0, 1],
-    //         [-1, 0, 1],
-    //         [-1, 0, 1],
-    //     ]);
-    //     const prewittYKernel = Matrix.fromArray2([
-    //         [-1, -1, -1],
-    //         [0, 0, 0],
-    //         [1, 1, 1],
-    //     ]);
-    // }
+    convolveGrey(kernel, channel = 'r') {
+        // Needs to be odd
+        const kernelSize = kernel.size;
+        const pxMatrixSize = (kernelSize - 1) / 2;
+        let kernelSum = _matrix.Matrix.sum(kernel);
+        if (kernelSum === 0) kernelSum = 1;
+        const colorChannel = (x, y)=>this.pixelColorRaw(x, y)[channel]
+        ;
+        this.map((x, y)=>{
+            // get a matrix around the pixel
+            const colorMatrix = this.mapPixelPositionMatrix(colorChannel, x, y, pxMatrixSize);
+            // for each color channel multiply by the matrix
+            colorMatrix.multiply(kernel);
+            // sum both, div by the boxBlur matrix
+            const colorValue = _matrix.Matrix.sum(colorMatrix) / kernelSum;
+            const colorValueMapped = _math.mapRange(-128, 128, 0, 255, colorValue);
+            // averaged color value of the pixel, set the color channel to that value
+            return _tinycolor2Default.default({
+                r: colorValueMapped,
+                g: colorValueMapped,
+                b: colorValueMapped
+            });
+        });
+    }
+    sobelEdges() {
+        const sobelXKernel = _matrix.Matrix.fromArray2([
+            [
+                -1,
+                0,
+                1
+            ],
+            [
+                -2,
+                0,
+                2
+            ],
+            [
+                -1,
+                0,
+                1
+            ], 
+        ]);
+        const sobelYKernel = _matrix.Matrix.fromArray2([
+            [
+                1,
+                2,
+                1
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                -1,
+                -2,
+                -1
+            ], 
+        ]);
+        this.boxBlur(1);
+        this.greyscale();
+        const hypot = (a, b)=>Math.sqrt(a * a + b * b)
+        ;
+        this.convolveGrey(sobelXKernel);
+        const xgradient = this.getImageData();
+        this.convolveGrey(sobelYKernel);
+        const ygradient = this.getImageData();
+        this.map((x, y)=>{
+            const xg = _math.mapRange(0, 255, -1, 0, this.pixelColorFromImageData(xgradient, x, y).r);
+            const yg = _math.mapRange(0, 255, -1, 0, this.pixelColorFromImageData(ygradient, x, y).r);
+            const fg = hypot(xg, yg);
+            const colorValueMapped = _math.mapRange(0, 2, 0, 255, fg);
+            return _tinycolor2Default.default({
+                r: colorValueMapped,
+                g: colorValueMapped,
+                b: colorValueMapped
+            });
+        });
+    }
+    robertsEdges() {
+        const robertsXKernel = _matrix.Matrix.fromArray2([
+            [
+                1,
+                0
+            ],
+            [
+                0,
+                -1
+            ], 
+        ]);
+        const robertsYKernel = _matrix.Matrix.fromArray2([
+            [
+                0,
+                1
+            ],
+            [
+                -1,
+                0
+            ], 
+        ]);
+    }
+    prewittEdges() {
+        const prewittXKernel = _matrix.Matrix.fromArray2([
+            [
+                -1,
+                0,
+                1
+            ],
+            [
+                -1,
+                0,
+                1
+            ],
+            [
+                -1,
+                0,
+                1
+            ], 
+        ]);
+        const prewittYKernel = _matrix.Matrix.fromArray2([
+            [
+                -1,
+                -1,
+                -1
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                1,
+                1,
+                1
+            ], 
+        ]);
+    }
     // IN DEV - loading a new image that's been dropped onto the canvas
     loadImageData(src, wipe = true) {
         // const MAX_HEIGHT = 100;
@@ -10726,16 +10853,17 @@ const bitmapTest01 = ()=>{
         const res = canvasWidth / 5;
         // image.invert();
         // image.greyscale();
-        image.boxBlur(1);
+        // image.boxBlur(2);
+        image.sobelEdges();
         // image.sharpen();
-        image.findEdges(20, 'white', 'black', 64);
-        const t = image.thresholdAsPoints(res, 20, false);
-        _canvas.background(canvas, context)(backgroundColor);
-        image.resetImageData();
-        image.showToCanvas(res);
-        quadtree = _quadTree.quadTreeFromPoints(boundary, 1, t);
-        if (quadtree) _quadTree.show(context)(quadtree);
-        if (t) showPoints(t);
+        // image.findEdges(20, 'white', 'black', 64);
+        // const t = image.thresholdAsPoints(res, 20, false);
+        // background(canvas, context)(backgroundColor);
+        // image.resetImageData();
+        // image.showToCanvas(res);
+        // quadtree = quadTreeFromPoints(boundary, 1, t);
+        // if (quadtree) show(context)(quadtree);
+        // if (t) showPoints(t);
         return -1;
     };
     return {

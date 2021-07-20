@@ -61,17 +61,18 @@ export const bitmapTest01 = () => {
         // image.invert();
         // image.greyscale();
 
-        image.boxBlur(1);
+        // image.boxBlur(2);
+        image.sobelEdges();
         // image.sharpen();
-        image.findEdges(20, 'white', 'black', 64);
-        const t = image.thresholdAsPoints(res, 20, false);
-        background(canvas, context)(backgroundColor);
-        image.resetImageData();
-        image.showToCanvas(res);
+        // image.findEdges(20, 'white', 'black', 64);
+        // const t = image.thresholdAsPoints(res, 20, false);
+        // background(canvas, context)(backgroundColor);
+        // image.resetImageData();
+        // image.showToCanvas(res);
 
-        quadtree = quadTreeFromPoints(boundary, 1, t);
-        if (quadtree) show(context)(quadtree);
-        if (t) showPoints(t);
+        // quadtree = quadTreeFromPoints(boundary, 1, t);
+        // if (quadtree) show(context)(quadtree);
+        // if (t) showPoints(t);
 
         return -1;
     };
