@@ -90,13 +90,19 @@ export class Circle {
 // For circle packing
 // https://www.youtube.com/watch?v=QHEQuoIKgNE&t=1s
 export class PackCircle extends Circle {
-    constructor(x, y, r) {
+    constructor(x, y, r, maxr) {
         super(x, y, r);
         this.growing = true;
+        this.maxRadius = maxr;
     }
 
     grow() {
-        if (this.growing) this.radius += 1;
+        if (this.growing) {
+            this.radius += 1;
+            if (this.maxRadius && this.radius >= this.maxRadius) {
+                this.growing = false;
+            }
+        }
     }
 
     edges(rect) {

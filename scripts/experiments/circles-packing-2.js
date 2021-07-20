@@ -65,22 +65,25 @@ export const circlePacking02 = () => {
         // quadtree = quadTreeFromPoints(canvasBounds, 10, points);
 
         const res = canvasWidth / 5;
-        image.findEdges(2, false);
+        image.boxBlur(1);
+        // image.sharpen();
+        image.findEdges(20, 'white', 'black', 64);
+        const points = image.thresholdAsPoints(res, 20, false);
+
         image.resetImageData();
 
-        const points = image.thresholdAsPoints(res, 110, true);
-        quadtree = quadTreeFromPoints(canvasBounds, 6, points);
+        quadtree = quadTreeFromPoints(canvasBounds, 1, points);
 
         image.showToCanvas(res);
         // show(context)(quadtree);
 
         const startingCircles = [];
         flatDepthSortedAsc(quadtree).forEach((q) => {
-            const rad = Math.max(q.boundary.w / 5, 1);
+            const rad = q.boundary.w / 3; // Math.max(q.boundary.w / 3, 1);
             const radDif = q.boundary.w / 2 - rad;
             const x = q.boundary.mx + randomNormalNumberBetween(-1 * radDif, radDif);
             const y = q.boundary.my + randomNormalNumberBetween(-1 * radDif, radDif);
-            startingCircles.push(new PackCircle(x, y, rad));
+            startingCircles.push(new PackCircle(x, y, rad, q.boundary.w / 2));
         });
         fill.setCircles(startingCircles);
 
@@ -100,7 +103,9 @@ export const circlePacking02 = () => {
 
         fill.grow(canvasBounds);
 
-        fill.getCircles().forEach((c) => drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y)));
+        fill.getCircles().forEach((c) => {
+            if (c.growing) drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y));
+        });
 
         return result;
     };

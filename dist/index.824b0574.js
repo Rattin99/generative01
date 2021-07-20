@@ -396,7 +396,7 @@ var _bitmapTest01 = require("./experiments/bitmap-test-01");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _bitmapTest01.bitmapTest01;
+const experimentalVariation = _circlesPacking2.circlePacking02;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -10428,12 +10428,16 @@ class Circle {
     }
 }
 class PackCircle extends Circle {
-    constructor(x1, y1, r){
+    constructor(x1, y1, r, maxr){
         super(x1, y1, r);
         this.growing = true;
+        this.maxRadius = maxr;
     }
     grow() {
-        if (this.growing) this.radius += 1;
+        if (this.growing) {
+            this.radius += 1;
+            if (this.maxRadius && this.radius >= this.maxRadius) this.growing = false;
+        }
     }
     edges(rect) {
         const b = this.bounds;
@@ -10627,19 +10631,21 @@ const circlePacking02 = ()=>{
         // const points = image.thresholdAsPoints(200, 130);
         // quadtree = quadTreeFromPoints(canvasBounds, 10, points);
         const res = canvasWidth / 5;
-        image.findEdges(2, false);
+        image.boxBlur(1);
+        // image.sharpen();
+        image.findEdges(20, 'white', 'black', 64);
+        const points = image.thresholdAsPoints(res, 20, false);
         image.resetImageData();
-        const points = image.thresholdAsPoints(res, 110, true);
-        quadtree = _quadTree.quadTreeFromPoints(canvasBounds, 6, points);
+        quadtree = _quadTree.quadTreeFromPoints(canvasBounds, 1, points);
         image.showToCanvas(res);
         // show(context)(quadtree);
         const startingCircles = [];
         _quadTree.flatDepthSortedAsc(quadtree).forEach((q)=>{
-            const rad = Math.max(q.boundary.w / 5, 1);
+            const rad = q.boundary.w / 3; // Math.max(q.boundary.w / 3, 1);
             const radDif = q.boundary.w / 2 - rad;
             const x = q.boundary.mx + _random.randomNormalNumberBetween(-1 * radDif, radDif);
             const y = q.boundary.my + _random.randomNormalNumberBetween(-1 * radDif, radDif);
-            startingCircles.push(new _circle.PackCircle(x, y, rad));
+            startingCircles.push(new _circle.PackCircle(x, y, rad, q.boundary.w / 2));
         });
         fill.setCircles(startingCircles);
         _canvas.background(canvas, context)(backgroundColor.setAlpha(0.8));
@@ -10655,8 +10661,9 @@ const circlePacking02 = ()=>{
         const result = fill.insert(randomNewPointInCanvas);
         // background(canvas, context)(backgroundColor);
         fill.grow(canvasBounds);
-        fill.getCircles().forEach((c)=>drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y))
-        );
+        fill.getCircles().forEach((c)=>{
+            if (c.growing) drawCircle(ctx)(c, image.pixelColorFromCanvas(c.x, c.y));
+        });
         return result;
     };
     return {
