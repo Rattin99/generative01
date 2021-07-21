@@ -5,7 +5,7 @@ import { Rectangle } from '../rndrgen/math/Rectangle';
 import { pixel, rect } from '../rndrgen/canvas/primatives';
 import { QuadTree, quadTreeFromPoints, show } from '../rndrgen/math/QuadTree';
 import { Bitmap } from '../rndrgen/canvas/Bitmap';
-import { initialize } from '../rndrgen/canvas/EdgeDetect';
+import { initialize } from '../scratch/EdgeDetect';
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
 
 export const bitmapTest01 = () => {
@@ -59,20 +59,23 @@ export const bitmapTest01 = () => {
 
         const res = canvasWidth / 5;
         // image.invert();
-        // image.greyscale();
-
-        // image.boxBlur(2);
-        image.sobelEdges();
+        image.greyscale();
+        image.boxBlur();
         // image.sharpen();
-        // image.findEdges(20, 'white', 'black', 64);
-        // const t = image.thresholdAsPoints(res, 20, false);
+
+        // image.prewittEdges();
+        // image.sobelEdges();
+        image.robertsEdges();
+        // image.findEdges(30, 'white', 'black', 64);
+
+        const t = image.thresholdAsPoints(res, 30, false);
         // background(canvas, context)(backgroundColor);
         // image.resetImageData();
         // image.showToCanvas(res);
 
         // quadtree = quadTreeFromPoints(boundary, 1, t);
         // if (quadtree) show(context)(quadtree);
-        // if (t) showPoints(t);
+        if (t) showPoints(t);
 
         return -1;
     };

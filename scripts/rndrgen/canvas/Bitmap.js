@@ -4,7 +4,6 @@ import { mapRange, E } from '../math/math';
 import { point } from '../math/points';
 import { averageNumArray } from '../utils';
 import { pixel, rectFilled } from './primatives';
-// import { initialize } from './EdgeDetect';
 import { Matrix } from '../math/Matrix';
 
 /*
@@ -413,7 +412,11 @@ export class Bitmap {
         });
     }
 
-    convolveGrey(kernel, channel = 'r') {
+    getValueInFlatArray(array, width, x, y) {
+        return array[y * width + x];
+    }
+
+    convolveGrey(kernel, minValue = -255, maxValue = 255, channel = 'r') {
         // Needs to be odd
         const kernelSize = kernel.size;
         const pxMatrixSize = (kernelSize - 1) / 2;
@@ -422,6 +425,9 @@ export class Bitmap {
 
         const colorChannel = (x, y) => this.pixelColorRaw(x, y)[channel];
 
+        // const result = [];
+        // let max = 0;
+        // let min = 0;
         this.map((x, y) => {
             // get a matrix around the pixel
             const colorMatrix = this.mapPixelPositionMatrix(colorChannel, x, y, pxMatrixSize);
@@ -429,8 +435,34 @@ export class Bitmap {
             colorMatrix.multiply(kernel);
             // sum both, div by the boxBlur matrix
             const colorValue = Matrix.sum(colorMatrix) / kernelSum;
-            const colorValueMapped = mapRange(-128, 128, 0, 255, colorValue);
+
+            // if (colorValue > max) max = colorValue;
+            // if (colorValue < min) min = colorValue;
+            // result.push(colorValue);
+
+            const colorValueMapped = mapRange(minValue, maxValue, 0, 255, colorValue);
             // averaged color value of the pixel, set the color channel to that value
+            return tinycolor({ r: colorValueMapped, g: colorValueMapped, b: colorValueMapped });
+        });
+
+        // console.log(`min ${min}, max ${max}`);
+        // return result;
+    }
+
+    convolveXYKernels(xkernel, ykernel) {
+        const minValue = -255;
+        const maxValue = 255;
+
+        this.convolveGrey(xkernel, minValue, maxValue);
+        const xgradient = this.getImageData();
+        this.convolveGrey(ykernel, minValue, maxValue);
+        const ygradient = this.getImageData();
+
+        this.map((x, y) => {
+            const xg = mapRange(0, 255, minValue, maxValue, this.pixelColorFromImageData(xgradient, x, y).r);
+            const yg = mapRange(0, 255, minValue, maxValue, this.pixelColorFromImageData(ygradient, x, y).r);
+            const fg = Math.hypot(xg, yg);
+            const colorValueMapped = mapRange(0, 255, 0, 255, fg);
             return tinycolor({ r: colorValueMapped, g: colorValueMapped, b: colorValueMapped });
         });
     }
@@ -447,34 +479,33 @@ export class Bitmap {
             [-1, -2, -1],
         ]);
 
-        this.boxBlur(1);
-        this.greyscale();
-
-        const hypot = (a, b) => Math.sqrt(a * a + b * b);
-
-        this.convolveGrey(sobelXKernel);
-        const xgradient = this.getImageData();
-        this.convolveGrey(sobelYKernel);
-        const ygradient = this.getImageData();
-
-        this.map((x, y) => {
-            const xg = mapRange(0, 255, -1, 0, this.pixelColorFromImageData(xgradient, x, y).r);
-            const yg = mapRange(0, 255, -1, 0, this.pixelColorFromImageData(ygradient, x, y).r);
-            const fg = hypot(xg, yg);
-            const colorValueMapped = mapRange(0, 2, 0, 255, fg);
-            return tinycolor({ r: colorValueMapped, g: colorValueMapped, b: colorValueMapped });
-        });
+        this.convolveXYKernels(sobelXKernel, sobelYKernel);
+        this.refreshImageData();
     }
 
     robertsEdges() {
+        // current implementation won't work with matricies smaller than 3x3
+        // const robertsXKernel = Matrix.fromArray2([
+        //     [1, 0],
+        //     [0, -1],
+        // ]);
+        // const robertsYKernel = Matrix.fromArray2([
+        //     [0, 1],
+        //     [-1, 0],
+        // ]);
+
         const robertsXKernel = Matrix.fromArray2([
-            [1, 0],
-            [0, -1],
+            [1, 0, 0],
+            [0, 0, 0],
+            [0, 0, -1],
         ]);
         const robertsYKernel = Matrix.fromArray2([
-            [0, 1],
-            [-1, 0],
+            [0, 0, 1],
+            [0, 0, 0],
+            [-1, 0, 0],
         ]);
+        this.convolveXYKernels(robertsXKernel, robertsYKernel);
+        this.refreshImageData();
     }
 
     prewittEdges() {
@@ -488,6 +519,8 @@ export class Bitmap {
             [0, 0, 0],
             [1, 1, 1],
         ]);
+        this.convolveXYKernels(prewittXKernel, prewittYKernel);
+        this.refreshImageData();
     }
 
     // IN DEV - loading a new image that's been dropped onto the canvas
@@ -519,27 +552,6 @@ export class Bitmap {
 
 // scratch
 /*
-    findEdgesCabbage(method = 0, boxBlur = false) {
-        this.edge = initialize(this.canvas);
-
-        if (boxBlur) {
-            this.edge.boxBlur();
-            this.edge.greyScale();
-        }
-
-        switch (method) {
-            case 1:
-                this.edge.prewitt();
-                break;
-            case 2:
-                this.edge.roberts();
-                break;
-            default:
-                this.edge.sobel();
-        }
-        this.refreshImageData();
-    }
-
 const createColorArrayFromImageData = (imageData) => {
     const data = [];
     for (let y = 0, { height } = imageData; y < height; y++) {

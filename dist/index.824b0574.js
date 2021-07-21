@@ -6387,27 +6387,6 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Bitmap", ()=>Bitmap
 ); // scratch
  /*
-    findEdgesCabbage(method = 0, boxBlur = false) {
-        this.edge = initialize(this.canvas);
-
-        if (boxBlur) {
-            this.edge.boxBlur();
-            this.edge.greyScale();
-        }
-
-        switch (method) {
-            case 1:
-                this.edge.prewitt();
-                break;
-            case 2:
-                this.edge.roberts();
-                break;
-            default:
-                this.edge.sobel();
-        }
-        this.refreshImageData();
-    }
-
 const createColorArrayFromImageData = (imageData) => {
     const data = [];
     for (let y = 0, { height } = imageData; y < height; y++) {
@@ -6434,7 +6413,6 @@ var _math = require("../math/math");
 var _points = require("../math/points");
 var _utils = require("../utils");
 var _primatives = require("./primatives");
-// import { initialize } from './EdgeDetect';
 var _matrix = require("../math/Matrix");
 /*
 import sourcePng from '../../media/images/kristijan-arsov-woman-400.png';
@@ -6790,7 +6768,10 @@ class Bitmap {
             return _tinycolor2Default.default.mix(backColor, edgeColor, _math.mapRange(0, edgeStrength, 0, 100, diff));
         });
     }
-    convolveGrey(kernel, channel = 'r') {
+    getValueInFlatArray(array, width, x, y) {
+        return array[y * width + x];
+    }
+    convolveGrey(kernel, minValue = -255, maxValue = 255, channel = 'r') {
         // Needs to be odd
         const kernelSize = kernel.size;
         const pxMatrixSize = (kernelSize - 1) / 2;
@@ -6798,6 +6779,9 @@ class Bitmap {
         if (kernelSum === 0) kernelSum = 1;
         const colorChannel = (x, y)=>this.pixelColorRaw(x, y)[channel]
         ;
+        // const result = [];
+        // let max = 0;
+        // let min = 0;
         this.map((x, y)=>{
             // get a matrix around the pixel
             const colorMatrix = this.mapPixelPositionMatrix(colorChannel, x, y, pxMatrixSize);
@@ -6805,8 +6789,32 @@ class Bitmap {
             colorMatrix.multiply(kernel);
             // sum both, div by the boxBlur matrix
             const colorValue = _matrix.Matrix.sum(colorMatrix) / kernelSum;
-            const colorValueMapped = _math.mapRange(-128, 128, 0, 255, colorValue);
+            // if (colorValue > max) max = colorValue;
+            // if (colorValue < min) min = colorValue;
+            // result.push(colorValue);
+            const colorValueMapped = _math.mapRange(minValue, maxValue, 0, 255, colorValue);
             // averaged color value of the pixel, set the color channel to that value
+            return _tinycolor2Default.default({
+                r: colorValueMapped,
+                g: colorValueMapped,
+                b: colorValueMapped
+            });
+        });
+    // console.log(`min ${min}, max ${max}`);
+    // return result;
+    }
+    convolveXYKernels(xkernel, ykernel) {
+        const minValue = -255;
+        const maxValue = 255;
+        this.convolveGrey(xkernel, minValue, maxValue);
+        const xgradient = this.getImageData();
+        this.convolveGrey(ykernel, minValue, maxValue);
+        const ygradient = this.getImageData();
+        this.map((x, y)=>{
+            const xg = _math.mapRange(0, 255, minValue, maxValue, this.pixelColorFromImageData(xgradient, x, y).r);
+            const yg = _math.mapRange(0, 255, minValue, maxValue, this.pixelColorFromImageData(ygradient, x, y).r);
+            const fg = Math.hypot(xg, yg);
+            const colorValueMapped = _math.mapRange(0, 255, 0, 255, fg);
             return _tinycolor2Default.default({
                 r: colorValueMapped,
                 g: colorValueMapped,
@@ -6849,33 +6857,32 @@ class Bitmap {
                 -1
             ], 
         ]);
-        this.boxBlur(1);
-        this.greyscale();
-        const hypot = (a, b)=>Math.sqrt(a * a + b * b)
-        ;
-        this.convolveGrey(sobelXKernel);
-        const xgradient = this.getImageData();
-        this.convolveGrey(sobelYKernel);
-        const ygradient = this.getImageData();
-        this.map((x, y)=>{
-            const xg = _math.mapRange(0, 255, -1, 0, this.pixelColorFromImageData(xgradient, x, y).r);
-            const yg = _math.mapRange(0, 255, -1, 0, this.pixelColorFromImageData(ygradient, x, y).r);
-            const fg = hypot(xg, yg);
-            const colorValueMapped = _math.mapRange(0, 2, 0, 255, fg);
-            return _tinycolor2Default.default({
-                r: colorValueMapped,
-                g: colorValueMapped,
-                b: colorValueMapped
-            });
-        });
+        this.convolveXYKernels(sobelXKernel, sobelYKernel);
+        this.refreshImageData();
     }
     robertsEdges() {
+        // current implementation won't work with matricies smaller than 3x3
+        // const robertsXKernel = Matrix.fromArray2([
+        //     [1, 0],
+        //     [0, -1],
+        // ]);
+        // const robertsYKernel = Matrix.fromArray2([
+        //     [0, 1],
+        //     [-1, 0],
+        // ]);
         const robertsXKernel = _matrix.Matrix.fromArray2([
             [
                 1,
+                0,
                 0
             ],
             [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
                 0,
                 -1
             ], 
@@ -6883,13 +6890,22 @@ class Bitmap {
         const robertsYKernel = _matrix.Matrix.fromArray2([
             [
                 0,
+                0,
                 1
             ],
             [
+                0,
+                0,
+                0
+            ],
+            [
                 -1,
+                0,
                 0
             ], 
         ]);
+        this.convolveXYKernels(robertsXKernel, robertsYKernel);
+        this.refreshImageData();
     }
     prewittEdges() {
         const prewittXKernel = _matrix.Matrix.fromArray2([
@@ -6926,6 +6942,8 @@ class Bitmap {
                 1
             ], 
         ]);
+        this.convolveXYKernels(prewittXKernel, prewittYKernel);
+        this.refreshImageData();
     }
     // IN DEV - loading a new image that's been dropped onto the canvas
     loadImageData(src, wipe = true) {
@@ -10812,7 +10830,7 @@ var _rectangle = require("../rndrgen/math/Rectangle");
 var _primatives = require("../rndrgen/canvas/primatives");
 var _quadTree = require("../rndrgen/math/QuadTree");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
-var _edgeDetect = require("../rndrgen/canvas/EdgeDetect");
+var _edgeDetect = require("../scratch/EdgeDetect");
 var _kristijanArsovWoman400Png = require("../../media/images/kristijan-arsov-woman-400.png");
 var _kristijanArsovWoman400PngDefault = parcelHelpers.interopDefault(_kristijanArsovWoman400Png);
 const bitmapTest01 = ()=>{
@@ -10852,18 +10870,20 @@ const bitmapTest01 = ()=>{
         // background(canvas, context)(backgroundColor);
         const res = canvasWidth / 5;
         // image.invert();
-        // image.greyscale();
-        // image.boxBlur(2);
-        image.sobelEdges();
+        image.greyscale();
+        image.boxBlur();
         // image.sharpen();
-        // image.findEdges(20, 'white', 'black', 64);
-        // const t = image.thresholdAsPoints(res, 20, false);
+        // image.prewittEdges();
+        // image.sobelEdges();
+        image.robertsEdges();
+        // image.findEdges(30, 'white', 'black', 64);
+        const t = image.thresholdAsPoints(res, 30, false);
         // background(canvas, context)(backgroundColor);
         // image.resetImageData();
         // image.showToCanvas(res);
         // quadtree = quadTreeFromPoints(boundary, 1, t);
         // if (quadtree) show(context)(quadtree);
-        // if (t) showPoints(t);
+        if (t) showPoints(t);
         return -1;
     };
     return {
@@ -10873,7 +10893,7 @@ const bitmapTest01 = ()=>{
     };
 };
 
-},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/canvas/EdgeDetect":"aLyCX","../../media/images/kristijan-arsov-woman-400.png":"2bj6J"}],"aLyCX":[function(require,module,exports) {
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/Rectangle":"1Uf2J","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/math/QuadTree":"652jH","../rndrgen/canvas/Bitmap":"17J8Q","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../../media/images/kristijan-arsov-woman-400.png":"2bj6J","../scratch/EdgeDetect":"4L3D0"}],"4L3D0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Filters", ()=>Filters
@@ -11502,7 +11522,7 @@ const initialize = (canvas, sz = 3, sg = 1.5)=>{
     };
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./Cabbage":"1nKM0"}],"1nKM0":[function(require,module,exports) {
+},{"./Cabbage":"6nrg3","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6nrg3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Cabbage", ()=>Cabbage
