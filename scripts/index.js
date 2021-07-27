@@ -11,13 +11,14 @@ import { circles01 } from './experiments/circles';
 import { circlePacking01 } from './experiments/circles-packing';
 import { circlePacking02 } from './experiments/circles-packing-2';
 import { bitmapTest01 } from './experiments/bitmap-test-01';
+import { voronoi01 } from './experiments/voronoi-01';
 
 const debug = true;
 
 const s = rndrgen.sketch('canvas', 0, debug);
 
 // const experimentalVariation = undefined;
-const experimentalVariation = bitmapTest01;
+const experimentalVariation = voronoi01;
 
 const setNote = (note) => (document.getElementById('note').innerText = note);
 

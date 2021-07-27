@@ -393,10 +393,11 @@ var _circles = require("./experiments/circles");
 var _circlesPacking = require("./experiments/circles-packing");
 var _circlesPacking2 = require("./experiments/circles-packing-2");
 var _bitmapTest01 = require("./experiments/bitmap-test-01");
+var _voronoi01 = require("./experiments/voronoi-01");
 const debug = true;
 const s = _rndrgen.sketch('canvas', 0, debug);
 // const experimentalVariation = undefined;
-const experimentalVariation = _bitmapTest01.bitmapTest01;
+const experimentalVariation = _voronoi01.voronoi01;
 const setNote = (note)=>document.getElementById('note').innerText = note
 ;
 const runVariation = (v)=>{
@@ -416,7 +417,7 @@ else if (urlKey && _variationsIndex.variationsIndex.hasOwnProperty(urlKey)) {
 document.getElementById('download').addEventListener('click', s.saveCanvasCapture);
 document.getElementById('record').addEventListener('click', s.saveCanvasRecording);
 
-},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs","./experiments/circles-packing-2":"1jzcE","./experiments/bitmap-test-01":"7Izx5"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
+},{"normalize.css":"5i1nu","./variationsIndex":"7sXnx","./rndrgen/rndrgen":"7oc4r","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./experiments/brush-shape":"RkIkf","./experiments/circles":"4o64S","./experiments/circles-packing":"5F9hs","./experiments/circles-packing-2":"1jzcE","./experiments/bitmap-test-01":"7Izx5","./experiments/voronoi-01":"6BMKU"}],"5i1nu":[function() {},{}],"7sXnx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "variationsIndex", ()=>variationsIndex
@@ -7220,7 +7221,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _attractors = require("../rndrgen/math/attractors");
 var _random = require("../rndrgen/math/random");
@@ -7323,7 +7324,7 @@ const radialNoise = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3hmlu":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/math/attractors":"BodqP","../rndrgen/math/random":"1SLuP","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"3hmlu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "flowFieldRibbons", ()=>flowFieldRibbons
@@ -8157,7 +8158,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _bitmap = require("../rndrgen/canvas/Bitmap");
 var _alexanderKrivitskiy2WOEPBkaH7OUnsplashPng = require("../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png");
@@ -8301,7 +8302,7 @@ const larrycarlson02 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5WOur":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/canvas/Bitmap":"17J8Q","../../media/images/alexander-krivitskiy-2wOEPBkaH7o-unsplash.png":"5WOur","../rndrgen/canvas/primatives":"6MM7x","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5WOur":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + "alexander-krivitskiy-2wOEPBkaH7o-unsplash.c33afb25.png";
 
 },{"./bundle-url":"3seVR"}],"6SHt4":[function(require,module,exports) {
@@ -9107,7 +9108,7 @@ var _tinycolor2 = require("tinycolor2");
 var _tinycolor2Default = parcelHelpers.interopDefault(_tinycolor2);
 var _math = require("../rndrgen/math/math");
 var _canvas = require("../rndrgen/canvas/canvas");
-var _sketch = require("../rndrgen/Sketch");
+var _sketch = require("../rndrgen/sketch");
 var _palettes = require("../rndrgen/color/palettes");
 var _meanderingRiver = require("../rndrgen/systems/MeanderingRiver");
 var _segments = require("../rndrgen/math/segments");
@@ -9303,7 +9304,7 @@ const meanderingRiver01 = ()=>{
     };
 };
 
-},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/Sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5BOkN":[function(require,module,exports) {
+},{"tinycolor2":"101FG","../rndrgen/math/math":"4t0bw","../rndrgen/canvas/canvas":"73Br1","../rndrgen/color/palettes":"3qayM","../rndrgen/systems/MeanderingRiver":"7Bn1Y","../rndrgen/math/segments":"5KdqE","../rndrgen/math/attractors":"BodqP","../rndrgen/math/grids":"2Wgq0","../rndrgen/canvas/fields":"1QEow","../rndrgen/math/random":"1SLuP","../rndrgen/math/points":"4RQVg","../rndrgen/canvas/primatives":"6MM7x","../rndrgen/systems/marchingSquares":"5BOkN","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/sketch":"2OcGA"}],"5BOkN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "isoline", ()=>isoline
@@ -11854,6 +11855,3298 @@ class Cabbage {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"6BMKU":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "voronoi01", ()=>voronoi01
+);
+var _canvas = require("../rndrgen/canvas/canvas");
+var _sketch = require("../rndrgen/sketch");
+var _palettes = require("../rndrgen/color/palettes");
+var _d3Delaunay = require("../rndrgen/systems/d3Delaunay");
+var _random = require("../rndrgen/math/random");
+var _grids = require("../rndrgen/math/grids");
+/*
+Using https://github.com/d3/d3-delaunay
+Examples https://observablehq.com/@mbostock/the-delaunays-dual
+ */ const randomPointPA = (xmin, ymin, xmax, ymax)=>[
+        _random.randomWholeBetween(xmin, xmax),
+        _random.randomWholeBetween(ymin, ymax)
+    ]
+;
+const getRandomPointsPA = (len, xmin, ymin, xmax, ymax)=>{
+    const points = [];
+    for(let i = 0; i < len; i++)points.push(randomPointPA(xmin, ymin, xmax, ymax));
+    return points;
+};
+const voronoi01 = ()=>{
+    const config = {
+        name: 'voronoi-01',
+        ..._sketch.instagram
+    };
+    let ctx;
+    let canvasWidth;
+    let canvasHeight;
+    let canvasCenterX;
+    let canvasCenterY;
+    let startX;
+    let maxX;
+    let startY;
+    let maxY;
+    const margin = 0;
+    const renderScale = config.scale; // 1 or 2
+    const backgroundColor = _palettes.bicPenBlue.clone();
+    const foreColor = _palettes.paperWhite.clone();
+    let points;
+    let delaunay;
+    let voronoi;
+    const render = (context)=>{
+        // context.fillStyle = foreColor.toRgbString();
+        // context.beginPath();
+        // delaunay.renderPoints(context);
+        // context.fill();
+        // context.stroke();
+        // context.closePath();
+        // context.strokeStyle = foreColor.clone().setAlpha(0.25).toRgbString();
+        // context.beginPath();
+        // delaunay.render(context);
+        // context.stroke();
+        // context.closePath();
+        context.strokeStyle = foreColor.toRgbString();
+        context.beginPath();
+        voronoi.render(context);
+        context.stroke();
+        context.closePath();
+    };
+    const setup = ({ canvas , context  })=>{
+        ctx = context;
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        canvasCenterX = canvas.width / 2;
+        canvasCenterY = canvas.height / 2;
+        startX = margin;
+        maxX = canvas.width - margin * 2;
+        startY = margin;
+        maxY = canvas.height - margin * 2;
+        points = getRandomPointsPA(50, startX, startY, maxX, maxY);
+        points = points.concat(_grids.circlePointsPA(canvasCenterX, canvasCenterY, canvasWidth / 3, Math.PI / 40));
+        points = points.concat(_grids.circlePointsPA(canvasCenterX, canvasCenterY, canvasWidth / 4, Math.PI / 20));
+        points = points.concat(_grids.circlePointsPA(canvasCenterX, canvasCenterY, canvasWidth / 5, Math.PI / 10));
+        points = points.concat(_grids.circlePointsPA(canvasCenterX, canvasCenterY, canvasWidth / 6, Math.PI / 5));
+        delaunay = _d3Delaunay.Delaunay.from(points);
+        voronoi = delaunay.voronoi([
+            startX,
+            startY,
+            maxX,
+            maxY
+        ]);
+        _canvas.background(canvas, context)(backgroundColor);
+        render(context);
+    };
+    const draw = ({ canvas , context , mouse  })=>{
+        if (mouse.x && mouse.y) {
+            _canvas.background(canvas, context)(backgroundColor);
+            points.push([
+                mouse.x,
+                mouse.y
+            ]);
+            delaunay = _d3Delaunay.Delaunay.from(points);
+            voronoi = delaunay.voronoi([
+                startX,
+                startY,
+                maxX,
+                maxY
+            ]);
+            render(context);
+        }
+        return -1;
+    };
+    // const draw = ({ canvas, context, mouse }) => {
+    //     if (mouse.x && mouse.y) {
+    //         background(canvas, context)(backgroundColor);
+    //         points.push([mouse.x, mouse.y]);
+    //         delaunay = Delaunay.from(points);
+    //         voronoi = delaunay.voronoi([startX, startY, maxX, maxY]);
+    //         render(context);
+    //     }
+    //     return 1;
+    // };
+    return {
+        config,
+        setup,
+        draw
+    };
+};
+
+},{"../rndrgen/canvas/canvas":"73Br1","../rndrgen/sketch":"2OcGA","../rndrgen/color/palettes":"3qayM","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","../rndrgen/systems/d3Delaunay":"31Nue","../rndrgen/math/random":"1SLuP","../rndrgen/math/grids":"2Wgq0"}],"31Nue":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Delaunay", ()=>_delaunayJsDefault.default
+);
+parcelHelpers.export(exports, "Voronoi", ()=>_voronoiJsDefault.default
+);
+var _delaunayJs = require("./delaunay.js");
+var _delaunayJsDefault = parcelHelpers.interopDefault(_delaunayJs);
+var _voronoiJs = require("./voronoi.js");
+var _voronoiJsDefault = parcelHelpers.interopDefault(_voronoiJs);
+
+},{"./delaunay.js":"564Gp","./voronoi.js":"5Jiby","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"564Gp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _delaunator = require("delaunator");
+var _delaunatorDefault = parcelHelpers.interopDefault(_delaunator);
+var _pathJs = require("./path.js");
+var _pathJsDefault = parcelHelpers.interopDefault(_pathJs);
+var _polygonJs = require("./polygon.js");
+var _polygonJsDefault = parcelHelpers.interopDefault(_polygonJs);
+var _voronoiJs = require("./voronoi.js");
+var _voronoiJsDefault = parcelHelpers.interopDefault(_voronoiJs);
+const tau = 2 * Math.PI;
+const { pow  } = Math;
+function pointX(p) {
+    return p[0];
+}
+function pointY(p) {
+    return p[1];
+}
+// A triangulation is collinear if all its triangles have a non-null area
+function collinear(d) {
+    const { triangles , coords  } = d;
+    for(let i = 0; i < triangles.length; i += 3){
+        const a = 2 * triangles[i];
+        const b = 2 * triangles[i + 1];
+        const c = 2 * triangles[i + 2];
+        const cross = (coords[c] - coords[a]) * (coords[b + 1] - coords[a + 1]) - (coords[b] - coords[a]) * (coords[c + 1] - coords[a + 1]);
+        if (cross > 0.0000000001) return false;
+    }
+    return true;
+}
+function jitter(x, y, r) {
+    return [
+        x + Math.sin(x + y) * r,
+        y + Math.cos(x - y) * r
+    ];
+}
+class Delaunay {
+    static from(points, fx = pointX, fy = pointY, that) {
+        return new Delaunay('length' in points ? flatArray(points, fx, fy, that) : Float64Array.from(flatIterable(points, fx, fy, that)));
+    }
+    constructor(points1){
+        this._delaunator = new _delaunatorDefault.default(points1);
+        this.inedges = new Int32Array(points1.length / 2);
+        this._hullIndex = new Int32Array(points1.length / 2);
+        this.points = this._delaunator.coords;
+        this._init();
+    }
+    update() {
+        this._delaunator.update();
+        this._init();
+        return this;
+    }
+    // Added Matt Perkins
+    updatePoints(points) {
+        this.points = flatArray(points, pointX, pointY);
+        return this.update();
+    }
+    _init() {
+        const d = this._delaunator;
+        const { points: points2  } = this;
+        // check for collinear
+        if (d.hull && d.hull.length > 2 && collinear(d)) {
+            this.collinear = Int32Array.from({
+                length: points2.length / 2
+            }, (_, i)=>i
+            ).sort((i, j)=>points2[2 * i] - points2[2 * j] || points2[2 * i + 1] - points2[2 * j + 1]
+            ); // for exact neighbors
+            const e = this.collinear[0];
+            const f = this.collinear[this.collinear.length - 1];
+            const bounds = [
+                points2[2 * e],
+                points2[2 * e + 1],
+                points2[2 * f],
+                points2[2 * f + 1]
+            ];
+            const r = 0.00000001 * Math.hypot(bounds[3] - bounds[1], bounds[2] - bounds[0]);
+            for(let i = 0, n = points2.length / 2; i < n; ++i){
+                const p = jitter(points2[2 * i], points2[2 * i + 1], r);
+                points2[2 * i] = p[0];
+                points2[2 * i + 1] = p[1];
+            }
+            this._delaunator = new _delaunatorDefault.default(points2);
+        } else delete this.collinear;
+        const halfedges = this.halfedges = this._delaunator.halfedges;
+        const hull = this.hull = this._delaunator.hull;
+        const triangles = this.triangles = this._delaunator.triangles;
+        const inedges = this.inedges.fill(-1);
+        const hullIndex = this._hullIndex.fill(-1);
+        // Compute an index from each point to an (arbitrary) incoming halfedge
+        // Used to give the first neighbor of each point; for this reason,
+        // on the hull we give priority to exterior halfedges
+        for(let e = 0, n = halfedges.length; e < n; ++e){
+            const p = triangles[e % 3 === 2 ? e - 2 : e + 1];
+            if (halfedges[e] === -1 || inedges[p] === -1) inedges[p] = e;
+        }
+        for(let i = 0, n1 = hull.length; i < n1; ++i)hullIndex[hull[i]] = i;
+        // degenerate case: 1 or 2 (distinct) points
+        if (hull.length <= 2 && hull.length > 0) {
+            this.triangles = new Int32Array(3).fill(-1);
+            this.halfedges = new Int32Array(3).fill(-1);
+            this.triangles[0] = hull[0];
+            inedges[hull[0]] = 1;
+            if (hull.length === 2) {
+                inedges[hull[1]] = 0;
+                this.triangles[1] = hull[1];
+                this.triangles[2] = hull[1];
+            }
+        }
+    }
+    voronoi(bounds) {
+        return new _voronoiJsDefault.default(this, bounds);
+    }
+    *neighbors(i) {
+        const { inedges , hull , _hullIndex , halfedges , triangles , collinear: collinear1  } = this;
+        // degenerate case with several collinear points
+        if (collinear1) {
+            const l = collinear1.indexOf(i);
+            if (l > 0) yield collinear1[l - 1];
+            if (l < collinear1.length - 1) yield collinear1[l + 1];
+            return;
+        }
+        const e0 = inedges[i];
+        if (e0 === -1) return; // coincident point
+        let e = e0;
+        let p0 = -1;
+        do {
+            yield p0 = triangles[e];
+            e = e % 3 === 2 ? e - 2 : e + 1;
+            if (triangles[e] !== i) return; // bad triangulation
+            e = halfedges[e];
+            if (e === -1) {
+                const p = hull[(_hullIndex[i] + 1) % hull.length];
+                if (p !== p0) yield p;
+                return;
+            }
+        }while (e !== e0)
+    }
+    find(x, y, i = 0) {
+        if ((x = +x, x !== x) || (y = +y, y !== y)) return -1;
+        const i0 = i;
+        let c;
+        while((c = this._step(i, x, y)) >= 0 && c !== i && c !== i0)i = c;
+        return c;
+    }
+    _step(i, x, y) {
+        const { inedges , hull , _hullIndex , halfedges , triangles , points: points2  } = this;
+        if (inedges[i] === -1 || !points2.length) return (i + 1) % (points2.length >> 1);
+        let c = i;
+        let dc = pow(x - points2[i * 2], 2) + pow(y - points2[i * 2 + 1], 2);
+        const e0 = inedges[i];
+        let e = e0;
+        do {
+            const t = triangles[e];
+            const dt = pow(x - points2[t * 2], 2) + pow(y - points2[t * 2 + 1], 2);
+            if (dt < dc) dc = dt, c = t;
+            e = e % 3 === 2 ? e - 2 : e + 1;
+            if (triangles[e] !== i) break; // bad triangulation
+            e = halfedges[e];
+            if (e === -1) {
+                e = hull[(_hullIndex[i] + 1) % hull.length];
+                if (e !== t) {
+                    if (pow(x - points2[e * 2], 2) + pow(y - points2[e * 2 + 1], 2) < dc) return e;
+                }
+                break;
+            }
+        }while (e !== e0)
+        return c;
+    }
+    render(context) {
+        const buffer = context == null ? context = new _pathJsDefault.default() : undefined;
+        const { points: points2 , halfedges , triangles  } = this;
+        for(let i = 0, n = halfedges.length; i < n; ++i){
+            const j = halfedges[i];
+            if (j < i) continue;
+            const ti = triangles[i] * 2;
+            const tj = triangles[j] * 2;
+            context.moveTo(points2[ti], points2[ti + 1]);
+            context.lineTo(points2[tj], points2[tj + 1]);
+        }
+        this.renderHull(context);
+        return buffer && buffer.value();
+    }
+    renderPoints(context, r) {
+        if (r === undefined && (!context || typeof context.moveTo !== 'function')) r = context, context = null;
+        r = r == undefined ? 2 : +r;
+        const buffer = context == null ? context = new _pathJsDefault.default() : undefined;
+        const { points: points2  } = this;
+        for(let i = 0, n = points2.length; i < n; i += 2){
+            const x = points2[i];
+            const y = points2[i + 1];
+            context.moveTo(x + r, y);
+            context.arc(x, y, r, 0, tau);
+        }
+        return buffer && buffer.value();
+    }
+    renderHull(context) {
+        const buffer = context == null ? context = new _pathJsDefault.default() : undefined;
+        const { hull , points: points2  } = this;
+        const h = hull[0] * 2;
+        const n = hull.length;
+        context.moveTo(points2[h], points2[h + 1]);
+        for(let i = 1; i < n; ++i){
+            const h1 = 2 * hull[i];
+            context.lineTo(points2[h1], points2[h1 + 1]);
+        }
+        context.closePath();
+        return buffer && buffer.value();
+    }
+    hullPolygon() {
+        const polygon = new _polygonJsDefault.default();
+        this.renderHull(polygon);
+        return polygon.value();
+    }
+    renderTriangle(i, context) {
+        const buffer = context == null ? context = new _pathJsDefault.default() : undefined;
+        const { points: points2 , triangles  } = this;
+        const t0 = triangles[i *= 3] * 2;
+        const t1 = triangles[i + 1] * 2;
+        const t2 = triangles[i + 2] * 2;
+        context.moveTo(points2[t0], points2[t0 + 1]);
+        context.lineTo(points2[t1], points2[t1 + 1]);
+        context.lineTo(points2[t2], points2[t2 + 1]);
+        context.closePath();
+        return buffer && buffer.value();
+    }
+    *trianglePolygons() {
+        const { triangles  } = this;
+        for(let i = 0, n = triangles.length / 3; i < n; ++i)yield this.trianglePolygon(i);
+    }
+    trianglePolygon(i) {
+        const polygon = new _polygonJsDefault.default();
+        this.renderTriangle(i, polygon);
+        return polygon.value();
+    }
+}
+exports.default = Delaunay;
+function flatArray(points2, fx, fy, that) {
+    const n = points2.length;
+    const array = new Float64Array(n * 2);
+    for(let i = 0; i < n; ++i){
+        const p = points2[i];
+        array[i * 2] = fx.call(that, p, i, points2);
+        array[i * 2 + 1] = fy.call(that, p, i, points2);
+    }
+    return array;
+}
+function* flatIterable(points2, fx, fy, that) {
+    let i = 0;
+    for (const p of points2){
+        yield fx.call(that, p, i, points2);
+        yield fy.call(that, p, i, points2);
+        ++i;
+    }
+}
+
+},{"delaunator":"6LXhx","@parcel/transformer-js/src/esmodule-helpers.js":"367CR","./path.js":"2XWhB","./polygon.js":"1mzRd","./voronoi.js":"5Jiby"}],"6LXhx":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _robustPredicates = require("robust-predicates");
+const EPSILON = Math.pow(2, -52);
+const EDGE_STACK = new Uint32Array(512);
+class Delaunator {
+    static from(points, getX = defaultGetX, getY = defaultGetY) {
+        const n = points.length;
+        const coords = new Float64Array(n * 2);
+        for(let i = 0; i < n; i++){
+            const p = points[i];
+            coords[2 * i] = getX(p);
+            coords[2 * i + 1] = getY(p);
+        }
+        return new Delaunator(coords);
+    }
+    constructor(coords){
+        const n = coords.length >> 1;
+        if (n > 0 && typeof coords[0] !== 'number') throw new Error('Expected coords to contain numbers.');
+        this.coords = coords;
+        // arrays that will store the triangulation graph
+        const maxTriangles = Math.max(2 * n - 5, 0);
+        this._triangles = new Uint32Array(maxTriangles * 3);
+        this._halfedges = new Int32Array(maxTriangles * 3);
+        // temporary arrays for tracking the edges of the advancing convex hull
+        this._hashSize = Math.ceil(Math.sqrt(n));
+        this._hullPrev = new Uint32Array(n); // edge to prev edge
+        this._hullNext = new Uint32Array(n); // edge to next edge
+        this._hullTri = new Uint32Array(n); // edge to adjacent triangle
+        this._hullHash = new Int32Array(this._hashSize).fill(-1); // angular edge hash
+        // temporary arrays for sorting points
+        this._ids = new Uint32Array(n);
+        this._dists = new Float64Array(n);
+        this.update();
+    }
+    update() {
+        const { coords: coords1 , _hullPrev: hullPrev , _hullNext: hullNext , _hullTri: hullTri , _hullHash: hullHash  } = this;
+        const n1 = coords1.length >> 1;
+        // populate an array of point indices; calculate input data bbox
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        for(let i = 0; i < n1; i++){
+            const x = coords1[2 * i];
+            const y = coords1[2 * i + 1];
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            this._ids[i] = i;
+        }
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
+        let minDist = Infinity;
+        let i0, i1, i2;
+        // pick a seed point close to the center
+        for(let i3 = 0; i3 < n1; i3++){
+            const d = dist(cx, cy, coords1[2 * i3], coords1[2 * i3 + 1]);
+            if (d < minDist) {
+                i0 = i3;
+                minDist = d;
+            }
+        }
+        const i0x = coords1[2 * i0];
+        const i0y = coords1[2 * i0 + 1];
+        minDist = Infinity;
+        // find the point closest to the seed
+        for(let i4 = 0; i4 < n1; i4++){
+            if (i4 === i0) continue;
+            const d = dist(i0x, i0y, coords1[2 * i4], coords1[2 * i4 + 1]);
+            if (d < minDist && d > 0) {
+                i1 = i4;
+                minDist = d;
+            }
+        }
+        let i1x = coords1[2 * i1];
+        let i1y = coords1[2 * i1 + 1];
+        let minRadius = Infinity;
+        // find the third point which forms the smallest circumcircle with the first two
+        for(let i5 = 0; i5 < n1; i5++){
+            if (i5 === i0 || i5 === i1) continue;
+            const r = circumradius(i0x, i0y, i1x, i1y, coords1[2 * i5], coords1[2 * i5 + 1]);
+            if (r < minRadius) {
+                i2 = i5;
+                minRadius = r;
+            }
+        }
+        let i2x = coords1[2 * i2];
+        let i2y = coords1[2 * i2 + 1];
+        if (minRadius === Infinity) {
+            // order collinear points by dx (or dy if all x are identical)
+            // and return the list as a hull
+            for(let i6 = 0; i6 < n1; i6++)this._dists[i6] = coords1[2 * i6] - coords1[0] || coords1[2 * i6 + 1] - coords1[1];
+            quicksort(this._ids, this._dists, 0, n1 - 1);
+            const hull = new Uint32Array(n1);
+            let j = 0;
+            for(let i7 = 0, d0 = -Infinity; i7 < n1; i7++){
+                const id = this._ids[i7];
+                if (this._dists[id] > d0) {
+                    hull[j++] = id;
+                    d0 = this._dists[id];
+                }
+            }
+            this.hull = hull.subarray(0, j);
+            this.triangles = new Uint32Array(0);
+            this.halfedges = new Uint32Array(0);
+            return;
+        }
+        // swap the order of the seed points for counter-clockwise orientation
+        if (_robustPredicates.orient2d(i0x, i0y, i1x, i1y, i2x, i2y) < 0) {
+            const i6 = i1;
+            const x = i1x;
+            const y = i1y;
+            i1 = i2;
+            i1x = i2x;
+            i1y = i2y;
+            i2 = i6;
+            i2x = x;
+            i2y = y;
+        }
+        const center = circumcenter(i0x, i0y, i1x, i1y, i2x, i2y);
+        this._cx = center.x;
+        this._cy = center.y;
+        for(let i6 = 0; i6 < n1; i6++)this._dists[i6] = dist(coords1[2 * i6], coords1[2 * i6 + 1], center.x, center.y);
+        // sort the points by distance from the seed triangle circumcenter
+        quicksort(this._ids, this._dists, 0, n1 - 1);
+        // set up the seed triangle as the starting hull
+        this._hullStart = i0;
+        let hullSize = 3;
+        hullNext[i0] = hullPrev[i2] = i1;
+        hullNext[i1] = hullPrev[i0] = i2;
+        hullNext[i2] = hullPrev[i1] = i0;
+        hullTri[i0] = 0;
+        hullTri[i1] = 1;
+        hullTri[i2] = 2;
+        hullHash.fill(-1);
+        hullHash[this._hashKey(i0x, i0y)] = i0;
+        hullHash[this._hashKey(i1x, i1y)] = i1;
+        hullHash[this._hashKey(i2x, i2y)] = i2;
+        this.trianglesLen = 0;
+        this._addTriangle(i0, i1, i2, -1, -1, -1);
+        for(let k = 0, xp, yp; k < this._ids.length; k++){
+            const i7 = this._ids[k];
+            const x = coords1[2 * i7];
+            const y = coords1[2 * i7 + 1];
+            // skip near-duplicate points
+            if (k > 0 && Math.abs(x - xp) <= EPSILON && Math.abs(y - yp) <= EPSILON) continue;
+            xp = x;
+            yp = y;
+            // skip seed triangle points
+            if (i7 === i0 || i7 === i1 || i7 === i2) continue;
+            // find a visible edge on the convex hull using edge hash
+            let start = 0;
+            for(let j = 0, key = this._hashKey(x, y); j < this._hashSize; j++){
+                start = hullHash[(key + j) % this._hashSize];
+                if (start !== -1 && start !== hullNext[start]) break;
+            }
+            start = hullPrev[start];
+            let e = start, q;
+            while(q = hullNext[e], _robustPredicates.orient2d(x, y, coords1[2 * e], coords1[2 * e + 1], coords1[2 * q], coords1[2 * q + 1]) >= 0){
+                e = q;
+                if (e === start) {
+                    e = -1;
+                    break;
+                }
+            }
+            if (e === -1) continue; // likely a near-duplicate point; skip it
+            // add the first triangle from the point
+            let t = this._addTriangle(e, i7, hullNext[e], -1, -1, hullTri[e]);
+            // recursively flip triangles from the point until they satisfy the Delaunay condition
+            hullTri[i7] = this._legalize(t + 2);
+            hullTri[e] = t; // keep track of boundary triangles on the hull
+            hullSize++;
+            // walk forward through the hull, adding more triangles and flipping recursively
+            let n2 = hullNext[e];
+            while(q = hullNext[n2], _robustPredicates.orient2d(x, y, coords1[2 * n2], coords1[2 * n2 + 1], coords1[2 * q], coords1[2 * q + 1]) < 0){
+                t = this._addTriangle(n2, i7, q, hullTri[i7], -1, hullTri[n2]);
+                hullTri[i7] = this._legalize(t + 2);
+                hullNext[n2] = n2; // mark as removed
+                hullSize--;
+                n2 = q;
+            }
+            // walk backward from the other side, adding more triangles and flipping
+            if (e === start) while(q = hullPrev[e], _robustPredicates.orient2d(x, y, coords1[2 * q], coords1[2 * q + 1], coords1[2 * e], coords1[2 * e + 1]) < 0){
+                t = this._addTriangle(q, i7, e, -1, hullTri[e], hullTri[q]);
+                this._legalize(t + 2);
+                hullTri[q] = t;
+                hullNext[e] = e; // mark as removed
+                hullSize--;
+                e = q;
+            }
+            // update the hull indices
+            this._hullStart = hullPrev[i7] = e;
+            hullNext[e] = hullPrev[n2] = i7;
+            hullNext[i7] = n2;
+            // save the two new edges in the hash table
+            hullHash[this._hashKey(x, y)] = i7;
+            hullHash[this._hashKey(coords1[2 * e], coords1[2 * e + 1])] = e;
+        }
+        this.hull = new Uint32Array(hullSize);
+        for(let i7 = 0, e = this._hullStart; i7 < hullSize; i7++){
+            this.hull[i7] = e;
+            e = hullNext[e];
+        }
+        // trim typed triangle mesh arrays
+        this.triangles = this._triangles.subarray(0, this.trianglesLen);
+        this.halfedges = this._halfedges.subarray(0, this.trianglesLen);
+    }
+    _hashKey(x, y) {
+        return Math.floor(pseudoAngle(x - this._cx, y - this._cy) * this._hashSize) % this._hashSize;
+    }
+    _legalize(a) {
+        const { _triangles: triangles , _halfedges: halfedges , coords: coords1  } = this;
+        let i = 0;
+        let ar = 0;
+        // recursion eliminated with a fixed-size stack
+        while(true){
+            const b = halfedges[a];
+            /* if the pair of triangles doesn't satisfy the Delaunay condition
+             * (p1 is inside the circumcircle of [p0, pl, pr]), flip them,
+             * then do the same check/flip recursively for the new pair of triangles
+             *
+             *           pl                    pl
+             *          /||\                  /  \
+             *       al/ || \bl            al/    \a
+             *        /  ||  \              /      \
+             *       /  a||b  \    flip    /___ar___\
+             *     p0\   ||   /p1   =>   p0\---bl---/p1
+             *        \  ||  /              \      /
+             *       ar\ || /br             b\    /br
+             *          \||/                  \  /
+             *           pr                    pr
+             */ const a0 = a - a % 3;
+            ar = a0 + (a + 2) % 3;
+            if (b === -1) {
+                if (i === 0) break;
+                a = EDGE_STACK[--i];
+                continue;
+            }
+            const b0 = b - b % 3;
+            const al = a0 + (a + 1) % 3;
+            const bl = b0 + (b + 2) % 3;
+            const p0 = triangles[ar];
+            const pr = triangles[a];
+            const pl = triangles[al];
+            const p1 = triangles[bl];
+            const illegal = inCircle(coords1[2 * p0], coords1[2 * p0 + 1], coords1[2 * pr], coords1[2 * pr + 1], coords1[2 * pl], coords1[2 * pl + 1], coords1[2 * p1], coords1[2 * p1 + 1]);
+            if (illegal) {
+                triangles[a] = p1;
+                triangles[b] = p0;
+                const hbl = halfedges[bl];
+                // edge swapped on the other side of the hull (rare); fix the halfedge reference
+                if (hbl === -1) {
+                    let e = this._hullStart;
+                    do {
+                        if (this._hullTri[e] === bl) {
+                            this._hullTri[e] = a;
+                            break;
+                        }
+                        e = this._hullPrev[e];
+                    }while (e !== this._hullStart)
+                }
+                this._link(a, hbl);
+                this._link(b, halfedges[ar]);
+                this._link(ar, bl);
+                const br = b0 + (b + 1) % 3;
+                // don't worry about hitting the cap: it can only happen on extremely degenerate input
+                if (i < EDGE_STACK.length) EDGE_STACK[i++] = br;
+            } else {
+                if (i === 0) break;
+                a = EDGE_STACK[--i];
+            }
+        }
+        return ar;
+    }
+    _link(a, b) {
+        this._halfedges[a] = b;
+        if (b !== -1) this._halfedges[b] = a;
+    }
+    // add a new triangle given vertex indices and adjacent half-edge ids
+    _addTriangle(i0, i1, i2, a, b, c) {
+        const t = this.trianglesLen;
+        this._triangles[t] = i0;
+        this._triangles[t + 1] = i1;
+        this._triangles[t + 2] = i2;
+        this._link(t, a);
+        this._link(t + 1, b);
+        this._link(t + 2, c);
+        this.trianglesLen += 3;
+        return t;
+    }
+}
+exports.default = Delaunator;
+// monotonically increases with real angle, but doesn't need expensive trigonometry
+function pseudoAngle(dx, dy) {
+    const p = dx / (Math.abs(dx) + Math.abs(dy));
+    return (dy > 0 ? 3 - p : 1 + p) / 4; // [0..1]
+}
+function dist(ax, ay, bx, by) {
+    const dx = ax - bx;
+    const dy = ay - by;
+    return dx * dx + dy * dy;
+}
+function inCircle(ax, ay, bx, by, cx, cy, px, py) {
+    const dx = ax - px;
+    const dy = ay - py;
+    const ex = bx - px;
+    const ey = by - py;
+    const fx = cx - px;
+    const fy = cy - py;
+    const ap = dx * dx + dy * dy;
+    const bp = ex * ex + ey * ey;
+    const cp = fx * fx + fy * fy;
+    return dx * (ey * cp - bp * fy) - dy * (ex * cp - bp * fx) + ap * (ex * fy - ey * fx) < 0;
+}
+function circumradius(ax, ay, bx, by, cx, cy) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const ex = cx - ax;
+    const ey = cy - ay;
+    const bl = dx * dx + dy * dy;
+    const cl = ex * ex + ey * ey;
+    const d = 0.5 / (dx * ey - dy * ex);
+    const x = (ey * bl - dy * cl) * d;
+    const y = (dx * cl - ex * bl) * d;
+    return x * x + y * y;
+}
+function circumcenter(ax, ay, bx, by, cx, cy) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const ex = cx - ax;
+    const ey = cy - ay;
+    const bl = dx * dx + dy * dy;
+    const cl = ex * ex + ey * ey;
+    const d = 0.5 / (dx * ey - dy * ex);
+    const x = ax + (ey * bl - dy * cl) * d;
+    const y = ay + (dx * cl - ex * bl) * d;
+    return {
+        x,
+        y
+    };
+}
+function quicksort(ids, dists, left, right) {
+    if (right - left <= 20) for(let i = left + 1; i <= right; i++){
+        const temp = ids[i];
+        const tempDist = dists[temp];
+        let j = i - 1;
+        while(j >= left && dists[ids[j]] > tempDist)ids[j + 1] = ids[j--];
+        ids[j + 1] = temp;
+    }
+    else {
+        const median = left + right >> 1;
+        let i1 = left + 1;
+        let j = right;
+        swap(ids, median, i1);
+        if (dists[ids[left]] > dists[ids[right]]) swap(ids, left, right);
+        if (dists[ids[i1]] > dists[ids[right]]) swap(ids, i1, right);
+        if (dists[ids[left]] > dists[ids[i1]]) swap(ids, left, i1);
+        const temp = ids[i1];
+        const tempDist = dists[temp];
+        while(true){
+            do i1++;
+            while (dists[ids[i1]] < tempDist)
+            do j--;
+            while (dists[ids[j]] > tempDist)
+            if (j < i1) break;
+            swap(ids, i1, j);
+        }
+        ids[left + 1] = ids[j];
+        ids[j] = temp;
+        if (right - i1 + 1 >= j - left) {
+            quicksort(ids, dists, i1, right);
+            quicksort(ids, dists, left, j - 1);
+        } else {
+            quicksort(ids, dists, left, j - 1);
+            quicksort(ids, dists, i1, right);
+        }
+    }
+}
+function swap(arr, i, j) {
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+}
+function defaultGetX(p) {
+    return p[0];
+}
+function defaultGetY(p) {
+    return p[1];
+}
+
+},{"robust-predicates":"ZPZIe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"ZPZIe":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "orient2d", ()=>_orient2DJs.orient2d
+);
+parcelHelpers.export(exports, "orient2dfast", ()=>_orient2DJs.orient2dfast
+);
+parcelHelpers.export(exports, "orient3d", ()=>_orient3DJs.orient3d
+);
+parcelHelpers.export(exports, "orient3dfast", ()=>_orient3DJs.orient3dfast
+);
+parcelHelpers.export(exports, "incircle", ()=>_incircleJs.incircle
+);
+parcelHelpers.export(exports, "incirclefast", ()=>_incircleJs.incirclefast
+);
+parcelHelpers.export(exports, "insphere", ()=>_insphereJs.insphere
+);
+parcelHelpers.export(exports, "inspherefast", ()=>_insphereJs.inspherefast
+);
+var _orient2DJs = require("./esm/orient2d.js");
+var _orient3DJs = require("./esm/orient3d.js");
+var _incircleJs = require("./esm/incircle.js");
+var _insphereJs = require("./esm/insphere.js");
+
+},{"./esm/orient2d.js":"NF2ZZ","./esm/orient3d.js":"44J5y","./esm/incircle.js":"3bEpT","./esm/insphere.js":"26r8a","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"NF2ZZ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "orient2d", ()=>orient2d
+);
+parcelHelpers.export(exports, "orient2dfast", ()=>orient2dfast
+);
+var _utilJs = require("./util.js");
+const ccwerrboundA = (3 + 16 * _utilJs.epsilon) * _utilJs.epsilon;
+const ccwerrboundB = (2 + 12 * _utilJs.epsilon) * _utilJs.epsilon;
+const ccwerrboundC = (9 + 64 * _utilJs.epsilon) * _utilJs.epsilon * _utilJs.epsilon;
+const B = _utilJs.vec(4);
+const C1 = _utilJs.vec(8);
+const C2 = _utilJs.vec(12);
+const D = _utilJs.vec(16);
+const u = _utilJs.vec(4);
+function orient2dadapt(ax, ay, bx, by, cx, cy, detsum) {
+    let acxtail, acytail, bcxtail, bcytail;
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
+    const acx = ax - cx;
+    const bcx = bx - cx;
+    const acy = ay - cy;
+    const bcy = by - cy;
+    s1 = acx * bcy;
+    c = _utilJs.splitter * acx;
+    ahi = c - (c - acx);
+    alo = acx - ahi;
+    c = _utilJs.splitter * bcy;
+    bhi = c - (c - bcy);
+    blo = bcy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = acy * bcx;
+    c = _utilJs.splitter * acy;
+    ahi = c - (c - acy);
+    alo = acy - ahi;
+    c = _utilJs.splitter * bcx;
+    bhi = c - (c - bcx);
+    blo = bcx - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    B[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    B[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    B[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    B[3] = u3;
+    let det = _utilJs.estimate(4, B);
+    let errbound = ccwerrboundB * detsum;
+    if (det >= errbound || -det >= errbound) return det;
+    bvirt = ax - acx;
+    acxtail = ax - (acx + bvirt) + (bvirt - cx);
+    bvirt = bx - bcx;
+    bcxtail = bx - (bcx + bvirt) + (bvirt - cx);
+    bvirt = ay - acy;
+    acytail = ay - (acy + bvirt) + (bvirt - cy);
+    bvirt = by - bcy;
+    bcytail = by - (bcy + bvirt) + (bvirt - cy);
+    if (acxtail === 0 && acytail === 0 && bcxtail === 0 && bcytail === 0) return det;
+    errbound = ccwerrboundC * detsum + _utilJs.resulterrbound * Math.abs(det);
+    det += acx * bcytail + bcy * acxtail - (acy * bcxtail + bcx * acytail);
+    if (det >= errbound || -det >= errbound) return det;
+    s1 = acxtail * bcy;
+    c = _utilJs.splitter * acxtail;
+    ahi = c - (c - acxtail);
+    alo = acxtail - ahi;
+    c = _utilJs.splitter * bcy;
+    bhi = c - (c - bcy);
+    blo = bcy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = acytail * bcx;
+    c = _utilJs.splitter * acytail;
+    ahi = c - (c - acytail);
+    alo = acytail - ahi;
+    c = _utilJs.splitter * bcx;
+    bhi = c - (c - bcx);
+    blo = bcx - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    u[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    u[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    u[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    u[3] = u3;
+    const C1len = _utilJs.sum(4, B, 4, u, C1);
+    s1 = acx * bcytail;
+    c = _utilJs.splitter * acx;
+    ahi = c - (c - acx);
+    alo = acx - ahi;
+    c = _utilJs.splitter * bcytail;
+    bhi = c - (c - bcytail);
+    blo = bcytail - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = acy * bcxtail;
+    c = _utilJs.splitter * acy;
+    ahi = c - (c - acy);
+    alo = acy - ahi;
+    c = _utilJs.splitter * bcxtail;
+    bhi = c - (c - bcxtail);
+    blo = bcxtail - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    u[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    u[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    u[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    u[3] = u3;
+    const C2len = _utilJs.sum(C1len, C1, 4, u, C2);
+    s1 = acxtail * bcytail;
+    c = _utilJs.splitter * acxtail;
+    ahi = c - (c - acxtail);
+    alo = acxtail - ahi;
+    c = _utilJs.splitter * bcytail;
+    bhi = c - (c - bcytail);
+    blo = bcytail - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = acytail * bcxtail;
+    c = _utilJs.splitter * acytail;
+    ahi = c - (c - acytail);
+    alo = acytail - ahi;
+    c = _utilJs.splitter * bcxtail;
+    bhi = c - (c - bcxtail);
+    blo = bcxtail - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    u[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    u[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    u[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    u[3] = u3;
+    const Dlen = _utilJs.sum(C2len, C2, 4, u, D);
+    return D[Dlen - 1];
+}
+function orient2d(ax, ay, bx, by, cx, cy) {
+    const detleft = (ay - cy) * (bx - cx);
+    const detright = (ax - cx) * (by - cy);
+    const det = detleft - detright;
+    if (detleft === 0 || detright === 0 || detleft > 0 !== detright > 0) return det;
+    const detsum = Math.abs(detleft + detright);
+    if (Math.abs(det) >= ccwerrboundA * detsum) return det;
+    return -orient2dadapt(ax, ay, bx, by, cx, cy, detsum);
+}
+function orient2dfast(ax, ay, bx, by, cx, cy) {
+    return (ay - cy) * (bx - cx) - (ax - cx) * (by - cy);
+}
+
+},{"./util.js":"2IKZk","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2IKZk":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "epsilon", ()=>epsilon
+);
+parcelHelpers.export(exports, "splitter", ()=>splitter
+);
+parcelHelpers.export(exports, "resulterrbound", ()=>resulterrbound
+);
+// fast_expansion_sum_zeroelim routine from oritinal code
+parcelHelpers.export(exports, "sum", ()=>sum
+);
+parcelHelpers.export(exports, "sum_three", ()=>sum_three
+);
+// scale_expansion_zeroelim routine from oritinal code
+parcelHelpers.export(exports, "scale", ()=>scale
+);
+parcelHelpers.export(exports, "negate", ()=>negate
+);
+parcelHelpers.export(exports, "estimate", ()=>estimate
+);
+parcelHelpers.export(exports, "vec", ()=>vec
+);
+const epsilon = 0.00000000000000011102230246251565;
+const splitter = 134217729;
+const resulterrbound = (3 + 8 * epsilon) * epsilon;
+function sum(elen, e, flen, f, h) {
+    let Q, Qnew, hh, bvirt;
+    let enow = e[0];
+    let fnow = f[0];
+    let eindex = 0;
+    let findex = 0;
+    if (fnow > enow === fnow > -enow) {
+        Q = enow;
+        enow = e[++eindex];
+    } else {
+        Q = fnow;
+        fnow = f[++findex];
+    }
+    let hindex = 0;
+    if (eindex < elen && findex < flen) {
+        if (fnow > enow === fnow > -enow) {
+            Qnew = enow + Q;
+            hh = Q - (Qnew - enow);
+            enow = e[++eindex];
+        } else {
+            Qnew = fnow + Q;
+            hh = Q - (Qnew - fnow);
+            fnow = f[++findex];
+        }
+        Q = Qnew;
+        if (hh !== 0) h[hindex++] = hh;
+        while(eindex < elen && findex < flen){
+            if (fnow > enow === fnow > -enow) {
+                Qnew = Q + enow;
+                bvirt = Qnew - Q;
+                hh = Q - (Qnew - bvirt) + (enow - bvirt);
+                enow = e[++eindex];
+            } else {
+                Qnew = Q + fnow;
+                bvirt = Qnew - Q;
+                hh = Q - (Qnew - bvirt) + (fnow - bvirt);
+                fnow = f[++findex];
+            }
+            Q = Qnew;
+            if (hh !== 0) h[hindex++] = hh;
+        }
+    }
+    while(eindex < elen){
+        Qnew = Q + enow;
+        bvirt = Qnew - Q;
+        hh = Q - (Qnew - bvirt) + (enow - bvirt);
+        enow = e[++eindex];
+        Q = Qnew;
+        if (hh !== 0) h[hindex++] = hh;
+    }
+    while(findex < flen){
+        Qnew = Q + fnow;
+        bvirt = Qnew - Q;
+        hh = Q - (Qnew - bvirt) + (fnow - bvirt);
+        fnow = f[++findex];
+        Q = Qnew;
+        if (hh !== 0) h[hindex++] = hh;
+    }
+    if (Q !== 0 || hindex === 0) h[hindex++] = Q;
+    return hindex;
+}
+function sum_three(alen, a, blen, b, clen, c, tmp, out) {
+    return sum(sum(alen, a, blen, b, tmp), tmp, clen, c, out);
+}
+function scale(elen, e, b, h) {
+    let Q, sum1, hh, product1, product0;
+    let bvirt, c, ahi, alo, bhi, blo;
+    c = splitter * b;
+    bhi = c - (c - b);
+    blo = b - bhi;
+    let enow = e[0];
+    Q = enow * b;
+    c = splitter * enow;
+    ahi = c - (c - enow);
+    alo = enow - ahi;
+    hh = alo * blo - (Q - ahi * bhi - alo * bhi - ahi * blo);
+    let hindex = 0;
+    if (hh !== 0) h[hindex++] = hh;
+    for(let i = 1; i < elen; i++){
+        enow = e[i];
+        product1 = enow * b;
+        c = splitter * enow;
+        ahi = c - (c - enow);
+        alo = enow - ahi;
+        product0 = alo * blo - (product1 - ahi * bhi - alo * bhi - ahi * blo);
+        sum1 = Q + product0;
+        bvirt = sum1 - Q;
+        hh = Q - (sum1 - bvirt) + (product0 - bvirt);
+        if (hh !== 0) h[hindex++] = hh;
+        Q = product1 + sum1;
+        hh = sum1 - (Q - product1);
+        if (hh !== 0) h[hindex++] = hh;
+    }
+    if (Q !== 0 || hindex === 0) h[hindex++] = Q;
+    return hindex;
+}
+function negate(elen, e) {
+    for(let i = 0; i < elen; i++)e[i] = -e[i];
+    return elen;
+}
+function estimate(elen, e) {
+    let Q = e[0];
+    for(let i = 1; i < elen; i++)Q += e[i];
+    return Q;
+}
+function vec(n) {
+    return new Float64Array(n);
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"44J5y":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "orient3d", ()=>orient3d
+);
+parcelHelpers.export(exports, "orient3dfast", ()=>orient3dfast
+);
+var _utilJs = require("./util.js");
+const o3derrboundA = (7 + 56 * _utilJs.epsilon) * _utilJs.epsilon;
+const o3derrboundB = (3 + 28 * _utilJs.epsilon) * _utilJs.epsilon;
+const o3derrboundC = (26 + 288 * _utilJs.epsilon) * _utilJs.epsilon * _utilJs.epsilon;
+const bc = _utilJs.vec(4);
+const ca = _utilJs.vec(4);
+const ab = _utilJs.vec(4);
+const at_b = _utilJs.vec(4);
+const at_c = _utilJs.vec(4);
+const bt_c = _utilJs.vec(4);
+const bt_a = _utilJs.vec(4);
+const ct_a = _utilJs.vec(4);
+const ct_b = _utilJs.vec(4);
+const bct = _utilJs.vec(8);
+const cat = _utilJs.vec(8);
+const abt = _utilJs.vec(8);
+const u = _utilJs.vec(4);
+const _8 = _utilJs.vec(8);
+const _8b = _utilJs.vec(8);
+const _16 = _utilJs.vec(8);
+const _12 = _utilJs.vec(12);
+let fin = _utilJs.vec(192);
+let fin2 = _utilJs.vec(192);
+function finadd(finlen, alen, a) {
+    finlen = _utilJs.sum(finlen, fin, alen, a, fin2);
+    const tmp = fin;
+    fin = fin2;
+    fin2 = tmp;
+    return finlen;
+}
+function tailinit(xtail, ytail, ax, ay, bx, by, a, b) {
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _k, _0, s1, s0, t1, t0, u3, negate;
+    if (xtail === 0) {
+        if (ytail === 0) {
+            a[0] = 0;
+            b[0] = 0;
+            return 1;
+        } else {
+            negate = -ytail;
+            s1 = negate * ax;
+            c = _utilJs.splitter * negate;
+            ahi = c - (c - negate);
+            alo = negate - ahi;
+            c = _utilJs.splitter * ax;
+            bhi = c - (c - ax);
+            blo = ax - bhi;
+            a[0] = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            a[1] = s1;
+            s1 = ytail * bx;
+            c = _utilJs.splitter * ytail;
+            ahi = c - (c - ytail);
+            alo = ytail - ahi;
+            c = _utilJs.splitter * bx;
+            bhi = c - (c - bx);
+            blo = bx - bhi;
+            b[0] = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            b[1] = s1;
+            return 2;
+        }
+    } else if (ytail === 0) {
+        s1 = xtail * ay;
+        c = _utilJs.splitter * xtail;
+        ahi = c - (c - xtail);
+        alo = xtail - ahi;
+        c = _utilJs.splitter * ay;
+        bhi = c - (c - ay);
+        blo = ay - bhi;
+        a[0] = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+        a[1] = s1;
+        negate = -xtail;
+        s1 = negate * by;
+        c = _utilJs.splitter * negate;
+        ahi = c - (c - negate);
+        alo = negate - ahi;
+        c = _utilJs.splitter * by;
+        bhi = c - (c - by);
+        blo = by - bhi;
+        b[0] = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+        b[1] = s1;
+        return 2;
+    } else {
+        s1 = xtail * ay;
+        c = _utilJs.splitter * xtail;
+        ahi = c - (c - xtail);
+        alo = xtail - ahi;
+        c = _utilJs.splitter * ay;
+        bhi = c - (c - ay);
+        blo = ay - bhi;
+        s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+        t1 = ytail * ax;
+        c = _utilJs.splitter * ytail;
+        ahi = c - (c - ytail);
+        alo = ytail - ahi;
+        c = _utilJs.splitter * ax;
+        bhi = c - (c - ax);
+        blo = ax - bhi;
+        t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+        _i = s0 - t0;
+        bvirt = s0 - _i;
+        a[0] = s0 - (_i + bvirt) + (bvirt - t0);
+        _j = s1 + _i;
+        bvirt = _j - s1;
+        _0 = s1 - (_j - bvirt) + (_i - bvirt);
+        _i = _0 - t1;
+        bvirt = _0 - _i;
+        a[1] = _0 - (_i + bvirt) + (bvirt - t1);
+        u3 = _j + _i;
+        bvirt = u3 - _j;
+        a[2] = _j - (u3 - bvirt) + (_i - bvirt);
+        a[3] = u3;
+        s1 = ytail * bx;
+        c = _utilJs.splitter * ytail;
+        ahi = c - (c - ytail);
+        alo = ytail - ahi;
+        c = _utilJs.splitter * bx;
+        bhi = c - (c - bx);
+        blo = bx - bhi;
+        s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+        t1 = xtail * by;
+        c = _utilJs.splitter * xtail;
+        ahi = c - (c - xtail);
+        alo = xtail - ahi;
+        c = _utilJs.splitter * by;
+        bhi = c - (c - by);
+        blo = by - bhi;
+        t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+        _i = s0 - t0;
+        bvirt = s0 - _i;
+        b[0] = s0 - (_i + bvirt) + (bvirt - t0);
+        _j = s1 + _i;
+        bvirt = _j - s1;
+        _0 = s1 - (_j - bvirt) + (_i - bvirt);
+        _i = _0 - t1;
+        bvirt = _0 - _i;
+        b[1] = _0 - (_i + bvirt) + (bvirt - t1);
+        u3 = _j + _i;
+        bvirt = u3 - _j;
+        b[2] = _j - (u3 - bvirt) + (_i - bvirt);
+        b[3] = u3;
+        return 4;
+    }
+}
+function tailadd(finlen, a, b, k, z) {
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _k, _0, s1, s0, u3;
+    s1 = a * b;
+    c = _utilJs.splitter * a;
+    ahi = c - (c - a);
+    alo = a - ahi;
+    c = _utilJs.splitter * b;
+    bhi = c - (c - b);
+    blo = b - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    c = _utilJs.splitter * k;
+    bhi = c - (c - k);
+    blo = k - bhi;
+    _i = s0 * k;
+    c = _utilJs.splitter * s0;
+    ahi = c - (c - s0);
+    alo = s0 - ahi;
+    u[0] = alo * blo - (_i - ahi * bhi - alo * bhi - ahi * blo);
+    _j = s1 * k;
+    c = _utilJs.splitter * s1;
+    ahi = c - (c - s1);
+    alo = s1 - ahi;
+    _0 = alo * blo - (_j - ahi * bhi - alo * bhi - ahi * blo);
+    _k = _i + _0;
+    bvirt = _k - _i;
+    u[1] = _i - (_k - bvirt) + (_0 - bvirt);
+    u3 = _j + _k;
+    u[2] = _k - (u3 - _j);
+    u[3] = u3;
+    finlen = finadd(finlen, 4, u);
+    if (z !== 0) {
+        c = _utilJs.splitter * z;
+        bhi = c - (c - z);
+        blo = z - bhi;
+        _i = s0 * z;
+        c = _utilJs.splitter * s0;
+        ahi = c - (c - s0);
+        alo = s0 - ahi;
+        u[0] = alo * blo - (_i - ahi * bhi - alo * bhi - ahi * blo);
+        _j = s1 * z;
+        c = _utilJs.splitter * s1;
+        ahi = c - (c - s1);
+        alo = s1 - ahi;
+        _0 = alo * blo - (_j - ahi * bhi - alo * bhi - ahi * blo);
+        _k = _i + _0;
+        bvirt = _k - _i;
+        u[1] = _i - (_k - bvirt) + (_0 - bvirt);
+        u3 = _j + _k;
+        u[2] = _k - (u3 - _j);
+        u[3] = u3;
+        finlen = finadd(finlen, 4, u);
+    }
+    return finlen;
+}
+function orient3dadapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, permanent) {
+    let finlen;
+    let adxtail, bdxtail, cdxtail;
+    let adytail, bdytail, cdytail;
+    let adztail, bdztail, cdztail;
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _k, _0, s1, s0, t1, t0, u3;
+    const adx = ax - dx;
+    const bdx = bx - dx;
+    const cdx = cx - dx;
+    const ady = ay - dy;
+    const bdy = by - dy;
+    const cdy = cy - dy;
+    const adz = az - dz;
+    const bdz = bz - dz;
+    const cdz = cz - dz;
+    s1 = bdx * cdy;
+    c = _utilJs.splitter * bdx;
+    ahi = c - (c - bdx);
+    alo = bdx - ahi;
+    c = _utilJs.splitter * cdy;
+    bhi = c - (c - cdy);
+    blo = cdy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = cdx * bdy;
+    c = _utilJs.splitter * cdx;
+    ahi = c - (c - cdx);
+    alo = cdx - ahi;
+    c = _utilJs.splitter * bdy;
+    bhi = c - (c - bdy);
+    blo = bdy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    bc[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    bc[3] = u3;
+    s1 = cdx * ady;
+    c = _utilJs.splitter * cdx;
+    ahi = c - (c - cdx);
+    alo = cdx - ahi;
+    c = _utilJs.splitter * ady;
+    bhi = c - (c - ady);
+    blo = ady - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = adx * cdy;
+    c = _utilJs.splitter * adx;
+    ahi = c - (c - adx);
+    alo = adx - ahi;
+    c = _utilJs.splitter * cdy;
+    bhi = c - (c - cdy);
+    blo = cdy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ca[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ca[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ca[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ca[3] = u3;
+    s1 = adx * bdy;
+    c = _utilJs.splitter * adx;
+    ahi = c - (c - adx);
+    alo = adx - ahi;
+    c = _utilJs.splitter * bdy;
+    bhi = c - (c - bdy);
+    blo = bdy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = bdx * ady;
+    c = _utilJs.splitter * bdx;
+    ahi = c - (c - bdx);
+    alo = bdx - ahi;
+    c = _utilJs.splitter * ady;
+    bhi = c - (c - ady);
+    blo = ady - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ab[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ab[3] = u3;
+    finlen = _utilJs.sum(_utilJs.sum(_utilJs.scale(4, bc, adz, _8), _8, _utilJs.scale(4, ca, bdz, _8b), _8b, _16), _16, _utilJs.scale(4, ab, cdz, _8), _8, fin);
+    let det = _utilJs.estimate(finlen, fin);
+    let errbound = o3derrboundB * permanent;
+    if (det >= errbound || -det >= errbound) return det;
+    bvirt = ax - adx;
+    adxtail = ax - (adx + bvirt) + (bvirt - dx);
+    bvirt = bx - bdx;
+    bdxtail = bx - (bdx + bvirt) + (bvirt - dx);
+    bvirt = cx - cdx;
+    cdxtail = cx - (cdx + bvirt) + (bvirt - dx);
+    bvirt = ay - ady;
+    adytail = ay - (ady + bvirt) + (bvirt - dy);
+    bvirt = by - bdy;
+    bdytail = by - (bdy + bvirt) + (bvirt - dy);
+    bvirt = cy - cdy;
+    cdytail = cy - (cdy + bvirt) + (bvirt - dy);
+    bvirt = az - adz;
+    adztail = az - (adz + bvirt) + (bvirt - dz);
+    bvirt = bz - bdz;
+    bdztail = bz - (bdz + bvirt) + (bvirt - dz);
+    bvirt = cz - cdz;
+    cdztail = cz - (cdz + bvirt) + (bvirt - dz);
+    if (adxtail === 0 && bdxtail === 0 && cdxtail === 0 && adytail === 0 && bdytail === 0 && cdytail === 0 && adztail === 0 && bdztail === 0 && cdztail === 0) return det;
+    errbound = o3derrboundC * permanent + _utilJs.resulterrbound * Math.abs(det);
+    det += adz * (bdx * cdytail + cdy * bdxtail - (bdy * cdxtail + cdx * bdytail)) + adztail * (bdx * cdy - bdy * cdx) + bdz * (cdx * adytail + ady * cdxtail - (cdy * adxtail + adx * cdytail)) + bdztail * (cdx * ady - cdy * adx) + cdz * (adx * bdytail + bdy * adxtail - (ady * bdxtail + bdx * adytail)) + cdztail * (adx * bdy - ady * bdx);
+    if (det >= errbound || -det >= errbound) return det;
+    const at_len = tailinit(adxtail, adytail, bdx, bdy, cdx, cdy, at_b, at_c);
+    const bt_len = tailinit(bdxtail, bdytail, cdx, cdy, adx, ady, bt_c, bt_a);
+    const ct_len = tailinit(cdxtail, cdytail, adx, ady, bdx, bdy, ct_a, ct_b);
+    const bctlen = _utilJs.sum(bt_len, bt_c, ct_len, ct_b, bct);
+    finlen = finadd(finlen, _utilJs.scale(bctlen, bct, adz, _16), _16);
+    const catlen = _utilJs.sum(ct_len, ct_a, at_len, at_c, cat);
+    finlen = finadd(finlen, _utilJs.scale(catlen, cat, bdz, _16), _16);
+    const abtlen = _utilJs.sum(at_len, at_b, bt_len, bt_a, abt);
+    finlen = finadd(finlen, _utilJs.scale(abtlen, abt, cdz, _16), _16);
+    if (adztail !== 0) {
+        finlen = finadd(finlen, _utilJs.scale(4, bc, adztail, _12), _12);
+        finlen = finadd(finlen, _utilJs.scale(bctlen, bct, adztail, _16), _16);
+    }
+    if (bdztail !== 0) {
+        finlen = finadd(finlen, _utilJs.scale(4, ca, bdztail, _12), _12);
+        finlen = finadd(finlen, _utilJs.scale(catlen, cat, bdztail, _16), _16);
+    }
+    if (cdztail !== 0) {
+        finlen = finadd(finlen, _utilJs.scale(4, ab, cdztail, _12), _12);
+        finlen = finadd(finlen, _utilJs.scale(abtlen, abt, cdztail, _16), _16);
+    }
+    if (adxtail !== 0) {
+        if (bdytail !== 0) finlen = tailadd(finlen, adxtail, bdytail, cdz, cdztail);
+        if (cdytail !== 0) finlen = tailadd(finlen, -adxtail, cdytail, bdz, bdztail);
+    }
+    if (bdxtail !== 0) {
+        if (cdytail !== 0) finlen = tailadd(finlen, bdxtail, cdytail, adz, adztail);
+        if (adytail !== 0) finlen = tailadd(finlen, -bdxtail, adytail, cdz, cdztail);
+    }
+    if (cdxtail !== 0) {
+        if (adytail !== 0) finlen = tailadd(finlen, cdxtail, adytail, bdz, bdztail);
+        if (bdytail !== 0) finlen = tailadd(finlen, -cdxtail, bdytail, adz, adztail);
+    }
+    return fin[finlen - 1];
+}
+function orient3d(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz) {
+    const adx = ax - dx;
+    const bdx = bx - dx;
+    const cdx = cx - dx;
+    const ady = ay - dy;
+    const bdy = by - dy;
+    const cdy = cy - dy;
+    const adz = az - dz;
+    const bdz = bz - dz;
+    const cdz = cz - dz;
+    const bdxcdy = bdx * cdy;
+    const cdxbdy = cdx * bdy;
+    const cdxady = cdx * ady;
+    const adxcdy = adx * cdy;
+    const adxbdy = adx * bdy;
+    const bdxady = bdx * ady;
+    const det = adz * (bdxcdy - cdxbdy) + bdz * (cdxady - adxcdy) + cdz * (adxbdy - bdxady);
+    const permanent = (Math.abs(bdxcdy) + Math.abs(cdxbdy)) * Math.abs(adz) + (Math.abs(cdxady) + Math.abs(adxcdy)) * Math.abs(bdz) + (Math.abs(adxbdy) + Math.abs(bdxady)) * Math.abs(cdz);
+    const errbound = o3derrboundA * permanent;
+    if (det > errbound || -det > errbound) return det;
+    return orient3dadapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, permanent);
+}
+function orient3dfast(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz) {
+    const adx = ax - dx;
+    const bdx = bx - dx;
+    const cdx = cx - dx;
+    const ady = ay - dy;
+    const bdy = by - dy;
+    const cdy = cy - dy;
+    const adz = az - dz;
+    const bdz = bz - dz;
+    const cdz = cz - dz;
+    return adx * (bdy * cdz - bdz * cdy) + bdx * (cdy * adz - cdz * ady) + cdx * (ady * bdz - adz * bdy);
+}
+
+},{"./util.js":"2IKZk","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3bEpT":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "incircle", ()=>incircle
+);
+parcelHelpers.export(exports, "incirclefast", ()=>incirclefast
+);
+var _utilJs = require("./util.js");
+const iccerrboundA = (10 + 96 * _utilJs.epsilon) * _utilJs.epsilon;
+const iccerrboundB = (4 + 48 * _utilJs.epsilon) * _utilJs.epsilon;
+const iccerrboundC = (44 + 576 * _utilJs.epsilon) * _utilJs.epsilon * _utilJs.epsilon;
+const bc = _utilJs.vec(4);
+const ca = _utilJs.vec(4);
+const ab = _utilJs.vec(4);
+const aa = _utilJs.vec(4);
+const bb = _utilJs.vec(4);
+const cc = _utilJs.vec(4);
+const u = _utilJs.vec(4);
+const v = _utilJs.vec(4);
+const axtbc = _utilJs.vec(8);
+const aytbc = _utilJs.vec(8);
+const bxtca = _utilJs.vec(8);
+const bytca = _utilJs.vec(8);
+const cxtab = _utilJs.vec(8);
+const cytab = _utilJs.vec(8);
+const abt = _utilJs.vec(8);
+const bct = _utilJs.vec(8);
+const cat = _utilJs.vec(8);
+const abtt = _utilJs.vec(4);
+const bctt = _utilJs.vec(4);
+const catt = _utilJs.vec(4);
+const _8 = _utilJs.vec(8);
+const _16 = _utilJs.vec(16);
+const _16b = _utilJs.vec(16);
+const _16c = _utilJs.vec(16);
+const _32 = _utilJs.vec(32);
+const _32b = _utilJs.vec(32);
+const _48 = _utilJs.vec(48);
+const _64 = _utilJs.vec(64);
+let fin = _utilJs.vec(1152);
+let fin2 = _utilJs.vec(1152);
+function finadd(finlen, a, alen) {
+    finlen = _utilJs.sum(finlen, fin, a, alen, fin2);
+    const tmp = fin;
+    fin = fin2;
+    fin2 = tmp;
+    return finlen;
+}
+function incircleadapt(ax, ay, bx, by, cx, cy, dx, dy, permanent) {
+    let finlen;
+    let adxtail, bdxtail, cdxtail, adytail, bdytail, cdytail;
+    let axtbclen, aytbclen, bxtcalen, bytcalen, cxtablen, cytablen;
+    let abtlen, bctlen, catlen;
+    let abttlen, bcttlen, cattlen;
+    let n1, n0;
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
+    const adx = ax - dx;
+    const bdx = bx - dx;
+    const cdx = cx - dx;
+    const ady = ay - dy;
+    const bdy = by - dy;
+    const cdy = cy - dy;
+    s1 = bdx * cdy;
+    c = _utilJs.splitter * bdx;
+    ahi = c - (c - bdx);
+    alo = bdx - ahi;
+    c = _utilJs.splitter * cdy;
+    bhi = c - (c - cdy);
+    blo = cdy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = cdx * bdy;
+    c = _utilJs.splitter * cdx;
+    ahi = c - (c - cdx);
+    alo = cdx - ahi;
+    c = _utilJs.splitter * bdy;
+    bhi = c - (c - bdy);
+    blo = bdy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    bc[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    bc[3] = u3;
+    s1 = cdx * ady;
+    c = _utilJs.splitter * cdx;
+    ahi = c - (c - cdx);
+    alo = cdx - ahi;
+    c = _utilJs.splitter * ady;
+    bhi = c - (c - ady);
+    blo = ady - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = adx * cdy;
+    c = _utilJs.splitter * adx;
+    ahi = c - (c - adx);
+    alo = adx - ahi;
+    c = _utilJs.splitter * cdy;
+    bhi = c - (c - cdy);
+    blo = cdy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ca[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ca[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ca[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ca[3] = u3;
+    s1 = adx * bdy;
+    c = _utilJs.splitter * adx;
+    ahi = c - (c - adx);
+    alo = adx - ahi;
+    c = _utilJs.splitter * bdy;
+    bhi = c - (c - bdy);
+    blo = bdy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = bdx * ady;
+    c = _utilJs.splitter * bdx;
+    ahi = c - (c - bdx);
+    alo = bdx - ahi;
+    c = _utilJs.splitter * ady;
+    bhi = c - (c - ady);
+    blo = ady - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ab[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ab[3] = u3;
+    finlen = _utilJs.sum(_utilJs.sum(_utilJs.sum(_utilJs.scale(_utilJs.scale(4, bc, adx, _8), _8, adx, _16), _16, _utilJs.scale(_utilJs.scale(4, bc, ady, _8), _8, ady, _16b), _16b, _32), _32, _utilJs.sum(_utilJs.scale(_utilJs.scale(4, ca, bdx, _8), _8, bdx, _16), _16, _utilJs.scale(_utilJs.scale(4, ca, bdy, _8), _8, bdy, _16b), _16b, _32b), _32b, _64), _64, _utilJs.sum(_utilJs.scale(_utilJs.scale(4, ab, cdx, _8), _8, cdx, _16), _16, _utilJs.scale(_utilJs.scale(4, ab, cdy, _8), _8, cdy, _16b), _16b, _32), _32, fin);
+    let det = _utilJs.estimate(finlen, fin);
+    let errbound = iccerrboundB * permanent;
+    if (det >= errbound || -det >= errbound) return det;
+    bvirt = ax - adx;
+    adxtail = ax - (adx + bvirt) + (bvirt - dx);
+    bvirt = ay - ady;
+    adytail = ay - (ady + bvirt) + (bvirt - dy);
+    bvirt = bx - bdx;
+    bdxtail = bx - (bdx + bvirt) + (bvirt - dx);
+    bvirt = by - bdy;
+    bdytail = by - (bdy + bvirt) + (bvirt - dy);
+    bvirt = cx - cdx;
+    cdxtail = cx - (cdx + bvirt) + (bvirt - dx);
+    bvirt = cy - cdy;
+    cdytail = cy - (cdy + bvirt) + (bvirt - dy);
+    if (adxtail === 0 && bdxtail === 0 && cdxtail === 0 && adytail === 0 && bdytail === 0 && cdytail === 0) return det;
+    errbound = iccerrboundC * permanent + _utilJs.resulterrbound * Math.abs(det);
+    det += (adx * adx + ady * ady) * (bdx * cdytail + cdy * bdxtail - (bdy * cdxtail + cdx * bdytail)) + 2 * (adx * adxtail + ady * adytail) * (bdx * cdy - bdy * cdx) + ((bdx * bdx + bdy * bdy) * (cdx * adytail + ady * cdxtail - (cdy * adxtail + adx * cdytail)) + 2 * (bdx * bdxtail + bdy * bdytail) * (cdx * ady - cdy * adx)) + ((cdx * cdx + cdy * cdy) * (adx * bdytail + bdy * adxtail - (ady * bdxtail + bdx * adytail)) + 2 * (cdx * cdxtail + cdy * cdytail) * (adx * bdy - ady * bdx));
+    if (det >= errbound || -det >= errbound) return det;
+    if (bdxtail !== 0 || bdytail !== 0 || cdxtail !== 0 || cdytail !== 0) {
+        s1 = adx * adx;
+        c = _utilJs.splitter * adx;
+        ahi = c - (c - adx);
+        alo = adx - ahi;
+        s0 = alo * alo - (s1 - ahi * ahi - (ahi + ahi) * alo);
+        t1 = ady * ady;
+        c = _utilJs.splitter * ady;
+        ahi = c - (c - ady);
+        alo = ady - ahi;
+        t0 = alo * alo - (t1 - ahi * ahi - (ahi + ahi) * alo);
+        _i = s0 + t0;
+        bvirt = _i - s0;
+        aa[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+        _j = s1 + _i;
+        bvirt = _j - s1;
+        _0 = s1 - (_j - bvirt) + (_i - bvirt);
+        _i = _0 + t1;
+        bvirt = _i - _0;
+        aa[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+        u3 = _j + _i;
+        bvirt = u3 - _j;
+        aa[2] = _j - (u3 - bvirt) + (_i - bvirt);
+        aa[3] = u3;
+    }
+    if (cdxtail !== 0 || cdytail !== 0 || adxtail !== 0 || adytail !== 0) {
+        s1 = bdx * bdx;
+        c = _utilJs.splitter * bdx;
+        ahi = c - (c - bdx);
+        alo = bdx - ahi;
+        s0 = alo * alo - (s1 - ahi * ahi - (ahi + ahi) * alo);
+        t1 = bdy * bdy;
+        c = _utilJs.splitter * bdy;
+        ahi = c - (c - bdy);
+        alo = bdy - ahi;
+        t0 = alo * alo - (t1 - ahi * ahi - (ahi + ahi) * alo);
+        _i = s0 + t0;
+        bvirt = _i - s0;
+        bb[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+        _j = s1 + _i;
+        bvirt = _j - s1;
+        _0 = s1 - (_j - bvirt) + (_i - bvirt);
+        _i = _0 + t1;
+        bvirt = _i - _0;
+        bb[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+        u3 = _j + _i;
+        bvirt = u3 - _j;
+        bb[2] = _j - (u3 - bvirt) + (_i - bvirt);
+        bb[3] = u3;
+    }
+    if (adxtail !== 0 || adytail !== 0 || bdxtail !== 0 || bdytail !== 0) {
+        s1 = cdx * cdx;
+        c = _utilJs.splitter * cdx;
+        ahi = c - (c - cdx);
+        alo = cdx - ahi;
+        s0 = alo * alo - (s1 - ahi * ahi - (ahi + ahi) * alo);
+        t1 = cdy * cdy;
+        c = _utilJs.splitter * cdy;
+        ahi = c - (c - cdy);
+        alo = cdy - ahi;
+        t0 = alo * alo - (t1 - ahi * ahi - (ahi + ahi) * alo);
+        _i = s0 + t0;
+        bvirt = _i - s0;
+        cc[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+        _j = s1 + _i;
+        bvirt = _j - s1;
+        _0 = s1 - (_j - bvirt) + (_i - bvirt);
+        _i = _0 + t1;
+        bvirt = _i - _0;
+        cc[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+        u3 = _j + _i;
+        bvirt = u3 - _j;
+        cc[2] = _j - (u3 - bvirt) + (_i - bvirt);
+        cc[3] = u3;
+    }
+    if (adxtail !== 0) {
+        axtbclen = _utilJs.scale(4, bc, adxtail, axtbc);
+        finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(axtbclen, axtbc, 2 * adx, _16), _16, _utilJs.scale(_utilJs.scale(4, cc, adxtail, _8), _8, bdy, _16b), _16b, _utilJs.scale(_utilJs.scale(4, bb, adxtail, _8), _8, -cdy, _16c), _16c, _32, _48), _48);
+    }
+    if (adytail !== 0) {
+        aytbclen = _utilJs.scale(4, bc, adytail, aytbc);
+        finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(aytbclen, aytbc, 2 * ady, _16), _16, _utilJs.scale(_utilJs.scale(4, bb, adytail, _8), _8, cdx, _16b), _16b, _utilJs.scale(_utilJs.scale(4, cc, adytail, _8), _8, -bdx, _16c), _16c, _32, _48), _48);
+    }
+    if (bdxtail !== 0) {
+        bxtcalen = _utilJs.scale(4, ca, bdxtail, bxtca);
+        finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(bxtcalen, bxtca, 2 * bdx, _16), _16, _utilJs.scale(_utilJs.scale(4, aa, bdxtail, _8), _8, cdy, _16b), _16b, _utilJs.scale(_utilJs.scale(4, cc, bdxtail, _8), _8, -ady, _16c), _16c, _32, _48), _48);
+    }
+    if (bdytail !== 0) {
+        bytcalen = _utilJs.scale(4, ca, bdytail, bytca);
+        finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(bytcalen, bytca, 2 * bdy, _16), _16, _utilJs.scale(_utilJs.scale(4, cc, bdytail, _8), _8, adx, _16b), _16b, _utilJs.scale(_utilJs.scale(4, aa, bdytail, _8), _8, -cdx, _16c), _16c, _32, _48), _48);
+    }
+    if (cdxtail !== 0) {
+        cxtablen = _utilJs.scale(4, ab, cdxtail, cxtab);
+        finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(cxtablen, cxtab, 2 * cdx, _16), _16, _utilJs.scale(_utilJs.scale(4, bb, cdxtail, _8), _8, ady, _16b), _16b, _utilJs.scale(_utilJs.scale(4, aa, cdxtail, _8), _8, -bdy, _16c), _16c, _32, _48), _48);
+    }
+    if (cdytail !== 0) {
+        cytablen = _utilJs.scale(4, ab, cdytail, cytab);
+        finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(cytablen, cytab, 2 * cdy, _16), _16, _utilJs.scale(_utilJs.scale(4, aa, cdytail, _8), _8, bdx, _16b), _16b, _utilJs.scale(_utilJs.scale(4, bb, cdytail, _8), _8, -adx, _16c), _16c, _32, _48), _48);
+    }
+    if (adxtail !== 0 || adytail !== 0) {
+        if (bdxtail !== 0 || bdytail !== 0 || cdxtail !== 0 || cdytail !== 0) {
+            s1 = bdxtail * cdy;
+            c = _utilJs.splitter * bdxtail;
+            ahi = c - (c - bdxtail);
+            alo = bdxtail - ahi;
+            c = _utilJs.splitter * cdy;
+            bhi = c - (c - cdy);
+            blo = cdy - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = bdx * cdytail;
+            c = _utilJs.splitter * bdx;
+            ahi = c - (c - bdx);
+            alo = bdx - ahi;
+            c = _utilJs.splitter * cdytail;
+            bhi = c - (c - cdytail);
+            blo = cdytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 + t0;
+            bvirt = _i - s0;
+            u[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 + t1;
+            bvirt = _i - _0;
+            u[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            u[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            u[3] = u3;
+            s1 = cdxtail * -bdy;
+            c = _utilJs.splitter * cdxtail;
+            ahi = c - (c - cdxtail);
+            alo = cdxtail - ahi;
+            c = _utilJs.splitter * -bdy;
+            bhi = c - (c - -bdy);
+            blo = -bdy - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = cdx * -bdytail;
+            c = _utilJs.splitter * cdx;
+            ahi = c - (c - cdx);
+            alo = cdx - ahi;
+            c = _utilJs.splitter * -bdytail;
+            bhi = c - (c - -bdytail);
+            blo = -bdytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 + t0;
+            bvirt = _i - s0;
+            v[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 + t1;
+            bvirt = _i - _0;
+            v[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            v[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            v[3] = u3;
+            bctlen = _utilJs.sum(4, u, 4, v, bct);
+            s1 = bdxtail * cdytail;
+            c = _utilJs.splitter * bdxtail;
+            ahi = c - (c - bdxtail);
+            alo = bdxtail - ahi;
+            c = _utilJs.splitter * cdytail;
+            bhi = c - (c - cdytail);
+            blo = cdytail - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = cdxtail * bdytail;
+            c = _utilJs.splitter * cdxtail;
+            ahi = c - (c - cdxtail);
+            alo = cdxtail - ahi;
+            c = _utilJs.splitter * bdytail;
+            bhi = c - (c - bdytail);
+            blo = bdytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 - t0;
+            bvirt = s0 - _i;
+            bctt[0] = s0 - (_i + bvirt) + (bvirt - t0);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 - t1;
+            bvirt = _0 - _i;
+            bctt[1] = _0 - (_i + bvirt) + (bvirt - t1);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            bctt[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            bctt[3] = u3;
+            bcttlen = 4;
+        } else {
+            bct[0] = 0;
+            bctlen = 1;
+            bctt[0] = 0;
+            bcttlen = 1;
+        }
+        if (adxtail !== 0) {
+            const len = _utilJs.scale(bctlen, bct, adxtail, _16c);
+            finlen = finadd(finlen, _utilJs.sum(_utilJs.scale(axtbclen, axtbc, adxtail, _16), _16, _utilJs.scale(len, _16c, 2 * adx, _32), _32, _48), _48);
+            const len2 = _utilJs.scale(bcttlen, bctt, adxtail, _8);
+            finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(len2, _8, 2 * adx, _16), _16, _utilJs.scale(len2, _8, adxtail, _16b), _16b, _utilJs.scale(len, _16c, adxtail, _32), _32, _32b, _64), _64);
+            if (bdytail !== 0) finlen = finadd(finlen, _utilJs.scale(_utilJs.scale(4, cc, adxtail, _8), _8, bdytail, _16), _16);
+            if (cdytail !== 0) finlen = finadd(finlen, _utilJs.scale(_utilJs.scale(4, bb, -adxtail, _8), _8, cdytail, _16), _16);
+        }
+        if (adytail !== 0) {
+            const len = _utilJs.scale(bctlen, bct, adytail, _16c);
+            finlen = finadd(finlen, _utilJs.sum(_utilJs.scale(aytbclen, aytbc, adytail, _16), _16, _utilJs.scale(len, _16c, 2 * ady, _32), _32, _48), _48);
+            const len2 = _utilJs.scale(bcttlen, bctt, adytail, _8);
+            finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(len2, _8, 2 * ady, _16), _16, _utilJs.scale(len2, _8, adytail, _16b), _16b, _utilJs.scale(len, _16c, adytail, _32), _32, _32b, _64), _64);
+        }
+    }
+    if (bdxtail !== 0 || bdytail !== 0) {
+        if (cdxtail !== 0 || cdytail !== 0 || adxtail !== 0 || adytail !== 0) {
+            s1 = cdxtail * ady;
+            c = _utilJs.splitter * cdxtail;
+            ahi = c - (c - cdxtail);
+            alo = cdxtail - ahi;
+            c = _utilJs.splitter * ady;
+            bhi = c - (c - ady);
+            blo = ady - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = cdx * adytail;
+            c = _utilJs.splitter * cdx;
+            ahi = c - (c - cdx);
+            alo = cdx - ahi;
+            c = _utilJs.splitter * adytail;
+            bhi = c - (c - adytail);
+            blo = adytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 + t0;
+            bvirt = _i - s0;
+            u[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 + t1;
+            bvirt = _i - _0;
+            u[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            u[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            u[3] = u3;
+            n1 = -cdy;
+            n0 = -cdytail;
+            s1 = adxtail * n1;
+            c = _utilJs.splitter * adxtail;
+            ahi = c - (c - adxtail);
+            alo = adxtail - ahi;
+            c = _utilJs.splitter * n1;
+            bhi = c - (c - n1);
+            blo = n1 - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = adx * n0;
+            c = _utilJs.splitter * adx;
+            ahi = c - (c - adx);
+            alo = adx - ahi;
+            c = _utilJs.splitter * n0;
+            bhi = c - (c - n0);
+            blo = n0 - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 + t0;
+            bvirt = _i - s0;
+            v[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 + t1;
+            bvirt = _i - _0;
+            v[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            v[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            v[3] = u3;
+            catlen = _utilJs.sum(4, u, 4, v, cat);
+            s1 = cdxtail * adytail;
+            c = _utilJs.splitter * cdxtail;
+            ahi = c - (c - cdxtail);
+            alo = cdxtail - ahi;
+            c = _utilJs.splitter * adytail;
+            bhi = c - (c - adytail);
+            blo = adytail - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = adxtail * cdytail;
+            c = _utilJs.splitter * adxtail;
+            ahi = c - (c - adxtail);
+            alo = adxtail - ahi;
+            c = _utilJs.splitter * cdytail;
+            bhi = c - (c - cdytail);
+            blo = cdytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 - t0;
+            bvirt = s0 - _i;
+            catt[0] = s0 - (_i + bvirt) + (bvirt - t0);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 - t1;
+            bvirt = _0 - _i;
+            catt[1] = _0 - (_i + bvirt) + (bvirt - t1);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            catt[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            catt[3] = u3;
+            cattlen = 4;
+        } else {
+            cat[0] = 0;
+            catlen = 1;
+            catt[0] = 0;
+            cattlen = 1;
+        }
+        if (bdxtail !== 0) {
+            const len = _utilJs.scale(catlen, cat, bdxtail, _16c);
+            finlen = finadd(finlen, _utilJs.sum(_utilJs.scale(bxtcalen, bxtca, bdxtail, _16), _16, _utilJs.scale(len, _16c, 2 * bdx, _32), _32, _48), _48);
+            const len2 = _utilJs.scale(cattlen, catt, bdxtail, _8);
+            finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(len2, _8, 2 * bdx, _16), _16, _utilJs.scale(len2, _8, bdxtail, _16b), _16b, _utilJs.scale(len, _16c, bdxtail, _32), _32, _32b, _64), _64);
+            if (cdytail !== 0) finlen = finadd(finlen, _utilJs.scale(_utilJs.scale(4, aa, bdxtail, _8), _8, cdytail, _16), _16);
+            if (adytail !== 0) finlen = finadd(finlen, _utilJs.scale(_utilJs.scale(4, cc, -bdxtail, _8), _8, adytail, _16), _16);
+        }
+        if (bdytail !== 0) {
+            const len = _utilJs.scale(catlen, cat, bdytail, _16c);
+            finlen = finadd(finlen, _utilJs.sum(_utilJs.scale(bytcalen, bytca, bdytail, _16), _16, _utilJs.scale(len, _16c, 2 * bdy, _32), _32, _48), _48);
+            const len2 = _utilJs.scale(cattlen, catt, bdytail, _8);
+            finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(len2, _8, 2 * bdy, _16), _16, _utilJs.scale(len2, _8, bdytail, _16b), _16b, _utilJs.scale(len, _16c, bdytail, _32), _32, _32b, _64), _64);
+        }
+    }
+    if (cdxtail !== 0 || cdytail !== 0) {
+        if (adxtail !== 0 || adytail !== 0 || bdxtail !== 0 || bdytail !== 0) {
+            s1 = adxtail * bdy;
+            c = _utilJs.splitter * adxtail;
+            ahi = c - (c - adxtail);
+            alo = adxtail - ahi;
+            c = _utilJs.splitter * bdy;
+            bhi = c - (c - bdy);
+            blo = bdy - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = adx * bdytail;
+            c = _utilJs.splitter * adx;
+            ahi = c - (c - adx);
+            alo = adx - ahi;
+            c = _utilJs.splitter * bdytail;
+            bhi = c - (c - bdytail);
+            blo = bdytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 + t0;
+            bvirt = _i - s0;
+            u[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 + t1;
+            bvirt = _i - _0;
+            u[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            u[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            u[3] = u3;
+            n1 = -ady;
+            n0 = -adytail;
+            s1 = bdxtail * n1;
+            c = _utilJs.splitter * bdxtail;
+            ahi = c - (c - bdxtail);
+            alo = bdxtail - ahi;
+            c = _utilJs.splitter * n1;
+            bhi = c - (c - n1);
+            blo = n1 - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = bdx * n0;
+            c = _utilJs.splitter * bdx;
+            ahi = c - (c - bdx);
+            alo = bdx - ahi;
+            c = _utilJs.splitter * n0;
+            bhi = c - (c - n0);
+            blo = n0 - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 + t0;
+            bvirt = _i - s0;
+            v[0] = s0 - (_i - bvirt) + (t0 - bvirt);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 + t1;
+            bvirt = _i - _0;
+            v[1] = _0 - (_i - bvirt) + (t1 - bvirt);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            v[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            v[3] = u3;
+            abtlen = _utilJs.sum(4, u, 4, v, abt);
+            s1 = adxtail * bdytail;
+            c = _utilJs.splitter * adxtail;
+            ahi = c - (c - adxtail);
+            alo = adxtail - ahi;
+            c = _utilJs.splitter * bdytail;
+            bhi = c - (c - bdytail);
+            blo = bdytail - bhi;
+            s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+            t1 = bdxtail * adytail;
+            c = _utilJs.splitter * bdxtail;
+            ahi = c - (c - bdxtail);
+            alo = bdxtail - ahi;
+            c = _utilJs.splitter * adytail;
+            bhi = c - (c - adytail);
+            blo = adytail - bhi;
+            t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+            _i = s0 - t0;
+            bvirt = s0 - _i;
+            abtt[0] = s0 - (_i + bvirt) + (bvirt - t0);
+            _j = s1 + _i;
+            bvirt = _j - s1;
+            _0 = s1 - (_j - bvirt) + (_i - bvirt);
+            _i = _0 - t1;
+            bvirt = _0 - _i;
+            abtt[1] = _0 - (_i + bvirt) + (bvirt - t1);
+            u3 = _j + _i;
+            bvirt = u3 - _j;
+            abtt[2] = _j - (u3 - bvirt) + (_i - bvirt);
+            abtt[3] = u3;
+            abttlen = 4;
+        } else {
+            abt[0] = 0;
+            abtlen = 1;
+            abtt[0] = 0;
+            abttlen = 1;
+        }
+        if (cdxtail !== 0) {
+            const len = _utilJs.scale(abtlen, abt, cdxtail, _16c);
+            finlen = finadd(finlen, _utilJs.sum(_utilJs.scale(cxtablen, cxtab, cdxtail, _16), _16, _utilJs.scale(len, _16c, 2 * cdx, _32), _32, _48), _48);
+            const len2 = _utilJs.scale(abttlen, abtt, cdxtail, _8);
+            finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(len2, _8, 2 * cdx, _16), _16, _utilJs.scale(len2, _8, cdxtail, _16b), _16b, _utilJs.scale(len, _16c, cdxtail, _32), _32, _32b, _64), _64);
+            if (adytail !== 0) finlen = finadd(finlen, _utilJs.scale(_utilJs.scale(4, bb, cdxtail, _8), _8, adytail, _16), _16);
+            if (bdytail !== 0) finlen = finadd(finlen, _utilJs.scale(_utilJs.scale(4, aa, -cdxtail, _8), _8, bdytail, _16), _16);
+        }
+        if (cdytail !== 0) {
+            const len = _utilJs.scale(abtlen, abt, cdytail, _16c);
+            finlen = finadd(finlen, _utilJs.sum(_utilJs.scale(cytablen, cytab, cdytail, _16), _16, _utilJs.scale(len, _16c, 2 * cdy, _32), _32, _48), _48);
+            const len2 = _utilJs.scale(abttlen, abtt, cdytail, _8);
+            finlen = finadd(finlen, _utilJs.sum_three(_utilJs.scale(len2, _8, 2 * cdy, _16), _16, _utilJs.scale(len2, _8, cdytail, _16b), _16b, _utilJs.scale(len, _16c, cdytail, _32), _32, _32b, _64), _64);
+        }
+    }
+    return fin[finlen - 1];
+}
+function incircle(ax, ay, bx, by, cx, cy, dx, dy) {
+    const adx = ax - dx;
+    const bdx = bx - dx;
+    const cdx = cx - dx;
+    const ady = ay - dy;
+    const bdy = by - dy;
+    const cdy = cy - dy;
+    const bdxcdy = bdx * cdy;
+    const cdxbdy = cdx * bdy;
+    const alift = adx * adx + ady * ady;
+    const cdxady = cdx * ady;
+    const adxcdy = adx * cdy;
+    const blift = bdx * bdx + bdy * bdy;
+    const adxbdy = adx * bdy;
+    const bdxady = bdx * ady;
+    const clift = cdx * cdx + cdy * cdy;
+    const det = alift * (bdxcdy - cdxbdy) + blift * (cdxady - adxcdy) + clift * (adxbdy - bdxady);
+    const permanent = (Math.abs(bdxcdy) + Math.abs(cdxbdy)) * alift + (Math.abs(cdxady) + Math.abs(adxcdy)) * blift + (Math.abs(adxbdy) + Math.abs(bdxady)) * clift;
+    const errbound = iccerrboundA * permanent;
+    if (det > errbound || -det > errbound) return det;
+    return incircleadapt(ax, ay, bx, by, cx, cy, dx, dy, permanent);
+}
+function incirclefast(ax, ay, bx, by, cx, cy, dx, dy) {
+    const adx = ax - dx;
+    const ady = ay - dy;
+    const bdx = bx - dx;
+    const bdy = by - dy;
+    const cdx = cx - dx;
+    const cdy = cy - dy;
+    const abdet = adx * bdy - bdx * ady;
+    const bcdet = bdx * cdy - cdx * bdy;
+    const cadet = cdx * ady - adx * cdy;
+    const alift = adx * adx + ady * ady;
+    const blift = bdx * bdx + bdy * bdy;
+    const clift = cdx * cdx + cdy * cdy;
+    return alift * bcdet + blift * cadet + clift * abdet;
+}
+
+},{"./util.js":"2IKZk","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"26r8a":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "insphere", ()=>insphere
+);
+parcelHelpers.export(exports, "inspherefast", ()=>inspherefast
+);
+var _utilJs = require("./util.js");
+const isperrboundA = (16 + 224 * _utilJs.epsilon) * _utilJs.epsilon;
+const isperrboundB = (5 + 72 * _utilJs.epsilon) * _utilJs.epsilon;
+const isperrboundC = (71 + 1408 * _utilJs.epsilon) * _utilJs.epsilon * _utilJs.epsilon;
+const ab = _utilJs.vec(4);
+const bc = _utilJs.vec(4);
+const cd = _utilJs.vec(4);
+const de = _utilJs.vec(4);
+const ea = _utilJs.vec(4);
+const ac = _utilJs.vec(4);
+const bd = _utilJs.vec(4);
+const ce = _utilJs.vec(4);
+const da = _utilJs.vec(4);
+const eb = _utilJs.vec(4);
+const abc = _utilJs.vec(24);
+const bcd = _utilJs.vec(24);
+const cde = _utilJs.vec(24);
+const dea = _utilJs.vec(24);
+const eab = _utilJs.vec(24);
+const abd = _utilJs.vec(24);
+const bce = _utilJs.vec(24);
+const cda = _utilJs.vec(24);
+const deb = _utilJs.vec(24);
+const eac = _utilJs.vec(24);
+const adet = _utilJs.vec(1152);
+const bdet = _utilJs.vec(1152);
+const cdet = _utilJs.vec(1152);
+const ddet = _utilJs.vec(1152);
+const edet = _utilJs.vec(1152);
+const abdet = _utilJs.vec(2304);
+const cddet = _utilJs.vec(2304);
+const cdedet = _utilJs.vec(3456);
+const deter = _utilJs.vec(5760);
+const _8 = _utilJs.vec(8);
+const _8b = _utilJs.vec(8);
+const _8c = _utilJs.vec(8);
+const _16 = _utilJs.vec(16);
+const _24 = _utilJs.vec(24);
+const _48 = _utilJs.vec(48);
+const _48b = _utilJs.vec(48);
+const _96 = _utilJs.vec(96);
+const _192 = _utilJs.vec(192);
+const _384x = _utilJs.vec(384);
+const _384y = _utilJs.vec(384);
+const _384z = _utilJs.vec(384);
+const _768 = _utilJs.vec(768);
+function sum_three_scale(a, b, c, az, bz, cz, out) {
+    return _utilJs.sum_three(_utilJs.scale(4, a, az, _8), _8, _utilJs.scale(4, b, bz, _8b), _8b, _utilJs.scale(4, c, cz, _8c), _8c, _16, out);
+}
+function liftexact(alen, a, blen, b, clen, c, dlen, d, x, y, z, out) {
+    const len = _utilJs.sum(_utilJs.sum(alen, a, blen, b, _48), _48, _utilJs.negate(_utilJs.sum(clen, c, dlen, d, _48b), _48b), _48b, _96);
+    return _utilJs.sum_three(_utilJs.scale(_utilJs.scale(len, _96, x, _192), _192, x, _384x), _384x, _utilJs.scale(_utilJs.scale(len, _96, y, _192), _192, y, _384y), _384y, _utilJs.scale(_utilJs.scale(len, _96, z, _192), _192, z, _384z), _384z, _768, out);
+}
+function insphereexact(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez) {
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
+    s1 = ax * by;
+    c = _utilJs.splitter * ax;
+    ahi = c - (c - ax);
+    alo = ax - ahi;
+    c = _utilJs.splitter * by;
+    bhi = c - (c - by);
+    blo = by - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = bx * ay;
+    c = _utilJs.splitter * bx;
+    ahi = c - (c - bx);
+    alo = bx - ahi;
+    c = _utilJs.splitter * ay;
+    bhi = c - (c - ay);
+    blo = ay - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ab[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ab[3] = u3;
+    s1 = bx * cy;
+    c = _utilJs.splitter * bx;
+    ahi = c - (c - bx);
+    alo = bx - ahi;
+    c = _utilJs.splitter * cy;
+    bhi = c - (c - cy);
+    blo = cy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = cx * by;
+    c = _utilJs.splitter * cx;
+    ahi = c - (c - cx);
+    alo = cx - ahi;
+    c = _utilJs.splitter * by;
+    bhi = c - (c - by);
+    blo = by - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    bc[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    bc[3] = u3;
+    s1 = cx * dy;
+    c = _utilJs.splitter * cx;
+    ahi = c - (c - cx);
+    alo = cx - ahi;
+    c = _utilJs.splitter * dy;
+    bhi = c - (c - dy);
+    blo = dy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = dx * cy;
+    c = _utilJs.splitter * dx;
+    ahi = c - (c - dx);
+    alo = dx - ahi;
+    c = _utilJs.splitter * cy;
+    bhi = c - (c - cy);
+    blo = cy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    cd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    cd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    cd[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    cd[3] = u3;
+    s1 = dx * ey;
+    c = _utilJs.splitter * dx;
+    ahi = c - (c - dx);
+    alo = dx - ahi;
+    c = _utilJs.splitter * ey;
+    bhi = c - (c - ey);
+    blo = ey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = ex * dy;
+    c = _utilJs.splitter * ex;
+    ahi = c - (c - ex);
+    alo = ex - ahi;
+    c = _utilJs.splitter * dy;
+    bhi = c - (c - dy);
+    blo = dy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    de[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    de[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    de[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    de[3] = u3;
+    s1 = ex * ay;
+    c = _utilJs.splitter * ex;
+    ahi = c - (c - ex);
+    alo = ex - ahi;
+    c = _utilJs.splitter * ay;
+    bhi = c - (c - ay);
+    blo = ay - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = ax * ey;
+    c = _utilJs.splitter * ax;
+    ahi = c - (c - ax);
+    alo = ax - ahi;
+    c = _utilJs.splitter * ey;
+    bhi = c - (c - ey);
+    blo = ey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ea[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ea[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ea[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ea[3] = u3;
+    s1 = ax * cy;
+    c = _utilJs.splitter * ax;
+    ahi = c - (c - ax);
+    alo = ax - ahi;
+    c = _utilJs.splitter * cy;
+    bhi = c - (c - cy);
+    blo = cy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = cx * ay;
+    c = _utilJs.splitter * cx;
+    ahi = c - (c - cx);
+    alo = cx - ahi;
+    c = _utilJs.splitter * ay;
+    bhi = c - (c - ay);
+    blo = ay - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ac[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ac[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ac[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ac[3] = u3;
+    s1 = bx * dy;
+    c = _utilJs.splitter * bx;
+    ahi = c - (c - bx);
+    alo = bx - ahi;
+    c = _utilJs.splitter * dy;
+    bhi = c - (c - dy);
+    blo = dy - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = dx * by;
+    c = _utilJs.splitter * dx;
+    ahi = c - (c - dx);
+    alo = dx - ahi;
+    c = _utilJs.splitter * by;
+    bhi = c - (c - by);
+    blo = by - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    bd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    bd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    bd[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    bd[3] = u3;
+    s1 = cx * ey;
+    c = _utilJs.splitter * cx;
+    ahi = c - (c - cx);
+    alo = cx - ahi;
+    c = _utilJs.splitter * ey;
+    bhi = c - (c - ey);
+    blo = ey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = ex * cy;
+    c = _utilJs.splitter * ex;
+    ahi = c - (c - ex);
+    alo = ex - ahi;
+    c = _utilJs.splitter * cy;
+    bhi = c - (c - cy);
+    blo = cy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ce[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ce[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    ce[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    ce[3] = u3;
+    s1 = dx * ay;
+    c = _utilJs.splitter * dx;
+    ahi = c - (c - dx);
+    alo = dx - ahi;
+    c = _utilJs.splitter * ay;
+    bhi = c - (c - ay);
+    blo = ay - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = ax * dy;
+    c = _utilJs.splitter * ax;
+    ahi = c - (c - ax);
+    alo = ax - ahi;
+    c = _utilJs.splitter * dy;
+    bhi = c - (c - dy);
+    blo = dy - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    da[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    da[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    da[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    da[3] = u3;
+    s1 = ex * by;
+    c = _utilJs.splitter * ex;
+    ahi = c - (c - ex);
+    alo = ex - ahi;
+    c = _utilJs.splitter * by;
+    bhi = c - (c - by);
+    blo = by - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = bx * ey;
+    c = _utilJs.splitter * bx;
+    ahi = c - (c - bx);
+    alo = bx - ahi;
+    c = _utilJs.splitter * ey;
+    bhi = c - (c - ey);
+    blo = ey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    eb[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    eb[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    u3 = _j + _i;
+    bvirt = u3 - _j;
+    eb[2] = _j - (u3 - bvirt) + (_i - bvirt);
+    eb[3] = u3;
+    const abclen = sum_three_scale(ab, bc, ac, cz, az, -bz, abc);
+    const bcdlen = sum_three_scale(bc, cd, bd, dz, bz, -cz, bcd);
+    const cdelen = sum_three_scale(cd, de, ce, ez, cz, -dz, cde);
+    const dealen = sum_three_scale(de, ea, da, az, dz, -ez, dea);
+    const eablen = sum_three_scale(ea, ab, eb, bz, ez, -az, eab);
+    const abdlen = sum_three_scale(ab, bd, da, dz, az, bz, abd);
+    const bcelen = sum_three_scale(bc, ce, eb, ez, bz, cz, bce);
+    const cdalen = sum_three_scale(cd, da, ac, az, cz, dz, cda);
+    const deblen = sum_three_scale(de, eb, bd, bz, dz, ez, deb);
+    const eaclen = sum_three_scale(ea, ac, ce, cz, ez, az, eac);
+    const deterlen = _utilJs.sum_three(liftexact(cdelen, cde, bcelen, bce, deblen, deb, bcdlen, bcd, ax, ay, az, adet), adet, liftexact(dealen, dea, cdalen, cda, eaclen, eac, cdelen, cde, bx, by, bz, bdet), bdet, _utilJs.sum_three(liftexact(eablen, eab, deblen, deb, abdlen, abd, dealen, dea, cx, cy, cz, cdet), cdet, liftexact(abclen, abc, eaclen, eac, bcelen, bce, eablen, eab, dx, dy, dz, ddet), ddet, liftexact(bcdlen, bcd, abdlen, abd, cdalen, cda, abclen, abc, ex, ey, ez, edet), edet, cddet, cdedet), cdedet, abdet, deter);
+    return deter[deterlen - 1];
+}
+const xdet = _utilJs.vec(96);
+const ydet = _utilJs.vec(96);
+const zdet = _utilJs.vec(96);
+const fin = _utilJs.vec(1152);
+function liftadapt(a, b, c, az, bz, cz, x, y, z, out) {
+    const len = sum_three_scale(a, b, c, az, bz, cz, _24);
+    return _utilJs.sum_three(_utilJs.scale(_utilJs.scale(len, _24, x, _48), _48, x, xdet), xdet, _utilJs.scale(_utilJs.scale(len, _24, y, _48), _48, y, ydet), ydet, _utilJs.scale(_utilJs.scale(len, _24, z, _48), _48, z, zdet), zdet, _192, out);
+}
+function insphereadapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez, permanent) {
+    let ab3, bc3, cd3, da3, ac3, bd3;
+    let aextail, bextail, cextail, dextail;
+    let aeytail, beytail, ceytail, deytail;
+    let aeztail, beztail, ceztail, deztail;
+    let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0;
+    const aex = ax - ex;
+    const bex = bx - ex;
+    const cex = cx - ex;
+    const dex = dx - ex;
+    const aey = ay - ey;
+    const bey = by - ey;
+    const cey = cy - ey;
+    const dey = dy - ey;
+    const aez = az - ez;
+    const bez = bz - ez;
+    const cez = cz - ez;
+    const dez = dz - ez;
+    s1 = aex * bey;
+    c = _utilJs.splitter * aex;
+    ahi = c - (c - aex);
+    alo = aex - ahi;
+    c = _utilJs.splitter * bey;
+    bhi = c - (c - bey);
+    blo = bey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = bex * aey;
+    c = _utilJs.splitter * bex;
+    ahi = c - (c - bex);
+    alo = bex - ahi;
+    c = _utilJs.splitter * aey;
+    bhi = c - (c - aey);
+    blo = aey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    ab3 = _j + _i;
+    bvirt = ab3 - _j;
+    ab[2] = _j - (ab3 - bvirt) + (_i - bvirt);
+    ab[3] = ab3;
+    s1 = bex * cey;
+    c = _utilJs.splitter * bex;
+    ahi = c - (c - bex);
+    alo = bex - ahi;
+    c = _utilJs.splitter * cey;
+    bhi = c - (c - cey);
+    blo = cey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = cex * bey;
+    c = _utilJs.splitter * cex;
+    ahi = c - (c - cex);
+    alo = cex - ahi;
+    c = _utilJs.splitter * bey;
+    bhi = c - (c - bey);
+    blo = bey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    bc3 = _j + _i;
+    bvirt = bc3 - _j;
+    bc[2] = _j - (bc3 - bvirt) + (_i - bvirt);
+    bc[3] = bc3;
+    s1 = cex * dey;
+    c = _utilJs.splitter * cex;
+    ahi = c - (c - cex);
+    alo = cex - ahi;
+    c = _utilJs.splitter * dey;
+    bhi = c - (c - dey);
+    blo = dey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = dex * cey;
+    c = _utilJs.splitter * dex;
+    ahi = c - (c - dex);
+    alo = dex - ahi;
+    c = _utilJs.splitter * cey;
+    bhi = c - (c - cey);
+    blo = cey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    cd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    cd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    cd3 = _j + _i;
+    bvirt = cd3 - _j;
+    cd[2] = _j - (cd3 - bvirt) + (_i - bvirt);
+    cd[3] = cd3;
+    s1 = dex * aey;
+    c = _utilJs.splitter * dex;
+    ahi = c - (c - dex);
+    alo = dex - ahi;
+    c = _utilJs.splitter * aey;
+    bhi = c - (c - aey);
+    blo = aey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = aex * dey;
+    c = _utilJs.splitter * aex;
+    ahi = c - (c - aex);
+    alo = aex - ahi;
+    c = _utilJs.splitter * dey;
+    bhi = c - (c - dey);
+    blo = dey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    da[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    da[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    da3 = _j + _i;
+    bvirt = da3 - _j;
+    da[2] = _j - (da3 - bvirt) + (_i - bvirt);
+    da[3] = da3;
+    s1 = aex * cey;
+    c = _utilJs.splitter * aex;
+    ahi = c - (c - aex);
+    alo = aex - ahi;
+    c = _utilJs.splitter * cey;
+    bhi = c - (c - cey);
+    blo = cey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = cex * aey;
+    c = _utilJs.splitter * cex;
+    ahi = c - (c - cex);
+    alo = cex - ahi;
+    c = _utilJs.splitter * aey;
+    bhi = c - (c - aey);
+    blo = aey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    ac[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    ac[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    ac3 = _j + _i;
+    bvirt = ac3 - _j;
+    ac[2] = _j - (ac3 - bvirt) + (_i - bvirt);
+    ac[3] = ac3;
+    s1 = bex * dey;
+    c = _utilJs.splitter * bex;
+    ahi = c - (c - bex);
+    alo = bex - ahi;
+    c = _utilJs.splitter * dey;
+    bhi = c - (c - dey);
+    blo = dey - bhi;
+    s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+    t1 = dex * bey;
+    c = _utilJs.splitter * dex;
+    ahi = c - (c - dex);
+    alo = dex - ahi;
+    c = _utilJs.splitter * bey;
+    bhi = c - (c - bey);
+    blo = bey - bhi;
+    t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+    _i = s0 - t0;
+    bvirt = s0 - _i;
+    bd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+    _j = s1 + _i;
+    bvirt = _j - s1;
+    _0 = s1 - (_j - bvirt) + (_i - bvirt);
+    _i = _0 - t1;
+    bvirt = _0 - _i;
+    bd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+    bd3 = _j + _i;
+    bvirt = bd3 - _j;
+    bd[2] = _j - (bd3 - bvirt) + (_i - bvirt);
+    bd[3] = bd3;
+    const finlen = _utilJs.sum(_utilJs.sum(_utilJs.negate(liftadapt(bc, cd, bd, dez, bez, -cez, aex, aey, aez, adet), adet), adet, liftadapt(cd, da, ac, aez, cez, dez, bex, bey, bez, bdet), bdet, abdet), abdet, _utilJs.sum(_utilJs.negate(liftadapt(da, ab, bd, bez, dez, aez, cex, cey, cez, cdet), cdet), cdet, liftadapt(ab, bc, ac, cez, aez, -bez, dex, dey, dez, ddet), ddet, cddet), cddet, fin);
+    let det = _utilJs.estimate(finlen, fin);
+    let errbound = isperrboundB * permanent;
+    if (det >= errbound || -det >= errbound) return det;
+    bvirt = ax - aex;
+    aextail = ax - (aex + bvirt) + (bvirt - ex);
+    bvirt = ay - aey;
+    aeytail = ay - (aey + bvirt) + (bvirt - ey);
+    bvirt = az - aez;
+    aeztail = az - (aez + bvirt) + (bvirt - ez);
+    bvirt = bx - bex;
+    bextail = bx - (bex + bvirt) + (bvirt - ex);
+    bvirt = by - bey;
+    beytail = by - (bey + bvirt) + (bvirt - ey);
+    bvirt = bz - bez;
+    beztail = bz - (bez + bvirt) + (bvirt - ez);
+    bvirt = cx - cex;
+    cextail = cx - (cex + bvirt) + (bvirt - ex);
+    bvirt = cy - cey;
+    ceytail = cy - (cey + bvirt) + (bvirt - ey);
+    bvirt = cz - cez;
+    ceztail = cz - (cez + bvirt) + (bvirt - ez);
+    bvirt = dx - dex;
+    dextail = dx - (dex + bvirt) + (bvirt - ex);
+    bvirt = dy - dey;
+    deytail = dy - (dey + bvirt) + (bvirt - ey);
+    bvirt = dz - dez;
+    deztail = dz - (dez + bvirt) + (bvirt - ez);
+    if (aextail === 0 && aeytail === 0 && aeztail === 0 && bextail === 0 && beytail === 0 && beztail === 0 && cextail === 0 && ceytail === 0 && ceztail === 0 && dextail === 0 && deytail === 0 && deztail === 0) return det;
+    errbound = isperrboundC * permanent + _utilJs.resulterrbound * Math.abs(det);
+    const abeps = aex * beytail + bey * aextail - (aey * bextail + bex * aeytail);
+    const bceps = bex * ceytail + cey * bextail - (bey * cextail + cex * beytail);
+    const cdeps = cex * deytail + dey * cextail - (cey * dextail + dex * ceytail);
+    const daeps = dex * aeytail + aey * dextail - (dey * aextail + aex * deytail);
+    const aceps = aex * ceytail + cey * aextail - (aey * cextail + cex * aeytail);
+    const bdeps = bex * deytail + dey * bextail - (bey * dextail + dex * beytail);
+    det += (bex * bex + bey * bey + bez * bez) * (cez * daeps + dez * aceps + aez * cdeps + (ceztail * da3 + deztail * ac3 + aeztail * cd3)) + (dex * dex + dey * dey + dez * dez) * (aez * bceps - bez * aceps + cez * abeps + (aeztail * bc3 - beztail * ac3 + ceztail * ab3)) - ((aex * aex + aey * aey + aez * aez) * (bez * cdeps - cez * bdeps + dez * bceps + (beztail * cd3 - ceztail * bd3 + deztail * bc3)) + (cex * cex + cey * cey + cez * cez) * (dez * abeps + aez * bdeps + bez * daeps + (deztail * ab3 + aeztail * bd3 + beztail * da3))) + 2 * ((bex * bextail + bey * beytail + bez * beztail) * (cez * da3 + dez * ac3 + aez * cd3) + (dex * dextail + dey * deytail + dez * deztail) * (aez * bc3 - bez * ac3 + cez * ab3) - ((aex * aextail + aey * aeytail + aez * aeztail) * (bez * cd3 - cez * bd3 + dez * bc3) + (cex * cextail + cey * ceytail + cez * ceztail) * (dez * ab3 + aez * bd3 + bez * da3)));
+    if (det >= errbound || -det >= errbound) return det;
+    return insphereexact(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez);
+}
+function insphere(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez) {
+    const aex = ax - ex;
+    const bex = bx - ex;
+    const cex = cx - ex;
+    const dex = dx - ex;
+    const aey = ay - ey;
+    const bey = by - ey;
+    const cey = cy - ey;
+    const dey = dy - ey;
+    const aez = az - ez;
+    const bez = bz - ez;
+    const cez = cz - ez;
+    const dez = dz - ez;
+    const aexbey = aex * bey;
+    const bexaey = bex * aey;
+    const ab1 = aexbey - bexaey;
+    const bexcey = bex * cey;
+    const cexbey = cex * bey;
+    const bc1 = bexcey - cexbey;
+    const cexdey = cex * dey;
+    const dexcey = dex * cey;
+    const cd1 = cexdey - dexcey;
+    const dexaey = dex * aey;
+    const aexdey = aex * dey;
+    const da1 = dexaey - aexdey;
+    const aexcey = aex * cey;
+    const cexaey = cex * aey;
+    const ac1 = aexcey - cexaey;
+    const bexdey = bex * dey;
+    const dexbey = dex * bey;
+    const bd1 = bexdey - dexbey;
+    const abc1 = aez * bc1 - bez * ac1 + cez * ab1;
+    const bcd1 = bez * cd1 - cez * bd1 + dez * bc1;
+    const cda1 = cez * da1 + dez * ac1 + aez * cd1;
+    const dab = dez * ab1 + aez * bd1 + bez * da1;
+    const alift = aex * aex + aey * aey + aez * aez;
+    const blift = bex * bex + bey * bey + bez * bez;
+    const clift = cex * cex + cey * cey + cez * cez;
+    const dlift = dex * dex + dey * dey + dez * dez;
+    const det = clift * dab - dlift * abc1 + (alift * bcd1 - blift * cda1);
+    const aezplus = Math.abs(aez);
+    const bezplus = Math.abs(bez);
+    const cezplus = Math.abs(cez);
+    const dezplus = Math.abs(dez);
+    const aexbeyplus = Math.abs(aexbey);
+    const bexaeyplus = Math.abs(bexaey);
+    const bexceyplus = Math.abs(bexcey);
+    const cexbeyplus = Math.abs(cexbey);
+    const cexdeyplus = Math.abs(cexdey);
+    const dexceyplus = Math.abs(dexcey);
+    const dexaeyplus = Math.abs(dexaey);
+    const aexdeyplus = Math.abs(aexdey);
+    const aexceyplus = Math.abs(aexcey);
+    const cexaeyplus = Math.abs(cexaey);
+    const bexdeyplus = Math.abs(bexdey);
+    const dexbeyplus = Math.abs(dexbey);
+    const permanent = ((cexdeyplus + dexceyplus) * bezplus + (dexbeyplus + bexdeyplus) * cezplus + (bexceyplus + cexbeyplus) * dezplus) * alift + ((dexaeyplus + aexdeyplus) * cezplus + (aexceyplus + cexaeyplus) * dezplus + (cexdeyplus + dexceyplus) * aezplus) * blift + ((aexbeyplus + bexaeyplus) * dezplus + (bexdeyplus + dexbeyplus) * aezplus + (dexaeyplus + aexdeyplus) * bezplus) * clift + ((bexceyplus + cexbeyplus) * aezplus + (cexaeyplus + aexceyplus) * bezplus + (aexbeyplus + bexaeyplus) * cezplus) * dlift;
+    const errbound = isperrboundA * permanent;
+    if (det > errbound || -det > errbound) return det;
+    return -insphereadapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez, permanent);
+}
+function inspherefast(pax, pay, paz, pbx, pby, pbz, pcx, pcy, pcz, pdx, pdy, pdz, pex, pey, pez) {
+    const aex = pax - pex;
+    const bex = pbx - pex;
+    const cex = pcx - pex;
+    const dex = pdx - pex;
+    const aey = pay - pey;
+    const bey = pby - pey;
+    const cey = pcy - pey;
+    const dey = pdy - pey;
+    const aez = paz - pez;
+    const bez = pbz - pez;
+    const cez = pcz - pez;
+    const dez = pdz - pez;
+    const ab1 = aex * bey - bex * aey;
+    const bc1 = bex * cey - cex * bey;
+    const cd1 = cex * dey - dex * cey;
+    const da1 = dex * aey - aex * dey;
+    const ac1 = aex * cey - cex * aey;
+    const bd1 = bex * dey - dex * bey;
+    const abc1 = aez * bc1 - bez * ac1 + cez * ab1;
+    const bcd1 = bez * cd1 - cez * bd1 + dez * bc1;
+    const cda1 = cez * da1 + dez * ac1 + aez * cd1;
+    const dab = dez * ab1 + aez * bd1 + bez * da1;
+    const alift = aex * aex + aey * aey + aez * aez;
+    const blift = bex * bex + bey * bey + bez * bez;
+    const clift = cex * cex + cey * cey + cez * cez;
+    const dlift = dex * dex + dey * dey + dez * dez;
+    return clift * dab - dlift * abc1 + (alift * bcd1 - blift * cda1);
+}
+
+},{"./util.js":"2IKZk","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"2XWhB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+const epsilon = 0.000001;
+class Path {
+    constructor(){
+        this._x0 = this._y0 = this._x1 = this._y1 = null; // end of current subpath
+        this._ = "";
+    }
+    moveTo(x, y) {
+        this._ += `M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}`;
+    }
+    closePath() {
+        if (this._x1 !== null) {
+            this._x1 = this._x0, this._y1 = this._y0;
+            this._ += "Z";
+        }
+    }
+    lineTo(x, y) {
+        this._ += `L${this._x1 = +x},${this._y1 = +y}`;
+    }
+    arc(x, y, r) {
+        x = +x, y = +y, r = +r;
+        const x0 = x + r;
+        const y0 = y;
+        if (r < 0) throw new Error("negative radius");
+        if (this._x1 === null) this._ += `M${x0},${y0}`;
+        else if (Math.abs(this._x1 - x0) > epsilon || Math.abs(this._y1 - y0) > epsilon) this._ += "L" + x0 + "," + y0;
+        if (!r) return;
+        this._ += `A${r},${r},0,1,1,${x - r},${y}A${r},${r},0,1,1,${this._x1 = x0},${this._y1 = y0}`;
+    }
+    rect(x, y, w, h) {
+        this._ += `M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}h${+w}v${+h}h${-w}Z`;
+    }
+    value() {
+        return this._ || null;
+    }
+}
+exports.default = Path;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"1mzRd":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class Polygon {
+    constructor(){
+        this._ = [];
+    }
+    moveTo(x, y) {
+        this._.push([
+            x,
+            y
+        ]);
+    }
+    closePath() {
+        this._.push(this._[0].slice());
+    }
+    lineTo(x, y) {
+        this._.push([
+            x,
+            y
+        ]);
+    }
+    value() {
+        return this._.length ? this._ : null;
+    }
+}
+exports.default = Polygon;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"5Jiby":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _pathJs = require("./path.js");
+var _pathJsDefault = parcelHelpers.interopDefault(_pathJs);
+var _polygonJs = require("./polygon.js");
+var _polygonJsDefault = parcelHelpers.interopDefault(_polygonJs);
+class Voronoi {
+    constructor(delaunay, [xmin, ymin, xmax, ymax] = [
+        0,
+        0,
+        960,
+        500
+    ]){
+        if (!((xmax = +xmax) >= (xmin = +xmin)) || !((ymax = +ymax) >= (ymin = +ymin))) throw new Error("invalid bounds");
+        this.delaunay = delaunay;
+        this._circumcenters = new Float64Array(delaunay.points.length * 2);
+        this.vectors = new Float64Array(delaunay.points.length * 2);
+        this.xmax = xmax, this.xmin = xmin;
+        this.ymax = ymax, this.ymin = ymin;
+        this._init();
+    }
+    update() {
+        this.delaunay.update();
+        this._init();
+        return this;
+    }
+    _init() {
+        const { delaunay: { points , hull , triangles  } , vectors  } = this;
+        // Compute circumcenters.
+        const circumcenters = this.circumcenters = this._circumcenters.subarray(0, triangles.length / 3 * 2);
+        for(let i = 0, j = 0, n = triangles.length, x, y; i < n; i += 3, j += 2){
+            const t1 = triangles[i] * 2;
+            const t2 = triangles[i + 1] * 2;
+            const t3 = triangles[i + 2] * 2;
+            const x1 = points[t1];
+            const y1 = points[t1 + 1];
+            const x2 = points[t2];
+            const y2 = points[t2 + 1];
+            const x3 = points[t3];
+            const y3 = points[t3 + 1];
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const ex = x3 - x1;
+            const ey = y3 - y1;
+            const ab = (dx * ey - dy * ex) * 2;
+            if (Math.abs(ab) < 0.000000001) {
+                // degenerate case (collinear diagram)
+                // almost equal points (degenerate triangle)
+                // the circumcenter is at the infinity, in a
+                // direction that is:
+                // 1. orthogonal to the halfedge.
+                let a = 1000000000;
+                // 2. points away from the center; since the list of triangles starts
+                // in the center, the first point of the first triangle
+                // will be our reference
+                const r = triangles[0] * 2;
+                a *= Math.sign((points[r] - x1) * ey - (points[r + 1] - y1) * ex);
+                x = (x1 + x3) / 2 - a * ey;
+                y = (y1 + y3) / 2 + a * ex;
+            } else {
+                const d = 1 / ab;
+                const bl = dx * dx + dy * dy;
+                const cl = ex * ex + ey * ey;
+                x = x1 + (ey * bl - dy * cl) * d;
+                y = y1 + (dx * cl - ex * bl) * d;
+            }
+            circumcenters[j] = x;
+            circumcenters[j + 1] = y;
+        }
+        // Compute exterior cell rays.
+        let h = hull[hull.length - 1];
+        let p0, p1 = h * 4;
+        let x0, x1 = points[2 * h];
+        let y0, y1 = points[2 * h + 1];
+        vectors.fill(0);
+        for(let i1 = 0; i1 < hull.length; ++i1){
+            h = hull[i1];
+            p0 = p1, x0 = x1, y0 = y1;
+            p1 = h * 4, x1 = points[2 * h], y1 = points[2 * h + 1];
+            vectors[p0 + 2] = vectors[p1] = y0 - y1;
+            vectors[p0 + 3] = vectors[p1 + 1] = x1 - x0;
+        }
+    }
+    render(context) {
+        const buffer = context == null ? context = new _pathJsDefault.default : undefined;
+        const { delaunay: { halfedges , inedges , hull  } , circumcenters , vectors  } = this;
+        if (hull.length <= 1) return null;
+        for(let i = 0, n = halfedges.length; i < n; ++i){
+            const j = halfedges[i];
+            if (j < i) continue;
+            const ti = Math.floor(i / 3) * 2;
+            const tj = Math.floor(j / 3) * 2;
+            const xi = circumcenters[ti];
+            const yi = circumcenters[ti + 1];
+            const xj = circumcenters[tj];
+            const yj = circumcenters[tj + 1];
+            this._renderSegment(xi, yi, xj, yj, context);
+        }
+        let h0, h1 = hull[hull.length - 1];
+        for(let i1 = 0; i1 < hull.length; ++i1){
+            h0 = h1, h1 = hull[i1];
+            const t = Math.floor(inedges[h1] / 3) * 2;
+            const x = circumcenters[t];
+            const y = circumcenters[t + 1];
+            const v = h0 * 4;
+            const p = this._project(x, y, vectors[v + 2], vectors[v + 3]);
+            if (p) this._renderSegment(x, y, p[0], p[1], context);
+        }
+        return buffer && buffer.value();
+    }
+    renderBounds(context) {
+        const buffer = context == null ? context = new _pathJsDefault.default : undefined;
+        context.rect(this.xmin, this.ymin, this.xmax - this.xmin, this.ymax - this.ymin);
+        return buffer && buffer.value();
+    }
+    renderCell(i, context) {
+        const buffer = context == null ? context = new _pathJsDefault.default : undefined;
+        const points = this._clip(i);
+        if (points === null || !points.length) return;
+        context.moveTo(points[0], points[1]);
+        let n = points.length;
+        while(points[0] === points[n - 2] && points[1] === points[n - 1] && n > 1)n -= 2;
+        for(let i = 2; i < n; i += 2)if (points[i] !== points[i - 2] || points[i + 1] !== points[i - 1]) context.lineTo(points[i], points[i + 1]);
+        context.closePath();
+        return buffer && buffer.value();
+    }
+    *cellPolygons() {
+        const { delaunay: { points  }  } = this;
+        for(let i = 0, n = points.length / 2; i < n; ++i){
+            const cell = this.cellPolygon(i);
+            if (cell) cell.index = i, yield cell;
+        }
+    }
+    cellPolygon(i) {
+        const polygon = new _polygonJsDefault.default;
+        this.renderCell(i, polygon);
+        return polygon.value();
+    }
+    _renderSegment(x0, y0, x1, y1, context) {
+        let S;
+        const c0 = this._regioncode(x0, y0);
+        const c1 = this._regioncode(x1, y1);
+        if (c0 === 0 && c1 === 0) {
+            context.moveTo(x0, y0);
+            context.lineTo(x1, y1);
+        } else if (S = this._clipSegment(x0, y0, x1, y1, c0, c1)) {
+            context.moveTo(S[0], S[1]);
+            context.lineTo(S[2], S[3]);
+        }
+    }
+    contains(i, x, y) {
+        if ((x = +x, x !== x) || (y = +y, y !== y)) return false;
+        return this.delaunay._step(i, x, y) === i;
+    }
+    *neighbors(i) {
+        const ci = this._clip(i);
+        if (ci) for (const j of this.delaunay.neighbors(i)){
+            const cj = this._clip(j);
+            // find the common edge
+            if (cj) loop: for(let ai = 0, li = ci.length; ai < li; ai += 2){
+                for(let aj = 0, lj = cj.length; aj < lj; aj += 2)if (ci[ai] == cj[aj] && ci[ai + 1] == cj[aj + 1] && ci[(ai + 2) % li] == cj[(aj + lj - 2) % lj] && ci[(ai + 3) % li] == cj[(aj + lj - 1) % lj]) {
+                    yield j;
+                    break loop;
+                }
+            }
+        }
+    }
+    _cell(i) {
+        const { circumcenters , delaunay: { inedges , halfedges , triangles  }  } = this;
+        const e0 = inedges[i];
+        if (e0 === -1) return null; // coincident point
+        const points = [];
+        let e = e0;
+        do {
+            const t = Math.floor(e / 3);
+            points.push(circumcenters[t * 2], circumcenters[t * 2 + 1]);
+            e = e % 3 === 2 ? e - 2 : e + 1;
+            if (triangles[e] !== i) break; // bad triangulation
+            e = halfedges[e];
+        }while (e !== e0 && e !== -1)
+        return points;
+    }
+    _clip(i) {
+        // degenerate case (1 valid point: return the box)
+        if (i === 0 && this.delaunay.hull.length === 1) return [
+            this.xmax,
+            this.ymin,
+            this.xmax,
+            this.ymax,
+            this.xmin,
+            this.ymax,
+            this.xmin,
+            this.ymin
+        ];
+        const points = this._cell(i);
+        if (points === null) return null;
+        const { vectors: V  } = this;
+        const v = i * 4;
+        return V[v] || V[v + 1] ? this._clipInfinite(i, points, V[v], V[v + 1], V[v + 2], V[v + 3]) : this._clipFinite(i, points);
+    }
+    _clipFinite(i, points) {
+        const n = points.length;
+        let P = null;
+        let x0, y0, x1 = points[n - 2], y1 = points[n - 1];
+        let c0, c1 = this._regioncode(x1, y1);
+        let e0, e1 = 0;
+        for(let j = 0; j < n; j += 2){
+            x0 = x1, y0 = y1, x1 = points[j], y1 = points[j + 1];
+            c0 = c1, c1 = this._regioncode(x1, y1);
+            if (c0 === 0 && c1 === 0) {
+                e0 = e1, e1 = 0;
+                if (P) P.push(x1, y1);
+                else P = [
+                    x1,
+                    y1
+                ];
+            } else {
+                let S, sx0, sy0, sx1, sy1;
+                if (c0 === 0) {
+                    if ((S = this._clipSegment(x0, y0, x1, y1, c0, c1)) === null) continue;
+                    [sx0, sy0, sx1, sy1] = S;
+                } else {
+                    if ((S = this._clipSegment(x1, y1, x0, y0, c1, c0)) === null) continue;
+                    [sx1, sy1, sx0, sy0] = S;
+                    e0 = e1, e1 = this._edgecode(sx0, sy0);
+                    if (e0 && e1) this._edge(i, e0, e1, P, P.length);
+                    if (P) P.push(sx0, sy0);
+                    else P = [
+                        sx0,
+                        sy0
+                    ];
+                }
+                e0 = e1, e1 = this._edgecode(sx1, sy1);
+                if (e0 && e1) this._edge(i, e0, e1, P, P.length);
+                if (P) P.push(sx1, sy1);
+                else P = [
+                    sx1,
+                    sy1
+                ];
+            }
+        }
+        if (P) {
+            e0 = e1, e1 = this._edgecode(P[0], P[1]);
+            if (e0 && e1) this._edge(i, e0, e1, P, P.length);
+        } else if (this.contains(i, (this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2)) return [
+            this.xmax,
+            this.ymin,
+            this.xmax,
+            this.ymax,
+            this.xmin,
+            this.ymax,
+            this.xmin,
+            this.ymin
+        ];
+        return P;
+    }
+    _clipSegment(x0, y0, x1, y1, c0, c1) {
+        while(true){
+            if (c0 === 0 && c1 === 0) return [
+                x0,
+                y0,
+                x1,
+                y1
+            ];
+            if (c0 & c1) return null;
+            let x, y, c = c0 || c1;
+            if (c & 8) x = x0 + (x1 - x0) * (this.ymax - y0) / (y1 - y0), y = this.ymax;
+            else if (c & 4) x = x0 + (x1 - x0) * (this.ymin - y0) / (y1 - y0), y = this.ymin;
+            else if (c & 2) y = y0 + (y1 - y0) * (this.xmax - x0) / (x1 - x0), x = this.xmax;
+            else y = y0 + (y1 - y0) * (this.xmin - x0) / (x1 - x0), x = this.xmin;
+            if (c0) x0 = x, y0 = y, c0 = this._regioncode(x0, y0);
+            else x1 = x, y1 = y, c1 = this._regioncode(x1, y1);
+        }
+    }
+    _clipInfinite(i, points, vx0, vy0, vxn, vyn) {
+        let P = Array.from(points), p;
+        if (p = this._project(P[0], P[1], vx0, vy0)) P.unshift(p[0], p[1]);
+        if (p = this._project(P[P.length - 2], P[P.length - 1], vxn, vyn)) P.push(p[0], p[1]);
+        if (P = this._clipFinite(i, P)) for(let j = 0, n = P.length, c0, c1 = this._edgecode(P[n - 2], P[n - 1]); j < n; j += 2){
+            c0 = c1, c1 = this._edgecode(P[j], P[j + 1]);
+            if (c0 && c1) j = this._edge(i, c0, c1, P, j), n = P.length;
+        }
+        else if (this.contains(i, (this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2)) P = [
+            this.xmin,
+            this.ymin,
+            this.xmax,
+            this.ymin,
+            this.xmax,
+            this.ymax,
+            this.xmin,
+            this.ymax
+        ];
+        return P;
+    }
+    _edge(i, e0, e1, P, j) {
+        while(e0 !== e1){
+            let x, y;
+            switch(e0){
+                case 5:
+                    e0 = 4;
+                    continue; // top-left
+                case 4:
+                    e0 = 6, x = this.xmax, y = this.ymin;
+                    break; // top
+                case 6:
+                    e0 = 2;
+                    continue; // top-right
+                case 2:
+                    e0 = 10, x = this.xmax, y = this.ymax;
+                    break; // right
+                case 10:
+                    e0 = 8;
+                    continue; // bottom-right
+                case 8:
+                    e0 = 9, x = this.xmin, y = this.ymax;
+                    break; // bottom
+                case 9:
+                    e0 = 1;
+                    continue; // bottom-left
+                case 1:
+                    e0 = 5, x = this.xmin, y = this.ymin;
+                    break; // left
+            }
+            // Note: this implicitly checks for out of bounds: if P[j] or P[j+1] are
+            // undefined, the conditional statement will be executed.
+            if ((P[j] !== x || P[j + 1] !== y) && this.contains(i, x, y)) P.splice(j, 0, x, y), j += 2;
+        }
+        if (P.length > 4) for(let i = 0; i < P.length; i += 2){
+            const j = (i + 2) % P.length, k = (i + 4) % P.length;
+            if (P[i] === P[j] && P[j] === P[k] || P[i + 1] === P[j + 1] && P[j + 1] === P[k + 1]) P.splice(j, 2), i -= 2;
+        }
+        return j;
+    }
+    _project(x0, y0, vx, vy) {
+        let t = Infinity, c, x, y;
+        if (vy < 0) {
+            if (y0 <= this.ymin) return null;
+            if ((c = (this.ymin - y0) / vy) < t) y = this.ymin, x = x0 + (t = c) * vx;
+        } else if (vy > 0) {
+            if (y0 >= this.ymax) return null;
+            if ((c = (this.ymax - y0) / vy) < t) y = this.ymax, x = x0 + (t = c) * vx;
+        }
+        if (vx > 0) {
+            if (x0 >= this.xmax) return null;
+            if ((c = (this.xmax - x0) / vx) < t) x = this.xmax, y = y0 + (t = c) * vy;
+        } else if (vx < 0) {
+            if (x0 <= this.xmin) return null;
+            if ((c = (this.xmin - x0) / vx) < t) x = this.xmin, y = y0 + (t = c) * vy;
+        }
+        return [
+            x,
+            y
+        ];
+    }
+    _edgecode(x, y) {
+        return (x === this.xmin ? 1 : x === this.xmax ? 2 : 0) | (y === this.ymin ? 4 : y === this.ymax ? 8 : 0);
+    }
+    _regioncode(x, y) {
+        return (x < this.xmin ? 1 : x > this.xmax ? 2 : 0) | (y < this.ymin ? 4 : y > this.ymax ? 8 : 0);
+    }
+}
+exports.default = Voronoi;
+
+},{"./path.js":"2XWhB","./polygon.js":"1mzRd","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}]},["1JC1Z","39pCf"], "39pCf", "parcelRequiref51f")
 
 //# sourceMappingURL=index.824b0574.js.map

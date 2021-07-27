@@ -12,7 +12,6 @@ export const TAU = Math.PI * 2;
 
 // 2.7182818284590452353602874713527
 export const E = 2.718; // Euler's number rounded of to 3 places
-
 export const { abs } = Math;
 export const { sin } = Math;
 export const { cos } = Math;
